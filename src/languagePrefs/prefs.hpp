@@ -59,31 +59,31 @@
 #define mySTC_FLAG_WRAPMODE 16
 
 struct CommonInfo {
-    bool syntaxEnable;
-    bool foldEnable;
-    bool indentEnable;
-    bool readOnlyInitial;
-    bool overTypeInitial;
-    bool wrapModeInitial;
-    bool displayEOLEnable;
-    bool indentGuideEnable;
-    bool lineNumberEnable;
-    bool longLineOnEnable;
-    bool whiteSpaceEnable;
+	bool syntaxEnable;
+	bool foldEnable;
+	bool indentEnable;
+	bool readOnlyInitial;
+	bool overTypeInitial;
+	bool wrapModeInitial;
+	bool displayEOLEnable;
+	bool indentGuideEnable;
+	bool lineNumberEnable;
+	bool longLineOnEnable;
+	bool whiteSpaceEnable;
 };
 
 extern const CommonInfo g_CommonPrefs;
 
 struct LanguageInfo {
-    const char *name;
-    const char *filepattern;
-    int lexer;
-    struct {
-        int type;
-        const char *words;
-    } styles [STYLE_TYPES_COUNT];
-    int folds;
-    wxString icon_path;
+	const char* name;
+	const char* filepattern;
+	int lexer;
+	struct {
+		int type;
+		const char* words;
+	} styles[STYLE_TYPES_COUNT];
+	int folds;
+	wxString icon_path;
 };
 
 extern const LanguageInfo languages_prefs[];

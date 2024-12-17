@@ -4,10 +4,10 @@
 using json = nlohmann::json;
 
 class UserConfig {
-	std::string config_path = 
-	wxStandardPaths::Get()
+	std::string config_path =
+		wxStandardPaths::Get()
 		.GetUserConfigDir()
-		.ToStdString()+"/.thundercode/userconfig.json";
+		.ToStdString() + "/.kraftaEditor/userconfig.json";
 public:
 	json Get();
 	bool Update(json new_data);
