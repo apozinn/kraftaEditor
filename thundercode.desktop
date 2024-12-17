@@ -1,9 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=ThunderCode
-GenericName=ThunderCode
-Comment=A code-editor for everything you need
-Icon=thundercode
-Exec=thundercode
-Path=/opt/thundercode
-Categories=Development;Building;

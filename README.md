@@ -1,5 +1,5 @@
 <div align="center">
-<img  src="https://raw.githubusercontent.com/apozinn/kraftaeditor/refs/heads/main/assets/kraftaEditor.png">
+<img width="200" src="https://raw.githubusercontent.com/apozinn/kraftaeditor/refs/heads/main/assets/kraftaEditor.png">
 </div>
 
 <p align="center" style="font-size: 40px; font-weight: bold">Krafta Editor</p>
