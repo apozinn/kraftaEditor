@@ -1,8 +1,8 @@
 <div align="center">
-<img width="200" src="https://raw.githubusercontent.com/apozinn/kraftaeditor/refs/heads/main/assets/kraftaEditor.png">
+<img width="200" src="https://raw.githubusercontent.com/apozinn/kraftaEditor/refs/heads/main/assets/kraftaEditor.png">
 </div>
 
-<p align="center" style="font-size: 40px; font-weight: bold">Krafta Editor</p>
+**<p align="center" style="font-size: 40px; font-weight: bold">Krafta Editor</p>**
 
 <p align="center">Fast, lightweight and cross-platform</p>
 
@@ -24,4 +24,4 @@ Any help that will improve and implement the project is welcome. Feel free to se
 
 Copyright (c) Okarin Softwares. All rights reserved.
 
-Licensed under the [GNU LGPLv3](https://github.com/apozinn/kraftaeditor/blob/main/LICENSE) license.
+Licensed under the [GNU LGPLv3](https://github.com/apozinn/kraftaEditor/blob/main/LICENSE) license.
