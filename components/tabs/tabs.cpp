@@ -205,91 +205,23 @@ void Tabs::Close(wxWindow* tab, wxString tab_path)
 	tabs_container->GetSizer()->Layout();
 	tabs_container->FitInside();
 	main_code->GetSizer()->Layout();
-
-
-
-
-	//if (codeContainer || imgContainer && tabs_container)
-	//{
-	//	for (auto& tab : tabs_container->GetChildren())
-	//	{
-	//		if (tab->GetName() == tab_path)
-	//		{
-	//			auto main_code = FindWindowById(ID_MAIN_CODE);
-	//			if (tab_path == current_openned_path)
-	//			{
-	//				auto prev_tab = tab->GetPrevSibling();
-	//				auto next_tab = tab->GetNextSibling();
-
-	//				if (prev_tab)
-	//				{
-	//					current_openned_path = prev_tab->GetName();
-	//				}
-	//				else if (next_tab)
-	//				{
-	//					current_openned_path = next_tab->GetName();
-	//				}
-
-	//				auto file_ctn = FindWindowByLabel(current_openned_path + "_file_container");
-	//				if (file_ctn)
-	//				{
-	//					if (fileContainer)
-	//					{
-	//						if (!prev_tab && !next_tab)
-	//						{
-	//							//wxLogMessage(fileContainer->selectedFile->GetName());
-	//							//fileContainer->selectedFile->SetBackgroundColour(wxColor(45, 45, 45));
-	//						}
-	//						else
-	//						{
-	//							fileContainer->selectedFile->SetBackgroundColour(wxColor(45, 45, 45));
-	//							fileContainer->SetSelectedFile(file_ctn);
-	//							file_ctn->SetBackgroundColour(wxColor(60, 60, 60));
-	//						}
-	//					}
-	//				}
-
-	//				auto other_codeContainer = ((CodeContainer*)FindWindowByName(current_openned_path + "_codeContainer"));
-	//				if (other_codeContainer)
-	//					other_codeContainer->Show();
-
-	//				auto new_imageContainer = FindWindowByLabel(current_openned_path + "_imgContainer");
-	//				if (new_imageContainer)
-	//					new_imageContainer->Show();
-
-	//				if (!prev_tab && !next_tab)
-	//				{
-	//					this->Hide();
-	//					FindWindowById(ID_EMPYT_WINDOW)->Show();
-	//					((StatusBar*)FindWindowById(ID_STATUS_BAR))->ClearLabels();
-	//					//fileContainer->selectedFile->SetBackgroundColour(wxColor(45, 45, 45));
-	//					//fileContainer->selectedFile = NULL;
-	//				}
-	//			}
-
-	//			tab->Destroy();
-	//			tabs_container->GetSizer()->Layout();
-	//			tabs_container->FitInside();
-	//			tabs_container->Update();
-	//			main_code->GetSizer()->Layout();
-	//			main_code->Update();
-	//		}
-	//	}
-	//}
 }
 
 void Tabs::CloseAll()
 {
 	auto main_code = FindWindowById(ID_MAIN_CODE);
+
 	tabs_container->DestroyChildren();
 	Hide();
-	for (auto&& other_ct : main_code->GetChildren())
+
+	/*for (auto&& other_ct : main_code->GetChildren())
 	{
 		if (other_ct->GetId() != ID_TABS &&
 			other_ct->GetId() != ID_EMPYT_WINDOW)
 			other_ct->Destroy();
-	}
-	FindWindowById(ID_EMPYT_WINDOW)->Show();
+	}*/
+
+	if (auto emptyWindow = FindWindowById(ID_EMPYT_WINDOW)) emptyWindow->Show(); 
 }
 
 void Tabs::Select() {

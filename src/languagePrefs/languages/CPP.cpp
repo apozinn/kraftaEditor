@@ -11,13 +11,13 @@ const char* CppWordlist1 =
 "typename union unsigned using virtual void volatile wchar_t "
 "while";
 const char* CppWordlist2 =
-"file this #include";
+"file this";
 const char* CppWordlist3 =
 "a addindex addtogroup anchor arg attention author b brief bug c "
 "class code date def defgroup deprecated dontinclude e em endcode "
 "endhtmlonly endif endlatexonly endlink endverbatim enum example "
 "exception f$ f[ f] file fn hideinitializer htmlinclude "
-"htmlonly if image include ingroup internal invariant interface "
+"htmlonly if image ingroup internal invariant interface "
 "latexonly li line link mainpage name namespace nosubgrouping note "
 "overload p page par param post pre ref relates remarks return "
 "retval sa section see showinitializer since skip skipline struct "
@@ -48,7 +48,7 @@ const LanguageInfo CPP_PREFS = {
 		{mySTC_TYPE_WORD2, CppWordlist2}, // EXTRA WORDS
 		{mySTC_TYPE_WORD3, CppWordlist3}, // DOXY KEYWORDS
 		{mySTC_TYPE_ERROR, nullptr}, // KEYWORDS ERROR
-		{-1, nullptr},
+		{ -1, nullptr },
 		{-1, nullptr},
 		{-1, nullptr},
 		{-1, nullptr},

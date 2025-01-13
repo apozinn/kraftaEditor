@@ -198,6 +198,9 @@ void MainFrame::AddEntry(wxFSWPathType type, wxString filename)
 		prefix = "Tree: ";
 		break;
 	case wxFSWPath_File:
+		ok = m_watcher->Add(fn);
+		prefix = "File: ";
+		break;
 	case wxFSWPath_None:
 		wxFAIL_MSG("Unexpected path type.");
 	}
@@ -205,10 +208,6 @@ void MainFrame::AddEntry(wxFSWPathType type, wxString filename)
 
 void MainFrame::OnFileSystemEvent(wxFileSystemWatcherEvent& event)
 {
-
-	icons_dir = GetAppDirs("icons");
-	assetsDir = GetAppDirs("assets");
-
 	wxString type = GetFSWEventChangeTypeName(event.GetChangeType());
 	if (type != "ACCESS")
 	{
@@ -250,6 +249,7 @@ void MainFrame::OnOpenFile(wxCommandEvent& WXUNUSED(event))
 	if (path.size())
 	{
 		files_tree->OpenFile(path);
+		AddEntry(wxFSWPath_File, path);
 	}
 }
 
@@ -421,8 +421,10 @@ void MainFrame::ToggleControlPanel(wxCommandEvent& event)
 
 bool MainFrame::LoadPath(wxString path)
 {
-	project_path = path;
+	if (!wxFileName(path).DirExists()) return false;
+
 	project_name = wxFileNameFromPath(path.substr(0, path.size() - 1));
+	project_path = path;
 
 	wxConfig* config = new wxConfig("krafta-editor");
 	config->Write("workspace", path);

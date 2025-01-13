@@ -18,12 +18,18 @@ CodeContainer::CodeContainer(
 
 	SetSizerAndFit(sizer);
 
-	font = wxFont(10, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
-	//font.SetFaceName(wxT("Monospace"));
+	if (__WXWINDOWS__) {
+		font = wxFont(wxFontInfo(10).FaceName("Cascadia Code"));
+	}
+	else {
+		font = wxFont(wxFontInfo(10).FaceName("Monospace"));
+	}
+
 
 	LoadPath(path);
 	SetName(path + "_codeContainer");
 	SetLabel(path);
+	currentPath = path;
 
 	wxAcceleratorEntry entries[1];
 	entries[0].Set(wxACCEL_CTRL, WXK_CONTROL_S, wxID_SAVE);
@@ -145,6 +151,8 @@ bool CodeContainer::InitializePrefs(wxString name)
 			}
 		}
 	}
+
+	codeEditor->Colourise(0, 100);
 	return true;
 }
 
@@ -156,10 +164,6 @@ void CodeContainer::CodeEditorInitPrefs()
 	codeEditor->SetTabIndents(true);
 	codeEditor->SetBackSpaceUnIndents(true);
 	codeEditor->SetIndentationGuides(true);
-
-	codeEditor->StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(31, 31, 31));
-	codeEditor->StyleSetForeground(wxSTC_STYLE_DEFAULT, wxColor(221, 221, 221));
-	codeEditor->StyleSetFont(wxSTC_STYLE_DEFAULT, font);
 
 	codeEditor->StyleClearAll();
 	codeEditor->SetCaretForeground(wxColour(wxT("WHITE")));
@@ -299,6 +303,7 @@ void CodeContainer::OnSave(wxCommandEvent& event)
 						auto icon = ((wxStaticBitmap*)tab->GetChildren()[0]->GetChildren()[2]);
 						icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(icons_dir + "close.png", wxBITMAP_TYPE_PNG)));
 						tab->GetSizer()->Layout();
+						changed = false;
 					}
 				}
 			}
@@ -321,21 +326,19 @@ void CodeContainer::OnMarginClick(wxStyledTextEvent& event)
 
 void CodeContainer::OnChange(wxStyledTextEvent& event)
 {
-	wxString key = event.GetText();
-	if (codeEditor->GetModify())
-	{
-		for (auto&& tab : FindWindowById(ID_TABS_CONTAINER)->GetChildren())
-		{
-			if (tab->GetName() == GetLabel())
+	if (changed == false && codeEditor->GetModify()) {
+
+		auto tab = FindWindowByLabel(currentPath + "_tab");
+		if (tab) {
+			auto icon = ((wxStaticBitmap*)tab->GetChildren()[0]->GetChildren()[2]);
+			if (icon)
 			{
-				auto icon = ((wxStaticBitmap*)tab->GetChildren()[0]->GetChildren()[2]);
-				if (icon)
-				{
-					icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(icons_dir + "white_circle.png", wxBITMAP_TYPE_PNG)));
-				}
+				icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(icons_dir + "white_circle.png", wxBITMAP_TYPE_PNG)));
 			}
 		}
+		changed = true;
 	}
+
 	status_bar->UpdateCodeLocale(codeEditor);
 }
 

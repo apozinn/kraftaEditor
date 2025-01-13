@@ -117,9 +117,6 @@ void FilesTree::CreateFile(
 
 	wxPanel* file_container = new wxPanel(parent);
 
-	file_container->Bind(wxEVT_ENTER_WINDOW, &FilesTree::OnEnterComp, this);
-	file_container->Bind(wxEVT_LEAVE_WINDOW, &FilesTree::OnLeaveComp, this);
-
 	file_container->Bind(wxEVT_RIGHT_UP, &FilesTree::onFileRightClick, this);
 	file_container->SetMinSize(wxSize(file_container->GetSize().GetWidth(), 20));
 	file_container->SetSize(file_container->GetSize().GetWidth(), 20);
@@ -191,6 +188,7 @@ void FilesTree::CreateFile(
 	file_ctn_sizer->Add(file_icon, 0, wxALIGN_CENTRE_VERTICAL | wxLEFT, 8);
 
 	wxStaticText* file_name = new wxStaticText(file_container, wxID_ANY, name);
+
 	file_name->SetName(path);
 	file_name->Bind(wxEVT_LEFT_UP, &FilesTree::OnFileSelect, this);
 	file_name->Bind(wxEVT_RIGHT_UP, &FilesTree::onFileRightClick, this);
@@ -199,6 +197,11 @@ void FilesTree::CreateFile(
 
 	parentSizer->Add(file_container, 0, wxEXPAND | wxLEFT | wxTOP, 2);
 	parentSizer->Layout();
+
+	file_container->CallForEachChild([=](wxWindow* win) {
+		win->Bind(wxEVT_ENTER_WINDOW, &FilesTree::OnEnterComp, this);
+		win->Bind(wxEVT_LEAVE_WINDOW, &FilesTree::OnLeaveComp, this);
+		});
 }
 
 void FilesTree::CreateDir(
@@ -214,9 +217,6 @@ void FilesTree::CreateDir(
 	wxPanel* dir_container = new wxPanel(parent);
 	//dir_container->SetBackgroundColour(wxColor(randomInt(0, 255), randomInt(0, 255), randomInt(0, 255)));
 
-	dir_container->Bind(wxEVT_ENTER_WINDOW, &FilesTree::OnEnterComp, this);
-	dir_container->Bind(wxEVT_LEAVE_WINDOW, &FilesTree::OnLeaveComp, this);
-
 	dir_container->SetMinSize(wxSize(dir_container->GetSize().GetWidth(), 20));
 	dir_container->SetSize(dir_container->GetSize().GetWidth(), 20);
 	dir_container->SetName(path);
@@ -225,10 +225,6 @@ void FilesTree::CreateDir(
 
 	wxPanel* dir_props = new wxPanel(dir_container);
 	dir_props->SetLabel("dir_props");
-
-	dir_props->Bind(wxEVT_LEFT_UP, [&, dir_container, path](wxMouseEvent event) {
-		bool result = Load(dir_container, path.ToStdString());
-		});
 
 	dir_props->Bind(wxEVT_RIGHT_UP, &FilesTree::onDirRightClick, this);
 
@@ -249,8 +245,21 @@ void FilesTree::CreateDir(
 
 	wxPanel* dir_childrens = new wxPanel(dir_container);
 	dir_childrens->SetLabel(path + "_dir_childrens");
-	dir_childrens->SetSize(100, 100);
-	dir_childrens->Bind(wxEVT_PAINT, &FilesTree::OnPaint, ((FilesTree*)dir_childrens));
+
+	//event to draw a dotted line next side to the dir childrens
+	dir_childrens->Bind(wxEVT_PAINT, [=](wxPaintEvent& event) {
+		auto target = ((wxPanel*)event.GetEventObject());
+		if (!target) return;
+
+		auto borderColor = Themes["dark"]["borderColor"].template get<std::string>();
+		wxColour color = wxColour(borderColor);
+		wxPaintDC dc(target);
+
+		dc.SetPen(wxPen(wxColor(color), 1.25, wxPENSTYLE_DOT));
+		dc.SetBrush(color);
+		dc.DrawLine(wxPoint(0, 0), wxPoint(0, target->GetSize().y));
+		});
+
 	wxBoxSizer* dir_childrens_sizer = new wxBoxSizer(wxVERTICAL);
 	dir_childrens->SetSizerAndFit(dir_childrens_sizer);
 	dir_ctn_sizer->Add(dir_childrens, 0, wxEXPAND | wxLEFT, 10);
@@ -265,18 +274,22 @@ void FilesTree::CreateDir(
 void FilesTree::OnFileSelect(wxMouseEvent& event)
 {
 	auto file = ((wxWindow*)event.GetEventObject());
-	if (file->GetLabel().find("file_container") == std::string::npos)
-		file = file->GetParent();
+	auto selectedFileColor = Themes["dark"]["selectedFileColor"].template get<std::string>();
+	auto mainColor = Themes["dark"]["main"].template get<std::string>();
 	wxString path = file->GetName();
+
+	if (file->GetLabel().find("file_container") == std::string::npos) {
+		file = file->GetParent();
+	}
 
 	if (path.size())
 	{
 		if (selectedFile)
 		{
-			selectedFile->SetBackgroundColour(wxColor(45, 45, 45));
+			selectedFile->SetBackgroundColour(wxColor(mainColor));
 		}
 		selectedFile = file;
-		selectedFile->SetBackgroundColour(wxColor(60, 60, 60));
+		selectedFile->SetBackgroundColour(wxColor(selectedFileColor));
 		OpenFile(path);
 	}
 }
@@ -342,6 +355,7 @@ void FilesTree::OpenFile(wxString path)
 	else LoadCodeContainer();
 
 	//updating main container
+	project_files_ctn->Update();
 	mainCode->GetSizer()->Layout();
 }
 
@@ -474,38 +488,26 @@ void FilesTree::onDirRightClick(wxMouseEvent& event)
 void FilesTree::OnPaint(wxPaintEvent& event)
 {
 	auto target = ((wxPanel*)event.GetEventObject());
+	if (target->GetId() == ID_FILES_TREE) return;
+
+	json nThemes = UserConfig().GetThemes();
+	auto border_color = nThemes["dark"]["selectedFileColor"].template get<std::string>();
+
 	wxClientDC dc(this);
 	wxGraphicsContext* gc = wxGraphicsContext::Create(dc);
-	if (!gc)
-		return;
+	if (!gc) return;
 
-	if (target->GetId() == ID_FILES_TREE)
+	if (target->GetId() == ID_SEARCH_FILES)
 	{
-	}
-	else if (target->GetId() == ID_SEARCH_FILES)
-	{
-		auto border_color = Themes["dark"]["borderColor"].template get<std::string>();
 		dc.SetPen(wxPen(wxColor(border_color), 0.20));
 		dc.DrawLine(0, target->GetPosition().y, target->GetSize().GetWidth(), target->GetPosition().y);
 		dc.DrawLine(0, target->GetPosition().y + target->GetSize().GetHeight(), target->GetSize().GetWidth(), target->GetPosition().y + target->GetSize().GetHeight());
 	}
 	else if (target->GetId() == ID_FILES_TREE_TOP_CONTENT)
 	{
-		auto border_color = Themes["dark"]["borderColor"].template get<std::string>();
 		dc.SetPen(wxPen(wxColor(border_color), 0.20));
 		dc.DrawLine(target->GetSize().GetWidth(), target->GetSize().GetHeight() - 10, 0, target->GetSize().GetHeight() - 10);
 	}
-	else
-	{
-		gc->SetPen(gc->CreatePen(wxGraphicsPenInfo(wxColor(128, 128, 128)).Width(1.25).Style(wxPENSTYLE_DOT)));
-		gc->SetBrush(wxColor(128, 128, 128));
-
-		wxGraphicsPath path = gc->CreatePath();
-		path.MoveToPoint(0.0, 0.0);
-		path.AddLineToPoint(0.0, static_cast<double>(target->GetSize().GetHeight()));
-		gc->StrokePath(path);
-	}
-
 	delete gc;
 }
 
@@ -513,13 +515,12 @@ void FilesTree::FitContainer(wxWindow* window)
 {
 	wxWindow* parent = window;
 	while (parent->GetId() != ID_PROJECT_FILES_CTN) {
-		parent->SetSize(wxSize(parent->GetBestSize()));
 		parent->SetMinSize(wxSize(parent->GetBestSize()));
+		parent->SetSize(wxSize(parent->GetBestSize()));
 
 		parent->GetSizer()->Layout();
 		parent = parent->GetParent();
 	}
-
 	project_files_ctn->GetSizer()->Layout();
 	project_files_ctn->FitInside();
 }
@@ -599,7 +600,7 @@ void FilesTree::OnTreeModifyed(wxString old_path, wxString new_path)
 	{
 		if (parent->GetId() != ID_PROJECT_FILES_CTN)
 			parent = parent->GetChildren()[1];
-		//parent->DestroyChildren();
+		parent->DestroyChildren();
 		Load(parent, parent_path.ToStdString() + "/");
 		FitContainer(parent);
 	}
@@ -607,30 +608,34 @@ void FilesTree::OnTreeModifyed(wxString old_path, wxString new_path)
 
 void FilesTree::OnEnterComp(wxMouseEvent& event)
 {
+	//event to set an accent color for the component on mouse focus
 	auto target = ((wxWindow*)event.GetEventObject());
-	auto background_color = Themes["dark"]["main"].template get<std::string>();
-	auto highlight = Themes["dark"]["highlight"].template get<std::string>();
-
-	if (target)
-	{
-		if (target->GetGrandParent()->GetBackgroundColour() == wxColour(highlight))
-		{
-			target->GetGrandParent()->SetBackgroundColour(wxColor(background_color));
-		}
-		target->SetBackgroundColour(wxColor(highlight));
+	if (selectedFile) {
+		if (selectedFile->GetName() == target->GetName()) return;
 	}
+	auto color = Themes["dark"]["borderColor"].template get<std::string>();
+
+	auto fileContainer = FindWindowByLabel(target->GetName() + "_file_container");
+	if (!fileContainer) return;
+
+	fileContainer->SetBackgroundColour(wxColor(color));
+	fileContainer->Refresh();
 }
 
 void FilesTree::OnLeaveComp(wxMouseEvent& event)
 {
+	//event to set a color for the component outside of mouse focus
 	auto target = ((wxWindow*)event.GetEventObject());
-	auto background_color = Themes["dark"]["main"].template get<std::string>();
-	if (target)
-	{
-		if (selectedFile == target)
-			return;
-		target->SetBackgroundColour(wxColor(background_color));
+	if (selectedFile) {
+		if (selectedFile->GetName() == target->GetName()) return;
 	}
+	auto color = Themes["dark"]["main"].template get<std::string>();
+
+	auto fileContainer = FindWindowByLabel(target->GetName() + "_file_container");
+	if (!fileContainer) return;
+
+	fileContainer->SetBackgroundColour(wxColor(color));
+	fileContainer->Refresh();
 }
 
 void FilesTree::OnFileRename(wxCommandEvent& event)

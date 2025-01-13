@@ -4,7 +4,7 @@
 
 **<p align="center" style="font-size: 40px; font-weight: bold">Krafta Editor</p>**
 
-<p align="center">Fast, lightweight and cross-platform</p>
+<p align="center">Fast, lightweight and cross-platform code editor</p>
 
 #
 

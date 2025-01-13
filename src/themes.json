@@ -4,7 +4,8 @@
     "secondary": "#222222",
     "highlight": "#008ff5",
     "borderColor": "#5F5F5F",
-    "tint": "#00b5cc"
+    "tint": "#00b5cc",
+    "selectedFileColor": "#3c3c3c"
   },
   "ligth": {
     "main": "#fff"
