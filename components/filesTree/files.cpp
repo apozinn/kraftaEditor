@@ -215,7 +215,6 @@ void FilesTree::CreateDir(
 	}
 
 	wxPanel* dir_container = new wxPanel(parent);
-	//dir_container->SetBackgroundColour(wxColor(randomInt(0, 255), randomInt(0, 255), randomInt(0, 255)));
 
 	dir_container->SetMinSize(wxSize(dir_container->GetSize().GetWidth(), 20));
 	dir_container->SetSize(dir_container->GetSize().GetWidth(), 20);
@@ -244,7 +243,7 @@ void FilesTree::CreateDir(
 	dir_props->SetSizerAndFit(props_sizer);
 
 	wxPanel* dir_childrens = new wxPanel(dir_container);
-	dir_childrens->SetLabel(path + "_dir_childrens");
+	dir_childrens->SetName(path + "_dir_childrens");
 
 	//event to draw a dotted line next side to the dir childrens
 	dir_childrens->Bind(wxEVT_PAINT, [=](wxPaintEvent& event) {
@@ -377,11 +376,13 @@ void FilesTree::ToggleDir(wxMouseEvent& event)
 
 		if (dirContainer->IsShown()) {
 			dirContainer->Hide();
+			dirContainer->Disable();
 			bitmaps.push_back(wxBitmap(arrow_bit.ConvertToImage().Rotate90(true), -1));
 		}
 		else
 		{
 			dirContainer->Show();
+			dirContainer->Enable();
 			bitmaps.push_back(wxBitmap(arrow_bit.ConvertToImage().Rotate90(false), -1));
 		}
 
@@ -514,13 +515,35 @@ void FilesTree::OnPaint(wxPaintEvent& event)
 void FilesTree::FitContainer(wxWindow* window)
 {
 	wxWindow* parent = window;
-	while (parent->GetId() != ID_PROJECT_FILES_CTN) {
-		parent->SetMinSize(wxSize(parent->GetBestSize()));
-		parent->SetSize(wxSize(parent->GetBestSize()));
 
-		parent->GetSizer()->Layout();
-		parent = parent->GetParent();
+	if (!window->IsShownOnScreen()) {
+		while (parent->GetId() != ID_PROJECT_FILES_CTN) {
+			if (!parent->IsShownOnScreen()) parent->SetMinSize(wxSize(0, 0));
+			if (!parent->IsShownOnScreen()) parent->SetSize(wxSize(0, 0));
+			parent->GetSizer()->Layout();
+
+			wxSize thisSize = wxSize(parent->GetSize().x, 20);
+			for (auto&& children : parent->GetChildren()) {
+				if (children->IsShownOnScreen()) {
+					thisSize.SetHeight(thisSize.y + children->GetSize().y);
+				}
+			}
+
+			parent = parent->GetParent();
+			parent->SetMinSize(thisSize);
+			parent->GetSizer()->Layout();
+			parent = parent->GetParent();
+		}
+
 	}
+	else {
+		while (parent->GetId() != ID_PROJECT_FILES_CTN) {
+			parent->SetMinSize(wxSize(parent->GetBestSize()));
+			parent->GetSizer()->Layout();
+			parent = parent->GetParent();
+		}
+	}
+
 	project_files_ctn->GetSizer()->Layout();
 	project_files_ctn->FitInside();
 }
