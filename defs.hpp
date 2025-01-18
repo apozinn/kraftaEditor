@@ -83,6 +83,10 @@ enum {
 	ID_FOCUS_MODE,
 	ID_CLOSE_ALL_FILES,
 	ID_SIDE_CONTAINER,
+	BORDER_SIDE_TOP,
+	BORDER_SIDE_BOTTOM,
+	BORDER_SIDE_LEFT,
+	BORDER_SIDE_RIGHT,
 };
 
 wxString project_path;
@@ -92,3 +96,6 @@ std::string assetsDir;
 wxString current_openned_path;
 
 #define STYLE_TYPES_COUNT 32
+
+json UserTheme;
+json UserConfigs;

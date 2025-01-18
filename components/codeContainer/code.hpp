@@ -11,7 +11,6 @@ public:
 	LanguageInfo const* current_lang;
 	wxString currentPath;
 	bool changed = false;
-	json Themes = UserConfig().GetThemes();
 	CodeContainer(wxWindow* parent, wxString path);
 	bool LoadPath(wxString path);
 	void OnSave(wxCommandEvent& event);

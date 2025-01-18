@@ -67,5 +67,10 @@ json UserConfig::GetThemes()
 			<< "exception id: " << e.id << std::endl;
 	}
 
-	return data;
+	auto systemInfo = wxSystemSettings::GetAppearance();
+	if (systemInfo.IsSystemDark()) {
+		return data["dark"];
+	}
+	else return data["ligth"];
+
 }

@@ -16,8 +16,8 @@
 #include <iostream>
 
 #include "./src/userConfig/userConfig.cpp"
-#include "./app.hpp"
 #include "./defs.hpp"
+#include "./app.hpp"
 
 #include "./components/codeContainer/code.cpp"
 #include "./components/filesTree/files.cpp"
@@ -109,6 +109,10 @@ public:
 			SetAppearance(Appearance::Dark);
 			if (__WXWINDOWS__) {
 				MSWEnableDarkMode(DarkMode_Always);
+
+				//Get user config and theme
+				UserConfigs = UserConfig().Get();
+				UserTheme = UserConfig().GetThemes();
 			}
 		}
 
@@ -118,7 +122,6 @@ public:
 		//define the app dirs path
 		icons_dir = GetAppDirs("icons");
 		assetsDir = GetAppDirs("assets");
-
 
 		//createv the main frame
 		frame = new MainFrame("Krafta Editor");

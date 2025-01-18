@@ -13,7 +13,6 @@ class Tabs : public wxPanel {
 	wxStaticBitmap* arrow_right;
 	wxScrolled<wxPanel>* tabs_container;
 	wxBoxSizer* tabs_ctn_sizer;
-	json Themes = UserConfig().GetThemes();
 public:
 	Tabs(wxPanel* parent, wxWindowID ID);
 	void Add(wxString tab_name, wxString path);

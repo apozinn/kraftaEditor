@@ -9,8 +9,8 @@ CodeContainer::CodeContainer(
 	wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
 	codeEditor = new wxStyledTextCtrl(this, ID_CODE_EDITOR, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
 	codeMap = new wxStyledTextCtrl(this, ID_CODE_MAP, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-	json user_config = UserConfig().Get();
-	if (user_config["show_minimap"] == false)
+
+	if (UserConfigs["show_minimap"] == false)
 		codeMap->Hide();
 
 	sizer->Add(codeEditor, 1, wxEXPAND);
@@ -479,7 +479,7 @@ void CodeContainer::OnCodeMapPainted(wxStyledTextEvent& event)
 		dc.DrawRectangle(0, codeMapClickPoint.y, codeMap->GetSize().GetWidth(), 80);
 	}
 
-	auto border_color = Themes["dark"]["borderColor"].template get<std::string>();
+	auto border_color = UserTheme["borderColor"].template get<std::string>();
 	dc.SetBrush(wxColor(border_color));
 	dc.SetPen(wxPen(wxColor(border_color), 0.20));
 	dc.DrawLine(1, codeMap->GetSize().GetHeight(), 1, 0);
@@ -537,10 +537,10 @@ void CodeContainer::OnAutoCompCompleted(wxStyledTextEvent& event)
 void CodeContainer::DrawBorder(wxStyledTextEvent& event)
 {
 	wxClientDC dc(codeEditor);
-	auto border_color = Themes["dark"]["borderColor"].template get<std::string>();
+	auto border_color = UserTheme["borderColor"].template get<std::string>();
 	if (dc.IsOk())
 	{
 		dc.SetPen(wxPen(wxColor(border_color), 0.20));
-		dc.DrawLine(0, codeEditor->GetSize().GetHeight(), 0, 0);
+		dc.DrawLine(0, codeEditor->GetSize().GetHeight() + 100, 0, 0);
 	}
 }

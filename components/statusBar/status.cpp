@@ -2,7 +2,7 @@
 
 StatusBar::StatusBar(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)
 {
-	auto background_color = Themes["dark"]["secondary"].template get<std::string>();
+	auto background_color = UserTheme["secondary"].template get<std::string>();
 	SetBackgroundColour(wxColor(background_color));
 
 	sizer = new wxBoxSizer(wxHORIZONTAL);
@@ -93,7 +93,7 @@ void StatusBar::OnPaint(wxPaintEvent& event) {
 	if (target) {
 		wxClientDC dc(target);
 		if (dc.IsOk()) {
-			dc.SetPen(wxPen(wxColor(Themes["dark"]["borderColor"].template get<std::string>()), 0.20));
+			dc.SetPen(wxPen(wxColor(UserTheme["borderColor"].template get<std::string>()), 0.20));
 			dc.DrawLine(0, 0, target->GetSize().GetWidth(), 0);
 			dc.DrawLine(0, target->GetSize().GetHeight(), 0, 0);
 		}

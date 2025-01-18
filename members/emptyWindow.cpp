@@ -3,11 +3,10 @@
 class EmptyWindow : public wxPanel
 {
 	wxBoxSizer* sizer;
-	json Themes = UserConfig().GetThemes();
 public:
 	EmptyWindow(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)
 	{
-		auto background_color = Themes["dark"]["secondary"].template get<std::string>();
+		auto background_color = UserTheme["secondary"].template get<std::string>();
 		SetBackgroundColour(wxColor(background_color));
 		sizer = new wxBoxSizer(wxVERTICAL);
 
@@ -19,12 +18,11 @@ public:
 
 		Bind(wxEVT_PAINT, &EmptyWindow::OnPaint, this);
 	}
-
 private:
 	void OnPaint(wxPaintEvent& event)
 	{
 		auto target = ((wxWindow*)event.GetEventObject());
-		auto border_color = Themes["dark"]["borderColor"].template get<std::string>();
+		auto border_color = UserTheme["borderColor"].template get<std::string>();
 		if (target)
 		{
 			wxClientDC dc(target);

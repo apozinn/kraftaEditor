@@ -6,7 +6,6 @@ class FilesTree : public wxPanel {
 	wxPanel* files_tree;
 	wxSizer* sizer;
 	wxBoxSizer* file_ctn_sizer;
-	json Themes = UserConfig().GetThemes();
 	wxScrolled<wxPanel>* files_container;
 public:
 	wxScrolled<wxPanel>* project_files_ctn;

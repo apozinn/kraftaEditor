@@ -2,7 +2,7 @@
 
 Tabs::Tabs(wxPanel* parent, wxWindowID ID) : wxPanel(parent, ID)
 {
-	auto background_color = Themes["dark"]["main"].template get<std::string>();
+	auto background_color = UserTheme["main"].template get<std::string>();
 
 	SetBackgroundColour(wxColor(background_color));
 	sizer = new wxBoxSizer(wxHORIZONTAL);
@@ -221,7 +221,7 @@ void Tabs::CloseAll()
 			other_ct->Destroy();
 	}*/
 
-	if (auto emptyWindow = FindWindowById(ID_EMPYT_WINDOW)) emptyWindow->Show(); 
+	if (auto emptyWindow = FindWindowById(ID_EMPYT_WINDOW)) emptyWindow->Show();
 }
 
 void Tabs::Select() {
@@ -332,13 +332,7 @@ void Tabs::OnLeaveComp(wxMouseEvent& event)
 void Tabs::OnPaint(wxPaintEvent& event)
 {
 	wxClientDC dc(this);
-	if (dc.IsOk())
-	{
-		auto border_color = Themes["dark"]["borderColor"].template get<std::string>();
-		dc.SetPen(wxPen(wxColor(border_color), 0.20));
-		dc.DrawLine(0, GetSize().GetHeight() - 1, GetSize().GetWidth(), GetSize().GetHeight() - 1);
-		dc.DrawLine(0, GetSize().GetHeight(), 0, 0);
-	}
+	DrawBorder(this, dc, BORDER_SIDE_BOTTOM);
 }
 
 void Tabs::OnTabPaint(wxPaintEvent& event)
@@ -351,14 +345,14 @@ void Tabs::OnTabPaint(wxPaintEvent& event)
 
 	if (current_openned_path == target->GetName())
 	{
-		auto background = Themes["dark"]["highlight"].template get<std::string>();
+		auto background = UserTheme["highlight"].template get<std::string>();
 		gc->SetPen(wxColor(background));
 		gc->SetBrush(wxColor(background));
 		gc->DrawRoundedRectangle(0.0, 0.0, static_cast<double>(target->GetSize().GetWidth()) - 1.0, 1.0, 10);
 	}
 	else
 	{
-		auto background = Themes["dark"]["main"].template get<std::string>();
+		auto background = UserTheme["main"].template get<std::string>();
 		gc->SetPen(wxColor(background));
 		gc->SetBrush(wxColor(background));
 		gc->DrawRoundedRectangle(0.0, 0.0, static_cast<double>(target->GetSize().GetWidth()), static_cast<double>(target->GetSize().GetHeight()), 10);

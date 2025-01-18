@@ -20,7 +20,7 @@
 
 FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)
 {
-	auto background_color = Themes["dark"]["main"].template get<std::string>();
+	auto background_color = UserTheme["main"].template get<std::string>();
 	SetBackgroundColour(wxColor(background_color));
 	sizer = new wxBoxSizer(wxVERTICAL);
 
@@ -250,7 +250,7 @@ void FilesTree::CreateDir(
 		auto target = ((wxPanel*)event.GetEventObject());
 		if (!target) return;
 
-		auto borderColor = Themes["dark"]["borderColor"].template get<std::string>();
+		auto borderColor = UserTheme["borderColor"].template get<std::string>();
 		wxColour color = wxColour(borderColor);
 		wxPaintDC dc(target);
 
@@ -273,8 +273,8 @@ void FilesTree::CreateDir(
 void FilesTree::OnFileSelect(wxMouseEvent& event)
 {
 	auto file = ((wxWindow*)event.GetEventObject());
-	auto selectedFileColor = Themes["dark"]["selectedFileColor"].template get<std::string>();
-	auto mainColor = Themes["dark"]["main"].template get<std::string>();
+	auto selectedFileColor = UserTheme["selectedFileColor"].template get<std::string>();
+	auto mainColor = UserTheme["main"].template get<std::string>();
 	wxString path = file->GetName();
 
 	if (file->GetLabel().find("file_container") == std::string::npos) {
@@ -636,7 +636,7 @@ void FilesTree::OnEnterComp(wxMouseEvent& event)
 	if (selectedFile) {
 		if (selectedFile->GetName() == target->GetName()) return;
 	}
-	auto color = Themes["dark"]["borderColor"].template get<std::string>();
+	auto color = UserTheme["borderColor"].template get<std::string>();
 
 	auto fileContainer = FindWindowByLabel(target->GetName() + "_file_container");
 	if (!fileContainer) return;
@@ -652,7 +652,7 @@ void FilesTree::OnLeaveComp(wxMouseEvent& event)
 	if (selectedFile) {
 		if (selectedFile->GetName() == target->GetName()) return;
 	}
-	auto color = Themes["dark"]["main"].template get<std::string>();
+	auto color = UserTheme["main"].template get<std::string>();
 
 	auto fileContainer = FindWindowByLabel(target->GetName() + "_file_container");
 	if (!fileContainer) return;

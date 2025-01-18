@@ -28,6 +28,7 @@ MainFrame::MainFrame(const wxString& title)
 	json Themes = UserConfig().GetThemes();
 
 	mainSplitter = new wxSplitterWindow(this, ID_MAIN_SPLITTER);
+	mainSplitter->SetBackgroundColour(wxColor(UserTheme["main"].template get<std::string>()));
 	mainSplitter->Bind(wxEVT_PAINT, &MainFrame::OnSashPaint, this);
 	wxBoxSizer* mainSplitterSizer = new wxBoxSizer(wxHORIZONTAL);
 
@@ -92,7 +93,7 @@ MainFrame::MainFrame(const wxString& title)
 
 	menu_bar = new MenuBar();
 	SetMenuBar(menu_bar);
-	if (user_config["show_menu"] == false)
+	if (UserConfigs["show_menu"] == false)
 		menu_bar->Hide();
 
 	wxConfig* config = new wxConfig("krafta-editor");
@@ -292,16 +293,15 @@ void MainFrame::OnHiddeMenuBar(wxCommandEvent& WXUNUSED(event))
 		else
 			menu_bar->Show();
 
-		json user_config = UserConfig().Get();
-		auto is_visible = user_config["show_menu"];
+		auto is_visible = UserConfigs["show_menu"];
 
 		if (is_visible)
 		{
-			user_config["show_menu"] = false;
+			UserConfigs["show_menu"] = false;
 		}
 		else
-			user_config["show_menu"] = true;
-		UserConfig().Update(user_config);
+			UserConfigs["show_menu"] = true;
+		UserConfig().Update(UserConfigs);
 	}
 }
 
@@ -338,19 +338,13 @@ void MainFrame::OnHiddeTabs(wxCommandEvent& WXUNUSED(event))
 
 void MainFrame::OnSashPaint(wxPaintEvent& event)
 {
+	//event to paint the track with the component's background color
 	auto target = ((wxSplitterWindow*)event.GetEventObject());
-	if (!target || !target->IsEnabled())
-		return;
-
-	auto border_color = Themes["dark"]["borderColor"].template get<std::string>();
+	if (!target || !target->IsEnabled()) return;
 
 	wxClientDC this_dc(target);
-	if (target->GetId() == ID_SERVICAL_CONTAINER)
-	{
-		this_dc.SetBrush(target->GetBackgroundColour());
-	}
-	else
-		this_dc.SetBrush(target->GetBackgroundColour());
+
+	this_dc.SetBrush(target->GetBackgroundColour());
 	this_dc.SetPen(target->GetBackgroundColour());
 
 	if (target->GetSplitMode() == wxSPLIT_VERTICAL)
@@ -370,26 +364,7 @@ void MainFrame::OnSashPaint(wxPaintEvent& event)
 			target->GetSashSize());
 	}
 
-	auto search_files = ((wxPanel*)FindWindowById(ID_SEARCH_FILES));
-	if (search_files)
-	{
-		wxPoint search_files_point = search_files->GetPosition();
-
-		this_dc.SetBrush(wxColor(border_color));
-		this_dc.SetPen(wxColor(border_color));
-
-		this_dc.DrawLine(
-			0,
-			search_files_point.y,
-			search_files->GetSize().GetWidth() + target->GetSashSize(),
-			search_files_point.y);
-
-		this_dc.DrawLine(
-			0,
-			search_files_point.y + search_files->GetSize().GetHeight(),
-			search_files->GetSize().GetWidth() + target->GetSashSize(),
-			search_files_point.y + search_files->GetSize().GetHeight());
-	}
+	DrawBorder(target, this_dc, BORDER_SIDE_RIGHT);
 }
 
 void MainFrame::OnSashPosChange(wxSplitterEvent& event)
@@ -403,7 +378,7 @@ void MainFrame::OnSashPosChange(wxSplitterEvent& event)
 void MainFrame::CloseAllFiles(wxCommandEvent& WXUNUSED(event))
 {
 	tabs->CloseAll();
-	files_tree->selectedFile->SetBackgroundColour(wxColor(45, 45, 45));
+	files_tree->selectedFile->SetBackgroundColour(wxColor(UserTheme["main"].template get<std::string>()));
 	files_tree->selectedFile = NULL;
 }
 
