@@ -66,7 +66,7 @@ wxString GetAppDirs(std::string targetDir) {
 
 void DrawBorder(wxWindow* target, wxClientDC& dc, int sides) {
 	//function to draw a border to element
-	dc.SetPen(wxPen(wxColor(UserTheme["borderColor"].template get<std::string>()), 0.20));
+	dc.SetPen(wxPen(wxColor(UserTheme["border"].template get<std::string>()), 0.20));
 
 	switch (sides) {
 	case BORDER_SIDE_TOP: {

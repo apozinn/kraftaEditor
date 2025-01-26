@@ -131,14 +131,19 @@ bool CodeContainer::InitializePrefs(wxString name)
 
 			codeEditor->StyleSetForeground(Nr, wxColor(curType.foreground));
 			codeMap->StyleSetForeground(Nr, wxColor(curType.foreground));
+
 			codeEditor->StyleSetBold(Nr, (curType.fontstyle & mySTC_STYLE_BOLD) > 0);
 			codeMap->StyleSetBold(Nr, (curType.fontstyle & mySTC_STYLE_BOLD) > 0);
+
 			codeEditor->StyleSetItalic(Nr, (curType.fontstyle & mySTC_STYLE_ITALIC) > 0);
 			codeMap->StyleSetItalic(Nr, (curType.fontstyle & mySTC_STYLE_ITALIC) > 0);
+
 			codeEditor->StyleSetUnderline(Nr, (curType.fontstyle & mySTC_STYLE_UNDERL) > 0);
 			codeMap->StyleSetUnderline(Nr, (curType.fontstyle & mySTC_STYLE_UNDERL) > 0);
+
 			codeEditor->StyleSetVisible(Nr, (curType.fontstyle & mySTC_STYLE_HIDDEN) == 0);
 			codeMap->StyleSetVisible(Nr, (curType.fontstyle & mySTC_STYLE_HIDDEN) == 0);
+
 			codeEditor->StyleSetCase(Nr, curType.lettercase);
 			codeMap->StyleSetCase(Nr, curType.lettercase);
 
@@ -158,27 +163,44 @@ bool CodeContainer::InitializePrefs(wxString name)
 
 void CodeContainer::CodeEditorInitPrefs()
 {
+	auto backgroundColor = UserTheme["secondary"].template get<std::string>();
+	auto textColor = UserTheme["text"].template get<std::string>();
+	auto secondaryTextColor = UserTheme["secondaryText"].template get<std::string>();
+
 	codeEditor->SetUseTabs(true);
 	codeEditor->SetTabWidth(4);
 	codeEditor->SetIndent(4);
 	codeEditor->SetTabIndents(true);
 	codeEditor->SetBackSpaceUnIndents(true);
 	codeEditor->SetIndentationGuides(true);
+	codeEditor->SetScrollWidth(1);
 
+	//setting  the default color
+	codeEditor->StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(backgroundColor));
+	codeEditor->StyleSetForeground(wxSTC_STYLE_DEFAULT, wxColor(textColor));
+	codeEditor->StyleSetFont(wxSTC_STYLE_DEFAULT, font);
+
+	//clearing all preset styles
 	codeEditor->StyleClearAll();
-	codeEditor->SetCaretForeground(wxColour(wxT("WHITE")));
 
+	//setting the caret color
+	codeEditor->SetCaretForeground(wxColour(textColor));
+
+	//margin settings
 	codeEditor->SetMarginWidth(0, codeEditor->TextWidth(wxSTC_STYLE_LINENUMBER, wxT("_99999")));
 	codeEditor->SetMarginType(0, wxSTC_MARGIN_NUMBER);
-	codeEditor->StyleSetForeground(wxSTC_STYLE_LINENUMBER, wxColor(128, 128, 128));
-	codeEditor->StyleSetBackground(wxSTC_STYLE_LINENUMBER, wxColor(31, 31, 31));
-	codeEditor->StyleSetForeground(wxSTC_STYLE_INDENTGUIDE, wxColor(128, 128, 128));
+	codeEditor->StyleSetForeground(wxSTC_STYLE_LINENUMBER, wxColor(secondaryTextColor));
+	codeEditor->StyleSetBackground(wxSTC_STYLE_LINENUMBER, wxColor(backgroundColor));
+
+	codeEditor->StyleSetBackground(wxSTC_STYLE_INDENTGUIDE, wxColor(backgroundColor));
+	codeEditor->StyleSetForeground(wxSTC_STYLE_INDENTGUIDE, wxColor(secondaryTextColor));
 
 	codeEditor->SetMarginWidth(1, 16);
 	codeEditor->SetMarginType(1, wxSTC_MARGIN_SYMBOL);
 	codeEditor->SetMarginMask(1, wxSTC_MASK_FOLDERS);
 	codeEditor->SetMarginSensitive(1, true);
 
+	//linking events
 	codeEditor->Bind(wxEVT_STC_MARGINCLICK, &CodeContainer::OnMarginClick, this);
 	codeEditor->Bind(wxEVT_STC_MODIFIED, &CodeContainer::OnChange, this);
 	codeEditor->Bind(wxEVT_STC_CHARADDED, &CodeContainer::CharAdd, this);
@@ -186,12 +208,15 @@ void CodeContainer::CodeEditorInitPrefs()
 	codeEditor->Bind(wxEVT_KEY_UP, &CodeContainer::OnArrowsPress, this);
 	codeEditor->Bind(wxEVT_STC_UPDATEUI, &CodeContainer::OnCodeEditorScroll, this);
 	codeEditor->Bind(wxEVT_STC_AUTOCOMP_COMPLETED, &CodeContainer::OnAutoCompCompleted, this);
-	codeEditor->Bind(wxEVT_STC_PAINTED, &CodeContainer::DrawBorder, this);
 
+	//linking autocomp icons
 	codeEditor->RegisterImage(0, wxBitmap(icons_dir + "thunder.png", wxBITMAP_TYPE_PNG));
 	codeEditor->RegisterImage(1, wxBitmap(icons_dir + "question.png", wxBITMAP_TYPE_PNG));
+
+	//setting the lexer
 	codeEditor->SetLexer(current_lang->lexer);
 
+	//setting the fold
 	codeEditor->SetProperty(wxT("fold"), wxT("1"));
 	codeEditor->SetProperty(wxT("fold.comment"), wxT("1"));
 	codeEditor->SetProperty(wxT("fold.compact"), wxT("1"));
@@ -200,37 +225,38 @@ void CodeContainer::CodeEditorInitPrefs()
 	codeEditor->SetProperty(wxT("fold.html.preprocessor"), wxT("1"));
 	codeEditor->SetFoldFlags(wxSTC_FOLDFLAG_LINEBEFORE_CONTRACTED | wxSTC_FOLDFLAG_LINEAFTER_CONTRACTED);
 
+	//setting the folder
 	codeEditor->SetMarginMask(2, wxSTC_MASK_FOLDERS);
-	codeEditor->SetFoldMarginColour(true, wxColor(31, 31, 31));
-	codeEditor->SetFoldMarginHiColour(true, wxColor(31, 31, 31));
+	codeEditor->SetFoldMarginColour(true, wxColor(backgroundColor));
+	codeEditor->SetFoldMarginHiColour(true, wxColor(backgroundColor));
 
 	codeEditor->MarkerDefine(wxSTC_MARKNUM_FOLDER, wxSTC_MARK_ARROW);
-	codeEditor->MarkerSetForeground(wxSTC_MARKNUM_FOLDER, wxColor(31, 31, 31));
-	codeEditor->MarkerSetBackground(wxSTC_MARKNUM_FOLDER, wxColor(128, 128, 128));
+	codeEditor->MarkerSetForeground(wxSTC_MARKNUM_FOLDER, wxColor(backgroundColor));
+	codeEditor->MarkerSetBackground(wxSTC_MARKNUM_FOLDER, wxColor(secondaryTextColor));
 
 	codeEditor->MarkerDefine(wxSTC_MARKNUM_FOLDEREND, wxSTC_MARK_ARROW);
-	codeEditor->MarkerSetForeground(wxSTC_MARKNUM_FOLDEREND, wxColor(31, 31, 31));
-	codeEditor->MarkerSetBackground(wxSTC_MARKNUM_FOLDEREND, wxColor(128, 128, 128));
+	codeEditor->MarkerSetForeground(wxSTC_MARKNUM_FOLDEREND, wxColor(backgroundColor));
+	codeEditor->MarkerSetBackground(wxSTC_MARKNUM_FOLDEREND, wxColor(secondaryTextColor));
 
 	codeEditor->MarkerDefine(wxSTC_MARKNUM_FOLDERMIDTAIL, wxSTC_MARK_TCORNER);
-	codeEditor->MarkerSetForeground(wxSTC_MARKNUM_FOLDERMIDTAIL, wxColor(31, 31, 31));
-	codeEditor->MarkerSetBackground(wxSTC_MARKNUM_FOLDERMIDTAIL, wxColor(128, 128, 128));
+	codeEditor->MarkerSetForeground(wxSTC_MARKNUM_FOLDERMIDTAIL, wxColor(backgroundColor));
+	codeEditor->MarkerSetBackground(wxSTC_MARKNUM_FOLDERMIDTAIL, wxColor(secondaryTextColor));
 
 	codeEditor->MarkerDefine(wxSTC_MARKNUM_FOLDEROPEN, wxSTC_MARK_ARROWDOWN);
-	codeEditor->MarkerSetForeground(wxSTC_MARKNUM_FOLDEROPEN, wxColor(31, 31, 31));
-	codeEditor->MarkerSetBackground(wxSTC_MARKNUM_FOLDEROPEN, wxColor(128, 128, 128));
+	codeEditor->MarkerSetForeground(wxSTC_MARKNUM_FOLDEROPEN, wxColor(backgroundColor));
+	codeEditor->MarkerSetBackground(wxSTC_MARKNUM_FOLDEROPEN, wxColor(secondaryTextColor));
 
 	codeEditor->MarkerDefine(wxSTC_MARKNUM_FOLDEROPENMID, wxSTC_MARK_ARROWDOWN);
-	codeEditor->MarkerSetForeground(wxSTC_MARKNUM_FOLDEROPENMID, wxColor(31, 31, 31));
-	codeEditor->MarkerSetBackground(wxSTC_MARKNUM_FOLDEROPENMID, wxColor(128, 128, 128));
+	codeEditor->MarkerSetForeground(wxSTC_MARKNUM_FOLDEROPENMID, wxColor(backgroundColor));
+	codeEditor->MarkerSetBackground(wxSTC_MARKNUM_FOLDEROPENMID, wxColor(secondaryTextColor));
 
 	codeEditor->MarkerDefine(wxSTC_MARKNUM_FOLDERSUB, wxSTC_MARK_VLINE);
-	codeEditor->MarkerSetForeground(wxSTC_MARKNUM_FOLDERSUB, wxColor(31, 31, 31));
-	codeEditor->MarkerSetBackground(wxSTC_MARKNUM_FOLDERSUB, wxColor(128, 128, 128));
+	codeEditor->MarkerSetForeground(wxSTC_MARKNUM_FOLDERSUB, wxColor(backgroundColor));
+	codeEditor->MarkerSetBackground(wxSTC_MARKNUM_FOLDERSUB, wxColor(secondaryTextColor));
 
 	codeEditor->MarkerDefine(wxSTC_MARKNUM_FOLDERTAIL, wxSTC_MARK_LCORNER);
-	codeEditor->MarkerSetForeground(wxSTC_MARKNUM_FOLDERTAIL, wxColor(31, 31, 31));
-	codeEditor->MarkerSetBackground(wxSTC_MARKNUM_FOLDERTAIL, wxColor(128, 128, 128));
+	codeEditor->MarkerSetForeground(wxSTC_MARKNUM_FOLDERTAIL, wxColor(backgroundColor));
+	codeEditor->MarkerSetBackground(wxSTC_MARKNUM_FOLDERTAIL, wxColor(secondaryTextColor));
 
 	codeEditor->MarkerEnableHighlight(false);
 	codeEditor->SetMarginSensitive(2, true);
@@ -246,21 +272,24 @@ void CodeContainer::CodeEditorInitPrefs()
 
 void CodeContainer::CodeMapInitPrefs()
 {
+	auto backgroundColor = UserTheme["secondary"].template get<std::string>();
+	auto textColor = UserTheme["text"].template get<std::string>();
+
 	codeMap->SetReadOnly(true);
 	codeMap->SetUseHorizontalScrollBar(false);
 	codeMap->SetUseVerticalScrollBar(false);
 
-	codeMap->StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(31, 31, 31));
+	codeMap->StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(backgroundColor));
 	codeMap->StyleSetForeground(wxSTC_STYLE_DEFAULT, wxColor(221, 221, 221));
 	codeMap->StyleSetFont(wxSTC_STYLE_DEFAULT, font);
 
 	codeMap->StyleClearAll();
-	codeMap->SetCaretForeground(wxColor(31, 31, 31));
+	codeMap->SetCaretForeground(wxColor(backgroundColor));
 
 	codeMap->SetMarginWidth(0, 0);
 	codeMap->SetMarginType(0, 0);
-	codeMap->StyleSetForeground(wxSTC_STYLE_LINENUMBER, wxColor(128, 128, 128));
-	codeMap->StyleSetBackground(wxSTC_STYLE_LINENUMBER, wxColor(31, 31, 31));
+	codeMap->StyleSetForeground(wxSTC_STYLE_LINENUMBER, wxColor(textColor));
+	codeMap->StyleSetBackground(wxSTC_STYLE_LINENUMBER, wxColor(backgroundColor));
 
 	codeMap->SetMarginWidth(1, 0);
 	codeMap->SetMarginType(1, 0);
@@ -478,11 +507,6 @@ void CodeContainer::OnCodeMapPainted(wxStyledTextEvent& event)
 		dc.SetPen(color);
 		dc.DrawRectangle(0, codeMapClickPoint.y, codeMap->GetSize().GetWidth(), 80);
 	}
-
-	auto border_color = UserTheme["borderColor"].template get<std::string>();
-	dc.SetBrush(wxColor(border_color));
-	dc.SetPen(wxPen(wxColor(border_color), 0.20));
-	dc.DrawLine(1, codeMap->GetSize().GetHeight(), 1, 0);
 }
 
 void CodeContainer::OnCodeMapMouseEnter(wxMouseEvent& event)
@@ -532,15 +556,4 @@ void CodeContainer::OnAutoCompCompleted(wxStyledTextEvent& event)
 	wxString completion = event.GetString();
 	int pos = event.GetPosition();
 	codeEditor->Remove(pos - 1, pos);
-}
-
-void CodeContainer::DrawBorder(wxStyledTextEvent& event)
-{
-	wxClientDC dc(codeEditor);
-	auto border_color = UserTheme["borderColor"].template get<std::string>();
-	if (dc.IsOk())
-	{
-		dc.SetPen(wxPen(wxColor(border_color), 0.20));
-		dc.DrawLine(0, codeEditor->GetSize().GetHeight() + 100, 0, 0);
-	}
 }

@@ -3,11 +3,20 @@
     "main": "#323232",
     "secondary": "#222222",
     "highlight": "#008ff5",
-    "borderColor": "#5F5F5F",
+    "border": "#5F5F5F",
     "tint": "#00b5cc",
-    "selectedFileColor": "#3c3c3c"
+    "selectedFile": "#3c3c3c",
+    "text": "#e7e7e7",
+    "secondaryText": "#797979"
   },
   "ligth": {
-    "main": "#fff"
+    "main": "#fff",
+    "secondary": "#bfbfbf",
+    "highlight": "#008ff5",
+    "border": "#5F5F5F",
+    "tint": "#00b5cc",
+    "selectedFile": "#3c3c3c",
+    "text": "#e7e7e7",
+    "secondaryText": "#797979"
   }
 }

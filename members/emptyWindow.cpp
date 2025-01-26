@@ -22,7 +22,7 @@ private:
 	void OnPaint(wxPaintEvent& event)
 	{
 		auto target = ((wxWindow*)event.GetEventObject());
-		auto border_color = UserTheme["borderColor"].template get<std::string>();
+		auto border_color = UserTheme["border"].template get<std::string>();
 		if (target)
 		{
 			wxClientDC dc(target);

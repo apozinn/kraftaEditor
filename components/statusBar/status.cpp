@@ -50,7 +50,6 @@ StatusBar::StatusBar(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)
 
 	sizer->SetSizeHints(this);
 	SetSizerAndFit(sizer);
-	Bind(wxEVT_PAINT, &StatusBar::OnPaint, this);
 }
 
 void StatusBar::UpdateComps(wxString path, std::string format, const char* language) {
@@ -86,16 +85,4 @@ void StatusBar::UpdateCodeLocale(wxStyledTextCtrl* Code) {
 	first_comp->SetLabel(
 		"Line " + std::to_string(Code->GetCurrentLine() + 1) + ", Column " + std::to_string(Code->GetColumn(Code->GetCurrentPos()))
 	);
-}
-
-void StatusBar::OnPaint(wxPaintEvent& event) {
-	auto target = ((wxWindow*)event.GetEventObject());
-	if (target) {
-		wxClientDC dc(target);
-		if (dc.IsOk()) {
-			dc.SetPen(wxPen(wxColor(UserTheme["borderColor"].template get<std::string>()), 0.20));
-			dc.DrawLine(0, 0, target->GetSize().GetWidth(), 0);
-			dc.DrawLine(0, target->GetSize().GetHeight(), 0, 0);
-		}
-	}
 }

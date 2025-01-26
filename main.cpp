@@ -354,6 +354,7 @@ void MainFrame::OnSashPaint(wxPaintEvent& event)
 			0,
 			target->GetSashSize(),
 			target->GetSize().GetHeight());
+
 	}
 	else
 	{
@@ -364,7 +365,10 @@ void MainFrame::OnSashPaint(wxPaintEvent& event)
 			target->GetSashSize());
 	}
 
-	DrawBorder(target, this_dc, BORDER_SIDE_RIGHT);
+	this_dc.SetBrush(wxColor(255, 0, 0));
+	this_dc.SetPen(wxColor(255, 0, 0));
+
+	this_dc.DrawLine(0, 1000, 0, 0);
 }
 
 void MainFrame::OnSashPosChange(wxSplitterEvent& event)
