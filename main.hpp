@@ -71,7 +71,7 @@ public:
 	void OnHiddeMenuBar(wxCommandEvent& event);
 	void OnHiddeStatusBar(wxCommandEvent& event);
 	void OnHiddeTabs(wxCommandEvent& event);
-	void OnSashPaint(wxPaintEvent& event);
+	void PaintSash(wxDC& dc, wxSplitterWindow* target);
 	void OnSashPosChange(wxSplitterEvent& event);
 	void CloseAllFiles(wxCommandEvent& event);
 	void OpenFolderDialog();
@@ -79,6 +79,7 @@ public:
 	void LoadPath(wxString path);
 	void ToggleFind(wxCommandEvent& event);
 	void GotoSearchPage(wxCommandEvent& event);
+	void OnPaintedComponent(wxPaintEvent& event);
 private:
 	void CreateWatcher();
 	void OnQuit(wxCommandEvent& WXUNUSED(event)) { Close(true); }

@@ -63,23 +63,3 @@ wxString GetAppDirs(std::string targetDir) {
 	}
 	return wxString(executablePath);
 }
-
-void DrawBorder(wxWindow* target, wxClientDC& dc, int sides) {
-	//function to draw a border to element
-	dc.SetPen(wxPen(wxColor(UserTheme["border"].template get<std::string>()), 0.20));
-
-	switch (sides) {
-	case BORDER_SIDE_TOP: {
-		dc.DrawLine(0, 0, target->GetSize().GetWidth(), 0);
-	}
-	case BORDER_SIDE_BOTTOM: {
-		dc.DrawLine(0, target->GetSize().GetHeight() - 1, target->GetSize().GetWidth(), target->GetSize().GetHeight() - 1);
-	}
-	case BORDER_SIDE_LEFT: {
-		dc.DrawLine(0, 200, 0, 0);
-	}
-	case BORDER_SIDE_RIGHT: {
-		dc.DrawLine(0, 0, 200, 0);
-	}
-	}
-}

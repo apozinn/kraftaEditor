@@ -323,8 +323,10 @@ void Tabs::OnLeaveComp(wxMouseEvent& event)
 
 void Tabs::OnPaint(wxPaintEvent& event)
 {
-	wxClientDC dc(this);
-	DrawBorder(this, dc, BORDER_SIDE_BOTTOM);
+	wxPaintDC dc(this);
+	dc.SetBrush(wxColor(UserTheme["border"].template get<std::string>()));
+	dc.SetPen(wxPen(wxColor(UserTheme["border"].template get<std::string>()), 0.20));
+	dc.DrawLine(0, GetSize().GetHeight() - 1, GetSize().GetWidth(), GetSize().GetHeight() - 1);
 }
 
 void Tabs::OnTabPaint(wxPaintEvent& event)

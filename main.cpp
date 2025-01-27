@@ -27,7 +27,7 @@ MainFrame::MainFrame(const wxString& title)
 
 	mainSplitter = new wxSplitterWindow(this, ID_MAIN_SPLITTER);
 	mainSplitter->SetBackgroundColour(wxColor(UserTheme["main"].template get<std::string>()));
-	mainSplitter->Bind(wxEVT_PAINT, &MainFrame::OnSashPaint, this);
+	mainSplitter->Bind(wxEVT_PAINT, &MainFrame::OnPaintedComponent, this);
 	wxBoxSizer* mainSplitterSizer = new wxBoxSizer(wxHORIZONTAL);
 
 	navigationContainer = new wxPanel(mainSplitter);
@@ -41,6 +41,9 @@ MainFrame::MainFrame(const wxString& title)
 
 	wxSplitterWindow* mainContainerSplitter = new wxSplitterWindow(applicationContent, ID_MAIN_CONTAINER_SPLITTER);
 	wxBoxSizer* mainContainerSplitterSizer = new wxBoxSizer(wxVERTICAL);
+
+	mainContainerSplitter->Bind(wxEVT_PAINT, &MainFrame::OnPaintedComponent, this);
+
 
 	wxPanel* centeredContent = new wxPanel(mainContainerSplitter, ID_CENTERED_CONTENT);
 	wxBoxSizer* centeredContentSizer = new wxBoxSizer(wxVERTICAL);
@@ -334,39 +337,39 @@ void MainFrame::OnHiddeTabs(wxCommandEvent& WXUNUSED(event))
 	}
 }
 
-void MainFrame::OnSashPaint(wxPaintEvent& event)
-{
-	//event to paint the track with the component's background color
+void MainFrame::OnPaintedComponent(wxPaintEvent& event) {
 	auto target = ((wxSplitterWindow*)event.GetEventObject());
 	if (!target || !target->IsEnabled()) return;
+	wxPaintDC  dc(target);
+	PaintSash(dc, target);
 
-	wxClientDC this_dc(target);
+	dc.SetBrush(wxColor(UserTheme["border"].template get<std::string>()));
+	dc.SetPen(wxPen(wxColor(UserTheme["border"].template get<std::string>()), 0.20));
 
-	this_dc.SetBrush(target->GetBackgroundColour());
-	this_dc.SetPen(target->GetBackgroundColour());
+	dc.DrawLine(target->GetSashPosition() + 3, 0, target->GetSashPosition() + 3, target->GetSize().y);
+}
+
+void MainFrame::PaintSash(wxDC& dc, wxSplitterWindow* target) {
+	dc.SetPen(target->GetBackgroundColour());
+	dc.SetBrush(target->GetBackgroundColour());
 
 	if (target->GetSplitMode() == wxSPLIT_VERTICAL)
 	{
-		this_dc.DrawRectangle(
+		dc.DrawRectangle(
 			target->GetSashPosition(),
 			0,
 			target->GetSashSize(),
 			target->GetSize().GetHeight());
-
 	}
 	else
 	{
-		this_dc.DrawRectangle(
+		dc.DrawRectangle(
 			0,
 			target->GetSashPosition(),
 			target->GetSize().GetWidth(),
 			target->GetSashSize());
+
 	}
-
-	this_dc.SetBrush(wxColor(255, 0, 0));
-	this_dc.SetPen(wxColor(255, 0, 0));
-
-	this_dc.DrawLine(0, 1000, 0, 0);
 }
 
 void MainFrame::OnSashPosChange(wxSplitterEvent& event)

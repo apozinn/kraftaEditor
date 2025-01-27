@@ -8,7 +8,7 @@
 
 #
 
-<img src="https://i.imgur.com/Cwg4cMq.png">
+<img src="https://i.imgur.com/cj3d00m.png">
 
 Written in c++. Krafta Editor was created to be fast, efficient and cross-platform(with GUI framework [wxWidgets](https://wxwidgets.org)).
 
