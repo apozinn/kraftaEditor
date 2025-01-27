@@ -110,7 +110,6 @@ void Tabs::Add(wxString tab_name, wxString path)
 	tab_infos_sizer->Add(ico, 0, wxALIGN_CENTER | wxLEFT, 10);
 
 	wxStaticText* name = new wxStaticText(tab_infos, wxID_ANY, tab_name);
-	name->SetForegroundColour(wxColor(245, 245, 245));
 
 	name->SetName(path);
 	name->Bind(wxEVT_LEFT_UP, &Tabs::OnTabClick, this);
@@ -213,13 +212,6 @@ void Tabs::CloseAll()
 
 	tabs_container->DestroyChildren();
 	Hide();
-
-	/*for (auto&& other_ct : main_code->GetChildren())
-	{
-		if (other_ct->GetId() != ID_TABS &&
-			other_ct->GetId() != ID_EMPYT_WINDOW)
-			other_ct->Destroy();
-	}*/
 
 	if (auto emptyWindow = FindWindowById(ID_EMPYT_WINDOW)) emptyWindow->Show();
 }

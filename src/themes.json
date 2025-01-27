@@ -9,13 +9,13 @@
     "text": "#e7e7e7",
     "secondaryText": "#797979"
   },
-  "ligth": {
+  "light": {
     "main": "#fff",
-    "secondary": "#bfbfbf",
+    "secondary": "#ededed",
     "highlight": "#008ff5",
-    "border": "#5F5F5F",
+    "border": "#d1d1d1",
     "tint": "#00b5cc",
-    "selectedFile": "#3c3c3c",
+    "selectedFile": "#d1d1d1",
     "text": "#e7e7e7",
     "secondaryText": "#797979"
   }

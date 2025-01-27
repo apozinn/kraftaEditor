@@ -76,7 +76,7 @@ public:
 	void CloseAllFiles(wxCommandEvent& event);
 	void OpenFolderDialog();
 	void ToggleControlPanel(wxCommandEvent& event);
-	bool LoadPath(wxString path);
+	void LoadPath(wxString path);
 	void ToggleFind(wxCommandEvent& event);
 	void GotoSearchPage(wxCommandEvent& event);
 private:
@@ -109,12 +109,11 @@ public:
 			SetAppearance(Appearance::Dark);
 			if (__WXWINDOWS__) {
 				MSWEnableDarkMode(DarkMode_Always);
-
-				//Get user config and theme
-				UserConfigs = UserConfig().Get();
-				UserTheme = UserConfig().GetThemes();
 			}
 		}
+		//Get user config and theme
+		UserConfigs = UserConfig().Get();
+		UserTheme = UserConfig().GetThemes();
 
 		//init images handlers 
 		wxInitAllImageHandlers();

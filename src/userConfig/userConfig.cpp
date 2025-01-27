@@ -71,6 +71,6 @@ json UserConfig::GetThemes()
 	if (systemInfo.IsSystemDark()) {
 		return data["dark"];
 	}
-	else return data["ligth"];
+	else return data["light"];
 
 }

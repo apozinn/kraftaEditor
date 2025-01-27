@@ -502,7 +502,7 @@ void CodeContainer::OnCodeMapPainted(wxStyledTextEvent& event)
 	wxClientDC dc(codeMap);
 	if (codeMapMouseOver)
 	{
-		wxColour color(128, 128, 128, 100);
+		wxColour color(UserTheme["border"].template get<std::string>());
 		dc.SetBrush(color);
 		dc.SetPen(color);
 		dc.DrawRectangle(0, codeMapClickPoint.y, codeMap->GetSize().GetWidth(), 80);

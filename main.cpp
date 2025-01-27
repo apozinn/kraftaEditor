@@ -23,9 +23,7 @@ MainFrame::MainFrame(const wxString& title)
 	SetThemeEnabled(true);
 	Maximize();
 
-	json user_config = UserConfig().Get();
 	sizer = new wxBoxSizer(wxVERTICAL);
-	json Themes = UserConfig().GetThemes();
 
 	mainSplitter = new wxSplitterWindow(this, ID_MAIN_SPLITTER);
 	mainSplitter->SetBackgroundColour(wxColor(UserTheme["main"].template get<std::string>()));
@@ -398,9 +396,9 @@ void MainFrame::ToggleControlPanel(wxCommandEvent& event)
 	}
 }
 
-bool MainFrame::LoadPath(wxString path)
+void MainFrame::LoadPath(wxString path)
 {
-	if (!wxFileName(path).DirExists()) return false;
+	if (!wxFileName(path).DirExists()) return;
 
 	project_name = wxFileNameFromPath(path.substr(0, path.size() - 1));
 	project_path = path;
@@ -414,7 +412,6 @@ bool MainFrame::LoadPath(wxString path)
 	SetTitle("Krafta Editor - " + project_name);
 
 	AddEntry(wxFSWPath_Tree, path);
-	return true;
 }
 
 void MainFrame::OnOpenTerminal(wxCommandEvent& event)

@@ -491,8 +491,7 @@ void FilesTree::OnPaint(wxPaintEvent& event)
 	auto target = ((wxPanel*)event.GetEventObject());
 	if (target->GetId() == ID_FILES_TREE) return;
 
-	json nThemes = UserConfig().GetThemes();
-	auto border_color = nThemes["dark"]["selectedFile"].template get<std::string>();
+	auto border_color = UserTheme["selectedFile"].template get<std::string>();
 
 	wxClientDC dc(this);
 	wxGraphicsContext* gc = wxGraphicsContext::Create(dc);
@@ -636,7 +635,7 @@ void FilesTree::OnEnterComp(wxMouseEvent& event)
 	if (selectedFile) {
 		if (selectedFile->GetName() == target->GetName()) return;
 	}
-	auto color = UserTheme["border"].template get<std::string>();
+	auto color = UserTheme["selectedFile"].template get<std::string>();
 
 	auto fileContainer = FindWindowByLabel(target->GetName() + "_file_container");
 	if (!fileContainer) return;
