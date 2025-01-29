@@ -15,7 +15,6 @@
 #include "../codeContainer/code.hpp"
 #include "../tabs/tabs.hpp"
 #include <wx/graphics.h>
-#include "./navigationButtons.cpp"
 #include "searchFiles.cpp"
 
 FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)

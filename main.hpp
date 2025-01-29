@@ -1,10 +1,10 @@
 #pragma once
+
 #include "wx/wx.h"
 #include <wx/splitter.h>
 #include "wx/fswatcher.h"
 #include "wx/cmdline.h"
 #include <wx/config.h>
-
 #include <wx/settings.h>
 
 #if wxUSE_CLIPBOARD
@@ -21,7 +21,6 @@
 
 #include "./components/codeContainer/code.cpp"
 #include "./components/filesTree/files.cpp"
-#include "./components/sideNavigation/side.cpp"
 #include "./components/statusBar/status.cpp"
 #include "./components/tabs/tabs.cpp"
 #include "./members/menuBar.cpp"
@@ -41,7 +40,6 @@ class MainFrame : public wxFrame
 	wxBoxSizer* sizer;
 	wxPanel* main_container;
 	wxSplitterWindow* main_splitter;
-	SideNavigation* side_navigation;
 	FilesTree* files_tree;
 	wxPanel* main_code;
 	Tabs* tabs;
@@ -52,7 +50,6 @@ class MainFrame : public wxFrame
 	ControlPanel* control_panel;
 	Terminal* terminal;
 	wxSplitterWindow* servical_container;
-	json Themes = UserConfig().GetThemes();
 	wxSplitterWindow* mainSplitter;
 	wxPanel* navigationContainer;
 	wxPanel* mainContainer;
@@ -67,7 +64,6 @@ public:
 	void OnOpenFolderClick(wxMouseEvent& event) { OpenFolderDialog(); }
 	void OnOpenFile(wxCommandEvent& event);
 	void OnHiddeFilesTree(wxCommandEvent& event);
-	void OnHiddeSideNav(wxCommandEvent& event);
 	void OnHiddeMenuBar(wxCommandEvent& event);
 	void OnHiddeStatusBar(wxCommandEvent& event);
 	void OnHiddeTabs(wxCommandEvent& event);
@@ -78,7 +74,6 @@ public:
 	void ToggleControlPanel(wxCommandEvent& event);
 	void LoadPath(wxString path);
 	void ToggleFind(wxCommandEvent& event);
-	void GotoSearchPage(wxCommandEvent& event);
 	void OnPaintedComponent(wxPaintEvent& event);
 private:
 	void CreateWatcher();
@@ -88,9 +83,9 @@ private:
 	void OnAbout(wxCommandEvent& event);
 	void OnFileSystemEvent(wxFileSystemWatcherEvent& event);
 	void OnOpenTerminal(wxCommandEvent& event);
-	void MainComponentsDrawnBorder(wxPaintEvent& event);
-	wxFileSystemWatcher* m_watcher = nullptr;
+
 	bool m_followLinks;
+	wxFileSystemWatcher* m_watcher = nullptr;
 	wxDECLARE_NO_COPY_CLASS(MainFrame);
 	wxDECLARE_EVENT_TABLE();
 };
@@ -180,11 +175,9 @@ EVT_MENU(ID_CREATE_FILE, FilesTree::OnCreateFile)
 EVT_MENU(ID_OPEN_FOLDER, MainFrame::OnOpenFolderMenu)
 EVT_MENU(ID_OPEN_FILE, MainFrame::OnOpenFile)
 EVT_MENU(ID_HIDDE_FILES_TREE, MainFrame::OnHiddeFilesTree)
-EVT_MENU(ID_HIDDE_SIDE_NAV, MainFrame::OnHiddeSideNav)
 EVT_MENU(ID_HIDDE_MENU_BAR, MainFrame::OnHiddeMenuBar)
 EVT_MENU(ID_HIDDE_STATUS_BAR, MainFrame::OnHiddeStatusBar)
 EVT_MENU(ID_HIDDE_TABS, MainFrame::OnHiddeTabs)
-EVT_MENU(ID_FOCUS_MODE, SideNavigation::OnFocusMode)
 EVT_MENU(ID_CLOSE_ALL_FILES, MainFrame::CloseAllFiles)
 EVT_MENU(ID_TOGGLE_CONTROL_PANEL, MainFrame::ToggleControlPanel)
 EVT_MENU(ID_OPEN_TERMINAL, MainFrame::OnOpenTerminal)

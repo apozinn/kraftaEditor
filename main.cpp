@@ -267,22 +267,6 @@ void MainFrame::OnHiddeFilesTree(wxCommandEvent& WXUNUSED(event))
 	}
 }
 
-void MainFrame::OnHiddeSideNav(wxCommandEvent& WXUNUSED(event))
-{
-	if (side_navigation)
-	{
-		if (side_navigation->IsShown())
-		{
-			side_navigation->Hide();
-		}
-		else
-			side_navigation->Show();
-
-		main_container->GetSizer()->Layout();
-		main_container->Update();
-	}
-}
-
 void MainFrame::OnHiddeMenuBar(wxCommandEvent& WXUNUSED(event))
 {
 	if (menu_bar)
