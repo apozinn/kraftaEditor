@@ -22,11 +22,6 @@ const char* FormatBytes(long long bytes, char* str) {
 	return strcat(strcat(str, " "), sizes[i]);
 }
 
-struct NotifyInteractions {
-	const char* label;
-	const char* id;
-};
-
 static wxString GetFSWEventChangeTypeName(int changeType) {
 	switch (changeType) {
 	case wxFSW_EVENT_CREATE:

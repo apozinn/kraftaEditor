@@ -1,5 +1,21 @@
 #pragma once
 
+#define STYLE_TYPES_COUNT 32
+
+struct NotifyInteractions {
+	const char* label;
+	const char* id;
+};
+
+wxString project_path;
+std::string project_name;
+wxString icons_dir;
+std::string assetsDir;
+wxString current_openned_path;
+
+json UserTheme;
+json UserConfigs;
+
 enum {
 	ID_MAIN_FRAME = -1,
 	ID_Quit,
@@ -88,14 +104,3 @@ enum {
 	BORDER_SIDE_LEFT,
 	BORDER_SIDE_RIGHT,
 };
-
-wxString project_path;
-std::string project_name;
-wxString icons_dir;
-std::string assetsDir;
-wxString current_openned_path;
-
-#define STYLE_TYPES_COUNT 32
-
-json UserTheme;
-json UserConfigs;

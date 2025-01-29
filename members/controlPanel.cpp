@@ -1,4 +1,3 @@
-#include "notifyPanel.cpp"
 #include "terminal.cpp"
 
 struct ControlMenu {
@@ -8,68 +7,67 @@ struct ControlMenu {
 };
 
 class ControlPanel : public wxPanel {
-	wxScrolled<wxPanel>* menus_container;
+	wxScrolled<wxPanel>* menusContainer;
 	wxPanel* selectedMenu;
+	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
 public:
 	ControlPanel(wxFrame* parent, wxWindowID ID) : wxPanel(
-		parent, ID, wxPoint(parent->GetSize().GetWidth() / 2 - 225, 50), wxSize(450, 250)
+		parent, ID, wxPoint(parent->GetSize().GetWidth() / 2 - 225, 50), wxSize(450, 200)
 	) {
-		wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-		SetMinSize(wxSize(450, 250));
-		SetSize(wxSize(450, 250));
-		SetBackgroundColour(wxColor(36, 36, 36));
+		SetBackgroundColour(wxColor(UserTheme["main"].template get<std::string>()));
 		SetFocus();
 
-		wxPanel* top_container = new wxPanel(this);
-		wxBoxSizer* top_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
+		wxPanel* topContainer = new wxPanel(this);
+		wxBoxSizer* topContainerSizer = new wxBoxSizer(wxHORIZONTAL);
 
 		wxVector<wxBitmap> bitmaps;
 		bitmaps.push_back(wxBitmap(icons_dir + "search_gray.png", wxBITMAP_TYPE_PNG));
-		wxStaticBitmap* search_icon = new wxStaticBitmap(top_container, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps));
-		top_ctn_sizer->Add(search_icon, 0, wxEXPAND | wxALL, 5);
+		wxStaticBitmap* search_icon = new wxStaticBitmap(topContainer, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps));
+		topContainerSizer->Add(search_icon, 0, wxEXPAND | wxALL, 5);
 
-		wxTextCtrl* search_input = new wxTextCtrl(top_container, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-		search_input->SetBackgroundColour(wxColor(36, 36, 36));
-		search_input->SetFocus();
-		top_ctn_sizer->Add(search_input, 1, wxEXPAND);
+		wxTextCtrl* searchInput = new wxTextCtrl(topContainer, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+		searchInput->SetMaxSize(wxSize(450, 20));
+		searchInput->SetBackgroundColour(wxColor(UserTheme["main"].template get<std::string>()));
+		searchInput->SetFocus();
+		topContainerSizer->Add(searchInput, 1, wxEXPAND | wxTOP, 7);
 
-		top_container->SetSizerAndFit(top_ctn_sizer);
-		sizer->Add(top_container, 0, wxEXPAND);
+		topContainer->SetSizerAndFit(topContainerSizer);
+		sizer->Add(topContainer, 0, wxEXPAND);
 
-		menus_container = new wxScrolled<wxPanel>(this);
-		wxBoxSizer* menu_ctn_sizer = new wxBoxSizer(wxVERTICAL);
+		menusContainer = new wxScrolled<wxPanel>(this);
+		wxBoxSizer* menuContainerSizer = new wxBoxSizer(wxVERTICAL);
 
 		for (const auto& ctrl_menu : menus) {
-			wxPanel* menu = new wxPanel(menus_container);
+			wxPanel* menu = new wxPanel(menusContainer);
 			menu->SetLabel(std::to_string(ctrl_menu.ID));
 			if (ctrl_menu.ID == 1) {
-				menu->SetBackgroundColour(wxColor(56, 56, 56));
+				menu->SetBackgroundColour(wxColor(UserTheme["selectedFile"].template get<std::string>()));
 				selectedMenu = menu;
 			}
-			wxBoxSizer* menu_sizer = new wxBoxSizer(wxHORIZONTAL);
+			wxBoxSizer* menuSizer = new wxBoxSizer(wxHORIZONTAL);
 
-			wxStaticText* menu_name = new wxStaticText(menu, wxID_ANY, ctrl_menu.name);
-			menu_name->Bind(wxEVT_LEFT_UP, &ControlPanel::OnClickSelect, this);
-			menu_name->SetName(std::to_string(ctrl_menu.ID));
-			wxFont menu_name_font(10, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
-			menu_name_font.SetFaceName(wxT("Monospace"));
-			menu_name->SetFont(menu_name_font);
-			menu_sizer->Add(menu_name, 1, wxEXPAND | wxALL, 5);
+			wxStaticText* menuName = new wxStaticText(menu, wxID_ANY, ctrl_menu.name);
+			menuName->Bind(wxEVT_LEFT_UP, &ControlPanel::OnClickSelect, this);
+			menuName->SetName(std::to_string(ctrl_menu.ID));
+			wxFont menuName_font(10, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+			menuName_font.SetFaceName(wxT("Monospace"));
+			menuName->SetFont(menuName_font);
+			menuSizer->Add(menuName, 1, wxEXPAND | wxALL, 5);
 
-			wxStaticText* menu_shortkut = new wxStaticText(menu, wxID_ANY, ctrl_menu.shortkut);
-			wxFont menu_shortkut_font(7, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
-			menu_shortkut_font.SetFaceName(wxT("Monospace"));
-			menu_shortkut->SetFont(menu_shortkut_font);
-			menu_sizer->Add(menu_shortkut, 0, wxEXPAND | wxTOP, 8);
+			wxStaticText* menuShortkut = new wxStaticText(menu, wxID_ANY, ctrl_menu.shortkut);
+			wxFont menuShortkut_font(7, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+			menuShortkut_font.SetFaceName(wxT("Monospace"));
+			menuShortkut->SetFont(menuShortkut_font);
+			menuSizer->Add(menuShortkut, 0, wxEXPAND | wxTOP, 8);
 
-			menu->SetSizerAndFit(menu_sizer);
-			menu_ctn_sizer->Add(menu, 0, wxEXPAND | wxALL, 3);
+			menu->SetSizerAndFit(menuSizer);
+			menuContainerSizer->Add(menu, 0, wxEXPAND | wxALL, 3);
 		}
 
-		menus_container->SetSizerAndFit(menu_ctn_sizer);
-		menus_container->FitInside();
-		menus_container->SetScrollRate(20, 20);
-		sizer->Add(menus_container, 1, wxEXPAND);
+		menusContainer->SetSizerAndFit(menuContainerSizer);
+		menusContainer->FitInside();
+		menusContainer->SetScrollRate(20, 20);
+		sizer->Add(menusContainer, 1, wxEXPAND);
 
 		wxAcceleratorEntry entries[4];
 		entries[0].Set(wxACCEL_NORMAL, WXK_ESCAPE, ID_EXIT_CONTROL_PANEL);
@@ -88,38 +86,49 @@ public:
 		Destroy();
 	}
 	void UpSelection(wxCommandEvent& event) {
-		bool finded;
-		for (auto&& menu : menus_container->GetChildren()) {
+		bool finded = false;
+		for (auto&& menu : menusContainer->GetChildren()) {
 			if (finded) return;
 			if (menu == selectedMenu) {
-				auto next_menu = menu->GetPrevSibling();
-				if (!next_menu) {
-					next_menu = menus_container->GetChildren()[0];
+				auto nextMenu = menu->GetPrevSibling();
+				if (!nextMenu) {
+					nextMenu = menusContainer->GetChildren()[0];
 				}
 
-				if (next_menu != menu) {
-					next_menu->SetBackgroundColour(wxColor(56, 56, 56));
-					menu->SetBackgroundColour(wxColor(36, 36, 36));
-					selectedMenu = ((wxPanel*)next_menu);
+				if (nextMenu != menu) {
+					nextMenu->SetBackgroundColour(wxColor(UserTheme["selectedFile"].template get<std::string>()));
+					menu->SetBackgroundColour(wxColor(UserTheme["main"].template get<std::string>()));
+					selectedMenu = ((wxPanel*)nextMenu);
 					finded = true;
+
+					nextMenu->Refresh();
 				}
 			}
+			else {
+				menu->SetBackgroundColour(wxColor(UserTheme["main"].template get<std::string>()));
+			}
+			menu->Refresh();
 		}
 	}
 	void DownSelection(wxCommandEvent& event) {
-		bool finded;
-		for (auto&& menu : menus_container->GetChildren()) {
+		bool finded = false;
+
+		for (auto&& menu : menusContainer->GetChildren()) {
 			if (finded) return;
 			if (menu == selectedMenu) {
-				auto next_menu = menu->GetNextSibling();
-				if (!next_menu) {
-					next_menu = menus_container->GetChildren()[0];
+
+				auto nextMenu = menu->GetNextSibling();
+				if (!nextMenu) {
+					nextMenu = menusContainer->GetChildren()[0];
 				}
 
-				next_menu->SetBackgroundColour(wxColor(56, 56, 56));
-				menu->SetBackgroundColour(wxColor(36, 36, 36));
-				selectedMenu = ((wxPanel*)next_menu);
+				nextMenu->SetBackgroundColour(wxColor(UserTheme["selectedFile"].template get<std::string>()));
+				menu->SetBackgroundColour(wxColor(UserTheme["main"].template get<std::string>()));
+				selectedMenu = ((wxPanel*)nextMenu);
 				finded = true;
+
+				menu->Refresh();
+				nextMenu->Refresh();
 			}
 		}
 	}
@@ -134,36 +143,16 @@ public:
 	void Select(wxString id) {
 		switch (static_cast<char>(id[0])) {
 		case '1': {
-		} break;
-		case '2': {} break;
-		case '3': {} break;
-		case '4': {
-			std::vector<NotifyInteractions> ntf_interactions{
-				{"Cancel", "cancel"},
-				{"Ok", "ok"},
-			};
-			auto notify_panel = new NotifyPanel(
-				((wxWindow*)FindWindowById(ID_MAIN_SPLITTER)->GetParent()),
-				"Executando teste de painel de Notificações",
-				ntf_interactions
-			);
-		} break;
-		case '5': {
 			((wxSplitterWindow*)FindWindowById(ID_MAIN_CONTAINER_SPLITTER))->SplitHorizontally(
 				FindWindowById(ID_CENTERED_CONTENT), FindWindowById(ID_TERMINAL), 0);
 		} break;
 		}
-
 		FindWindowById(ID_STATUS_BAR)->SetFocus();
 		Destroy();
 	}
 private:
 	std::vector<ControlMenu> menus{
-		{"Enter Focus Mode", "Shift+F11", 1},
-		{"Hide Side Navigation", "", 2},
-		{"Extensions: Install", "", 3},
-		{"Notify Panel", "Ctrl+Shift+N", 4},
-		{"Open Terminal", "Ctrl+Shift+T", 5},
+		{"Open Terminal", "Ctrl+Shift+T", 1},
 	};
 	wxDECLARE_NO_COPY_CLASS(ControlPanel);
 	wxDECLARE_EVENT_TABLE();
