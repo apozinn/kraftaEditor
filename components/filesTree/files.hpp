@@ -7,11 +7,12 @@ class FilesTree : public wxPanel {
 	wxSizer* sizer;
 	wxBoxSizer* file_ctn_sizer;
 	wxScrolled<wxPanel>* files_container;
+	std::string menuDirPath;
+	std::string menuFilePath;
 public:
 	wxScrolled<wxPanel>* project_files_ctn;
-	wxWindow* selectedFile = NULL;
+	wxWindow* selectedFile = nullptr;
 	FileManager* fileManager = new FileManager();
-	wxString menufile_path, menudir_path;
 	FilesTree(wxWindow* parent, wxWindowID ID);
 	void Update();
 	bool Load(wxWindow* parent, std::string path);

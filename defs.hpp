@@ -7,11 +7,12 @@ struct NotifyInteractions {
 	const char* id;
 };
 
-wxString project_path;
+wxString project_path = wxString("");
+wxString icons_dir = wxString("");
+wxString current_openned_path = wxString("");
+
 std::string project_name;
-wxString icons_dir;
 std::string assetsDir;
-wxString current_openned_path;
 
 json UserTheme;
 json UserConfigs;
@@ -51,6 +52,7 @@ enum {
 	ID_APPLICATION_CONTENT,
 	ID_CENTERED_CONTENT,
 	ID_EMPYT_WINDOW,
+	ID_CREATE_DIR,
 	ID_CREATE_FILE,
 	ID_MAIN_CONTAINER_SPLITTER,
 	ID_MAIN_SPLITTER,
@@ -63,7 +65,6 @@ enum {
 	ID_GLOBAL_NAVIGATION,
 	ID_EXIT_TERMINAL,
 	ID_TABS_CONTAINER,
-	ID_CREATE_DIR,
 	ID_TOGGLE_CONTROL_PANEL,
 	ID_CODE_ARROWS_PRESS,
 	ID_TERMINAL,

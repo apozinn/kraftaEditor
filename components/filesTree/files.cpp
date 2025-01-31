@@ -353,7 +353,6 @@ void FilesTree::OpenFile(wxString path)
 	else LoadCodeContainer();
 
 	//updating main container
-	project_files_ctn->Update();
 	mainCode->GetSizer()->Layout();
 }
 
@@ -450,7 +449,7 @@ void FilesTree::onFileRightClick(wxMouseEvent& event)
 	auto target = ((wxWindow*)event.GetEventObject());
 	if (!target->GetName().size())
 		return;
-	menufile_path = target->GetName();
+	menuFilePath = target->GetName().ToStdString();
 
 	wxMenu* menuFile = new wxMenu;
 	menuFile->Append(ID_RENAME_FILE, _("&Rename"));
@@ -474,7 +473,7 @@ void FilesTree::onDirRightClick(wxMouseEvent& event)
 
 	if (!target->GetName().size())
 		return;
-	menudir_path = target->GetName();
+	menuDirPath = target->GetName().ToStdString();
 
 	wxMenu* menuDir = new wxMenu;
 	menuDir->Append(ID_RENAME_DIR, _("&Rename"));
@@ -548,50 +547,82 @@ void FilesTree::FitContainer(wxWindow* window)
 
 void FilesTree::OnCreateDir(wxCommandEvent& event)
 {
-	wxString folder_name = wxGetTextFromUser("Enter the folder name: ", "Create Folder", "");
-	if (folder_name.empty())
+	wxString folder_name = wxGetTextFromUser("Enter the dir name: ", "Create Dir", "");
+	if (folder_name.IsEmpty()) return;
+
+	if (project_path.IsEmpty()) {
+		wxMessageBox(_("You can't create a dir in a empty project"), _("Create Dir"), wxOK | wxICON_INFORMATION, this);
 		return;
-	if (__WXWINDOWS__) {
-		fileManager->CreateDir(menudir_path + "\\" + folder_name);
+	}
+
+	//checking if the user selected a directory
+	if (!menuDirPath.empty()) {
+		//creating the dir and checking if there is an error
+		if (__WXWINDOWS__) {
+			if (!fileManager->CreateDir(wxString(menuDirPath) + "\\" + folder_name)) {
+				wxMessageBox(_("An error occurred while creating the file"), _("Create File"), wxOK | wxICON_INFORMATION, this);
+			}
+		}
+		else {
+			if (!fileManager->CreateDir(wxString(menuDirPath) + "/" + folder_name)) {
+				wxMessageBox(_("An error occurred while creating the file"), _("Create File"), wxOK | wxICON_INFORMATION, this);
+			}
+		}
 	}
 	else {
-		fileManager->CreateDir(menudir_path + "/" + folder_name);
+		//creating the dir and checking if there is an error
+		if (__WXWINDOWS__) {
+			if (!fileManager->CreateDir(project_path + folder_name)) {
+				wxMessageBox(_("An error occurred while creating the file"), _("Create File"), wxOK | wxICON_INFORMATION, this);
+			}
+		}
+		else {
+			if (!fileManager->CreateDir(project_path + folder_name)) {
+				wxMessageBox(_("An error occurred while creating the file"), _("Create File"), wxOK | wxICON_INFORMATION, this);
+			}
+		}
 	}
 }
 
 void FilesTree::OnCreateFile(wxCommandEvent& event)
 {
 	wxString file_name = wxGetTextFromUser("Enter the file name: ", "Create File", "");
-	if (file_name.empty())
-		return;
+	if (file_name.IsEmpty()) return;
 
-	if (menudir_path.Len() > 1000)
-	{
-		if (project_path.Len() > 1000)
-		{
-			wxMessageBox(_("You can't create a file in a empty project"), _("Create File"), wxOK | wxICON_INFORMATION, this);
+	if (project_path.IsEmpty()) {
+		wxMessageBox(_("You can't create a file in a empty project"), _("Create File"), wxOK | wxICON_INFORMATION, this);
+		return;
+	}
+
+	//checking if the user selected a directory
+	if (!menuDirPath.empty()) {
+		//creating the file and checking if there is an error
+		if (!fileManager->CreateFile(wxString(menuDirPath) + "/" + file_name)) {
+			wxMessageBox(_("An error occurred while creating the file"), _("Create File"), wxOK | wxICON_INFORMATION, this);
 		}
-		else
-		{
-			fileManager->CreateFile(project_path + file_name);
-			OpenFile(project_path + file_name);
+		else {
+			OpenFile(wxString(menuDirPath) + "/" + file_name);
 		}
 	}
-	else
-	{
-		fileManager->CreateFile(menudir_path + "/" + file_name);
-		OpenFile(menudir_path + "/" + file_name);
+	else {
+		//creating the file and checking if there is an error
+		if (!fileManager->CreateFile(project_path + file_name)) {
+			wxMessageBox(_("An error occurred while creating the file"), _("Create File"), wxOK | wxICON_INFORMATION, this);
+		}
+		else {
+			OpenFile(project_path + file_name);
+		}
 	}
 }
 
 void FilesTree::OnDeleteDir(wxCommandEvent& event)
 {
-	bool deleted = fileManager->DeleteDir(menudir_path);
+	bool deleted = fileManager->DeleteDir(wxString(menuDirPath));
 }
 
 void FilesTree::OnDeleteFile(wxCommandEvent& event)
 {
-	bool deleted = fileManager->DeleteFile(menufile_path);
+	bool deleted = fileManager->DeleteFile(wxString(menuFilePath));
 }
 
 void FilesTree::OnTreeModifyed(wxString old_path, wxString new_path)
@@ -662,33 +693,29 @@ void FilesTree::OnLeaveComp(wxMouseEvent& event)
 void FilesTree::OnFileRename(wxCommandEvent& event)
 {
 	wxString new_name = wxGetTextFromUser("Enter the new file name: ", "Rename File", "");
-	if (new_name.empty())
-		return;
-	if (menufile_path.empty())
-		return;
+	if (new_name.empty()) return;
+	if (menuFilePath.empty()) return;
 
-	wxString target_parent = menufile_path.substr(0, menufile_path.find_last_of("/") + 1);
+	wxString target_parent = menuFilePath.substr(0, menuFilePath.find_last_of("/") + 1);
 	wxString new_path = target_parent + new_name;
 
-	if (!wxRename(menufile_path, new_path))
+	if (!wxRename(wxString(menuFilePath), new_path))
 	{
-		wxMessageBox("There was an error renaming the file", "", wxOK | wxICON_INFORMATION);
+		wxMessageBox("An error occurred while renaming the file", "", wxOK | wxICON_INFORMATION);
 	}
 }
 
 void FilesTree::OnDirRename(wxCommandEvent& event)
 {
 	wxString new_name = wxGetTextFromUser("Enter the new dir name: ", "Rename Dir", "");
-	if (new_name.empty())
-		return;
-	if (menudir_path.empty())
-		return;
+	if (new_name.empty()) return;
+	if (menuDirPath.empty()) return;
 
-	wxString target_parent = menudir_path.substr(0, menudir_path.find_last_of("/") + 1);
+	wxString target_parent = menuDirPath.substr(0, menuDirPath.find_last_of("/") + 1);
 	wxString new_path = target_parent + new_name;
 
-	if (!wxRename(menudir_path, new_path))
+	if (!wxRename(wxString(menuDirPath), new_path))
 	{
-		wxMessageBox("There was an error renaming the dir", "", wxOK | wxICON_INFORMATION);
+		wxMessageBox("An error occurred while renaming the directory", "", wxOK | wxICON_INFORMATION);
 	}
 }

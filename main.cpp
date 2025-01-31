@@ -232,7 +232,8 @@ void MainFrame::OpenFolderDialog()
 		{
 			tabs->CloseAll();
 		}
-		files_tree->Load(files_tree->project_files_ctn, path.ToStdString());
+
+		files_tree->Load(files_tree->project_files_ctn, path.ToStdString() + "/");
 
 		wxConfig* config = new wxConfig("krafta-editor");
 		config->Write("workspace", project_path);
