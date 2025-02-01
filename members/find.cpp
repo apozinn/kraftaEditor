@@ -6,7 +6,7 @@ public:
 	Find(wxWindow* parent, wxString defaultInput) : wxPanel(parent, ID_FIND_CONTAINER, wxPoint(parent->GetSize().GetWidth() - 310, 50), wxSize(300, 51)) {
 		SetMinSize(wxSize(300, 51));
 		SetSize(wxSize(300, 51));
-		SetBackgroundColour(wxColor(30, 30, 30));
+		SetBackgroundColour(wxColor(UserTheme["main"].template get<std::string>()));
 
 		wxBoxSizer* find_sizer = new wxBoxSizer(wxVERTICAL);
 
