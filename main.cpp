@@ -44,7 +44,6 @@ MainFrame::MainFrame(const wxString& title)
 
 	mainContainerSplitter->Bind(wxEVT_PAINT, &MainFrame::OnPaintedComponent, this);
 
-
 	wxPanel* centeredContent = new wxPanel(mainContainerSplitter, ID_CENTERED_CONTENT);
 	wxBoxSizer* centeredContentSizer = new wxBoxSizer(wxVERTICAL);
 
@@ -133,6 +132,7 @@ MainFrame::~MainFrame() { delete m_watcher; }
 
 bool MainFrame::CreateWatcherIfNecessary()
 {
+	return true;
 	if (m_watcher)
 		return false;
 	CreateWatcher();
@@ -233,7 +233,7 @@ void MainFrame::OpenFolderDialog()
 			tabs->CloseAll();
 		}
 
-		files_tree->Load(files_tree->project_files_ctn, path.ToStdString() + "/");
+		files_tree->Load(files_tree->projectFilesContainer, path.ToStdString() + "/");
 
 		wxConfig* config = new wxConfig("krafta-editor");
 		config->Write("workspace", project_path);
@@ -396,7 +396,7 @@ void MainFrame::LoadPath(wxString path)
 	delete config;
 
 	tabs->CloseAll();
-	files_tree->Load(files_tree->project_files_ctn, project_path.ToStdString());
+	files_tree->Load(files_tree->projectFilesContainer, project_path.ToStdString());
 	SetTitle("Krafta Editor - " + project_name);
 
 	AddEntry(wxFSWPath_Tree, path);

@@ -17,64 +17,65 @@
 #include <wx/graphics.h>
 #include "searchFiles.cpp"
 
-FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)
+FilesTree::FilesTree(wxWindow* parent, wxWindowID ID) 
+: wxPanel(parent, ID) 
 {
+	//setting the background color
 	auto background_color = UserTheme["main"].template get<std::string>();
 	SetBackgroundColour(wxColor(background_color));
-	sizer = new wxBoxSizer(wxVERTICAL);
 
-	wxPanel* project_files = new wxPanel(this, ID_PROJECT_FILES);
-	wxBoxSizer* pjt_files_sizer = new wxBoxSizer(wxVERTICAL);
-
-	wxPanel* project_tools = new wxPanel(project_files, ID_PROJECT_TOOLS_BAR);
-	project_tools->Bind(wxEVT_LEFT_UP, &FilesTree::ToggleDir, this);
-	pjt_files_sizer->Add(project_tools, 0, wxEXPAND | wxLEFT, 5);
-	wxBoxSizer* pjt_tools_sizer = new wxBoxSizer(wxHORIZONTAL);
-
+	//projectToggler
+	projectToggler = new wxPanel(this, ID_PROJECT_TOGGLER);
+	wxSizer* projectTogglerSizer = new wxBoxSizer(wxHORIZONTAL);
+	projectToggler->SetSizerAndFit(projectTogglerSizer);
+	
+	//arrow icon
 	wxVector<wxBitmap> bitmaps;
 	bitmaps.push_back(wxBitmap(icons_dir + "dir_arrow.png", wxBITMAP_TYPE_PNG));
-	wxStaticBitmap* pjt_arrow = new wxStaticBitmap(project_tools, ID_PJT_TOOLS_ARROW, wxBitmapBundle::FromBitmaps(bitmaps));
-	pjt_tools_sizer->Add(pjt_arrow, 0, wxEXPAND | wxBOTTOM, 2);
+	wxStaticBitmap* pjt_arrow = new wxStaticBitmap(projectToggler, ID_PJT_TOOLS_ARROW, wxBitmapBundle::FromBitmaps(bitmaps));
+	projectTogglerSizer->Add(pjt_arrow, 0, wxEXPAND);
 
-	wxStaticText* pjt_name = new wxStaticText(project_tools, ID_PJT_TOOLS_PJTNAME, wxString(project_name));
-	pjt_name->Bind(wxEVT_LEFT_UP, &FilesTree::ToggleDir, this);
-	pjt_tools_sizer->Add(pjt_name, 1, wxEXPAND | wxLEFT, 4);
-	project_tools->SetSizerAndFit(pjt_tools_sizer);
+	//project namne
+	projectName = new wxStaticText(projectToggler, ID_PJT_TOOLS_PJTNAME, wxString(project_name));
+	projectTogglerSizer->Add(projectName, 1, wxEXPAND | wxLEFT, 4);
 
-	project_files_ctn = new wxScrolled<wxPanel>(project_files, ID_PROJECT_FILES_CTN);
-	pjt_files_sizer->Add(project_files_ctn, 1, wxEXPAND);
-	auto pjt_files_ctn_sizer = new wxBoxSizer(wxVERTICAL);
-	project_files_ctn->SetSizerAndFit(pjt_files_ctn_sizer);
-	project_files->SetSizerAndFit(pjt_files_sizer);
+	//adding projectToggler to main sizer
+	sizer->Add(projectToggler, 0, wxEXPAND | wxTOP | wxBOTTOM, 7);
 
-	sizer->Add(project_files, 1, wxEXPAND);
+	//projectFilesContainer
+	projectFilesContainer = new wxScrolled<wxPanel>(this, ID_PROJECT_FILES_CTN);
+	wxBoxSizer* projectFilesContainerSizer = new wxBoxSizer(wxVERTICAL);
+	projectFilesContainer->SetSizerAndFit(projectFilesContainerSizer);
+
+	//adding projectFilesContainer to main sizer
+	sizer->Add(projectFilesContainer, 1, wxEXPAND);
+
 	SetSizerAndFit(sizer);
-	if (!project_path.size())
-		pjt_arrow->Hide();
+
+	//setting projectToggler min size
+	projectToggler->SetMinSize(wxSize(GetSize().x, 15));
+
+	if (!project_path.size()) {
+		projectToggler->Hide();
+	}
 
 	Bind(wxEVT_PAINT, &FilesTree::OnPaint, this);
+
+	//lincking components of the projectToggler
+	projectToggler->CallForEachChild([=](wxWindow* children) {
+		//function to toggler view of the projectFilesContainer
+		children->Bind(wxEVT_LEFT_DOWN, [=](wxMouseEvent& event) {
+			if(projectFilesContainer->IsShown()) {
+				projectFilesContainer->Hide();
+			} else projectFilesContainer->Show();
+		});
+	});
 }
 
-void FilesTree::Update()
-{
-	project_files_ctn->DestroyChildren();
-	project_files_ctn->SetName(project_path);
-	if (auto project_name_comp = FindWindowById(ID_PJT_TOOLS_PJTNAME))
-		project_name_comp->SetLabel(project_name);
-	if (auto project_arrow = FindWindowById(ID_PJT_TOOLS_ARROW))
-		project_arrow->Show();
-
-	Load(project_files_ctn, project_path.ToStdString());
-
-	project_files_ctn->FitInside();
-	project_files_ctn->SetScrollRate(20, 20);
-	selectedFile = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(0, 0));
-}
-
-bool FilesTree::Load(wxWindow* parent, std::string path) {
+void FilesTree::Load(wxWindow* parent, std::string path) {
 	//destroy all childrens if the current path is the path of the project
 	if (path == project_path) {
-		project_files_ctn->DestroyChildren();
+		projectFilesContainer->DestroyChildren();
 	}
 
 	//list all files in directory
@@ -101,7 +102,9 @@ bool FilesTree::Load(wxWindow* parent, std::string path) {
 		}
 	}
 
-	return true;
+	//updating the projectName
+	projectName->SetLabel(project_name);
+	projectToggler->Show();
 }
 
 void FilesTree::CreateFile(
@@ -365,7 +368,7 @@ void FilesTree::ToggleDir(wxMouseEvent& event)
 		dirContainer->GetId() == ID_PJT_TOOLS_PJTNAME
 		)
 	{
-		dirContainer = project_files_ctn;
+		dirContainer = projectFilesContainer;
 
 		//rotate the arrow icon
 		auto dir_arrow_ctn = ((wxStaticBitmap*)FindWindowById(ID_PJT_TOOLS_ARROW));
@@ -541,8 +544,8 @@ void FilesTree::FitContainer(wxWindow* window)
 		}
 	}
 
-	project_files_ctn->GetSizer()->Layout();
-	project_files_ctn->FitInside();
+	projectFilesContainer->GetSizer()->Layout();
+	projectFilesContainer->FitInside();
 }
 
 void FilesTree::OnCreateDir(wxCommandEvent& event)
@@ -647,7 +650,7 @@ void FilesTree::OnTreeModifyed(wxString old_path, wxString new_path)
 
 	auto parent = FindWindowByName(parent_path);
 	if (parent_path + "/" == project_path)
-		parent = project_files_ctn;
+		parent = projectFilesContainer;
 	if (parent)
 	{
 		if (parent->GetId() != ID_PROJECT_FILES_CTN)

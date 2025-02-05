@@ -10,7 +10,7 @@ json UserConfig::Get()
 	{
 		bool dir_created = wxFileName::Mkdir(appDataDir);
 		if (dir_created)
-		{
+		{			
 			wxFile newConfigFile;
 			bool created = newConfigFile.Create(appDataDir + "/userconfig.json");
 			if (created)
@@ -49,23 +49,20 @@ bool UserConfig::Update(json new_data)
 
 json UserConfig::GetThemes()
 {
-	std::string as = wxStandardPaths::Get().GetExecutablePath().ToStdString();
-	as = as.substr(0, as.find("krafta-editor") + 13) + "/src/themes.json";
+	std::string location = wxStandardPaths::Get().GetExecutablePath().ToStdString();
+	int appLocation = location.find("kraftaEditor");
+	location = location.substr(0, appLocation+13) + "src/themes.json";
 
 	json data;
 	try
 	{
-		std::ifstream themes(as);
+		std::ifstream themes(location);
 		if (themes)
 		{
 			data = json::parse(themes);
 		}
 	}
-	catch (const json::exception& e)
-	{
-		std::cout << "message: " << e.what() << '\n'
-			<< "exception id: " << e.id << std::endl;
-	}
+	catch (const json::exception& e) {}
 
 	auto systemInfo = wxSystemSettings::GetAppearance();
 	if (systemInfo.IsSystemDark()) {

@@ -19,6 +19,7 @@ json UserConfigs;
 
 enum {
 	ID_MAIN_FRAME = -1,
+	ID_PROJECT_TOGGLER,
 	ID_Quit,
 	ID_EXIT_FIND_CONTAINER,
 	ID_ABOUT,

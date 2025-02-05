@@ -3,19 +3,18 @@
 #include <wx/fswatcher.h>
 
 class FilesTree : public wxPanel {
-	wxPanel* files_tree;
-	wxSizer* sizer;
-	wxBoxSizer* file_ctn_sizer;
-	wxScrolled<wxPanel>* files_container;
+	wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
 	std::string menuDirPath;
 	std::string menuFilePath;
 public:
-	wxScrolled<wxPanel>* project_files_ctn;
+	wxPanel* projectToggler = nullptr;
+	wxScrolled<wxPanel>* projectFilesContainer;
+	wxStaticText* projectName = nullptr;
 	wxWindow* selectedFile = nullptr;
 	FileManager* fileManager = new FileManager();
+
 	FilesTree(wxWindow* parent, wxWindowID ID);
-	void Update();
-	bool Load(wxWindow* parent, std::string path);
+	void Load(wxWindow* parent, std::string path);
 	void CreateFile(wxWindow* parent, wxString name, wxString path);
 	void CreateDir(wxWindow* parent, wxString name, wxString path);
 	void OnFileSelect(wxMouseEvent& event);

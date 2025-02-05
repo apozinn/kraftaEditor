@@ -1,15 +1,15 @@
 #pragma once
 
-#include "wx/wx.h"
+#include <wx/wx.h>
 #include <wx/splitter.h>
-#include "wx/fswatcher.h"
-#include "wx/cmdline.h"
+#include <wx/fswatcher.h>
+#include <wx/cmdline.h>
 #include <wx/config.h>
 #include <wx/settings.h>
 
 #if wxUSE_CLIPBOARD
-#include "wx/dataobj.h"
-#include "wx/clipbrd.h"
+#include <wx/dataobj.h>
+#include <wx/clipbrd.h>
 #endif
 
 #include <string>
@@ -31,7 +31,7 @@
 #include "./members/find.cpp"
 
 #if __WXMSW__
-#include "wx/msw/private.h"
+#include <wx/msw/private.h>
 #include <wx/msw/darkmode.h>
 #endif
 
@@ -128,6 +128,7 @@ public:
 
 	virtual void OnEventLoopEnter(wxEventLoopBase* WXUNUSED(loop)) override
 	{
+		return;
 		if (frame->CreateWatcherIfNecessary())
 		{
 			wxConfig* config = new wxConfig("krafta-editor");

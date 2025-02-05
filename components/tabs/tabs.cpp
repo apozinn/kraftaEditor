@@ -208,11 +208,8 @@ void Tabs::Close(wxWindow* tab, wxString tab_path)
 
 void Tabs::CloseAll()
 {
-	auto main_code = FindWindowById(ID_MAIN_CODE);
-
 	tabs_container->DestroyChildren();
 	Hide();
-
 	if (auto emptyWindow = FindWindowById(ID_EMPYT_WINDOW)) emptyWindow->Show();
 }
 
