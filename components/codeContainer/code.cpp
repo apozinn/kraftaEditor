@@ -4,9 +4,9 @@
 #include <wx/app.h>
 
 CodeContainer::CodeContainer(
-	wxWindow* parent, wxString path) : wxScrolled<wxPanel>(parent)
+	wxWindow *parent, wxString path) : wxScrolled<wxPanel>(parent)
 {
-	wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer *sizer = new wxBoxSizer(wxHORIZONTAL);
 	codeEditor = new wxStyledTextCtrl(this, ID_CODE_EDITOR, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
 	codeMap = new wxStyledTextCtrl(this, ID_CODE_MAP, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
 
@@ -18,13 +18,14 @@ CodeContainer::CodeContainer(
 
 	SetSizerAndFit(sizer);
 
-	if (__WXWINDOWS__) {
+	if (__WXWINDOWS__)
+	{
 		font = wxFont(wxFontInfo(10).FaceName("Cascadia Code"));
 	}
-	else {
+	else
+	{
 		font = wxFont(wxFontInfo(10).FaceName("Monospace"));
 	}
-
 
 	LoadPath(path);
 	SetName(path + "_codeContainer");
@@ -40,6 +41,8 @@ CodeContainer::CodeContainer(
 
 bool CodeContainer::LoadPath(wxString path)
 {
+	statusBar = ((StatusBar *)FindWindowById(ID_STATUS_BAR));
+
 	wxFileName file_props(path);
 	if (file_props.IsOk())
 	{
@@ -47,10 +50,11 @@ bool CodeContainer::LoadPath(wxString path)
 		{
 			bool codeEditor_loadSuccessfully = codeEditor->LoadFile(path);
 			bool codeMap_loadSuccessfully = codeMap->LoadFile(path);
+			
 			if (codeEditor_loadSuccessfully && codeMap_loadSuccessfully)
 			{
-				status_bar->UpdateCodeLocale(codeEditor);
-				((wxFrame*)FindWindowById(ID_MAIN_SPLITTER)->GetParent())->SetTitle(wxFileNameFromPath(path) + " (" + project_name + ") - Krafta Editor");
+				statusBar->UpdateCodeLocale(codeEditor);
+				((wxFrame *)FindWindowById(ID_MAIN_SPLITTER)->GetParent())->SetTitle(wxFileNameFromPath(path) + " (" + project_name + ") - Krafta Editor");
 				InitializePrefs(DeterminePrefs(path));
 				return true;
 			}
@@ -61,7 +65,7 @@ bool CodeContainer::LoadPath(wxString path)
 
 wxString CodeContainer::DeterminePrefs(wxString filename)
 {
-	LanguageInfo const* currentInfo;
+	LanguageInfo const *currentInfo;
 	int languageNr;
 	for (languageNr = 0; languageNr < languages_prefs_size; languageNr++)
 	{
@@ -88,7 +92,7 @@ bool CodeContainer::InitializePrefs(wxString name)
 	if (!codeEditor || !codeMap)
 		return false;
 
-	LanguageInfo const* currentInfo = nullptr;
+	LanguageInfo const *currentInfo = nullptr;
 	bool found = false;
 	int languageNr;
 	for (languageNr = 0; languageNr < languages_prefs_size; languageNr++)
@@ -125,7 +129,7 @@ bool CodeContainer::InitializePrefs(wxString name)
 			if (currentInfo->styles[Nr].type == -1)
 				continue;
 
-			const StyleInfo& curType = global_lexer_styles[currentInfo->styles[Nr].type];
+			const StyleInfo &curType = global_lexer_styles[currentInfo->styles[Nr].type];
 			codeEditor->StyleSetFont(Nr, font);
 			codeMap->StyleSetFont(Nr, font);
 
@@ -147,7 +151,7 @@ bool CodeContainer::InitializePrefs(wxString name)
 			codeEditor->StyleSetCase(Nr, curType.lettercase);
 			codeMap->StyleSetCase(Nr, curType.lettercase);
 
-			const char* pwords = currentInfo->styles[Nr].words;
+			const char *pwords = currentInfo->styles[Nr].words;
 			if (pwords)
 			{
 				codeEditor->SetKeyWords(keywordnr, pwords);
@@ -156,8 +160,6 @@ bool CodeContainer::InitializePrefs(wxString name)
 			}
 		}
 	}
-
-	codeEditor->Colourise(0, 100);
 	return true;
 }
 
@@ -175,18 +177,18 @@ void CodeContainer::CodeEditorInitPrefs()
 	codeEditor->SetIndentationGuides(true);
 	codeEditor->SetScrollWidth(1);
 
-	//setting  the default color
+	// setting  the default color
 	codeEditor->StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(backgroundColor));
 	codeEditor->StyleSetForeground(wxSTC_STYLE_DEFAULT, wxColor(textColor));
 	codeEditor->StyleSetFont(wxSTC_STYLE_DEFAULT, font);
 
-	//clearing all preset styles
+	// clearing all preset styles
 	codeEditor->StyleClearAll();
 
-	//setting the caret color
+	// setting the caret color
 	codeEditor->SetCaretForeground(wxColour(textColor));
 
-	//margin settings
+	// margin settings
 	codeEditor->SetMarginWidth(0, codeEditor->TextWidth(wxSTC_STYLE_LINENUMBER, wxT("_99999")));
 	codeEditor->SetMarginType(0, wxSTC_MARGIN_NUMBER);
 	codeEditor->StyleSetForeground(wxSTC_STYLE_LINENUMBER, wxColor(secondaryTextColor));
@@ -200,7 +202,7 @@ void CodeContainer::CodeEditorInitPrefs()
 	codeEditor->SetMarginMask(1, wxSTC_MASK_FOLDERS);
 	codeEditor->SetMarginSensitive(1, true);
 
-	//linking events
+	// linking events
 	codeEditor->Bind(wxEVT_STC_MARGINCLICK, &CodeContainer::OnMarginClick, this);
 	codeEditor->Bind(wxEVT_STC_MODIFIED, &CodeContainer::OnChange, this);
 	codeEditor->Bind(wxEVT_STC_CHARADDED, &CodeContainer::CharAdd, this);
@@ -209,14 +211,14 @@ void CodeContainer::CodeEditorInitPrefs()
 	codeEditor->Bind(wxEVT_STC_UPDATEUI, &CodeContainer::OnCodeEditorScroll, this);
 	codeEditor->Bind(wxEVT_STC_AUTOCOMP_COMPLETED, &CodeContainer::OnAutoCompCompleted, this);
 
-	//linking autocomp icons
+	// linking autocomp icons
 	codeEditor->RegisterImage(0, wxBitmap(icons_dir + "thunder.png", wxBITMAP_TYPE_PNG));
 	codeEditor->RegisterImage(1, wxBitmap(icons_dir + "question.png", wxBITMAP_TYPE_PNG));
 
-	//setting the lexer
+	// setting the lexer
 	codeEditor->SetLexer(current_lang->lexer);
 
-	//setting the fold
+	// setting the fold
 	codeEditor->SetProperty(wxT("fold"), wxT("1"));
 	codeEditor->SetProperty(wxT("fold.comment"), wxT("1"));
 	codeEditor->SetProperty(wxT("fold.compact"), wxT("1"));
@@ -225,7 +227,7 @@ void CodeContainer::CodeEditorInitPrefs()
 	codeEditor->SetProperty(wxT("fold.html.preprocessor"), wxT("1"));
 	codeEditor->SetFoldFlags(wxSTC_FOLDFLAG_LINEBEFORE_CONTRACTED | wxSTC_FOLDFLAG_LINEAFTER_CONTRACTED);
 
-	//setting the folder
+	// setting the folder
 	codeEditor->SetMarginMask(2, wxSTC_MASK_FOLDERS);
 	codeEditor->SetFoldMarginColour(true, wxColor(backgroundColor));
 	codeEditor->SetFoldMarginHiColour(true, wxColor(backgroundColor));
@@ -313,23 +315,23 @@ void CodeContainer::CodeMapInitPrefs()
 	codeMap->SetCaretWidth(0);
 }
 
-void CodeContainer::OnSave(wxCommandEvent& event)
+void CodeContainer::OnSave(wxCommandEvent &event)
 {
-	for (auto&& children : FindWindowById(ID_MAIN_CODE)->GetChildren())
+	for (auto &&children : FindWindowById(ID_MAIN_CODE)->GetChildren())
 	{
 		if (children->GetName().find("_codeContainer") != std::string::npos && children->IsShown())
 		{
-			auto this_codeEditor = ((wxStyledTextCtrl*)children->GetChildren()[0]);
+			auto this_codeEditor = ((wxStyledTextCtrl *)children->GetChildren()[0]);
 			wxString this_path = this_codeEditor->GetParent()->GetLabel();
 
 			if (this_codeEditor)
 			{
-				for (auto&& tab : FindWindowById(ID_TABS_CONTAINER)->GetChildren())
+				for (auto &&tab : FindWindowById(ID_TABS_CONTAINER)->GetChildren())
 				{
 					if (tab->GetName() == this_path)
 					{
 						this_codeEditor->SaveFile(this_path);
-						auto icon = ((wxStaticBitmap*)tab->GetChildren()[0]->GetChildren()[2]);
+						auto icon = ((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[2]);
 						icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(icons_dir + "close.png", wxBITMAP_TYPE_PNG)));
 						tab->GetSizer()->Layout();
 						changed = false;
@@ -342,7 +344,7 @@ void CodeContainer::OnSave(wxCommandEvent& event)
 	}
 }
 
-void CodeContainer::OnMarginClick(wxStyledTextEvent& event)
+void CodeContainer::OnMarginClick(wxStyledTextEvent &event)
 {
 	if (event.GetMargin() == 1)
 	{
@@ -353,13 +355,15 @@ void CodeContainer::OnMarginClick(wxStyledTextEvent& event)
 	}
 }
 
-void CodeContainer::OnChange(wxStyledTextEvent& event)
+void CodeContainer::OnChange(wxStyledTextEvent &event)
 {
-	if (changed == false && codeEditor->GetModify()) {
+	if (changed == false && codeEditor->GetModify())
+	{
 
 		auto tab = FindWindowByLabel(currentPath + "_tab");
-		if (tab) {
-			auto icon = ((wxStaticBitmap*)tab->GetChildren()[0]->GetChildren()[2]);
+		if (tab)
+		{
+			auto icon = ((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[2]);
 			if (icon)
 			{
 				icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(icons_dir + "white_circle.png", wxBITMAP_TYPE_PNG)));
@@ -368,15 +372,15 @@ void CodeContainer::OnChange(wxStyledTextEvent& event)
 		changed = true;
 	}
 
-	status_bar->UpdateCodeLocale(codeEditor);
+	statusBar->UpdateCodeLocale(codeEditor);
 }
 
-void CodeContainer::OnArrowsPress(wxKeyEvent& event)
+void CodeContainer::OnArrowsPress(wxKeyEvent &event)
 {
-	status_bar->UpdateCodeLocale(codeEditor);
+	statusBar->UpdateCodeLocale(codeEditor);
 }
 
-void CodeContainer::CharAdd(wxStyledTextEvent& event)
+void CodeContainer::CharAdd(wxStyledTextEvent &event)
 {
 	char chr = (char)event.GetKey();
 	char previous_char = (char)codeEditor->GetCharAt(codeEditor->GetCurrentPos() - 2);
@@ -416,7 +420,7 @@ void CodeContainer::CharAdd(wxStyledTextEvent& event)
 	if (chr == '#')
 	{
 		wxString s = "define?0 elif?1 else?0 endif?01 error?0 if?0 ifdef?0 "
-			"ifndef?1 include?0 line?0 pragma?1 undef?0";
+					 "ifndef?1 include?0 line?0 pragma?1 undef?0";
 		codeEditor->AutoCompShow(0, s);
 	}
 
@@ -440,25 +444,25 @@ void CodeContainer::CharAdd(wxStyledTextEvent& event)
 		codeEditor->InsertText(codeEditor->GetCurrentPos(), "'");
 }
 
-void CodeContainer::OnClick(wxMouseEvent& event)
+void CodeContainer::OnClick(wxMouseEvent &event)
 {
-	status_bar->UpdateCodeLocale(codeEditor);
+	statusBar->UpdateCodeLocale(codeEditor);
 	event.Skip();
 }
 
-void CodeContainer::OnCodeEditorScroll(wxStyledTextEvent& event)
+void CodeContainer::OnCodeEditorScroll(wxStyledTextEvent &event)
 {
 	codeMap->ScrollToLine(codeEditor->GetFirstVisibleLine());
 }
 
-void CodeContainer::OnCodeMapScroll(wxStyledTextEvent& event)
+void CodeContainer::OnCodeMapScroll(wxStyledTextEvent &event)
 {
 	codeEditor->ScrollToLine(codeMap->GetFirstVisibleLine());
 }
 
-void CodeContainer::ToggleCommentLine(wxCommandEvent& WXUNUSED(event))
+void CodeContainer::ToggleCommentLine(wxCommandEvent &WXUNUSED(event))
 {
-	wxStyledTextCtrl* code_editor = ((wxStyledTextCtrl*)FindWindowById(ID_CODE_EDITOR));
+	wxStyledTextCtrl *code_editor = ((wxStyledTextCtrl *)FindWindowById(ID_CODE_EDITOR));
 	if (code_editor)
 	{
 		int lineStart = code_editor->PositionFromLine(code_editor->GetCurrentLine());
@@ -484,7 +488,7 @@ void CodeContainer::ToggleCommentLine(wxCommandEvent& WXUNUSED(event))
 	}
 }
 
-void CodeContainer::OnMapClick(wxMouseEvent& event)
+void CodeContainer::OnMapClick(wxMouseEvent &event)
 {
 	wxClientDC dc(this);
 	wxPoint mouse_pos = event.GetLogicalPosition(dc);
@@ -495,9 +499,9 @@ void CodeContainer::OnMapClick(wxMouseEvent& event)
 	event.Skip();
 }
 
-void CodeContainer::OnCodeMapPaint(wxPaintEvent& event) { event.Skip(); }
+void CodeContainer::OnCodeMapPaint(wxPaintEvent &event) { event.Skip(); }
 
-void CodeContainer::OnCodeMapPainted(wxStyledTextEvent& event)
+void CodeContainer::OnCodeMapPainted(wxStyledTextEvent &event)
 {
 	wxClientDC dc(codeMap);
 	if (codeMapMouseOver)
@@ -509,28 +513,28 @@ void CodeContainer::OnCodeMapPainted(wxStyledTextEvent& event)
 	}
 }
 
-void CodeContainer::OnCodeMapMouseEnter(wxMouseEvent& event)
+void CodeContainer::OnCodeMapMouseEnter(wxMouseEvent &event)
 {
 	codeMapMouseOver = true;
 	codeMap->Refresh();
 }
 
-void CodeContainer::OnCodeMapMouseLeave(wxMouseEvent& event)
+void CodeContainer::OnCodeMapMouseLeave(wxMouseEvent &event)
 {
 	codeMapMouseOver = false;
 	codeMap->Refresh();
 }
 
-void CodeContainer::ToggleMiniMapView(wxCommandEvent& event)
+void CodeContainer::ToggleMiniMapView(wxCommandEvent &event)
 {
 	auto main_code = FindWindowById(ID_MAIN_CODE);
 	int roll = 0;
-	for (auto&& mc_children : main_code->GetChildren())
+	for (auto &&mc_children : main_code->GetChildren())
 	{
 		if (mc_children->GetName().find("_codeContainer") != std::string::npos)
 		{
 			roll++;
-			auto code_map = ((wxStyledTextCtrl*)mc_children->GetChildren()[1]);
+			auto code_map = ((wxStyledTextCtrl *)mc_children->GetChildren()[1]);
 			if (code_map)
 			{
 				if (code_map->IsShown())
@@ -551,7 +555,7 @@ void CodeContainer::ToggleMiniMapView(wxCommandEvent& event)
 	}
 }
 
-void CodeContainer::OnAutoCompCompleted(wxStyledTextEvent& event)
+void CodeContainer::OnAutoCompCompleted(wxStyledTextEvent &event)
 {
 	wxString completion = event.GetString();
 	int pos = event.GetPosition();

@@ -1,16 +1,15 @@
 #pragma once
 
 class StatusBar : public wxPanel {
-	wxBoxSizer* sizer;
-	wxStaticText* first_comp;
-	wxStaticText* second_comp;
-	wxStaticText* third_comp;
+	wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
 public:
+	wxStaticText* codeLocale = nullptr;
+	wxStaticText* tabSize = nullptr;
+	wxStaticText* fileExt = nullptr;
+	
 	StatusBar(wxWindow* parent, wxWindowID ID);
-	void UpdateComps(wxString path, std::string format, const char* language);
+	void UpdateComponents(wxString path, wxString format, const char *language);
+	void UpdateCodeLocale(wxStyledTextCtrl* codeEditor);
 	void ClearLabels();
-	void UpdateCodeLocale(wxStyledTextCtrl* Code);
-private:
 	void OnPaint(wxPaintEvent& event);
-	void ResizeComps();
 };

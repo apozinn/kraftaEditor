@@ -19,7 +19,7 @@ public:
 private:
 	bool changing_values;
 	wxFont font;
-	StatusBar* status_bar = ((StatusBar*)FindWindowById(ID_STATUS_BAR));
+	StatusBar* statusBar = ((StatusBar*)FindWindowById(ID_STATUS_BAR));
 	wxPoint codeMapClickPoint = wxPoint(0, 0);
 	bool codeMapMouseOver = false;
 	wxString DeterminePrefs(wxString filename);

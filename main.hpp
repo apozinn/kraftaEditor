@@ -55,7 +55,7 @@ class MainFrame : public wxFrame
 	wxPanel* mainContainer;
 	wxPanel* mainCode;
 public:
-	StatusBar* status_bar;
+	StatusBar* statusBar;
 	MainFrame(const wxString& title);
 	virtual ~MainFrame();
 	void AddEntry(wxFSWPathType type, wxString filename = wxString());

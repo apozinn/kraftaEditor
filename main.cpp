@@ -76,8 +76,8 @@ MainFrame::MainFrame(const wxString& title)
 
 	applicationContentSizer->Add(mainContainerSplitter, 1, wxEXPAND);
 
-	status_bar = new StatusBar(applicationContent, ID_STATUS_BAR);
-	applicationContentSizer->Add(status_bar, 0, wxEXPAND);
+	statusBar = new StatusBar(applicationContent, ID_STATUS_BAR);
+	applicationContentSizer->Add(statusBar, 0, wxEXPAND);
 
 	applicationContent->SetSizerAndFit(applicationContentSizer);
 
@@ -293,14 +293,14 @@ void MainFrame::OnHiddeMenuBar(wxCommandEvent& WXUNUSED(event))
 
 void MainFrame::OnHiddeStatusBar(wxCommandEvent& WXUNUSED(event))
 {
-	if (status_bar)
+	if (statusBar)
 	{
-		if (status_bar->IsShown())
+		if (statusBar->IsShown())
 		{
-			status_bar->Hide();
+			statusBar->Hide();
 		}
 		else
-			status_bar->Show();
+			statusBar->Show();
 
 		GetSizer()->Layout();
 		Update();
@@ -369,7 +369,7 @@ void MainFrame::CloseAllFiles(wxCommandEvent& WXUNUSED(event))
 {
 	tabs->CloseAll();
 	files_tree->selectedFile->SetBackgroundColour(wxColor(UserTheme["main"].template get<std::string>()));
-	files_tree->selectedFile = NULL;
+	files_tree->selectedFile = nullptr;
 }
 
 void MainFrame::ToggleControlPanel(wxCommandEvent& event)

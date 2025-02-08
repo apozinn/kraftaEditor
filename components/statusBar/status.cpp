@@ -1,95 +1,81 @@
 #include "status.hpp"
 
-StatusBar::StatusBar(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID)
+StatusBar::StatusBar(wxWindow *parent, wxWindowID ID)
+	: wxPanel(parent, ID)
 {
+	// setting the background color
 	auto background_color = UserTheme["secondary"].template get<std::string>();
 	SetBackgroundColour(wxColor(background_color));
 
-	sizer = new wxBoxSizer(wxHORIZONTAL);
+	sizer->AddStretchSpacer();
 
-	wxPanel* left_ctn = new wxPanel(this);
-	wxBoxSizer* left_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
+	// code locale
+	codeLocale = new wxStaticText(this, ID_STTSBAR_CODELOCALE, "");
+	sizer->Add(codeLocale, 0, wxALIGN_CENTER | wxRIGHT, 10);
 
-	wxPanel* error_ctn = new wxPanel(left_ctn);
-	wxBoxSizer* error_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
+	// tab size
+	tabSize = new wxStaticText(this, ID_STTSBAR_TAB_SIZE, "");
+	sizer->Add(tabSize, 0, wxALIGN_CENTER | wxRIGHT, 10);
 
-	wxVector<wxBitmap> bitmaps_e;
-	bitmaps_e.push_back(wxBitmap(icons_dir + "cancel.png", wxBITMAP_TYPE_PNG));
-	wxStaticBitmap* error_ico = new wxStaticBitmap(error_ctn, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps_e));
-	error_ctn_sizer->Add(error_ico, 0, wxALIGN_CENTER);
+	// file extension
+	fileExt = new wxStaticText(this, ID_STTSBAR_FILE_EXT, "");
+	sizer->Add(fileExt, 0, wxALIGN_CENTER | wxRIGHT, 10);
 
-	wxStaticText* error_count = new wxStaticText(error_ctn, wxID_ANY, "0");
-	error_count->SetMinSize(wxSize(error_count->GetSize().GetWidth(), 15));
-	error_ctn_sizer->Add(error_count, 0, wxALIGN_CENTER | wxLEFT, 3);
-	error_ctn->SetSizerAndFit(error_ctn_sizer);
-
-	left_ctn_sizer->Add(error_ctn);
-	left_ctn_sizer->SetSizeHints(left_ctn);
-
-	left_ctn->SetSizerAndFit(left_ctn_sizer);
-	sizer->Add(left_ctn, 1, wxEXPAND | wxALL, 3);
-
-	wxPanel* right_ctn = new wxPanel(this);
-	wxBoxSizer* right_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
-
-	first_comp = new wxStaticText(right_ctn, ID_STTSBAR_CODELOCALE, "");
-	first_comp->SetMinSize(wxSize(110, 15));
-	right_ctn_sizer->Add(first_comp, 0, wxALIGN_CENTER | wxRIGHT, 4);
-
-	second_comp = new wxStaticText(right_ctn, ID_STTSBAR_TAB_SIZE, "");
-	second_comp->SetMinSize(wxSize(60, 15));
-	right_ctn_sizer->Add(second_comp, 0, wxALIGN_CENTER | wxRIGHT, 4);
-
-	third_comp = new wxStaticText(right_ctn, ID_STTSBAR_FILE_EXT, "");
-	third_comp->SetMinSize(wxSize(30, 15));
-	right_ctn_sizer->Add(third_comp, 0, wxALIGN_CENTER | wxRIGHT, 4);
-
-	right_ctn_sizer->SetSizeHints(right_ctn);
-	right_ctn->SetSizerAndFit(right_ctn_sizer);
-	sizer->Add(right_ctn, 0, wxEXPAND | wxALL, 3);
-
-	sizer->SetSizeHints(this);
 	SetSizerAndFit(sizer);
-
 	Bind(wxEVT_PAINT, &StatusBar::OnPaint, this);
+	SetMinSize(wxSize(GetSize().x, 20));
 }
 
-void StatusBar::UpdateComps(wxString path, std::string format, const char* language) {
-	wxFileName file_props = wxFileName(path);
-	if (format == "image") {
-		wxBitmap img(path);
-		wxImage img_ = img.ConvertToImage();
-		first_comp->SetLabel(std::to_string(img_.GetHeight()) + "x" + std::to_string(img_.GetWidth()) + " pixels");
+void StatusBar::UpdateComponents(wxString path, wxString format, const char *language)
+{
+	wxFileName fileProps = wxFileName(path);
+
+	if (format == "image")
+	{
+		wxImage *image = new wxImage(path);
+
+		codeLocale->SetLabel(std::to_string(image->GetHeight()) + "x" + std::to_string(image->GetWidth()) + " pixels");
+
 		char s[32] = "";
-		second_comp->SetLabel(wxString(FormatBytes(file_props.GetSize().ToULong(), s)));
-		if (file_props.HasExt()) {
-			third_comp->SetLabel(file_props.GetExt());
+		tabSize->SetLabel(wxString(FormatBytes(fileProps.GetSize().ToULong(), s)));
 
-		}
-		else {
-			third_comp->SetLabel("Unk");
-
-		}
+		if (fileProps.HasExt())
+			fileExt->SetLabel(fileProps.GetExt());
+		else
+			fileExt->SetLabel("Unknown");
+	} else {
+		fileExt->SetLabel(wxString(language));
 	}
-	else {
-		second_comp->SetLabel("Spaces: 4");
-		third_comp->SetLabel(language != " " ? language : "unknown");
-	}
+
+	Refresh();
+	sizer->Layout();
 }
 
-void StatusBar::ClearLabels() {
-	first_comp->SetLabel("");
-	second_comp->SetLabel("");
-	third_comp->SetLabel("");
+void StatusBar::UpdateCodeLocale(wxStyledTextCtrl *codeEditor)
+{
+	if (tabSize)
+		tabSize->SetLabel("Tab Size: " + std::to_string(codeEditor->GetTabWidth()));
+
+	if (codeLocale)
+		codeLocale->SetLabel(
+			"Line " + std::to_string(codeEditor->GetCurrentLine() + 1) + ", Column " + std::to_string(codeEditor->GetColumn(codeEditor->GetCurrentPos())));
+
+	Refresh();
+	sizer->Layout();
 }
 
-void StatusBar::UpdateCodeLocale(wxStyledTextCtrl* Code) {
-	first_comp->SetLabel(
-		"Line " + std::to_string(Code->GetCurrentLine() + 1) + ", Column " + std::to_string(Code->GetColumn(Code->GetCurrentPos()))
-	);
+void StatusBar::ClearLabels()
+{
+	codeLocale->SetLabel("");
+	tabSize->SetLabel("");
+	fileExt->SetLabel("");
+
+	Refresh();
+	sizer->Layout();
 }
 
-void StatusBar::OnPaint(wxPaintEvent& event) {
+void StatusBar::OnPaint(wxPaintEvent &event)
+{
 	wxPaintDC dc(this);
 	dc.SetBrush(wxColor(UserTheme["border"].template get<std::string>()));
 	dc.SetPen(wxPen(wxColor(UserTheme["border"].template get<std::string>()), 0.20));

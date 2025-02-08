@@ -221,7 +221,7 @@ void Tabs::Select() {
 
 	auto codeContainer = ((CodeContainer*)FindWindowByName(current_openned_path + "_codeContainer"));
 	auto imageContainer = ((wxStaticBitmap*)FindWindowByLabel(current_openned_path + "_imageContainer"));
-	auto status_bar = ((StatusBar*)FindWindowById(ID_STATUS_BAR));
+	auto statusBar = ((StatusBar*)FindWindowById(ID_STATUS_BAR));
 
 	for (auto&& other_ct : main_code->GetChildren())
 	{
@@ -232,13 +232,13 @@ void Tabs::Select() {
 	if (codeContainer)
 	{
 		codeContainer->Show();
-		status_bar->UpdateComps(current_openned_path, "text", codeContainer->current_lang->name);
+		statusBar->UpdateComponents(current_openned_path, "text", codeContainer->current_lang->name);
 	}
 
 	if (imageContainer)
 	{
 		imageContainer->Show();
-		status_bar->UpdateComps(current_openned_path, "image", "img");
+		statusBar->UpdateComponents(current_openned_path, "image", "img");
 	}
 
 	main_code->GetSizer()->Layout();
