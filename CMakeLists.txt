@@ -33,7 +33,7 @@ else()
     # the WIN32 is needed for Windows in order for it to look for WinMain
     # instead of the main function. This is ignored on other systems,
     # so it works on all platforms
-    add_executable(KraftaEditor WIN32 ${SRCS} kraftaEditor.manifest)
+    add_executable(KraftaEditor WIN32 ${SRCS} KraftaEditor.manifest)
 endif()
 
 target_link_libraries(KraftaEditor PRIVATE wxcore wxnet wxstc PRIVATE nlohmann_json::nlohmann_json)
