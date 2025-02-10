@@ -100,7 +100,8 @@ public:
 	{
 		if (!wxApp::OnInit()) return false;
 
-		osName = wxPlatformInfo::Get().GetOperatingSystemIdName();
+		//getting the OS name
+		osName = wxPlatformInfo::Get().GetOperatingSystemFamilyName();
 
 		//verify if system theme is dark
 		auto systemInfo = wxSystemSettings::GetAppearance();
