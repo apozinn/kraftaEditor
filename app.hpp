@@ -1,18 +1,21 @@
 #pragma once
 
-wxString stringToWxString(std::string str) {
+wxString stringToWxString(std::string str)
+{
 	wxString r_str = str;
 	return r_str;
 }
 
-wxFont fontWithOtherSize(wxWindow* cmp, int size) {
+wxFont fontWithOtherSize(wxWindow *cmp, int size)
+{
 	wxFont font = cmp->GetFont();
 	font.SetPixelSize(wxSize(size, size));
 	return font;
 }
 
-const char* FormatBytes(long long bytes, char* str) {
-	const char* sizes[5] = { "B", "KB", "MB", "GB", "TB" };
+const char *FormatBytes(long long bytes, char *str)
+{
+	const char *sizes[5] = {"B", "KB", "MB", "GB", "TB"};
 	int i;
 	double dblByte = bytes;
 	for (i = 0; i < 5 && bytes >= 1024; i++, bytes /= 1024)
@@ -22,8 +25,10 @@ const char* FormatBytes(long long bytes, char* str) {
 	return strcat(strcat(str, " "), sizes[i]);
 }
 
-static wxString GetFSWEventChangeTypeName(int changeType) {
-	switch (changeType) {
+static wxString GetFSWEventChangeTypeName(int changeType)
+{
+	switch (changeType)
+	{
 	case wxFSW_EVENT_CREATE:
 		return "CREATE";
 	case wxFSW_EVENT_DELETE:
@@ -48,13 +53,18 @@ static wxString GetFSWEventChangeTypeName(int changeType) {
 	return "INVALID_TYPE";
 }
 
-wxString GetAppDirs(std::string targetDir) {
+wxString GetAppDirs(std::string targetDir)
+{
 	std::string executablePath = wxStandardPaths::Get().GetExecutablePath().ToStdString();
-	if (__WXWINDOWS__) {
+
+	if (osName == "Windows")
+	{
 		executablePath = executablePath.substr(0, executablePath.find("kraftaEditor") + 13) + "\\" + targetDir + "\\";
 	}
-	else {
-		executablePath = executablePath.substr(0, executablePath.find("kraftaEditor") + 13) + "/" + targetDir + "/";
+	else
+	{
+		executablePath = executablePath.substr(0, executablePath.find("kraftaEditor") + 13) + targetDir + "/";
 	}
+
 	return wxString(executablePath);
 }

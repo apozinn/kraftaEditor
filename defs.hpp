@@ -10,6 +10,7 @@ struct NotifyInteractions {
 wxString project_path = wxString("");
 wxString icons_dir = wxString("");
 wxString current_openned_path = wxString("");
+wxString osName;
 
 std::string project_name;
 std::string assetsDir;

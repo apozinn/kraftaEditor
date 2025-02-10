@@ -6,6 +6,7 @@
 #include <wx/cmdline.h>
 #include <wx/config.h>
 #include <wx/settings.h>
+#include <wx/platinfo.h>
 
 #if wxUSE_CLIPBOARD
 #include <wx/dataobj.h>
@@ -99,25 +100,27 @@ public:
 	{
 		if (!wxApp::OnInit()) return false;
 
+		osName = wxPlatformInfo::Get().GetOperatingSystemIdName();
+
 		//verify if system theme is dark
 		auto systemInfo = wxSystemSettings::GetAppearance();
 		if (systemInfo.IsSystemDark()) {
 			SetAppearance(Appearance::Dark);
-			if (__WXWINDOWS__) {
-				MSWEnableDarkMode(DarkMode_Always);
-			}
+				#if __WXMSW__
+					MSWEnableDarkMode(DarkMode_Always);
+				#endif
 		}
 		//Get user config and theme
 		UserConfigs = UserConfig().Get();
 		UserTheme = UserConfig().GetThemes();
 
-		//init images handlers 
-		wxInitAllImageHandlers();
-
 		//define the app dirs path
 		icons_dir = GetAppDirs("icons");
 		assetsDir = GetAppDirs("assets");
 
+		//init images handlers 
+		wxInitAllImageHandlers();
+		
 		//createv the main frame
 		frame = new MainFrame("Krafta Editor");
 		frame->Show();

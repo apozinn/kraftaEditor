@@ -18,7 +18,7 @@ CodeContainer::CodeContainer(
 
 	SetSizerAndFit(sizer);
 
-	if (__WXWINDOWS__)
+	if (osName == "Windows")
 	{
 		font = wxFont(wxFontInfo(10).FaceName("Cascadia Code"));
 	}

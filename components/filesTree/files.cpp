@@ -171,7 +171,7 @@ void FilesTree::CreateFile(
 		{
 			if (file_ext == "png" || file_ext == "jpg" || file_ext == "jpeg")
 			{
-				if (wxOS_WINDOWS)
+				if (osName == "Windows")
 				{
 					bitmaps.push_back(wxBitmap(icons_dir + "file_ext" + "\\image_ext.png", wxBITMAP_TYPE_PNG));
 				}
@@ -188,7 +188,7 @@ void FilesTree::CreateFile(
 	}
 	else
 	{
-		if (wxOS_WINDOWS)
+		if (osName == "Windows")
 		{
 			bitmaps.push_back(wxBitmap(icons_dir + "file_ext\\no_ext.png", wxBITMAP_TYPE_PNG));
 		}
@@ -598,7 +598,7 @@ void FilesTree::OnCreateDir(wxCommandEvent &event)
 	if (!menuDirPath.empty())
 	{
 		// creating the dir and checking if there is an error
-		if (__WXWINDOWS__)
+		if (osName == "Windows")
 		{
 			if (!fileManager->CreateDir(wxString(menuDirPath) + "\\" + folder_name))
 			{
@@ -616,7 +616,7 @@ void FilesTree::OnCreateDir(wxCommandEvent &event)
 	else
 	{
 		// creating the dir and checking if there is an error
-		if (__WXWINDOWS__)
+		if (osName == "Windows")
 		{
 			if (!fileManager->CreateDir(project_path + folder_name))
 			{
