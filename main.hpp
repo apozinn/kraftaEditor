@@ -30,6 +30,7 @@
 #include "./members/controlPanel.cpp"
 #include "./members/terminal.cpp"
 #include "./members/find.cpp"
+#include "./utils/createAssetsDir.hpp"
 
 #if __WXMSW__
 #include <wx/msw/private.h>
@@ -38,55 +39,57 @@
 
 class MainFrame : public wxFrame
 {
-	wxBoxSizer* sizer;
-	wxPanel* main_container;
-	wxSplitterWindow* main_splitter;
-	FilesTree* files_tree;
-	wxPanel* main_code;
-	Tabs* tabs;
-	MenuBar* menu_bar;
-	EmptyWindow* empty_window;
-	wxPanel* side_container;
-	OpenFolderLink* open_folder_link;
-	ControlPanel* control_panel;
-	Terminal* terminal;
-	wxSplitterWindow* servical_container;
-	wxSplitterWindow* mainSplitter;
-	wxPanel* navigationContainer;
-	wxPanel* mainContainer;
-	wxPanel* mainCode;
+	wxBoxSizer *sizer;
+	wxPanel *main_container;
+	wxSplitterWindow *main_splitter;
+	FilesTree *files_tree;
+	wxPanel *main_code;
+	Tabs *tabs;
+	MenuBar *menu_bar;
+	EmptyWindow *empty_window;
+	wxPanel *side_container;
+	OpenFolderLink *open_folder_link;
+	ControlPanel *control_panel;
+	Terminal *terminal;
+	wxSplitterWindow *servical_container;
+	wxSplitterWindow *mainSplitter;
+	wxPanel *navigationContainer;
+	wxPanel *mainContainer;
+	wxPanel *mainCode;
+
 public:
-	StatusBar* statusBar;
-	MainFrame(const wxString& title);
+	StatusBar *statusBar;
+	MainFrame(const wxString &title);
 	virtual ~MainFrame();
 	void AddEntry(wxFSWPathType type, wxString filename = wxString());
 	bool CreateWatcherIfNecessary();
-	void OnOpenFolderMenu(wxCommandEvent& event) { OpenFolderDialog(); }
-	void OnOpenFolderClick(wxMouseEvent& event) { OpenFolderDialog(); }
-	void OnOpenFile(wxCommandEvent& event);
-	void OnHiddeFilesTree(wxCommandEvent& event);
-	void OnHiddeMenuBar(wxCommandEvent& event);
-	void OnHiddeStatusBar(wxCommandEvent& event);
-	void OnHiddeTabs(wxCommandEvent& event);
-	void PaintSash(wxDC& dc, wxSplitterWindow* target);
-	void OnSashPosChange(wxSplitterEvent& event);
-	void CloseAllFiles(wxCommandEvent& event);
+	void OnOpenFolderMenu(wxCommandEvent &event) { OpenFolderDialog(); }
+	void OnOpenFolderClick(wxMouseEvent &event) { OpenFolderDialog(); }
+	void OnOpenFile(wxCommandEvent &event);
+	void OnHiddeFilesTree(wxCommandEvent &event);
+	void OnHiddeMenuBar(wxCommandEvent &event);
+	void OnHiddeStatusBar(wxCommandEvent &event);
+	void OnHiddeTabs(wxCommandEvent &event);
+	void PaintSash(wxDC &dc, wxSplitterWindow *target);
+	void OnSashPosChange(wxSplitterEvent &event);
+	void CloseAllFiles(wxCommandEvent &event);
 	void OpenFolderDialog();
-	void ToggleControlPanel(wxCommandEvent& event);
+	void ToggleControlPanel(wxCommandEvent &event);
 	void LoadPath(wxString path);
-	void ToggleFind(wxCommandEvent& event);
-	void OnPaintedComponent(wxPaintEvent& event);
+	void ToggleFind(wxCommandEvent &event);
+	void OnPaintedComponent(wxPaintEvent &event);
+
 private:
 	void CreateWatcher();
-	void OnQuit(wxCommandEvent& WXUNUSED(event)) { Close(true); }
-	void OnWatch(wxCommandEvent& event);
-	void OnFollowLinks(wxCommandEvent& event);
-	void OnAbout(wxCommandEvent& event);
-	void OnFileSystemEvent(wxFileSystemWatcherEvent& event);
-	void OnOpenTerminal(wxCommandEvent& event);
+	void OnQuit(wxCommandEvent &WXUNUSED(event)) { Close(true); }
+	void OnWatch(wxCommandEvent &event);
+	void OnFollowLinks(wxCommandEvent &event);
+	void OnAbout(wxCommandEvent &event);
+	void OnFileSystemEvent(wxFileSystemWatcherEvent &event);
+	void OnOpenTerminal(wxCommandEvent &event);
 
 	bool m_followLinks;
-	wxFileSystemWatcher* m_watcher = nullptr;
+	wxFileSystemWatcher *m_watcher = nullptr;
 	wxDECLARE_NO_COPY_CLASS(MainFrame);
 	wxDECLARE_EVENT_TABLE();
 };
@@ -94,35 +97,77 @@ private:
 class KraftaEditor : public wxApp
 {
 public:
-	MainFrame* frame;
+	MainFrame *frame;
 	wxString m_dirToWatch;
 	virtual bool OnInit() override
 	{
-		if (!wxApp::OnInit()) return false;
+		if (!wxApp::OnInit())
+			return false;
 
-		//getting the OS name
+		// getting the OS name
 		osName = wxPlatformInfo::Get().GetOperatingSystemFamilyName();
 
-		//verify if system theme is dark
+		// verify if system theme is dark
 		auto systemInfo = wxSystemSettings::GetAppearance();
-		if (systemInfo.IsSystemDark()) {
+		if (systemInfo.IsSystemDark())
+		{
 			SetAppearance(Appearance::Dark);
-				#if __WXMSW__
-					MSWEnableDarkMode(DarkMode_Always);
-				#endif
+			if (osName == "windows")
+				MSWEnableDarkMode(DarkMode_Always);
 		}
-		//Get user config and theme
+		// Get user config and theme
 		UserConfigs = UserConfig().Get();
 		UserTheme = UserConfig().GetThemes();
 
-		//define the app dirs path
-		icons_dir = GetAppDirs("icons");
-		assetsDir = GetAppDirs("assets");
+		// define the app dirs path
+		if (osName == "Windows")
+		{
+			applicationPath = wxStandardPaths::Get()
+								  .GetUserConfigDir()
+								  .ToStdString() +
+							  "\\.kraftaEditor\\";
 
-		//init images handlers 
+			icons_dir = applicationPath + "icons\\";
+			assetsDir = applicationPath + "assets\\";
+		}
+		else
+		{
+			applicationPath = wxStandardPaths::Get()
+								  .GetUserConfigDir()
+								  .ToStdString() +
+							  "/.kraftaEditor/";
+
+			icons_dir = applicationPath + "icons/";
+			assetsDir = applicationPath + "assets/";
+		}
+
+		if (!wxDirExists(icons_dir))
+		{
+			if (!CreateApplicationAssetsDirectories(GetAppDirs("icons").ToStdString(), "icons"))
+			{
+				return false;
+			}
+			else
+			{
+				if (!CreateApplicationAssetsDirectories(GetAppDirs("icons").ToStdString() + "file_ext/", "file_ext"))
+				{
+					return false;
+				}
+			}
+		}
+
+		if (!wxDirExists(assetsDir))
+		{
+			if (!CreateApplicationAssetsDirectories(GetAppDirs("assets").ToStdString(), "assets"))
+			{
+				return false;
+			}
+		}
+
+		// init images handlers
 		wxInitAllImageHandlers();
-		
-		//createv the main frame
+
+		// createv the main frame
 		frame = new MainFrame("Krafta Editor");
 		frame->Show();
 		wxApp::SetTopWindow(frame);
@@ -130,12 +175,12 @@ public:
 		return true;
 	}
 
-	virtual void OnEventLoopEnter(wxEventLoopBase* WXUNUSED(loop)) override
+	virtual void OnEventLoopEnter(wxEventLoopBase *WXUNUSED(loop)) override
 	{
 		return;
 		if (frame->CreateWatcherIfNecessary())
 		{
-			wxConfig* config = new wxConfig("krafta-editor");
+			wxConfig *config = new wxConfig("krafta-editor");
 			wxString str;
 
 			if (!m_dirToWatch.empty())
@@ -153,13 +198,13 @@ public:
 		}
 	}
 
-	virtual void OnInitCmdLine(wxCmdLineParser& parser) override
+	virtual void OnInitCmdLine(wxCmdLineParser &parser) override
 	{
 		wxApp::OnInitCmdLine(parser);
 		parser.AddParam("directory to watch", wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
 	}
 
-	virtual bool OnCmdLineParsed(wxCmdLineParser& parser) override
+	virtual bool OnCmdLineParsed(wxCmdLineParser &parser) override
 	{
 		if (!wxApp::OnCmdLineParsed(parser))
 			return false;
@@ -173,21 +218,21 @@ wxIMPLEMENT_APP(KraftaEditor);
 wxDECLARE_APP(KraftaEditor);
 
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
-EVT_MENU(wxID_EXIT, MainFrame::OnQuit)
-EVT_MENU(wxID_ABOUT, MainFrame::OnAbout)
-EVT_MENU(wxID_SAVE, CodeContainer::OnSave)
-EVT_MENU(ID_CREATE_DIR, FilesTree::OnCreateDir)
-EVT_MENU(ID_CREATE_FILE, FilesTree::OnCreateFile)
-EVT_MENU(ID_OPEN_FOLDER, MainFrame::OnOpenFolderMenu)
-EVT_MENU(ID_OPEN_FILE, MainFrame::OnOpenFile)
-EVT_MENU(ID_HIDDE_FILES_TREE, MainFrame::OnHiddeFilesTree)
-EVT_MENU(ID_HIDDE_MENU_BAR, MainFrame::OnHiddeMenuBar)
-EVT_MENU(ID_HIDDE_STATUS_BAR, MainFrame::OnHiddeStatusBar)
-EVT_MENU(ID_HIDDE_TABS, MainFrame::OnHiddeTabs)
-EVT_MENU(ID_CLOSE_ALL_FILES, MainFrame::CloseAllFiles)
-EVT_MENU(ID_TOGGLE_CONTROL_PANEL, MainFrame::ToggleControlPanel)
-EVT_MENU(ID_OPEN_TERMINAL, MainFrame::OnOpenTerminal)
-EVT_MENU(ID_TOGGLE_COMMENT_LINE, CodeContainer::ToggleCommentLine)
-EVT_MENU(ID_TOGGLE_MINI_MAP_VIEW, CodeContainer::ToggleMiniMapView)
-EVT_MENU(ID_TOGGLE_FIND, MainFrame::ToggleFind)
-wxEND_EVENT_TABLE()
+	EVT_MENU(wxID_EXIT, MainFrame::OnQuit)
+		EVT_MENU(wxID_ABOUT, MainFrame::OnAbout)
+			EVT_MENU(wxID_SAVE, CodeContainer::OnSave)
+				EVT_MENU(ID_CREATE_DIR, FilesTree::OnCreateDir)
+					EVT_MENU(ID_CREATE_FILE, FilesTree::OnCreateFile)
+						EVT_MENU(ID_OPEN_FOLDER, MainFrame::OnOpenFolderMenu)
+							EVT_MENU(ID_OPEN_FILE, MainFrame::OnOpenFile)
+								EVT_MENU(ID_HIDDE_FILES_TREE, MainFrame::OnHiddeFilesTree)
+									EVT_MENU(ID_HIDDE_MENU_BAR, MainFrame::OnHiddeMenuBar)
+										EVT_MENU(ID_HIDDE_STATUS_BAR, MainFrame::OnHiddeStatusBar)
+											EVT_MENU(ID_HIDDE_TABS, MainFrame::OnHiddeTabs)
+												EVT_MENU(ID_CLOSE_ALL_FILES, MainFrame::CloseAllFiles)
+													EVT_MENU(ID_TOGGLE_CONTROL_PANEL, MainFrame::ToggleControlPanel)
+														EVT_MENU(ID_OPEN_TERMINAL, MainFrame::OnOpenTerminal)
+															EVT_MENU(ID_TOGGLE_COMMENT_LINE, CodeContainer::ToggleCommentLine)
+																EVT_MENU(ID_TOGGLE_MINI_MAP_VIEW, CodeContainer::ToggleMiniMapView)
+																	EVT_MENU(ID_TOGGLE_FIND, MainFrame::ToggleFind)
+																		wxEND_EVENT_TABLE()

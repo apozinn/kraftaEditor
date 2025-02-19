@@ -12,6 +12,8 @@ wxString icons_dir = wxString("");
 wxString current_openned_path = wxString("");
 wxString osName;
 
+std::string applicationPath;
+
 std::string project_name;
 std::string assetsDir;
 
