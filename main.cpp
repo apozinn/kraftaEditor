@@ -8,14 +8,15 @@
 #include "wx/filename.h"
 #include <wx/stdpaths.h>
 
-MainFrame::MainFrame(const wxString& title)
+MainFrame::MainFrame(const wxString &title)
 	: wxFrame(nullptr, wxID_ANY, title),
-	m_watcher(nullptr), m_followLinks(false)
+	  m_watcher(nullptr), m_followLinks(false)
 {
-	//set the app icon
+	// set the app icon
 	wxIcon app_icon;
 	app_icon.LoadFile(assetsDir + "kraftaEditor.png", wxBITMAP_TYPE_PNG);
-	if (app_icon.IsOk()) {
+	if (app_icon.IsOk())
+	{
 		SetIcon(app_icon);
 	}
 
@@ -28,32 +29,32 @@ MainFrame::MainFrame(const wxString& title)
 	mainSplitter = new wxSplitterWindow(this, ID_MAIN_SPLITTER);
 	mainSplitter->SetBackgroundColour(wxColor(UserTheme["main"].template get<std::string>()));
 	mainSplitter->Bind(wxEVT_PAINT, &MainFrame::OnPaintedComponent, this);
-	wxBoxSizer* mainSplitterSizer = new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer *mainSplitterSizer = new wxBoxSizer(wxHORIZONTAL);
 
 	navigationContainer = new wxPanel(mainSplitter);
-	wxBoxSizer* navigationContainerSizer = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer *navigationContainerSizer = new wxBoxSizer(wxVERTICAL);
 	files_tree = new FilesTree(navigationContainer, ID_FILES_TREE);
 	navigationContainerSizer->Add(files_tree, 1, wxEXPAND);
 	navigationContainer->SetSizerAndFit(navigationContainerSizer);
 
-	wxPanel* applicationContent = new wxPanel(mainSplitter, ID_APPLICATION_CONTENT);
-	wxBoxSizer* applicationContentSizer = new wxBoxSizer(wxVERTICAL);
+	wxPanel *applicationContent = new wxPanel(mainSplitter, ID_APPLICATION_CONTENT);
+	wxBoxSizer *applicationContentSizer = new wxBoxSizer(wxVERTICAL);
 
-	wxSplitterWindow* mainContainerSplitter = new wxSplitterWindow(applicationContent, ID_MAIN_CONTAINER_SPLITTER);
-	wxBoxSizer* mainContainerSplitterSizer = new wxBoxSizer(wxVERTICAL);
+	wxSplitterWindow *mainContainerSplitter = new wxSplitterWindow(applicationContent, ID_MAIN_CONTAINER_SPLITTER);
+	wxBoxSizer *mainContainerSplitterSizer = new wxBoxSizer(wxVERTICAL);
 
 	mainContainerSplitter->Bind(wxEVT_PAINT, &MainFrame::OnPaintedComponent, this);
 
-	wxPanel* centeredContent = new wxPanel(mainContainerSplitter, ID_CENTERED_CONTENT);
-	wxBoxSizer* centeredContentSizer = new wxBoxSizer(wxVERTICAL);
+	wxPanel *centeredContent = new wxPanel(mainContainerSplitter, ID_CENTERED_CONTENT);
+	wxBoxSizer *centeredContentSizer = new wxBoxSizer(wxVERTICAL);
 
 	mainContainer = new wxPanel(centeredContent, ID_MAIN_CODE);
-	wxBoxSizer* mainContainerSizer = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer *mainContainerSizer = new wxBoxSizer(wxVERTICAL);
 
 	tabs = new Tabs(mainContainer, ID_TABS);
 	mainContainerSizer->Add(tabs, 0, wxEXPAND);
 
-	wxBoxSizer* mainCodeSizer = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer *mainCodeSizer = new wxBoxSizer(wxVERTICAL);
 
 	empty_window = new EmptyWindow(mainContainer, ID_EMPYT_WINDOW);
 	mainContainerSizer->Add(empty_window, 1, wxEXPAND);
@@ -96,7 +97,7 @@ MainFrame::MainFrame(const wxString& title)
 	if (UserConfigs["show_menu"] == false)
 		menu_bar->Hide();
 
-	wxConfig* config = new wxConfig("krafta-editor");
+	wxConfig *config = new wxConfig("krafta-editor");
 	wxString str;
 	if (config->Read("workspace", &str))
 	{
@@ -110,7 +111,7 @@ MainFrame::MainFrame(const wxString& title)
 		{
 			open_folder_link = new OpenFolderLink(pjt_ctn, ID_OPEN_FOLDER_LINK);
 			open_folder_link->Bind(wxEVT_LEFT_UP, &MainFrame::OnOpenFolderClick, this);
-			for (auto&& children : open_folder_link->GetChildren())
+			for (auto &&children : open_folder_link->GetChildren())
 				children->Bind(wxEVT_LEFT_UP, &MainFrame::OnOpenFolderClick, this);
 			pjt_ctn->GetSizer()->Add(open_folder_link, 1, wxEXPAND);
 		}
@@ -147,15 +148,15 @@ void MainFrame::CreateWatcher()
 	m_watcher->SetOwner(this);
 }
 
-void MainFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
+void MainFrame::OnAbout(wxCommandEvent &WXUNUSED(event))
 {
 	wxMessageBox("A simple Code-editor for multiple usages and languages"
-		"(c) 2023 Okarin Services\n",
-		"About Krafta-editor",
-		wxOK | wxICON_INFORMATION, this);
+				 "(c) 2023 Okarin Services\n",
+				 "About Krafta-editor",
+				 wxOK | wxICON_INFORMATION, this);
 }
 
-void MainFrame::OnWatch(wxCommandEvent& event)
+void MainFrame::OnWatch(wxCommandEvent &event)
 {
 	if (event.IsChecked())
 	{
@@ -169,7 +170,7 @@ void MainFrame::OnWatch(wxCommandEvent& event)
 	}
 }
 
-void MainFrame::OnFollowLinks(wxCommandEvent& event) { m_followLinks = event.IsChecked(); }
+void MainFrame::OnFollowLinks(wxCommandEvent &event) { m_followLinks = event.IsChecked(); }
 
 void MainFrame::AddEntry(wxFSWPathType type, wxString filename)
 {
@@ -208,7 +209,7 @@ void MainFrame::AddEntry(wxFSWPathType type, wxString filename)
 	}
 }
 
-void MainFrame::OnFileSystemEvent(wxFileSystemWatcherEvent& event)
+void MainFrame::OnFileSystemEvent(wxFileSystemWatcherEvent &event)
 {
 	wxString type = GetFSWEventChangeTypeName(event.GetChangeType());
 	if (type != "ACCESS")
@@ -221,21 +222,27 @@ void MainFrame::OnFileSystemEvent(wxFileSystemWatcherEvent& event)
 
 void MainFrame::OpenFolderDialog()
 {
-	wxDirDialog* dlg = new wxDirDialog(NULL, "Choose project directory", "", wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
+	wxDirDialog *dlg = new wxDirDialog(NULL, "Choose project directory", "", wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
 	dlg->ShowModal();
 	wxString path = dlg->GetPath();
+
 	if (path.size())
 	{
-		project_path = path + "/";
 		project_name = wxFileNameFromPath(path);
+		
+		if (osName == "Windows")
+			path = path + "\\";
+		else
+			path = path + "/";
+
+		project_path = path;
+
 		if (tabs)
-		{
 			tabs->CloseAll();
-		}
 
-		files_tree->Load(files_tree->projectFilesContainer, path.ToStdString() + "/");
+		files_tree->Load(files_tree->projectFilesContainer, path.ToStdString());
 
-		wxConfig* config = new wxConfig("krafta-editor");
+		wxConfig *config = new wxConfig("krafta-editor");
 		config->Write("workspace", project_path);
 		delete config;
 
@@ -244,9 +251,9 @@ void MainFrame::OpenFolderDialog()
 	}
 }
 
-void MainFrame::OnOpenFile(wxCommandEvent& WXUNUSED(event))
+void MainFrame::OnOpenFile(wxCommandEvent &WXUNUSED(event))
 {
-	wxFileDialog* dlg = new wxFileDialog(NULL, "Choose a file", "", "", "", wxFD_DEFAULT_STYLE | wxFD_FILE_MUST_EXIST);
+	wxFileDialog *dlg = new wxFileDialog(NULL, "Choose a file", "", "", "", wxFD_DEFAULT_STYLE | wxFD_FILE_MUST_EXIST);
 	dlg->ShowModal();
 	wxString path = dlg->GetPath();
 	if (path.size())
@@ -256,7 +263,7 @@ void MainFrame::OnOpenFile(wxCommandEvent& WXUNUSED(event))
 	}
 }
 
-void MainFrame::OnHiddeFilesTree(wxCommandEvent& WXUNUSED(event))
+void MainFrame::OnHiddeFilesTree(wxCommandEvent &WXUNUSED(event))
 {
 	if (main_splitter->IsSplit())
 	{
@@ -268,7 +275,7 @@ void MainFrame::OnHiddeFilesTree(wxCommandEvent& WXUNUSED(event))
 	}
 }
 
-void MainFrame::OnHiddeMenuBar(wxCommandEvent& WXUNUSED(event))
+void MainFrame::OnHiddeMenuBar(wxCommandEvent &WXUNUSED(event))
 {
 	if (menu_bar)
 	{
@@ -291,7 +298,7 @@ void MainFrame::OnHiddeMenuBar(wxCommandEvent& WXUNUSED(event))
 	}
 }
 
-void MainFrame::OnHiddeStatusBar(wxCommandEvent& WXUNUSED(event))
+void MainFrame::OnHiddeStatusBar(wxCommandEvent &WXUNUSED(event))
 {
 	if (statusBar)
 	{
@@ -307,7 +314,7 @@ void MainFrame::OnHiddeStatusBar(wxCommandEvent& WXUNUSED(event))
 	}
 }
 
-void MainFrame::OnHiddeTabs(wxCommandEvent& WXUNUSED(event))
+void MainFrame::OnHiddeTabs(wxCommandEvent &WXUNUSED(event))
 {
 	if (tabs)
 	{
@@ -322,10 +329,12 @@ void MainFrame::OnHiddeTabs(wxCommandEvent& WXUNUSED(event))
 	}
 }
 
-void MainFrame::OnPaintedComponent(wxPaintEvent& event) {
-	auto target = ((wxSplitterWindow*)event.GetEventObject());
-	if (!target || !target->IsEnabled()) return;
-	wxPaintDC  dc(target);
+void MainFrame::OnPaintedComponent(wxPaintEvent &event)
+{
+	auto target = ((wxSplitterWindow *)event.GetEventObject());
+	if (!target || !target->IsEnabled())
+		return;
+	wxPaintDC dc(target);
 	PaintSash(dc, target);
 
 	dc.SetBrush(wxColor(UserTheme["border"].template get<std::string>()));
@@ -334,7 +343,8 @@ void MainFrame::OnPaintedComponent(wxPaintEvent& event) {
 	dc.DrawLine(target->GetSashPosition() + 3, 0, target->GetSashPosition() + 3, target->GetSize().y);
 }
 
-void MainFrame::PaintSash(wxDC& dc, wxSplitterWindow* target) {
+void MainFrame::PaintSash(wxDC &dc, wxSplitterWindow *target)
+{
 	dc.SetPen(target->GetBackgroundColour());
 	dc.SetBrush(target->GetBackgroundColour());
 
@@ -353,26 +363,25 @@ void MainFrame::PaintSash(wxDC& dc, wxSplitterWindow* target) {
 			target->GetSashPosition(),
 			target->GetSize().GetWidth(),
 			target->GetSashSize());
-
 	}
 }
 
-void MainFrame::OnSashPosChange(wxSplitterEvent& event)
+void MainFrame::OnSashPosChange(wxSplitterEvent &event)
 {
-	auto target = ((wxSplitterWindow*)event.GetEventObject());
+	auto target = ((wxSplitterWindow *)event.GetEventObject());
 	if (!target)
 		return;
 	target->Refresh();
 }
 
-void MainFrame::CloseAllFiles(wxCommandEvent& WXUNUSED(event))
+void MainFrame::CloseAllFiles(wxCommandEvent &WXUNUSED(event))
 {
 	tabs->CloseAll();
 	files_tree->selectedFile->SetBackgroundColour(wxColor(UserTheme["main"].template get<std::string>()));
 	files_tree->selectedFile = nullptr;
 }
 
-void MainFrame::ToggleControlPanel(wxCommandEvent& event)
+void MainFrame::ToggleControlPanel(wxCommandEvent &event)
 {
 	if (FindWindowById(ID_CONTROL_PANEL))
 	{
@@ -386,12 +395,21 @@ void MainFrame::ToggleControlPanel(wxCommandEvent& event)
 
 void MainFrame::LoadPath(wxString path)
 {
-	if (!wxFileName(path).DirExists()) return;
+	wxDir dir(path);
+	// verify if dir exists
+	if (!dir.Exists(path))
+	{
+		// dir dont finded
+		wxConfig *config = new wxConfig("krafta-editor");
+		config->Write("workspace", "");
+		delete config;
+		return;
+	}
 
 	project_name = wxFileNameFromPath(path.substr(0, path.size() - 1));
 	project_path = path;
 
-	wxConfig* config = new wxConfig("krafta-editor");
+	wxConfig *config = new wxConfig("krafta-editor");
 	config->Write("workspace", path);
 	delete config;
 
@@ -402,7 +420,7 @@ void MainFrame::LoadPath(wxString path)
 	AddEntry(wxFSWPath_Tree, path);
 }
 
-void MainFrame::OnOpenTerminal(wxCommandEvent& event)
+void MainFrame::OnOpenTerminal(wxCommandEvent &event)
 {
 	if (servical_container->IsSplit())
 	{
@@ -414,14 +432,14 @@ void MainFrame::OnOpenTerminal(wxCommandEvent& event)
 	}
 }
 
-void MainFrame::ToggleFind(wxCommandEvent& event)
+void MainFrame::ToggleFind(wxCommandEvent &event)
 {
 	if (FindWindowById(ID_FIND_CONTAINER))
 	{
-		((wxWindow*)FindWindowById(ID_FIND_CONTAINER))->Destroy();
+		((wxWindow *)FindWindowById(ID_FIND_CONTAINER))->Destroy();
 	}
 	else
 	{
-		Find* find_container = new Find(this, "Find a text");
+		Find *find_container = new Find(this, "Find a text");
 	}
 }

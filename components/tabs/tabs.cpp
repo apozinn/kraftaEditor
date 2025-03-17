@@ -232,7 +232,7 @@ void Tabs::Select() {
 	if (codeContainer)
 	{
 		codeContainer->Show();
-		statusBar->UpdateComponents(current_openned_path, "text", codeContainer->current_lang->name);
+		statusBar->UpdateComponents(current_openned_path, "text", codeContainer->currentLanguage->name);
 	}
 
 	if (imageContainer)

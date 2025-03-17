@@ -20,6 +20,8 @@ std::string assetsDir;
 json UserTheme;
 json UserConfigs;
 
+wxFrame* mainFrame = nullptr;
+
 enum {
 	ID_MAIN_FRAME = -1,
 	ID_PROJECT_TOGGLER,

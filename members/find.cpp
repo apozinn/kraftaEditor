@@ -65,7 +65,7 @@ public:
 			auto codeContainer = ((CodeContainer*)FindWindowByName(current_openned_path + "_codeContainer"));
 			if (codeContainer) {
 				int endTarget = 0;
-				codeEditor = codeContainer->codeEditor;
+				// codeEditor = codeContainer->editor;
 				int startTarget = codeEditor->FindText(0, codeEditor->GetLength(), input->GetText(), 0, &endTarget);
 
 				indicators.push_back({ startTarget, endTarget });

@@ -171,7 +171,7 @@ public:
 		frame = new MainFrame("Krafta Editor");
 		frame->Show();
 		wxApp::SetTopWindow(frame);
-
+		mainFrame = frame;
 		return true;
 	}
 

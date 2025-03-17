@@ -4,6 +4,7 @@
 #include <wx/scrolwin.h>
 #include <wx/wfstream.h>
 #include <wx/txtstrm.h>
+#include <wx/richtooltip.h>
 #include <wx/statline.h>
 #include <wx/app.h>
 #include <wx/statbmp.h>
@@ -110,6 +111,8 @@ void FilesTree::Load(wxWindow *parent, std::string path)
 	// updating the projectName
 	projectName->SetLabel(project_name);
 	projectToggler->Show();
+
+	projectName->SetToolTip(project_path);
 }
 
 void FilesTree::CreateFile(
@@ -344,7 +347,7 @@ void FilesTree::OpenFile(wxString path)
 			codeContainer->Show();
 
 		// status bar
-		statusBar->UpdateComponents(path, "text", codeContainer->current_lang->name);
+		// statusBar->UpdateComponents(path, "text", codeContainer->currentLanguage->name);
 	};
 
 	if (!fileExt.empty())
