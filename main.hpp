@@ -177,7 +177,7 @@ public:
 
 	virtual void OnEventLoopEnter(wxEventLoopBase *WXUNUSED(loop)) override
 	{
-		return;
+		// return;
 		if (frame->CreateWatcherIfNecessary())
 		{
 			wxConfig *config = new wxConfig("krafta-editor");

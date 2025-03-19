@@ -33,7 +33,7 @@ FilesTree::FilesTree(wxWindow *parent, wxWindowID ID)
 	// arrow icon
 	wxVector<wxBitmap> bitmaps;
 	bitmaps.push_back(wxBitmap(icons_dir + "dir_arrow.png", wxBITMAP_TYPE_PNG));
-	wxStaticBitmap *pjt_arrow = new wxStaticBitmap(projectToggler, ID_PJT_TOOLS_ARROW, wxBitmapBundle::FromBitmaps(bitmaps));
+	pjt_arrow = new wxStaticBitmap(projectToggler, ID_PJT_TOOLS_ARROW, wxBitmapBundle::FromBitmaps(bitmaps));
 	projectTogglerSizer->Add(pjt_arrow, 0, wxEXPAND);
 
 	// project namne
@@ -68,10 +68,20 @@ FilesTree::FilesTree(wxWindow *parent, wxWindowID ID)
 									 {
 		//function to toggler view of the projectFilesContainer
 		children->Bind(wxEVT_LEFT_DOWN, [=](wxMouseEvent& event) {
+			auto arrow_bit = pjt_arrow->GetBitmap();
+			wxVector<wxBitmap> bitmaps;
+
 			if(projectFilesContainer->IsShown()) {
 				projectFilesContainer->Hide();
-			} else projectFilesContainer->Show();
-		}); });
+				bitmaps.push_back(wxBitmap(arrow_bit.ConvertToImage().Rotate90(true), -1));
+			} else {
+				projectFilesContainer->Show();
+				bitmaps.push_back(wxBitmap(arrow_bit.ConvertToImage().Rotate90(false), -1));
+			}
+
+			//updating project arrow icon
+			pjt_arrow->SetBitmap(wxBitmapBundle::FromBitmaps(bitmaps)); 
+			}); });
 }
 
 void FilesTree::Load(wxWindow *parent, std::string path)
@@ -389,33 +399,6 @@ void FilesTree::OpenFile(wxString path)
 void FilesTree::ToggleDir(wxMouseEvent &event)
 {
 	auto dirContainer = ((wxWindow *)event.GetEventObject());
-	// verify if container is the main container of project
-	if (
-		dirContainer->GetId() == ID_PROJECT_TOOLS_BAR ||
-		dirContainer->GetId() == ID_PJT_TOOLS_PJTNAME)
-	{
-		dirContainer = projectFilesContainer;
-
-		// rotate the arrow icon
-		auto dir_arrow_ctn = ((wxStaticBitmap *)FindWindowById(ID_PJT_TOOLS_ARROW));
-		auto arrow_bit = dir_arrow_ctn->GetBitmap();
-		wxVector<wxBitmap> bitmaps;
-
-		if (dirContainer->IsShown())
-		{
-			dirContainer->Hide();
-			dirContainer->Disable();
-			bitmaps.push_back(wxBitmap(arrow_bit.ConvertToImage().Rotate90(true), -1));
-		}
-		else
-		{
-			dirContainer->Show();
-			dirContainer->Enable();
-			bitmaps.push_back(wxBitmap(arrow_bit.ConvertToImage().Rotate90(false), -1));
-		}
-
-		dir_arrow_ctn->SetBitmap(wxBitmapBundle::FromBitmaps(bitmaps));
-	}
 
 	// getting the main container of the dir component if the event was received by another component
 	if (dirContainer->GetLabel() == "dir_props")

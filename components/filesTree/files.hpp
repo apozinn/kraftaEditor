@@ -10,6 +10,7 @@ public:
 	wxPanel* projectToggler = nullptr;
 	wxScrolled<wxPanel>* projectFilesContainer;
 	wxStaticText* projectName = nullptr;
+	wxStaticBitmap *pjt_arrow = nullptr;
 	wxWindow* selectedFile = nullptr;
 	FileManager* fileManager = new FileManager();
 
