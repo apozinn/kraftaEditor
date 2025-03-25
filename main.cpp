@@ -133,7 +133,6 @@ MainFrame::~MainFrame() { delete m_watcher; }
 
 bool MainFrame::CreateWatcherIfNecessary()
 {
-	return true;
 	if (m_watcher)
 		return false;
 	CreateWatcher();
@@ -174,7 +173,9 @@ void MainFrame::OnFollowLinks(wxCommandEvent &event) { m_followLinks = event.IsC
 
 void MainFrame::AddEntry(wxFSWPathType type, wxString filename)
 {
-	if (!m_watcher)
+	// wxLogMessage(filename);
+
+		if (!m_watcher)
 		return;
 	if (filename.empty())
 		return;
@@ -211,13 +212,15 @@ void MainFrame::AddEntry(wxFSWPathType type, wxString filename)
 
 void MainFrame::OnFileSystemEvent(wxFileSystemWatcherEvent &event)
 {
+	// wxLogMessage(event.GetPath().GetFullPath());
+
 	wxString type = GetFSWEventChangeTypeName(event.GetChangeType());
 	if (type != "ACCESS")
 	{
-		files_tree->OnTreeModifyed(
-			event.GetPath().GetFullPath(),
-			event.GetNewPath().GetFullPath());
 	}
+	files_tree->OnTreeModifyed(
+		event.GetPath().GetFullPath(),
+		event.GetNewPath().GetFullPath());
 }
 
 void MainFrame::OpenFolderDialog()

@@ -122,6 +122,7 @@ public:
 		// define the app dirs path
 		if (osName == "Windows")
 		{
+			osSlash="\\";
 			applicationPath = wxStandardPaths::Get()
 								  .GetUserConfigDir()
 								  .ToStdString() +
@@ -132,6 +133,7 @@ public:
 		}
 		else
 		{
+			osSlash="/";
 			applicationPath = wxStandardPaths::Get()
 								  .GetUserConfigDir()
 								  .ToStdString() +
@@ -177,7 +179,6 @@ public:
 
 	virtual void OnEventLoopEnter(wxEventLoopBase *WXUNUSED(loop)) override
 	{
-		// return;
 		if (frame->CreateWatcherIfNecessary())
 		{
 			wxConfig *config = new wxConfig("krafta-editor");

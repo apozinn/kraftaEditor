@@ -668,38 +668,70 @@ void FilesTree::OnDeleteFile(wxCommandEvent &event)
 	bool deleted = fileManager->DeleteFile(wxString(menuFilePath));
 }
 
-void FilesTree::OnTreeModifyed(wxString old_path, wxString new_path)
+void FilesTree::OnTreeModifyed(wxString oldPath, wxString newPath)
 {
-	if (!old_path || !new_path)
+	wxFileName file(newPath);
+	if (!file.IsOk())
 		return;
-	wxFileName path_props(old_path);
-	wxString parent_path;
 
-	auto opennedEditor = ((CodeContainer *)FindWindowByName(new_path + "_codeContainer"));
-	if (opennedEditor)
-	{
-		opennedEditor->LoadPath(new_path);
-	}
+	wxWindow *targetPanel;
 
-	if (path_props.IsDir())
+	if (wxFileExists(newPath))
 	{
-		parent_path = path_props.GetPath().substr(0, path_props.GetPath().find_last_of("/"));
+		if (wxFindWindowByLabel(oldPath + "_file_container"))
+		{
+			// setting the target
+			targetPanel = wxFindWindowByLabel(oldPath + "_file_container");
+
+			// updating target props
+			targetPanel = wxFindWindowByLabel(oldPath + "_file_container");
+			targetPanel->SetLabel(newPath + "_file_container");
+			targetPanel->SetName(newPath);
+
+			// updating target display name
+			wxStaticText *fileName = ((wxStaticText *)targetPanel->GetChildren()[1]);
+			fileName->SetName(newPath);
+			fileName->SetLabel(wxFileNameFromPath(newPath));
+
+			// updating the linked code editor
+			auto linkedCodeEditor = ((CodeContainer *)FindWindowByName(oldPath + "_codeContainer"));
+			if (linkedCodeEditor)
+				linkedCodeEditor->LoadPath(newPath);
+
+			// updating the linked tabs
+			auto linkedTab = wxFindWindowByLabel(oldPath + "_tab");
+			if (linkedTab)
+			{
+				linkedTab->SetName(newPath);
+				linkedTab->SetLabel(newPath + "_tab");
+
+				// updating tab display name
+				wxStaticText *tabName = ((wxStaticText*)linkedTab->GetChildren()[0]->GetChildren()[1]);
+				if (tabName)
+				{
+					tabName->SetName(newPath);
+					tabName->SetLabel(wxFileNameFromPath(newPath));
+				}
+			}
+		}
 	}
 	else
 	{
-		parent_path = path_props.GetPath();
-	}
+		if (wxFindWindowByLabel(oldPath + "_dir_container"))
+		{
+			// setting the target
+			targetPanel = wxFindWindowByLabel(oldPath + "_dir_container");
 
-	auto parent = FindWindowByName(parent_path);
-	if (parent_path + "/" == project_path)
-		parent = projectFilesContainer;
-	if (parent)
-	{
-		if (parent->GetId() != ID_PROJECT_FILES_CTN)
-			parent = parent->GetChildren()[1];
-		parent->DestroyChildren();
-		Load(parent, parent_path.ToStdString() + "/");
-		FitContainer(parent);
+			// updating target props
+			targetPanel = wxFindWindowByLabel(oldPath + "_dir_container");
+			targetPanel->SetLabel(newPath + "_dir_container");
+			targetPanel->SetName(newPath);
+
+			// updating target display name
+			wxStaticText *fileName = ((wxStaticText *)targetPanel->GetChildren()[0]->GetChildren()[1]);
+			fileName->SetName(newPath);
+			fileName->SetLabel(wxFileNameFromPath(newPath));
+		}
 	}
 }
 
