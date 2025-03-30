@@ -33,7 +33,7 @@ public:
 	void OnDeleteFile(wxCommandEvent& event);
 	void OnFileRename(wxCommandEvent& event);
 	void OnDirRename(wxCommandEvent& event);
-	void OnTreeModifyed(wxString old_path, wxString new_path);
+	void OnComponentModified(wxString type, wxString old_path, wxString new_path);
 private:
 	void OnEnterComp(wxMouseEvent& event);
 	void OnLeaveComp(wxMouseEvent& event);

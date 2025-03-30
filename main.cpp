@@ -212,15 +212,12 @@ void MainFrame::AddEntry(wxFSWPathType type, wxString filename)
 
 void MainFrame::OnFileSystemEvent(wxFileSystemWatcherEvent &event)
 {
-	// wxLogMessage(event.GetPath().GetFullPath());
-
 	wxString type = GetFSWEventChangeTypeName(event.GetChangeType());
-	if (type != "ACCESS")
-	{
-	}
-	files_tree->OnTreeModifyed(
+	files_tree->OnComponentModified(
+		type,
 		event.GetPath().GetFullPath(),
-		event.GetNewPath().GetFullPath());
+		event.GetNewPath().GetFullPath()
+	);
 }
 
 void MainFrame::OpenFolderDialog()
