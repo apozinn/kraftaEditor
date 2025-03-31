@@ -123,6 +123,10 @@ void FilesTree::Load(wxWindow *parent, std::string path)
 	projectToggler->Show();
 
 	projectName->SetToolTip(project_path);
+
+	// setting menuPath
+	menuDirPath = project_path;
+	menuFilePath = project_path;
 }
 
 void FilesTree::CreateFile(
@@ -138,6 +142,7 @@ void FilesTree::CreateFile(
 	}
 
 	wxPanel *file_container = new wxPanel(parent);
+	file_container->SetToolTip(path);
 
 	file_container->Bind(wxEVT_RIGHT_UP, &FilesTree::onFileRightClick, this);
 	file_container->SetMinSize(wxSize(file_container->GetSize().GetWidth(), 20));
@@ -243,6 +248,9 @@ void FilesTree::CreateDir(
 		parent->SetSizerAndFit(parentSizer);
 	}
 
+	path.Append(osSlash);
+	wxLogMessage(path);
+
 	wxPanel *dir_container = new wxPanel(parent);
 
 	dir_container->SetMinSize(wxSize(dir_container->GetSize().GetWidth(), 20));
@@ -302,7 +310,6 @@ void FilesTree::CreateDir(
 void FilesTree::OnFileSelect(wxMouseEvent &event)
 {
 	auto file = ((wxWindow *)event.GetEventObject());
-	auto selectedFileColor = UserTheme["selectedFile"].template get<std::string>();
 	auto mainColor = UserTheme["main"].template get<std::string>();
 	wxString path = file->GetName();
 
@@ -313,12 +320,11 @@ void FilesTree::OnFileSelect(wxMouseEvent &event)
 
 	if (path.size())
 	{
+		// highlighting the file component
 		if (selectedFile)
-		{
 			selectedFile->SetBackgroundColour(wxColor(mainColor));
-		}
-		selectedFile = file;
-		selectedFile->SetBackgroundColour(wxColor(selectedFileColor));
+
+		// openning file
 		OpenFile(path);
 	}
 }
@@ -330,7 +336,17 @@ void FilesTree::OpenFile(wxString path)
 	auto tabsContainer = ((Tabs *)FindWindowById(ID_TABS));
 	auto statusBar = ((StatusBar *)FindWindowById(ID_STATUS_BAR));
 
-	// hiding others comps: empty window or code container
+	// highlighting the file component
+	auto selectedFileColor = UserTheme["selectedFile"].template get<std::string>();
+	selectedFile = wxFindWindowByLabel(path + "_file_container");
+
+	if (selectedFile)
+	{
+		selectedFile->SetBackgroundColour(wxColor(selectedFileColor));
+		selectedFile->Refresh();
+	}
+
+	// hidding others comps: empty window or code container
 	for (auto &&other_ct : mainCode->GetChildren())
 	{
 		if (other_ct->GetId() != ID_TABS)
@@ -355,9 +371,6 @@ void FilesTree::OpenFile(wxString path)
 		}
 		else
 			codeContainer->Show();
-
-		// status bar
-		// statusBar->UpdateComponents(path, "text", codeContainer->currentLanguage->name);
 	};
 
 	if (!fileExt.empty())
@@ -415,6 +428,7 @@ void FilesTree::ToggleDir(wxMouseEvent &event)
 	auto dir_childrens = dirContainer->GetChildren()[1];
 
 	wxString path = dirContainer->GetName();
+	menuDirPath = path.ToStdString();
 
 	if (dir_childrens && dir_arrow_ctn)
 	{
@@ -570,115 +584,85 @@ void FilesTree::FitContainer(wxWindow *window)
 
 void FilesTree::OnCreateDir(wxCommandEvent &event)
 {
-	wxString folder_name = wxGetTextFromUser("Enter the dir name: ", "Create Dir", "");
-	if (folder_name.IsEmpty())
+	// getting user input
+	wxString newDirName = wxGetTextFromUser("Enter dir name: ", "Create Dir", "");
+	if (newDirName.IsEmpty() || menuDirPath.empty())
 		return;
 
-	if (project_path.IsEmpty())
-	{
-		wxMessageBox(_("You can't create a dir in a empty project"), _("Create Dir"), wxOK | wxICON_INFORMATION, this);
-		return;
-	}
+	// creating file
+	bool created = fileManager->CreateDir(wxString(menuDirPath) + newDirName);
 
-	// checking if the user selected a directory
-	if (!menuDirPath.empty())
+	// return error to user
+	if (!created)
 	{
-		// creating the dir and checking if there is an error
-		if (osName == "Windows")
-		{
-			if (!fileManager->CreateDir(wxString(menuDirPath) + "\\" + folder_name))
-			{
-				wxMessageBox(_("An error occurred while creating the file"), _("Create File"), wxOK | wxICON_INFORMATION, this);
-			}
-		}
-		else
-		{
-			if (!fileManager->CreateDir(wxString(menuDirPath) + "/" + folder_name))
-			{
-				wxMessageBox(_("An error occurred while creating the file"), _("Create File"), wxOK | wxICON_INFORMATION, this);
-			}
-		}
-	}
-	else
-	{
-		// creating the dir and checking if there is an error
-		if (osName == "Windows")
-		{
-			if (!fileManager->CreateDir(project_path + folder_name))
-			{
-				wxMessageBox(_("An error occurred while creating the file"), _("Create File"), wxOK | wxICON_INFORMATION, this);
-			}
-		}
-		else
-		{
-			if (!fileManager->CreateDir(project_path + folder_name))
-			{
-				wxMessageBox(_("An error occurred while creating the file"), _("Create File"), wxOK | wxICON_INFORMATION, this);
-			}
-		}
+		wxMessageBox(_("An error occurred while creating the folder"), _("Create File"), wxOK | wxICON_INFORMATION, this);
+		return;
 	}
 }
 
 void FilesTree::OnCreateFile(wxCommandEvent &event)
 {
-	wxString file_name = wxGetTextFromUser("Enter the file name: ", "Create File", "");
-	if (file_name.IsEmpty())
+	// getting user input
+	wxString newFileName = wxGetTextFromUser("Enter File Name: ", "Create File", "");
+
+	if (newFileName.IsEmpty() || menuDirPath.empty())
 		return;
 
-	if (project_path.IsEmpty())
+	// creating file
+	bool created = fileManager->CreateFile(wxString(menuDirPath) + newFileName);
+
+	// return error to user
+	if (!created)
 	{
-		wxMessageBox(_("You can't create a file in a empty project"), _("Create File"), wxOK | wxICON_INFORMATION, this);
+		wxMessageBox(_("An error occurred while creating the file"), _("Create File"), wxOK | wxICON_INFORMATION, this);
 		return;
 	}
 
-	// checking if the user selected a directory
-	if (!menuDirPath.empty())
-	{
-		// creating the file and checking if there is an error
-		if (!fileManager->CreateFile(wxString(menuDirPath) + "/" + file_name))
-		{
-			wxMessageBox(_("An error occurred while creating the file"), _("Create File"), wxOK | wxICON_INFORMATION, this);
-		}
-		else
-		{
-			OpenFile(wxString(menuDirPath) + "/" + file_name);
-		}
-	}
-	else
-	{
-		// creating the file and checking if there is an error
-		if (!fileManager->CreateFile(project_path + file_name))
-		{
-			wxMessageBox(_("An error occurred while creating the file"), _("Create File"), wxOK | wxICON_INFORMATION, this);
-		}
-		else
-		{
-			OpenFile(project_path + file_name);
-		}
-	}
+	// opening file
+	OpenFile(wxString(menuDirPath) + newFileName);
 }
 
 void FilesTree::OnDeleteDir(wxCommandEvent &event)
 {
-	bool deleted = fileManager->DeleteDir(wxString(menuDirPath));
+	auto confirmDialog = wxMessageDialog(NULL, "Are you sure you want to delete this folder?", "Delete Folder", wxOK | wxCANCEL);
+	if (confirmDialog.ShowModal() == wxID_OK)
+	{
+		bool deleted = fileManager->DeleteDir(wxString(menuDirPath));
+
+		if (!deleted)
+		{
+			wxLogError("An error occurred while deleting the folder");
+			return;
+		}
+
+		wxLogMessage(wxString(menuDirPath + "_dir_container"));
+
+		auto targetComp = wxFindWindowByLabel(menuDirPath + "_dir_container");
+		if (!targetComp)
+			return;
+
+		targetComp->Destroy();
+	}
 }
 
 void FilesTree::OnDeleteFile(wxCommandEvent &event)
 {
-	fileManager->DeleteFile(wxString(menuFilePath));
-
-	if (wxFileExists(menuFilePath))
+	auto confirmDialog = wxMessageDialog(NULL, "Are you sure you want to delete this file?", "Delete file", wxOK | wxCANCEL);
+	if (confirmDialog.ShowModal() == wxID_OK)
 	{
-		wxLogError("There has an error ocurred when deleting the file");
-		return;
-	}
+		fileManager->DeleteFile(wxString(menuFilePath));
 
-	auto filePanel = wxFindWindowByLabel(menuFilePath + "_file_container");
-	if (filePanel)
-	{
-		auto parent = filePanel->GetParent();
-		filePanel->Destroy();
-		parent->Update();
+		if (wxFileExists(menuFilePath))
+		{
+			wxLogError("An error occurred while deleting the file");
+			return;
+		}
+
+		auto targetComp = wxFindWindowByLabel(menuFilePath + "_file_container");
+		if (!targetComp)
+			return;
+
+		targetComp->Destroy();
 	}
 }
 
@@ -697,7 +681,6 @@ void FilesTree::OnComponentModified(wxString type, wxString oldPath, wxString ne
 	// creating component
 	if (type == "CREATE")
 	{
-
 		if (!parentComp)
 		{
 			// if can't find the parent, reset all components
@@ -721,7 +704,7 @@ void FilesTree::OnComponentModified(wxString type, wxString oldPath, wxString ne
 	// getting the target component
 	wxWindow *targetComp;
 
-	if (wxFileExists(newPath))
+	if (wxFileExists(oldPath))
 	{
 		// is file
 		isFile = true;
@@ -747,15 +730,27 @@ void FilesTree::OnComponentModified(wxString type, wxString oldPath, wxString ne
 			linkedCodeEditor->Destroy();
 		if (linkedTab)
 			linkedTab->Destroy();
-
-		targetComp->Destroy();
-		FitContainer(parentComp);
 		return;
 	}
 
 	// renamed file or modifY
 	if (type == "RENAME" || type == "MODIFY")
 	{
+
+		if (wxDirExists(newPath))
+		{
+			isFile = false;
+			targetComp = wxFindWindowByLabel(oldPath + osSlash + "_dir_container");
+		}
+		else
+		{
+			isFile = true;
+			targetComp = wxFindWindowByLabel(oldPath + "_file_container");
+		}
+
+		if (!targetComp)
+			return;
+
 		targetComp->Destroy();
 		if (isFile)
 		{
@@ -828,34 +823,37 @@ void FilesTree::OnLeaveComp(wxMouseEvent &event)
 
 void FilesTree::OnFileRename(wxCommandEvent &event)
 {
-	wxString new_name = wxGetTextFromUser("Enter the new file name: ", "Rename File", "");
-	if (new_name.empty())
-		return;
-	if (menuFilePath.empty())
+	// getting user input
+	wxString newFileName = wxGetTextFromUser("Enter file name: ", "Rename File", wxFileNameFromPath(menuFilePath));
+	if (newFileName.IsEmpty() || menuFilePath.empty())
 		return;
 
-	wxString target_parent = menuFilePath.substr(0, menuFilePath.find_last_of("/") + 1);
-	wxString new_path = target_parent + new_name;
+	// creating new path
+	wxString parentPath = menuFilePath.substr(0, menuFilePath.find_last_of(osSlash) + 1);
+	wxString newPath = parentPath + newFileName;
 
-	if (!wxRename(wxString(menuFilePath), new_path))
-	{
+	// renaming file
+	wxRename(wxString(menuFilePath), newPath);
+
+	if (!wxFileExists(newPath))
 		wxMessageBox("An error occurred while renaming the file", "", wxOK | wxICON_INFORMATION);
-	}
 }
 
 void FilesTree::OnDirRename(wxCommandEvent &event)
 {
-	wxString new_name = wxGetTextFromUser("Enter the new dir name: ", "Rename Dir", "");
-	if (new_name.empty())
-		return;
-	if (menuDirPath.empty())
+	// getting user input
+	wxString newDirName = wxGetTextFromUser("Enter folder name: ", "Rename Folder", wxFileNameFromPath(menuDirPath));
+	if (newDirName.IsEmpty() || menuDirPath.empty())
 		return;
 
-	wxString target_parent = menuDirPath.substr(0, menuDirPath.find_last_of("/") + 1);
-	wxString new_path = target_parent + new_name;
+	// creating new path
+	wxString parentPath = menuFilePath.substr(0, menuDirPath.find_last_of(osSlash) + 1);
+	parentPath = menuFilePath.substr(0, menuDirPath.find_last_of(osSlash) + 1);
+	wxString newPath = parentPath + newDirName;
 
-	if (!wxRename(wxString(menuDirPath), new_path))
-	{
-		wxMessageBox("An error occurred while renaming the directory", "", wxOK | wxICON_INFORMATION);
-	}
+	// renaming folder
+	wxRename(wxString(menuDirPath), newPath);
+
+	if (!wxDirExists(newPath))
+		wxMessageBox("An error occurred while renaming the folder", "", wxOK | wxICON_INFORMATION);
 }

@@ -173,9 +173,7 @@ void MainFrame::OnFollowLinks(wxCommandEvent &event) { m_followLinks = event.IsC
 
 void MainFrame::AddEntry(wxFSWPathType type, wxString filename)
 {
-	// wxLogMessage(filename);
-
-		if (!m_watcher)
+	if (!m_watcher)
 		return;
 	if (filename.empty())
 		return;
@@ -216,8 +214,7 @@ void MainFrame::OnFileSystemEvent(wxFileSystemWatcherEvent &event)
 	files_tree->OnComponentModified(
 		type,
 		event.GetPath().GetFullPath(),
-		event.GetNewPath().GetFullPath()
-	);
+		event.GetNewPath().GetFullPath());
 }
 
 void MainFrame::OpenFolderDialog()
@@ -229,7 +226,7 @@ void MainFrame::OpenFolderDialog()
 	if (path.size())
 	{
 		project_name = wxFileNameFromPath(path);
-		
+
 		if (osName == "Windows")
 			path = path + "\\";
 		else

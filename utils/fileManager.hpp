@@ -26,7 +26,7 @@ public:
 	}
 
 	bool DeleteDir(wxString path) {
-		bool deleted = wxFileName::Rmdir(path);
+		bool deleted = wxFileName::Rmdir(path, wxPATH_RMDIR_RECURSIVE);
 		return deleted;
 	}
 };

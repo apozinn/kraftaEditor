@@ -13,6 +13,9 @@ wxString current_openned_path = wxString("");
 wxString osName;
 std::string osSlash;
 
+std::string menuDirPath;
+std::string menuFilePath;
+
 std::string applicationPath;
 
 std::string project_name;
