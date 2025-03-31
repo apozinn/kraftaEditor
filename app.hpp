@@ -56,15 +56,6 @@ static wxString GetFSWEventChangeTypeName(int changeType)
 wxString GetAppDirs(std::string targetDir)
 {
 	std::string executablePath = wxStandardPaths::Get().GetExecutablePath().ToStdString();
-
-	if (osName == "Windows")
-	{
-		executablePath = executablePath.substr(0, executablePath.find("kraftaEditor") + 13) + "\\" + targetDir + "\\";
-	}
-	else
-	{
-		executablePath = executablePath.substr(0, executablePath.find("kraftaEditor") + 13) + targetDir + "/";
-	}
-
+	executablePath = executablePath.substr(0, executablePath.find("kraftaEditor") + 13) + osSlash + targetDir + osSlash;
 	return wxString(executablePath);
 }

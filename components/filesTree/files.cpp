@@ -249,7 +249,6 @@ void FilesTree::CreateDir(
 	}
 
 	path.Append(osSlash);
-	wxLogMessage(path);
 
 	wxPanel *dir_container = new wxPanel(parent);
 
@@ -634,9 +633,7 @@ void FilesTree::OnDeleteDir(wxCommandEvent &event)
 			wxLogError("An error occurred while deleting the folder");
 			return;
 		}
-
-		wxLogMessage(wxString(menuDirPath + "_dir_container"));
-
+		
 		auto targetComp = wxFindWindowByLabel(menuDirPath + "_dir_container");
 		if (!targetComp)
 			return;

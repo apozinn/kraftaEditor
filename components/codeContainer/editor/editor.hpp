@@ -1,7 +1,7 @@
 #pragma once
 
 #include <wx/stc/stc.h>
-#include "../statusBar/status.hpp"
+#include "../../statusBar/status.hpp"
 
 class Editor : public wxStyledTextCtrl
 {

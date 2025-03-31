@@ -112,8 +112,9 @@ public:
 		if (systemInfo.IsSystemDark())
 		{
 			SetAppearance(Appearance::Dark);
-			if (osName == "windows")
+			#if __WXMSW__
 				MSWEnableDarkMode(DarkMode_Always);
+			#endif
 		}
 		// Get user config and theme
 		UserConfigs = UserConfig().Get();
@@ -122,7 +123,7 @@ public:
 		// define the app dirs path
 		if (osName == "Windows")
 		{
-			osSlash="\\";
+			osSlash = "\\";
 			applicationPath = wxStandardPaths::Get()
 								  .GetUserConfigDir()
 								  .ToStdString() +
@@ -133,7 +134,7 @@ public:
 		}
 		else
 		{
-			osSlash="/";
+			osSlash = "/";
 			applicationPath = wxStandardPaths::Get()
 								  .GetUserConfigDir()
 								  .ToStdString() +

@@ -226,12 +226,7 @@ void MainFrame::OpenFolderDialog()
 	if (path.size())
 	{
 		project_name = wxFileNameFromPath(path);
-
-		if (osName == "Windows")
-			path = path + "\\";
-		else
-			path = path + "/";
-
+		path.Append(osSlash);
 		project_path = path;
 
 		if (tabs)
