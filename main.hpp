@@ -144,6 +144,8 @@ public:
 			assetsDir = applicationPath + "assets/";
 		}
 
+		wxLogMessage(icons_dir);
+
 		if (!wxDirExists(icons_dir))
 		{
 			if (!CreateApplicationAssetsDirectories(GetAppDirs("icons").ToStdString(), "icons"))
