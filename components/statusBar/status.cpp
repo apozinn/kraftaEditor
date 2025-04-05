@@ -43,7 +43,9 @@ void StatusBar::UpdateComponents(wxString path, wxString format, const char *lan
 			fileExt->SetLabel(fileProps.GetExt());
 		else
 			fileExt->SetLabel("Unknown");
-	} else {
+	}
+	else
+	{
 		fileExt->SetLabel(wxString(language));
 	}
 

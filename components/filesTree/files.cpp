@@ -126,7 +126,7 @@ void FilesTree::Load(wxWindow *parent, std::string path)
 
 	// setting menuPath
 	menuDirPath = project_path;
-	menuFilePath = project_path;
+	menuFilePath = "";
 }
 
 void FilesTree::CreateFile(
@@ -633,12 +633,13 @@ void FilesTree::OnDeleteDir(wxCommandEvent &event)
 			wxLogError("An error occurred while deleting the folder");
 			return;
 		}
-		
+
 		auto targetComp = wxFindWindowByLabel(menuDirPath + "_dir_container");
 		if (!targetComp)
 			return;
 
 		targetComp->Destroy();
+		menuDirPath = project_path;
 	}
 }
 
@@ -660,6 +661,7 @@ void FilesTree::OnDeleteFile(wxCommandEvent &event)
 			return;
 
 		targetComp->Destroy();
+		menuFilePath = "";
 	}
 }
 

@@ -67,7 +67,8 @@ void CodeContainer::OnSave(wxCommandEvent &event)
     if (currentCodeEditor)
     {
         auto currentEditor = ((Editor *)currentCodeEditor->GetChildren()[0]);
-        if (currentEditor) currentEditor->Save();
+        if (currentEditor)
+            currentEditor->Save();
     }
 }
 

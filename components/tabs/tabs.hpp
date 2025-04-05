@@ -7,13 +7,13 @@
 
 class Tabs : public wxPanel {
 	wxSizer* sizer;
-	wxString selected_tab;
 	wxStaticBitmap* menu;
 	wxStaticBitmap* arrow_left;
 	wxStaticBitmap* arrow_right;
 	wxScrolled<wxPanel>* tabs_container;
 	wxBoxSizer* tabs_ctn_sizer;
-public:
+	public:
+	wxString selected_tab;
 	Tabs(wxPanel* parent, wxWindowID ID);
 	void Add(wxString tab_name, wxString path);
 	void Close(wxWindow* tab, wxString tab_path);

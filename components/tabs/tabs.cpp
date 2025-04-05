@@ -46,12 +46,14 @@ Tabs::Tabs(wxPanel* parent, wxWindowID ID) : wxPanel(parent, ID)
 	Bind(wxEVT_PAINT, &Tabs::OnPaint, this);
 
 	SetMinSize(wxSize(parent->GetSize().x, 50));
+	Hide();
 }
 
 void Tabs::Add(wxString tab_name, wxString path)
 {
 	if (!IsShown())
 		Show();
+
 	bool exists = false;
 	current_openned_path = path;
 	for (auto& a_tab : tabs_container->GetChildren())

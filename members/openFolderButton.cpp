@@ -1,7 +1,7 @@
-class OpenFolderLink : public wxPanel {
+class OpenFolderButton : public wxPanel {
 public:
 	wxBoxSizer* sizer;
-	OpenFolderLink(wxWindow* parent, wxWindowID ID) : wxPanel(parent, ID) {
+	OpenFolderButton(wxWindow* parent) : wxPanel(parent, ID_OPEN_FOLDER_BUTTON) {
 		sizer = new wxBoxSizer(wxVERTICAL);
 		sizer->AddStretchSpacer(1);
 
@@ -10,5 +10,7 @@ public:
 
 		sizer->AddStretchSpacer(1);
 		SetSizerAndFit(sizer);
+
+		parent->GetSizer()->Add(this, 1, wxEXPAND);
 	}
 };

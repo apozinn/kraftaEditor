@@ -26,7 +26,7 @@
 #include "./components/tabs/tabs.cpp"
 #include "./members/menuBar.cpp"
 #include "./members/emptyWindow.cpp"
-#include "./members/openFolderLink.cpp"
+#include "./members/openFolderButton.cpp"
 #include "./members/controlPanel.cpp"
 #include "./members/terminal.cpp"
 #include "./members/find.cpp"
@@ -48,7 +48,7 @@ class MainFrame : public wxFrame
 	MenuBar *menu_bar;
 	EmptyWindow *empty_window;
 	wxPanel *side_container;
-	OpenFolderLink *open_folder_link;
+	OpenFolderButton *openFolderButton;
 	ControlPanel *control_panel;
 	Terminal *terminal;
 	wxSplitterWindow *servical_container;
@@ -56,7 +56,6 @@ class MainFrame : public wxFrame
 	wxPanel *navigationContainer;
 	wxPanel *mainContainer;
 	wxPanel *mainCode;
-
 public:
 	StatusBar *statusBar;
 	MainFrame(const wxString &title);
@@ -78,7 +77,7 @@ public:
 	void LoadPath(wxString path);
 	void ToggleFind(wxCommandEvent &event);
 	void OnPaintedComponent(wxPaintEvent &event);
-
+	void OnCloseFolder(wxCommandEvent &event);
 private:
 	void CreateWatcher();
 	void OnQuit(wxCommandEvent &WXUNUSED(event)) { Close(true); }
@@ -232,6 +231,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
 										EVT_MENU(ID_HIDDE_STATUS_BAR, MainFrame::OnHiddeStatusBar)
 											EVT_MENU(ID_HIDDE_TABS, MainFrame::OnHiddeTabs)
 												EVT_MENU(ID_CLOSE_ALL_FILES, MainFrame::CloseAllFiles)
+												EVT_MENU(ID_CLOSE_FOLDER, MainFrame::OnCloseFolder)
 													EVT_MENU(ID_TOGGLE_CONTROL_PANEL, MainFrame::ToggleControlPanel)
 														EVT_MENU(ID_OPEN_TERMINAL, MainFrame::OnOpenTerminal)
 															EVT_MENU(ID_TOGGLE_COMMENT_LINE, CodeContainer::ToggleCommentLine)

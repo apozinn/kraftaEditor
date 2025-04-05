@@ -107,13 +107,15 @@ MainFrame::MainFrame(const wxString &title)
 	else
 	{
 		tabs->CloseAll();
-		if (auto pjt_ctn = FindWindowById(ID_PROJECT_FILES_CTN))
+
+		// creating a button to open a folder
+		if (auto projectContainer = FindWindowById(ID_PROJECT_FILES_CTN))
 		{
-			open_folder_link = new OpenFolderLink(pjt_ctn, ID_OPEN_FOLDER_LINK);
-			open_folder_link->Bind(wxEVT_LEFT_UP, &MainFrame::OnOpenFolderClick, this);
-			for (auto &&children : open_folder_link->GetChildren())
+			openFolderButton = new OpenFolderButton(projectContainer);
+
+			openFolderButton->Bind(wxEVT_LEFT_UP, &MainFrame::OnOpenFolderClick, this);
+			for (auto &&children : openFolderButton->GetChildren())
 				children->Bind(wxEVT_LEFT_UP, &MainFrame::OnOpenFolderClick, this);
-			pjt_ctn->GetSizer()->Add(open_folder_link, 1, wxEXPAND);
 		}
 	}
 
@@ -391,10 +393,20 @@ void MainFrame::LoadPath(wxString path)
 	// verify if dir exists
 	if (!dir.Exists(path))
 	{
+		tabs->CloseAll();
+
 		// dir dont finded
 		wxConfig *config = new wxConfig("krafta-editor");
 		config->Write("workspace", "");
 		delete config;
+
+		// creating a button to open a folder
+		if (auto projectContainer = FindWindowById(ID_PROJECT_FILES_CTN))
+			openFolderButton = new OpenFolderButton(projectContainer);
+
+		openFolderButton->Bind(wxEVT_LEFT_UP, &MainFrame::OnOpenFolderClick, this);
+		for (auto &&children : openFolderButton->GetChildren())
+			children->Bind(wxEVT_LEFT_UP, &MainFrame::OnOpenFolderClick, this);
 		return;
 	}
 
@@ -433,5 +445,42 @@ void MainFrame::ToggleFind(wxCommandEvent &event)
 	else
 	{
 		Find *find_container = new Find(this, "Find a text");
+	}
+}
+
+void MainFrame::OnCloseFolder(wxCommandEvent &event)
+{
+	files_tree->projectFilesContainer->DestroyChildren();
+	files_tree->projectToggler->Hide();
+
+	auto main_code = FindWindowById(ID_MAIN_CODE);
+
+	for (auto &&mainCodeChildren : main_code->GetChildren())
+	{
+		std::string childrenName = mainCodeChildren->GetLabel().ToStdString();
+		if (childrenName.find("_codeContainer") != std::string::npos)
+		{
+			mainCodeChildren->Destroy();
+		}
+		else
+			mainCodeChildren->Hide();
+	}
+
+	empty_window->Show();
+	tabs->CloseAll();
+
+	wxConfig *config = new wxConfig("krafta-editor");
+	config->Write("workspace", "");
+	delete config;
+
+	// creating a button to open a folder
+	if (auto projectContainer = FindWindowById(ID_PROJECT_FILES_CTN))
+	{
+		openFolderButton = new OpenFolderButton(projectContainer);
+
+		openFolderButton->Bind(wxEVT_LEFT_UP, &MainFrame::OnOpenFolderClick, this);
+		for (auto &&children : openFolderButton->GetChildren())
+			children->Bind(wxEVT_LEFT_UP, &MainFrame::OnOpenFolderClick, this);
+		projectContainer->GetSizer()->Layout();
 	}
 }
