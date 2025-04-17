@@ -1,9 +1,19 @@
 #pragma once
+#include <vector>
 
 #include "../../utils/randoms.hpp"
 #include "../codeContainer/code.hpp"
 #include "../filesTree/files.hpp"
 #include "../../members/emptyWindow.cpp"
+
+struct TabInfo {
+	const char* path;
+	const char* name;
+	const LanguageInfo* language;
+	bool inFocus;
+};
+
+std::vector<TabInfo> tabList;
 
 class Tabs : public wxPanel {
 	wxSizer* sizer;
@@ -23,6 +33,7 @@ class Tabs : public wxPanel {
 	void OnCloseTab(wxMouseEvent& event);
 	void OnMenu(wxMouseEvent& event);
 private:
+
 	void OnEnterComp(wxMouseEvent& event);
 	void OnLeaveComp(wxMouseEvent& event);
 	void OnPaint(wxPaintEvent& event);
