@@ -123,23 +123,25 @@ void CodeContainer::InitializeLanguagePrefs()
                 continue;
 
             const StyleInfo &curType = global_lexer_styles[currentLanguage->styles[Nr].type];
-            auto setStyles = [=, &keywordnr](wxStyledTextCtrl *component)
+            auto setStyles = [&](wxStyledTextCtrl *component)
             {
                 component->StyleSetFont(Nr, font);
-                component->StyleSetForeground(Nr, wxColor(curType.foreground));
+                component->StyleSetForeground(Nr, curType.foreground);
                 component->StyleSetBold(Nr, (curType.fontstyle & mySTC_STYLE_BOLD) > 0);
                 component->StyleSetItalic(Nr, (curType.fontstyle & mySTC_STYLE_ITALIC) > 0);
                 component->StyleSetUnderline(Nr, (curType.fontstyle & mySTC_STYLE_UNDERL) > 0);
                 component->StyleSetVisible(Nr, (curType.fontstyle & mySTC_STYLE_HIDDEN) == 0);
                 component->StyleSetCase(Nr, curType.lettercase);
 
-                const char *pwords = currentLanguage->styles[Nr].words;
-                if (pwords)
-                {
-                    component->SetKeyWords(keywordnr, pwords);
-                    keywordnr += 1;
-                }
             };
+            
+            const char *pwords = currentLanguage->styles[Nr].words;
+            if (pwords)
+            {
+                editor->SetKeyWords(keywordnr, pwords);
+                minimap->SetKeyWords(keywordnr, pwords);
+                keywordnr += 1;
+            }
 
             setStyles(editor);
             setStyles(minimap);

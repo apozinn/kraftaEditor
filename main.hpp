@@ -122,7 +122,6 @@ public:
 		// define the app dirs path
 		if (osName == "Windows")
 		{
-			osSlash = "\\";
 			applicationPath = wxStandardPaths::Get()
 								  .GetUserConfigDir()
 								  .ToStdString() +
@@ -133,7 +132,6 @@ public:
 		}
 		else
 		{
-			osSlash = "/";
 			applicationPath = wxStandardPaths::Get()
 								  .GetUserConfigDir()
 								  .ToStdString() +

@@ -7,11 +7,16 @@ struct NotifyInteractions {
 	const char* id;
 };
 
+#ifdef __WINDOWS__
+std::string osSlash = "\\";
+#else
+std::string osSlash = "/";
+#endif
+
 wxString project_path = wxString("");
 wxString icons_dir = wxString("");
 wxString current_openned_path = wxString("");
 wxString osName;
-std::string osSlash;
 
 std::string menuDirPath;
 std::string menuFilePath;
