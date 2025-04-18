@@ -131,10 +131,7 @@ void Editor::Save()
 void Editor::OnChange(wxStyledTextEvent &event)
 {
     if (event.GetString() == wxEmptyString || GetText() == event.GetString())
-    {
-
         return;
-    }
 
     if (!changedFile && GetModify())
     {

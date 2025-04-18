@@ -3,7 +3,6 @@
 #include "prefs.hpp"
 
 #include "languages/CPP.cpp"
-#include "languages/BINARY.cpp"
 #include "languages/PLAINTEXT.cpp"
 #include "languages/JSON.cpp"
 #include "languages/CMAKE.cpp"
@@ -27,7 +26,6 @@ const CommonInfo global_commonPrefs = {
 const LanguageInfo languages_prefs [] = {
     UNKNOWN_PREFS,
     PLAINTEXT_PREFS,
-    BINARY_PREFS,
     CPP_PREFS,
     JSON_PREFS,
     CMAKE_PREFS,

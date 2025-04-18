@@ -21,6 +21,7 @@ wxString osName;
 std::string menuDirPath;
 std::string menuFilePath;
 
+std::string appExecutablePath;
 std::string applicationPath;
 
 std::string project_name;

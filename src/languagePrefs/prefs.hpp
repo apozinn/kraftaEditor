@@ -58,7 +58,8 @@
 
 #define mySTC_FLAG_WRAPMODE 16
 
-struct CommonInfo {
+struct CommonInfo
+{
 	bool syntaxEnable;
 	bool foldEnable;
 	bool indentEnable;
@@ -74,13 +75,15 @@ struct CommonInfo {
 
 extern const CommonInfo g_CommonPrefs;
 
-struct LanguageInfo {
-	const char* name;
-	const char* filepattern;
+struct LanguageInfo
+{
+	const char *name;
+	const char *filepattern;
 	int lexer;
-	struct {
+	struct
+	{
 		int type;
-		const char* words;
+		const char *words;
 	} styles[STYLE_TYPES_COUNT];
 	int folds;
 	wxString icon_path;

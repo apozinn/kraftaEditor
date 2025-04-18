@@ -6,6 +6,30 @@
 
 namespace fs = std::filesystem;
 
+bool CreateApplicationFile(std::string from, std::string to)
+{
+    std::string error;
+
+    try
+    {
+        fs::copy_file(from, to, fs::copy_options::overwrite_existing);
+    }
+    catch (std::exception &e)
+    {
+        error = e.what();
+    }
+
+    if (wxFileExists(to))
+    {
+        return true;
+    }
+    else
+    {
+        wxLogError(wxString("An error occurred while creating the " + wxFileNameFromPath(to) + "\n" + error));
+        return false;
+    }
+}
+
 bool CreateApplicationAssetsDirectories(std::string target, std::string dirName)
 {
     const std::filesystem::path assetsFiles{target};
