@@ -321,7 +321,10 @@ void FilesTree::OnFileSelect(wxMouseEvent &event)
 	{
 		// highlighting the file component
 		if (selectedFile)
+		{
 			selectedFile->SetBackgroundColour(wxColor(mainColor));
+			selectedFile->Refresh();
+		}
 
 		// openning file
 		OpenFile(path);

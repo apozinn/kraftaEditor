@@ -79,12 +79,14 @@ void Tabs::Add(wxString tab_name, wxString path)
 	wxBoxSizer *tab_infos_sizer = new wxBoxSizer(wxHORIZONTAL);
 
 	LanguageInfo const *currentLanguageInfo;
+	LanguageInfo const *currentInfo;
+	int languageNr;
 
 	bool found = false;
-	for (int languageNr = 0; languageNr < languages_prefs_size; languageNr++)
+	for (languageNr = 0; languageNr < languages_prefs_size; languageNr++)
 	{
-		currentLanguageInfo = &languages_prefs[languageNr];
-		wxString filepattern = currentLanguageInfo->filepattern;
+		currentInfo = &languages_prefs[languageNr];
+		wxString filepattern = currentInfo->filepattern;
 		filepattern.Lower();
 
 		while (!filepattern.empty() && !found)
@@ -95,7 +97,7 @@ void Tabs::Add(wxString tab_name, wxString path)
 				(cur == ("*." + path.AfterLast('.'))))
 			{
 				found = true;
-				currentLanguageInfo = currentLanguageInfo;
+				currentLanguageInfo = currentInfo;
 			}
 			filepattern = filepattern.AfterFirst(';');
 		}
@@ -184,13 +186,21 @@ void Tabs::Close(wxWindow *tab, wxString tab_path)
 		current_openned_path = descendantTab->GetName();
 		descendantTab->Refresh();
 
+		auto selectedFileColor = UserTheme["selectedFile"].template get<std::string>();
+
 		// getting linked file from filesTree and changing highlight file
 		auto linkedFile = FindWindowByLabel(current_openned_path + "_file_container");
 		if (linkedFile)
 		{
-			fileContainer->selectedFile->SetBackgroundColour(wxColor(45, 45, 45));
-			fileContainer->SetSelectedFile(linkedFile);
-			linkedFile->SetBackgroundColour(wxColor(60, 60, 60));
+			linkedFile->SetBackgroundColour(wxColor(selectedFileColor));
+			linkedFile->Refresh();
+
+			if (fileContainer->selectedFile)
+			{
+				fileContainer->selectedFile->SetBackgroundColour(fileContainer->GetBackgroundColour());
+				fileContainer->selectedFile->Refresh();
+				fileContainer->SetSelectedFile(linkedFile);
+			}
 		}
 
 		// openning the new component
@@ -205,12 +215,23 @@ void Tabs::Close(wxWindow *tab, wxString tab_path)
 	else
 	{
 		// If you don't have another tab, close the tabContainer and show the empty window
-		fileContainer->selectedFile->SetBackgroundColour(wxColor(45, 45, 45));
-		this->Hide();
-		FindWindowById(ID_EMPYT_WINDOW)->Show();
-		((StatusBar *)FindWindowById(ID_STATUS_BAR))->ClearLabels();
-		fileContainer->selectedFile->SetBackgroundColour(wxColor(45, 45, 45));
-		fileContainer->selectedFile = NULL;
+		if (fileContainer->selectedFile)
+		{
+			fileContainer->selectedFile->SetBackgroundColour(fileContainer->GetBackgroundColour());
+			fileContainer->selectedFile->Refresh();
+			fileContainer->selectedFile = nullptr;
+		}
+
+		Hide();
+		if (FindWindowById(ID_EMPYT_WINDOW))
+		{
+			FindWindowById(ID_EMPYT_WINDOW)->Show();
+		}
+
+		if (((StatusBar *)FindWindowById(ID_STATUS_BAR)))
+		{
+			((StatusBar *)FindWindowById(ID_STATUS_BAR))->ClearLabels();
+		}
 	}
 
 	// destroy tab and update
