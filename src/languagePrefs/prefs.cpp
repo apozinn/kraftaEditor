@@ -8,6 +8,7 @@
 #include "languages/CMAKE.cpp"
 #include "languages/UNKNOWN.cpp"
 #include "languages/JAVASCRIPT.cpp"
+#include "languages/html.cpp"
 
 const CommonInfo global_commonPrefs = {
     true,  // syntaxEnable
@@ -30,5 +31,7 @@ const LanguageInfo languages_prefs [] = {
     JSON_PREFS,
     CMAKE_PREFS,
     JAVASCRIPT_PREFS,
+    htmlPrefs,
 };
+
 const int languages_prefs_size = WXSIZEOF(languages_prefs); 

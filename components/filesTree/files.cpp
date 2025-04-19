@@ -641,8 +641,12 @@ void FilesTree::OnDeleteDir(wxCommandEvent &event)
 		if (!targetComp)
 			return;
 
+		wxWindow *parent = targetComp->GetParent();
+
 		targetComp->Destroy();
 		menuDirPath = project_path;
+
+		FitContainer(parent);
 	}
 }
 
@@ -663,8 +667,12 @@ void FilesTree::OnDeleteFile(wxCommandEvent &event)
 		if (!targetComp)
 			return;
 
+		wxWindow *parent = targetComp->GetParent();
+
 		targetComp->Destroy();
 		menuFilePath = "";
+
+		FitContainer(parent);
 	}
 }
 
