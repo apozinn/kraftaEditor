@@ -545,10 +545,22 @@ void FilesTree::FitContainer(wxWindow *window)
 {
 	wxWindow *parent = window;
 
+	// move dirs to top
+	for (auto &&children : parent->GetChildren())
+	{
+		if (std::filesystem::is_directory(children->GetName().ToStdString()))
+		{
+			wxSizer *ss = parent->GetSizer();
+			ss->Detach(children);
+			ss->Insert(0, children);
+		}
+	}
+
 	if (!window->IsShownOnScreen())
 	{
 		while (parent->GetId() != ID_PROJECT_FILES_CTN)
 		{
+
 			if (!parent->IsShownOnScreen())
 				parent->SetMinSize(wxSize(0, 0));
 			if (!parent->IsShownOnScreen())
@@ -574,6 +586,15 @@ void FilesTree::FitContainer(wxWindow *window)
 	{
 		while (parent->GetId() != ID_PROJECT_FILES_CTN)
 		{
+			wxLogMessage("1" + parent->GetLabel());
+			std::size_t found = parent->GetLabel().ToStdString().find("dir");
+			if (found != std::string::npos)
+			{
+			}
+			else
+			{
+				wxLogMessage("2" + parent->GetLabel());
+			}
 			parent->SetMinSize(wxSize(parent->GetBestSize()));
 			parent->GetSizer()->Layout();
 			parent = parent->GetParent();
@@ -707,6 +728,7 @@ void FilesTree::OnComponentModified(wxString type, wxString oldPath, wxString ne
 		{
 			// creating dir
 			CreateDir(parentComp, wxFileNameFromPath(newPath), newPath);
+			FitContainer(parentComp);
 		}
 		return;
 	}
@@ -789,8 +811,8 @@ void FilesTree::OnComponentModified(wxString type, wxString oldPath, wxString ne
 		{
 			CreateDir(parentComp, wxFileNameFromPath(newPath), newPath);
 		}
-		FitContainer(parentComp);
 	}
+	FitContainer(parentComp);
 }
 
 void FilesTree::OnEnterComp(wxMouseEvent &event)
