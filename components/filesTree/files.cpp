@@ -312,6 +312,9 @@ void FilesTree::OnFileSelect(wxMouseEvent &event)
 	auto mainColor = UserTheme["main"].template get<std::string>();
 	wxString path = file->GetName();
 
+	if (!wxFileExists(path))
+		return;
+
 	if (file->GetLabel().find("file_container") == std::string::npos)
 	{
 		file = file->GetParent();
@@ -431,6 +434,14 @@ void FilesTree::ToggleDir(wxMouseEvent &event)
 
 	wxString path = dirContainer->GetName();
 	menuDirPath = path.ToStdString();
+
+	if (!wxDirExists(path))
+	{
+		wxWindow *parent = dirContainer->GetParent();
+		dirContainer->Destroy();
+		FitContainer(parent);
+		return;
+	}
 
 	if (dir_childrens && dir_arrow_ctn)
 	{
@@ -586,15 +597,6 @@ void FilesTree::FitContainer(wxWindow *window)
 	{
 		while (parent->GetId() != ID_PROJECT_FILES_CTN)
 		{
-			wxLogMessage("1" + parent->GetLabel());
-			std::size_t found = parent->GetLabel().ToStdString().find("dir");
-			if (found != std::string::npos)
-			{
-			}
-			else
-			{
-				wxLogMessage("2" + parent->GetLabel());
-			}
 			parent->SetMinSize(wxSize(parent->GetBestSize()));
 			parent->GetSizer()->Layout();
 			parent = parent->GetParent();
@@ -699,62 +701,33 @@ void FilesTree::OnDeleteFile(wxCommandEvent &event)
 
 void FilesTree::OnComponentModified(wxString type, wxString oldPath, wxString newPath)
 {
-	bool isFile = false;
-
-	// parent component
+	// getting parent component
 	wxString parentCompPath = newPath.ToStdString().substr(0, newPath.ToStdString().find_last_of(osSlash));
 	parentCompPath = parentCompPath + osSlash;
 	auto parentComp = wxFindWindowByLabel(parentCompPath + "_dir_container");
 
+	if (parentComp)
+		return;
 	if (parentCompPath == project_path)
 		parentComp = projectFilesContainer;
-
-	// creating component
-	if (type == "CREATE")
-	{
-		if (!parentComp)
-		{
-			// if can't find the parent, reset all components
-			Load(projectFilesContainer, project_path.ToStdString());
-			return;
-		}
-
-		if (wxFileExists(newPath))
-		{
-			// creating file
-			CreateFile(parentComp, wxFileNameFromPath(newPath), newPath);
-		}
-		else
-		{
-			// creating dir
-			CreateDir(parentComp, wxFileNameFromPath(newPath), newPath);
-			FitContainer(parentComp);
-		}
-		return;
-	}
-
-	// getting the target component
-	wxWindow *targetComp;
-
-	if (wxFileExists(oldPath))
-	{
-		// is file
-		isFile = true;
-		targetComp = wxFindWindowByLabel(oldPath + "_file_container");
-	}
-	else
-	{
-		// is dir
-		isFile = false;
-		targetComp = wxFindWindowByLabel(oldPath + "_dir_container");
-	}
 
 	// getting linked code editor
 	auto linkedCodeEditor = ((CodeContainer *)FindWindowByName(oldPath + "_codeContainer"));
 	// getting linked tab
 	auto linkedTab = wxFindWindowByLabel(oldPath + "_tab");
 
-	// deleting file
+	bool isFile = true;
+	if (std::filesystem::is_directory(newPath.ToStdString()))
+		isFile = false;
+
+	if (type == "CREATE")
+	{
+		if (isFile)
+			CreateFile(parentComp, wxFileNameFromPath(newPath), newPath);
+		else
+			CreateDir(parentComp, wxFileNameFromPath(newPath), newPath);
+	}
+
 	if (type == "DELETE")
 	{
 		// deleting linked components
@@ -762,27 +735,28 @@ void FilesTree::OnComponentModified(wxString type, wxString oldPath, wxString ne
 			linkedCodeEditor->Destroy();
 		if (linkedTab)
 			linkedTab->Destroy();
-		return;
+
+		if (wxFindWindowByLabel(oldPath + "_file_container"))
+		{
+			wxFindWindowByLabel(oldPath + "_file_container")->Destroy();
+		}
+		else if (wxFindWindowByLabel(oldPath + osSlash + "_dir_container"))
+		{
+			wxFindWindowByLabel(oldPath + osSlash + "_dir_container")->Destroy();
+		}
 	}
 
-	// renamed file or modifY
+	// getting the target component
+	wxWindow *targetComp;
+	if (isFile)
+		targetComp = wxFindWindowByLabel(oldPath + "_file_container");
+	else
+		targetComp = wxFindWindowByLabel(oldPath + osSlash + "_dir_container");
+	if (!targetComp)
+		return;
+
 	if (type == "RENAME" || type == "MODIFY")
 	{
-
-		if (wxDirExists(newPath))
-		{
-			isFile = false;
-			targetComp = wxFindWindowByLabel(oldPath + osSlash + "_dir_container");
-		}
-		else
-		{
-			isFile = true;
-			targetComp = wxFindWindowByLabel(oldPath + "_file_container");
-		}
-
-		if (!targetComp)
-			return;
-
 		targetComp->Destroy();
 		if (isFile)
 		{
@@ -807,10 +781,7 @@ void FilesTree::OnComponentModified(wxString type, wxString oldPath, wxString ne
 				}
 			}
 		}
-		else
-		{
-			CreateDir(parentComp, wxFileNameFromPath(newPath), newPath);
-		}
+		else CreateDir(parentComp, wxFileNameFromPath(newPath), newPath);
 	}
 	FitContainer(parentComp);
 }
