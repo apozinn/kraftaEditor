@@ -63,13 +63,15 @@ void CodeContainer::LoadPath(wxString path)
 
 void CodeContainer::OnSave(wxCommandEvent &event)
 {
-    wxWindow *currentCodeEditor = wxFindWindowByName(current_openned_path + "_codeContainer");
-    if (currentCodeEditor)
+    auto tab = FindWindowByLabel(current_openned_path + "_tab");
+    if (tab)
     {
-        auto currentEditor = ((Editor *)currentCodeEditor->GetChildren()[0]);
-        if (currentEditor)
-            currentEditor->Save();
+        // setting the close icon
+        auto icon = ((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[2]);
+        icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(icons_dir + "close.png", wxBITMAP_TYPE_PNG)));
     }
+ 
+    editor->SaveFile();
 }
 
 LanguageInfo const *CodeContainer::GetFilelanguage(wxString filename)
@@ -132,9 +134,8 @@ void CodeContainer::InitializeLanguagePrefs()
                 component->StyleSetUnderline(Nr, (curType.fontstyle & mySTC_STYLE_UNDERL) > 0);
                 component->StyleSetVisible(Nr, (curType.fontstyle & mySTC_STYLE_HIDDEN) == 0);
                 component->StyleSetCase(Nr, curType.lettercase);
-
             };
-            
+
             const char *pwords = currentLanguage->styles[Nr].words;
             if (pwords)
             {

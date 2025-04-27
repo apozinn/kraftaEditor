@@ -112,22 +112,6 @@ void Editor::InitializePrefs()
     SetFoldLevel(6, 1024 | wxSTC_FOLDLEVELWHITEFLAG);
 }
 
-void Editor::Save()
-{
-    auto tab = FindWindowByLabel(current_openned_path + "_tab");
-    if (tab)
-    {
-        // Save the file
-        SaveFile(current_openned_path);
-
-        // setting the close icon
-        auto icon = ((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[2]);
-        icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(icons_dir + "close.png", wxBITMAP_TYPE_PNG)));
-
-        changedFile = false;
-    }
-}
-
 void Editor::OnChange(wxStyledTextEvent &event)
 {
     if (event.GetString() == wxEmptyString || GetText() == event.GetString())
