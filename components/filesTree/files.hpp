@@ -16,8 +16,8 @@ public:
 
 	FilesTree(wxWindow *parent, wxWindowID ID);
 	void Load(wxWindow *parent, std::string path);
-	void CreateFile(wxWindow *parent, wxString name, wxString path);
-	void CreateDir(wxWindow *parent, wxString name, wxString path);
+	void CreateFile(wxWindow *parent, wxString name, wxString path, int pos = -1);
+	void CreateDir(wxWindow *parent, wxString name, wxString path, int pos = -1);
 	void OnFileSelect(wxMouseEvent &event);
 	void ToggleDir(wxMouseEvent &event);
 	void OpenFile(wxString path);

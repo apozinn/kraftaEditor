@@ -130,7 +130,7 @@ void FilesTree::Load(wxWindow *parent, std::string path)
 }
 
 void FilesTree::CreateFile(
-	wxWindow *parent, wxString name, wxString path)
+	wxWindow *parent, wxString name, wxString path, int pos)
 {
 	if (!parent || FindWindowByLabel(path + "_file_container"))
 		return;
@@ -237,7 +237,7 @@ void FilesTree::CreateFile(
 }
 
 void FilesTree::CreateDir(
-	wxWindow *parent, wxString name, wxString path)
+	wxWindow *parent, wxString name, wxString path, int pos)
 {
 	if (!parent || FindWindowByLabel(path + "_dir_container"))
 		return;
@@ -302,7 +302,13 @@ void FilesTree::CreateDir(
 	dir_container->SetSizerAndFit(dir_ctn_sizer);
 	dir_childrens->Hide();
 
-	parentSizer->Add(dir_container, 0, wxEXPAND | wxLEFT, 2);
+	if (pos >= 0)
+	{
+		parentSizer->Insert(pos, dir_container, 0, wxEXPAND | wxLEFT, 2);
+	}
+	else
+		parentSizer->Add(dir_container, 0, wxEXPAND | wxLEFT, 2);
+
 	parentSizer->Layout();
 }
 
@@ -556,17 +562,6 @@ void FilesTree::FitContainer(wxWindow *window)
 {
 	wxWindow *parent = window;
 
-	// move dirs to top
-	for (auto &&children : parent->GetChildren())
-	{
-		if (std::filesystem::is_directory(children->GetName().ToStdString()))
-		{
-			wxSizer *ss = parent->GetSizer();
-			ss->Detach(children);
-			ss->Insert(0, children);
-		}
-	}
-
 	if (!window->IsShownOnScreen())
 	{
 		while (parent->GetId() != ID_PROJECT_FILES_CTN)
@@ -720,12 +715,27 @@ void FilesTree::OnComponentModified(wxString type, wxString oldPath, wxString ne
 	if (std::filesystem::is_directory(newPath.ToStdString()))
 		isFile = false;
 
+	auto CreateWithPosition = [=]()
+	{
+		int position = 0;
+
+		const std::filesystem::path pd{wxFileName(newPath).GetPath().ToStdString()};
+		for (auto const &dir_entry : std::filesystem::directory_iterator{pd})
+		{
+			if (dir_entry.path() == newPath.ToStdString())
+			{
+				if (isFile)
+					CreateFile(parentComp, wxFileNameFromPath(newPath), newPath, position);
+				else
+					CreateDir(parentComp, wxFileNameFromPath(newPath), newPath, position);
+			}
+			position++;
+		}
+	};
+
 	if (type == "CREATE")
 	{
-		if (isFile)
-			CreateFile(parentComp, wxFileNameFromPath(newPath), newPath);
-		else
-			CreateDir(parentComp, wxFileNameFromPath(newPath), newPath);
+		CreateWithPosition();
 	}
 
 	if (type == "DELETE")
@@ -781,7 +791,8 @@ void FilesTree::OnComponentModified(wxString type, wxString oldPath, wxString ne
 				}
 			}
 		}
-		else CreateDir(parentComp, wxFileNameFromPath(newPath), newPath);
+		else
+			CreateWithPosition();
 	}
 	FitContainer(parentComp);
 }
