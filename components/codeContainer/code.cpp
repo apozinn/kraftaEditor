@@ -69,18 +69,21 @@ bool CodeContainer::Save(wxString path)
     auto currentEditor = ((Editor *)wxFindWindowByLabel(path + "_codeEditor"));
     if (currentEditor)
     {
-        if(currentEditor->SaveFile(path) && !currentEditor->Modified()) {
+        if (currentEditor->SaveFile(path) && !currentEditor->Modified())
+        {
             if (auto tab = FindWindowByLabel(path + "_tab"))
             {
                 ((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[2])
                     ->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(icons_dir + "close.png", wxBITMAP_TYPE_PNG)));
             }
             return true;
-        } else {
-            wxMessageBox(_("File could not be saved!"), _("Close abort"),
-            wxOK | wxICON_EXCLAMATION);
         }
-    } 
+        else
+        {
+            wxMessageBox(_("File could not be saved!"), _("Close abort"),
+                         wxOK | wxICON_EXCLAMATION);
+        }
+    }
     return false;
 }
 
@@ -221,6 +224,97 @@ void CodeContainer::InitializeLanguagePrefs()
     }
 }
 
+void CodeContainer::ToggleMiniMapView(wxCommandEvent &event)
+{
+    auto mainCodeComponent = FindWindowById(ID_MAIN_CODE);
+    wxWindow *currentCodeEditor = wxFindWindowByLabel(current_openned_path + "_codeContainer");
+    if (currentCodeEditor)
+    {
+        auto currentMinimap = ((wxStyledTextCtrl *)currentCodeEditor->GetChildren()[1]);
+        if (currentMinimap)
+        {
+            if (currentMinimap->IsShown())
+                currentMinimap->Hide();
+            else
+                currentMinimap->Show();
+
+            // updating the main code component to resize layout
+            mainCodeComponent->GetSizer()->Layout();
+
+            // updating the user configs file
+            json user_config = UserConfig().Get();
+            user_config["show_minimap"] = currentMinimap->IsShown();
+            UserConfig().Update(user_config);
+        }
+    }
+}
+
+void CodeContainer::OnRedo(wxCommandEvent &WXUNUSED(event))
+{
+    auto currentEditor = ((Editor *)wxFindWindowByLabel(current_openned_path + "_codeEditor"));
+    if (currentEditor)
+    {
+        if (!currentEditor->CanRedo())
+            return;
+        currentEditor->Redo();
+    }
+}
+
+void CodeContainer::OnUndo(wxCommandEvent &WXUNUSED(event))
+{
+    auto currentEditor = ((Editor *)wxFindWindowByLabel(current_openned_path + "_codeEditor"));
+    if (currentEditor)
+    {
+        if (!currentEditor->CanUndo())
+            return;
+        currentEditor->Undo();
+    }
+}
+
+void CodeContainer::OnClear(wxCommandEvent &WXUNUSED(event))
+{
+    auto currentEditor = ((Editor *)wxFindWindowByLabel(current_openned_path + "_codeEditor"));
+    if (currentEditor)
+    {
+        if (!currentEditor->CanUndo())
+            return;
+        currentEditor->Undo();
+    }
+}
+
+void CodeContainer::OnCut(wxCommandEvent &WXUNUSED(event))
+{
+    auto currentEditor = ((Editor *)wxFindWindowByLabel(current_openned_path + "_codeEditor"));
+    if (currentEditor)
+    {
+        if (currentEditor->GetReadOnly() || (currentEditor->GetSelectionEnd() - currentEditor->GetSelectionStart() <= 0))
+            return;
+        currentEditor->Cut();
+    }
+}
+
+void CodeContainer::OnCopy(wxCommandEvent &WXUNUSED(event))
+{
+    auto currentEditor = ((Editor *)wxFindWindowByLabel(current_openned_path + "_codeEditor"));
+    if (currentEditor)
+    {
+        if (currentEditor->GetSelectionEnd() - currentEditor->GetSelectionStart() <= 0)
+            return;
+        currentEditor->Copy();
+    }
+}
+
+void CodeContainer::OnPaste(wxCommandEvent &WXUNUSED(event))
+{
+    auto currentEditor = ((Editor *)wxFindWindowByLabel(current_openned_path + "_codeEditor"));
+    if (currentEditor)
+    {
+        if (!currentEditor->CanPaste())
+            return;
+        currentEditor->Paste();
+    }
+}
+
 void CodeContainer::ToggleCommentLine(wxCommandEvent &WXUNUSED(event))
 {
     wxWindow *currentCodeEditor = wxFindWindowByLabel(current_openned_path + "_codeContainer");
@@ -231,7 +325,16 @@ void CodeContainer::ToggleCommentLine(wxCommandEvent &WXUNUSED(event))
 
         if (currentEditor && currentMinimap)
         {
-            int lineStart = currentEditor->PositionFromLine(currentEditor->GetCurrentLine());
+            int lineStart = 0;
+            if (currentEditor->GetSelectionEnd() - currentEditor->GetSelectionStart() <= 0)
+            {
+                lineStart = currentEditor->PositionFromLine(currentEditor->GetCurrentLine());
+            }
+            else
+            {
+                lineStart = currentEditor->GetSelectionStart();
+            }
+
             char chr = (char)currentEditor->GetCharAt(lineStart);
 
             if (chr == ' ')
@@ -257,27 +360,54 @@ void CodeContainer::ToggleCommentLine(wxCommandEvent &WXUNUSED(event))
     }
 }
 
-void CodeContainer::ToggleMiniMapView(wxCommandEvent &event)
+void CodeContainer::ToggleCommentBlock(wxCommandEvent &WXUNUSED(event))
 {
-    auto mainCodeComponent = FindWindowById(ID_MAIN_CODE);
     wxWindow *currentCodeEditor = wxFindWindowByLabel(current_openned_path + "_codeContainer");
     if (currentCodeEditor)
     {
+        auto currentEditor = ((wxStyledTextCtrl *)currentCodeEditor->GetChildren()[0]);
         auto currentMinimap = ((wxStyledTextCtrl *)currentCodeEditor->GetChildren()[1]);
-        if (currentMinimap)
+
+        if (currentEditor && currentMinimap)
         {
-            if (currentMinimap->IsShown())
-                currentMinimap->Hide();
+
+            int lineStart = 0;
+            int lineEnd = 0;
+            if (currentEditor->GetSelectionEnd() - currentEditor->GetSelectionStart() <= 0)
+            {
+                lineStart = currentEditor->PositionFromLine(currentEditor->GetCurrentLine());
+                lineEnd = currentEditor->GetLineEndPosition(currentEditor->GetCurrentLine()) + 2;
+            }
             else
-                currentMinimap->Show();
+            {
+                lineStart = currentEditor->GetSelectionStart();
+                lineEnd = currentEditor->GetSelectionEnd() + 2;
+            }
 
-            // updating the main code component to resize layout
-            mainCodeComponent->GetSizer()->Layout();
+            char chr = (char)currentEditor->GetCharAt(lineStart);
 
-            // updating the user configs file
-            json user_config = UserConfig().Get();
-            user_config["show_minimap"] = currentMinimap->IsShown();
-            UserConfig().Update(user_config);
+            if (chr == ' ')
+            {
+                while (chr == ' ')
+                {
+                    lineStart++;
+                    chr = (char)currentEditor->GetCharAt(lineStart);
+                }
+            }
+
+            if (chr == '/' && (char)currentEditor->GetCharAt(lineStart + 1) == '*')
+            {
+                currentEditor->DeleteRange(lineStart, 2);
+                currentMinimap->DeleteRange(lineStart, 2);
+            }
+            else
+            {
+                currentEditor->InsertText(lineStart, "/*");
+                currentEditor->InsertText(lineEnd, "*/");
+
+                currentMinimap->InsertText(lineStart, "/*");
+                currentMinimap->InsertText(lineEnd, "*/");
+            }
         }
     }
 }

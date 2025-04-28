@@ -21,18 +21,16 @@ public:
 		menuFile->Append(wxID_EXIT, _("&Quit\tCtrl+Q"));
 
 		wxMenu* menuEdit = new wxMenu;
-		menuEdit->Append(wxID_ANY, _("&Undo"));
-		menuEdit->Append(wxID_ANY, _("&Undo Selection"));
+		menuEdit->Append (wxID_UNDO, _("&Undo\tCtrl+Z"));
+		menuEdit->Append (wxID_REDO, _("&Redo\tCtrl+Shift+Z"));
 		menuEdit->AppendSeparator();
-		menuEdit->Append(wxID_ANY, _("&Cut"));
-		menuEdit->Append(wxID_ANY, _("&Copy"));
-		menuEdit->Append(wxID_ANY, _("&Paste"));
+		menuEdit->Append (wxID_CUT, _("Cu&t\tCtrl+X"));
+		menuEdit->Append (wxID_COPY, _("&Copy\tCtrl+C"));
+		menuEdit->Append (wxID_PASTE, _("&Paste\tCtrl+V"));
+		menuEdit->Append (wxID_CLEAR, _("&Delete\tDel"));
 		menuEdit->AppendSeparator();
-
-		wxMenu* commentMenu = new wxMenu();
-		commentMenu->Append(ID_TOGGLE_COMMENT_LINE, _("&Toggle Comment"));
-		commentMenu->Append(ID_TOGGLE_COMMENT_BLOCK, _("&Toggle Block Comment"));
-		menuEdit->AppendSubMenu(commentMenu, _("&Comment"));
+		menuEdit->Append(ID_TOGGLE_COMMENT_LINE, _("&Toggle Comment\tCtrl+;"));
+		menuEdit->Append(ID_TOGGLE_COMMENT_BLOCK, _("&Toggle Block Comment\tShift+alt+A"));
 
 		wxMenu* menuSelection = new wxMenu;
 		menuSelection->Append(wxID_ANY, _("&Select All"));

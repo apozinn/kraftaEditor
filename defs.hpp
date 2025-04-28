@@ -2,9 +2,10 @@
 
 #define STYLE_TYPES_COUNT 32
 
-struct NotifyInteractions {
-	const char* label;
-	const char* id;
+struct NotifyInteractions
+{
+	const char *label;
+	const char *id;
 };
 
 #ifdef __WINDOWS__
@@ -30,9 +31,10 @@ std::string assetsDir;
 json UserTheme;
 json UserConfigs;
 
-wxFrame* mainFrame = nullptr;
+wxFrame *mainFrame = nullptr;
 
-enum {
+enum
+{
 	ID_MAIN_FRAME = -1,
 	ID_PROJECT_TOGGLER,
 	ID_Quit,
@@ -47,11 +49,11 @@ enum {
 	ID_SIDE_NAVIGATION,
 	ID_SAVE_AS,
 	ID_CLOSE_FILE,
+	ID_TOGGLE_COMMENT_BLOCK,
 	ID_CODE_CONTAINER,
 	ID_HIDDE_MENU_BAR,
 	ID_TOGGLE_COMMENT_LINE,
 	ID_GOTO_SEARCHPAGE,
-	ID_TOGGLE_COMMENT_BLOCK,
 	ID_HIDDE_FILES_TREE,
 	ID_HIDDE_SIDE_NAV,
 	ID_HIDDE_STATUS_BAR,

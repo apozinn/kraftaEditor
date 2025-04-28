@@ -24,7 +24,6 @@ public:
 	LanguageInfo const *currentLanguage;
 	wxPoint codeMapClickPoint = wxPoint(0, 0);
 	StatusBar *statusBar = ((StatusBar *)FindWindowById(ID_STATUS_BAR));
-
 	CodeContainer(wxWindow *parent, wxString path);
 	void LoadPath(wxString path);
 	bool Save(wxString path);
@@ -33,15 +32,23 @@ public:
 	void OnSaveAll(wxCommandEvent &event);
 	void OnCloseFile(wxCommandEvent &event);
 	void ToggleMiniMapView(wxCommandEvent &event);
+	
+	//edit
+	void OnRedo(wxCommandEvent &WXUNUSED(event));
+	void OnUndo(wxCommandEvent &WXUNUSED(event));
+	void OnClear(wxCommandEvent &WXUNUSED(event));
+	void OnCut(wxCommandEvent &WXUNUSED(event));
+	void OnCopy(wxCommandEvent &WXUNUSED(event));
+	void OnPaste(wxCommandEvent &WXUNUSED(event));
 	void ToggleCommentLine(wxCommandEvent &event);
+	void ToggleCommentBlock(wxCommandEvent &event);
 private:
 	wxBoxSizer *sizer = new wxBoxSizer(wxHORIZONTAL);
 	LanguageInfo const *GetFilelanguage(wxString filename);
 	void InitializeLanguagePrefs();
-	// void DrawBorder(wxStyledTextEvent &event);
 	wxDECLARE_EVENT_TABLE();
 };
 
 wxBEGIN_EVENT_TABLE(CodeContainer, wxPanel)
 	EVT_MENU(wxID_SAVE, CodeContainer::OnSave)
-	wxEND_EVENT_TABLE()
+wxEND_EVENT_TABLE()
