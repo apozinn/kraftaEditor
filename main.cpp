@@ -133,6 +133,12 @@ MainFrame::MainFrame(const wxString &title)
 
 MainFrame::~MainFrame() { delete m_watcher; }
 
+void MainFrame::OnNewWindow(wxCommandEvent& event)
+{
+	auto newApp = new KraftaEditor();
+	newApp->NewWindow();
+}
+
 bool MainFrame::CreateWatcherIfNecessary()
 {
 	if (m_watcher)

@@ -4,8 +4,11 @@ class MenuBar : public wxMenuBar {
 public:
 	MenuBar() : wxMenuBar() {
 		wxMenu* menuFile = new wxMenu;
-		menuFile->Append(ID_CREATE_DIR, _("&Create Dir"));
-		menuFile->Append(ID_CREATE_FILE, _("&Create File\tCtrl-N"));
+		menuFile->Append(ID_CREATE_FILE, _("&New File\tCtrl-N"));
+		menuFile->Append(ID_CREATE_DIR, _("&New Dir"));
+		menuFile->Append(ID_NEW_WINDOW, _("&New Window\tCtrl+Shift+N"));
+		menuFile->AppendSeparator();
+		
 		menuFile->Append(ID_OPEN_FOLDER, _("&Open Folder...\tCtrl+Shift+K"));
 		menuFile->Append(ID_OPEN_FILE, _("&Open File...\tCtrl+O"));
 		menuFile->AppendSeparator();
@@ -13,7 +16,6 @@ public:
 		menuFile->Append(ID_SAVE_AS, _("&Save As..."));
 		menuFile->Append(wxID_ANY, _("&Save All"));
 		menuFile->AppendSeparator();
-		menuFile->Append(wxID_ANY, _("&New Window"));
 		menuFile->Append(wxID_ANY, _("&Close Window"));
 		menuFile->AppendSeparator();
 		menuFile->Append(ID_CLOSE_FILE, _("&Close File"));

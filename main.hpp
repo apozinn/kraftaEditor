@@ -56,6 +56,7 @@ class MainFrame : public wxFrame
 	wxPanel *navigationContainer;
 	wxPanel *mainContainer;
 	wxPanel *mainCode;
+
 public:
 	StatusBar *statusBar;
 	MainFrame(const wxString &title);
@@ -78,6 +79,8 @@ public:
 	void ToggleFind(wxCommandEvent &event);
 	void OnPaintedComponent(wxPaintEvent &event);
 	void OnCloseFolder(wxCommandEvent &event);
+	void OnNewWindow(wxCommandEvent &event);
+
 private:
 	void CreateWatcher();
 	void OnQuit(wxCommandEvent &WXUNUSED(event)) { Close(true); }
@@ -86,7 +89,6 @@ private:
 	void OnAbout(wxCommandEvent &event);
 	void OnFileSystemEvent(wxFileSystemWatcherEvent &event);
 	void OnOpenTerminal(wxCommandEvent &event);
-
 	bool m_followLinks;
 	wxFileSystemWatcher *m_watcher = nullptr;
 	wxDECLARE_NO_COPY_CLASS(MainFrame);
@@ -111,9 +113,9 @@ public:
 		if (systemInfo.IsSystemDark())
 		{
 			SetAppearance(Appearance::Dark);
-			#if __WXMSW__
-				MSWEnableDarkMode(DarkMode_Always);
-			#endif
+#if __WXMSW__
+			MSWEnableDarkMode(DarkMode_Always);
+#endif
 		}
 		// Get user config and theme
 		UserConfigs = UserConfig().Get();
@@ -168,11 +170,7 @@ public:
 		wxInitAllImageHandlers();
 
 		// createv the main frame
-		frame = new MainFrame("Krafta Editor");
-		frame->Show();
-		wxApp::SetTopWindow(frame);
-		mainFrame = frame;
-		return true;
+		NewWindow();
 	}
 
 	virtual void OnEventLoopEnter(wxEventLoopBase *WXUNUSED(loop)) override
@@ -211,30 +209,40 @@ public:
 			m_dirToWatch = parser.GetParam();
 		return true;
 	}
+
+public:
+	void NewWindow()
+	{
+		frame = new MainFrame("Krafta Editor");
+		frame->Show();
+		wxApp::SetTopWindow(frame);
+		mainFrame = frame;
+	}
 };
 
 wxIMPLEMENT_APP(KraftaEditor);
 wxDECLARE_APP(KraftaEditor);
 
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
+	EVT_MENU(ID_NEW_WINDOW, MainFrame::OnNewWindow)
 	EVT_MENU(wxID_EXIT, MainFrame::OnQuit)
 		EVT_MENU(wxID_ABOUT, MainFrame::OnAbout)
 			EVT_MENU(wxID_SAVE, CodeContainer::OnSave)
-			EVT_MENU(ID_SAVE_AS, CodeContainer::OnSaveAs)
-			EVT_MENU(ID_CLOSE_FILE, CodeContainer::OnCloseFile)
-				EVT_MENU(ID_CREATE_DIR, FilesTree::OnCreateDir)
-					EVT_MENU(ID_CREATE_FILE, FilesTree::OnCreateFile)
-						EVT_MENU(ID_OPEN_FOLDER, MainFrame::OnOpenFolderMenu)
-							EVT_MENU(ID_OPEN_FILE, MainFrame::OnOpenFile)
-								EVT_MENU(ID_HIDDE_FILES_TREE, MainFrame::OnHiddeFilesTree)
-									EVT_MENU(ID_HIDDE_MENU_BAR, MainFrame::OnHiddeMenuBar)
-										EVT_MENU(ID_HIDDE_STATUS_BAR, MainFrame::OnHiddeStatusBar)
-											EVT_MENU(ID_HIDDE_TABS, MainFrame::OnHiddeTabs)
-												EVT_MENU(ID_CLOSE_ALL_FILES, MainFrame::CloseAllFiles)
-												EVT_MENU(ID_CLOSE_FOLDER, MainFrame::OnCloseFolder)
-													EVT_MENU(ID_TOGGLE_CONTROL_PANEL, MainFrame::ToggleControlPanel)
-														EVT_MENU(ID_OPEN_TERMINAL, MainFrame::OnOpenTerminal)
-															EVT_MENU(ID_TOGGLE_COMMENT_LINE, CodeContainer::ToggleCommentLine)
-																EVT_MENU(ID_TOGGLE_MINI_MAP_VIEW, CodeContainer::ToggleMiniMapView)
-																	EVT_MENU(ID_TOGGLE_FIND, MainFrame::ToggleFind)
-																		wxEND_EVENT_TABLE()
+				EVT_MENU(ID_SAVE_AS, CodeContainer::OnSaveAs)
+					EVT_MENU(ID_CLOSE_FILE, CodeContainer::OnCloseFile)
+						EVT_MENU(ID_CREATE_DIR, FilesTree::OnCreateDir)
+							EVT_MENU(ID_CREATE_FILE, FilesTree::OnCreateFile)
+								EVT_MENU(ID_OPEN_FOLDER, MainFrame::OnOpenFolderMenu)
+									EVT_MENU(ID_OPEN_FILE, MainFrame::OnOpenFile)
+										EVT_MENU(ID_HIDDE_FILES_TREE, MainFrame::OnHiddeFilesTree)
+											EVT_MENU(ID_HIDDE_MENU_BAR, MainFrame::OnHiddeMenuBar)
+												EVT_MENU(ID_HIDDE_STATUS_BAR, MainFrame::OnHiddeStatusBar)
+													EVT_MENU(ID_HIDDE_TABS, MainFrame::OnHiddeTabs)
+														EVT_MENU(ID_CLOSE_ALL_FILES, MainFrame::CloseAllFiles)
+															EVT_MENU(ID_CLOSE_FOLDER, MainFrame::OnCloseFolder)
+																EVT_MENU(ID_TOGGLE_CONTROL_PANEL, MainFrame::ToggleControlPanel)
+																	EVT_MENU(ID_OPEN_TERMINAL, MainFrame::OnOpenTerminal)
+																		EVT_MENU(ID_TOGGLE_COMMENT_LINE, CodeContainer::ToggleCommentLine)
+																			EVT_MENU(ID_TOGGLE_MINI_MAP_VIEW, CodeContainer::ToggleMiniMapView)
+																				EVT_MENU(ID_TOGGLE_FIND, MainFrame::ToggleFind)
+																					wxEND_EVENT_TABLE()
