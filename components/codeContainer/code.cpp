@@ -64,38 +64,52 @@ void CodeContainer::LoadPath(wxString path)
     }
 }
 
-void CodeContainer::OnSave(wxCommandEvent &event)
+bool CodeContainer::Save(wxString path)
 {
-    auto currentEditor = ((Editor *)wxFindWindowByLabel(current_openned_path + "_codeEditor"));
+    auto currentEditor = ((Editor *)wxFindWindowByLabel(path + "_codeEditor"));
     if (currentEditor)
     {
-        currentEditor->SaveFile();
-
-        if (auto tab = FindWindowByLabel(current_openned_path + "_tab"))
-        {
-            ((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[2])
-                ->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(icons_dir + "close.png", wxBITMAP_TYPE_PNG)));
+        if(currentEditor->SaveFile(path) && !currentEditor->Modified()) {
+            if (auto tab = FindWindowByLabel(path + "_tab"))
+            {
+                ((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[2])
+                    ->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(icons_dir + "close.png", wxBITMAP_TYPE_PNG)));
+            }
+            return true;
+        } else {
+            wxMessageBox(_("File could not be saved!"), _("Close abort"),
+            wxOK | wxICON_EXCLAMATION);
         }
-    }
+    } 
+    return false;
+}
+
+void CodeContainer::OnSave(wxCommandEvent &event)
+{
+    Save(current_openned_path);
 }
 
 void CodeContainer::OnSaveAs(wxCommandEvent &event)
 {
-    auto currentEditor = ((Editor *)wxFindWindowByLabel(current_openned_path + "_codeEditor"));
-    if (currentEditor)
+    wxString filename;
+    wxFileDialog dlg(this, "Save file", wxEmptyString, wxFileNameFromPath(current_openned_path), "Any file (*)|*", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+    if (dlg.ShowModal() != wxID_OK)
+        return;
+    filename = dlg.GetPath();
+    Save(filename);
+}
+
+void CodeContainer::OnSaveAll(wxCommandEvent &event)
+{
+    auto mainCode = FindWindowById(ID_MAIN_CODE);
+    if (mainCode)
     {
-        wxString filename;
-        wxFileDialog dlg(this, "Save file", wxEmptyString, wxFileNameFromPath(current_openned_path), "Any file (*)|*", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
-        if (dlg.ShowModal() != wxID_OK)
-            return;
-        filename = dlg.GetPath();
-
-        currentEditor->SaveFile(filename);
-
-        if (auto tab = FindWindowByLabel(current_openned_path + "_tab"))
+        for (auto &&children : mainCode->GetChildren())
         {
-            ((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[2])
-                ->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(icons_dir + "close.png", wxBITMAP_TYPE_PNG)));
+            if (children->GetLabel().ToStdString().find("_codeContainer") != std::string::npos)
+            {
+                Save(children->GetName());
+            }
         }
     }
 }

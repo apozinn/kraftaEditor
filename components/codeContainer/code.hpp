@@ -27,8 +27,10 @@ public:
 
 	CodeContainer(wxWindow *parent, wxString path);
 	void LoadPath(wxString path);
+	bool Save(wxString path);
 	void OnSave(wxCommandEvent &event);
 	void OnSaveAs(wxCommandEvent &event);
+	void OnSaveAll(wxCommandEvent &event);
 	void OnCloseFile(wxCommandEvent &event);
 	void ToggleMiniMapView(wxCommandEvent &event);
 	void ToggleCommentLine(wxCommandEvent &event);

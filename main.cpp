@@ -133,7 +133,7 @@ MainFrame::MainFrame(const wxString &title)
 
 MainFrame::~MainFrame() { delete m_watcher; }
 
-void MainFrame::OnNewWindow(wxCommandEvent& event)
+void MainFrame::OnNewWindow(wxCommandEvent &event)
 {
 	auto newApp = new KraftaEditor();
 	newApp->NewWindow();
@@ -458,7 +458,7 @@ void MainFrame::OnCloseFolder(wxCommandEvent &event)
 {
 	files_tree->projectFilesContainer->DestroyChildren();
 	files_tree->projectToggler->Hide();
-
+	
 	auto main_code = FindWindowById(ID_MAIN_CODE);
 
 	for (auto &&mainCodeChildren : main_code->GetChildren())

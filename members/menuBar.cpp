@@ -8,20 +8,16 @@ public:
 		menuFile->Append(ID_CREATE_DIR, _("&New Dir"));
 		menuFile->Append(ID_NEW_WINDOW, _("&New Window\tCtrl+Shift+N"));
 		menuFile->AppendSeparator();
-		
 		menuFile->Append(ID_OPEN_FOLDER, _("&Open Folder...\tCtrl+Shift+K"));
 		menuFile->Append(ID_OPEN_FILE, _("&Open File...\tCtrl+O"));
 		menuFile->AppendSeparator();
-		menuFile->Append(wxID_SAVE, _("&Save"));
-		menuFile->Append(ID_SAVE_AS, _("&Save As..."));
-		menuFile->Append(wxID_ANY, _("&Save All"));
-		menuFile->AppendSeparator();
-		menuFile->Append(wxID_ANY, _("&Close Window"));
+		menuFile->Append(wxID_SAVE, _("&Save\tCtrl+S"));
+		menuFile->Append(ID_SAVE_AS, _("&Save As...\tCtrl+Shift+S"));
+		menuFile->Append(ID_SAVE_ALL, _("&Save All\tCtrl+Alt+S"));
 		menuFile->AppendSeparator();
 		menuFile->Append(ID_CLOSE_FILE, _("&Close File"));
-		menuFile->Append(wxID_ANY, _("&Revert File"));
 		menuFile->Append(ID_CLOSE_ALL_FILES, _("&Close All Files\tCtrl+Alt+W"));
-		menuFile->Append(ID_CLOSE_FOLDER, _("&Close Folder\tCtrl-K+F"));
+		menuFile->Append(ID_CLOSE_FOLDER, _("&Close Folder"));
 		menuFile->Append(wxID_EXIT, _("&Quit\tCtrl+Q"));
 
 		wxMenu* menuEdit = new wxMenu;
@@ -49,7 +45,7 @@ public:
 		menuFind->Append(wxID_ANY, _("&Find"));
 		menuFind->Append(wxID_ANY, _("&Find Next"));
 		menuFind->Append(wxID_ANY, _("&Find Previous"));
-		menuFile->AppendSeparator();
+		menuFind->AppendSeparator();
 		menuFind->Append(wxID_ANY, _("&Replace"));
 		menuFind->Append(wxID_ANY, _("&Replace Next"));
 
