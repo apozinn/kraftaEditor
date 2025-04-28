@@ -80,7 +80,7 @@ public:
 				int pos = codeEditor->SearchNext(0, input->GetText());
 				codeEditor->SearchAnchor();
 
-				int ptb;
+				int ptb = 0;
 
 				while (!ptb) {
 					startTarget = codeEditor->FindText(endTarget, codeEditor->GetLength(), input->GetText(), 0, &endTarget);

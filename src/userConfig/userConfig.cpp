@@ -62,7 +62,9 @@ json UserConfig::GetThemes()
 			data = json::parse(themes);
 		}
 	}
-	catch (const json::exception& e) {}
+	catch (const json::exception& e) {
+		wxMessageBox(wxString("an error occurred while extracting themes")+wxString(e.what()));
+	}
 
 	auto systemInfo = wxSystemSettings::GetAppearance();
 	if (systemInfo.IsSystemDark()) {

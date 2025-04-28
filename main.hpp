@@ -171,6 +171,7 @@ public:
 
 		// createv the main frame
 		NewWindow();
+		return true;
 	}
 
 	virtual void OnEventLoopEnter(wxEventLoopBase *WXUNUSED(loop)) override
