@@ -100,6 +100,37 @@ void CodeContainer::OnSaveAs(wxCommandEvent &event)
     }
 }
 
+void CodeContainer::OnCloseFile(wxCommandEvent &event)
+{
+    auto currentEditor = ((Editor *)wxFindWindowByLabel(current_openned_path + "_codeEditor"));
+    if (currentEditor)
+    {
+        if (currentEditor->Modified())
+        {
+            if (wxMessageBox(_("Text is not saved, save before closing?"), _("Close"),
+                             wxYES_NO | wxICON_QUESTION) == wxYES)
+            {
+                currentEditor->SaveFile();
+                if (currentEditor->Modified())
+                {
+                    wxMessageBox(_("Text could not be saved!"), _("Close abort"),
+                                 wxOK | wxICON_EXCLAMATION);
+                    return;
+                }
+            }
+        }
+
+        auto tabsContainer = ((Tabs *)FindWindowById(ID_TABS));
+        if (tabsContainer)
+        {
+            if (auto tab = FindWindowByLabel(current_openned_path + "_tab"))
+            {
+                tabsContainer->Close(tab, current_openned_path);
+            }
+        }
+    }
+}
+
 LanguageInfo const *CodeContainer::GetFilelanguage(wxString filename)
 {
     // searching for the language with this file extension

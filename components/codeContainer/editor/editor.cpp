@@ -261,3 +261,8 @@ void Editor::OnScroll(wxMouseEvent &event)
     SetMiniMapLine();
     event.Skip();
 }
+
+bool Editor::Modified()
+{
+    return (GetModify() && !GetReadOnly());
+}

@@ -7,6 +7,7 @@ class Editor : public wxStyledTextCtrl
 {
 public:
     Editor(wxWindow *parent);
+    bool Modified();
 private:
     wxStyledTextCtrl *MiniMap = nullptr;
     wxString currentPath;

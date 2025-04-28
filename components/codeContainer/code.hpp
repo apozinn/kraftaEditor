@@ -4,12 +4,14 @@
 #include "./minimap/minimap.cpp"
 
 #include "../../defs.hpp"
-#include "../statusBar/status.hpp"
 #include "../../src/languagePrefs/prefs.cpp"
 #include "../../src/lexerStyle/lexerStyle.cpp"
 
 #include <wx/stc/stc.h>
 #include <wx/scrolwin.h>
+
+#include "../statusBar/status.hpp"
+#include "../tabs/tabs.hpp"
 
 class CodeContainer : public wxScrolled<wxPanel>
 {
@@ -27,6 +29,7 @@ public:
 	void LoadPath(wxString path);
 	void OnSave(wxCommandEvent &event);
 	void OnSaveAs(wxCommandEvent &event);
+	void OnCloseFile(wxCommandEvent &event);
 	void ToggleMiniMapView(wxCommandEvent &event);
 	void ToggleCommentLine(wxCommandEvent &event);
 private:

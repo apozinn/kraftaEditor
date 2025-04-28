@@ -1,3 +1,5 @@
+#pragma once
+
 class wxImagePanel : public wxPanel {
 	wxBitmap image;
 	double i_rotate;

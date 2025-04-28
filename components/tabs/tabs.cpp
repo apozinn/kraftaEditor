@@ -46,6 +46,7 @@ Tabs::Tabs(wxPanel *parent, wxWindowID ID) : wxPanel(parent, ID)
 	Bind(wxEVT_PAINT, &Tabs::OnPaint, this);
 
 	SetMinSize(wxSize(parent->GetSize().x, 50));
+	SetLabel("tabsContainer");
 	Hide();
 }
 

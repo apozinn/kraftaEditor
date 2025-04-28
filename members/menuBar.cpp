@@ -16,7 +16,7 @@ public:
 		menuFile->Append(wxID_ANY, _("&New Window"));
 		menuFile->Append(wxID_ANY, _("&Close Window"));
 		menuFile->AppendSeparator();
-		menuFile->Append(wxID_ANY, _("&Close File"));
+		menuFile->Append(ID_CLOSE_FILE, _("&Close File"));
 		menuFile->Append(wxID_ANY, _("&Revert File"));
 		menuFile->Append(ID_CLOSE_ALL_FILES, _("&Close All Files\tCtrl+Alt+W"));
 		menuFile->Append(ID_CLOSE_FOLDER, _("&Close Folder\tCtrl-K+F"));

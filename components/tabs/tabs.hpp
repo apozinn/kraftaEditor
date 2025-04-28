@@ -4,7 +4,6 @@
 #include "../../utils/randoms.hpp"
 #include "../codeContainer/code.hpp"
 #include "../filesTree/files.hpp"
-#include "../../members/emptyWindow.cpp"
 
 struct TabInfo {
 	const char* path;

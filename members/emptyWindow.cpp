@@ -1,5 +1,7 @@
 #pragma once
 
+#include "./imagePanel.cpp"
+
 class EmptyWindow : public wxPanel
 {
 	wxBoxSizer* sizer;
