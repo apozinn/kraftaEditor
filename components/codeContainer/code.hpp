@@ -26,6 +26,7 @@ public:
 	CodeContainer(wxWindow *parent, wxString path);
 	void LoadPath(wxString path);
 	void OnSave(wxCommandEvent &event);
+	void OnSaveAs(wxCommandEvent &event);
 	void ToggleMiniMapView(wxCommandEvent &event);
 	void ToggleCommentLine(wxCommandEvent &event);
 private:

@@ -8,8 +8,9 @@ public:
 		menuFile->Append(ID_CREATE_FILE, _("&Create File\tCtrl-N"));
 		menuFile->Append(ID_OPEN_FOLDER, _("&Open Folder...\tCtrl+Shift+K"));
 		menuFile->Append(ID_OPEN_FILE, _("&Open File...\tCtrl+O"));
+		menuFile->AppendSeparator();
 		menuFile->Append(wxID_SAVE, _("&Save"));
-		menuFile->Append(wxID_ANY, _("&Save As..."));
+		menuFile->Append(ID_SAVE_AS, _("&Save As..."));
 		menuFile->Append(wxID_ANY, _("&Save All"));
 		menuFile->AppendSeparator();
 		menuFile->Append(wxID_ANY, _("&New Window"));

@@ -25,8 +25,8 @@ CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxScrolled<wxPan
     }
 
     LoadPath(path);
-    SetName(path + "_codeContainer");
-    SetLabel(path);
+    SetName(path);
+    SetLabel(path + "_codeContainer");
     currentPath = path;
 
     // keyboard shortcuts
@@ -43,7 +43,10 @@ void CodeContainer::LoadPath(wxString path)
     if (file_props.IsOk() && file_props.FileExists())
     {
         editor->LoadFile(path);
+        editor->SetLabel(path + "_codeEditor");
+
         minimap->LoadFile(path);
+        minimap->SetLabel(path + "_codeMap");
 
         statusBar->UpdateCodeLocale(editor);
 
@@ -63,15 +66,38 @@ void CodeContainer::LoadPath(wxString path)
 
 void CodeContainer::OnSave(wxCommandEvent &event)
 {
-    auto tab = FindWindowByLabel(current_openned_path + "_tab");
-    if (tab)
+    auto currentEditor = ((Editor *)wxFindWindowByLabel(current_openned_path + "_codeEditor"));
+    if (currentEditor)
     {
-        // setting the close icon
-        auto icon = ((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[2]);
-        icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(icons_dir + "close.png", wxBITMAP_TYPE_PNG)));
+        currentEditor->SaveFile();
+
+        if (auto tab = FindWindowByLabel(current_openned_path + "_tab"))
+        {
+            ((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[2])
+                ->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(icons_dir + "close.png", wxBITMAP_TYPE_PNG)));
+        }
     }
- 
-    editor->SaveFile();
+}
+
+void CodeContainer::OnSaveAs(wxCommandEvent &event)
+{
+    auto currentEditor = ((Editor *)wxFindWindowByLabel(current_openned_path + "_codeEditor"));
+    if (currentEditor)
+    {
+        wxString filename;
+        wxFileDialog dlg(this, "Save file", wxEmptyString, wxFileNameFromPath(current_openned_path), "Any file (*)|*", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+        if (dlg.ShowModal() != wxID_OK)
+            return;
+        filename = dlg.GetPath();
+
+        currentEditor->SaveFile(filename);
+
+        if (auto tab = FindWindowByLabel(current_openned_path + "_tab"))
+        {
+            ((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[2])
+                ->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(icons_dir + "close.png", wxBITMAP_TYPE_PNG)));
+        }
+    }
 }
 
 LanguageInfo const *CodeContainer::GetFilelanguage(wxString filename)
@@ -152,7 +178,7 @@ void CodeContainer::InitializeLanguagePrefs()
 
 void CodeContainer::ToggleCommentLine(wxCommandEvent &WXUNUSED(event))
 {
-    wxWindow *currentCodeEditor = wxFindWindowByName(current_openned_path + "_codeContainer");
+    wxWindow *currentCodeEditor = wxFindWindowByLabel(current_openned_path + "_codeContainer");
     if (currentCodeEditor)
     {
         auto currentEditor = ((wxStyledTextCtrl *)currentCodeEditor->GetChildren()[0]);
@@ -189,7 +215,7 @@ void CodeContainer::ToggleCommentLine(wxCommandEvent &WXUNUSED(event))
 void CodeContainer::ToggleMiniMapView(wxCommandEvent &event)
 {
     auto mainCodeComponent = FindWindowById(ID_MAIN_CODE);
-    wxWindow *currentCodeEditor = wxFindWindowByName(current_openned_path + "_codeContainer");
+    wxWindow *currentCodeEditor = wxFindWindowByLabel(current_openned_path + "_codeContainer");
     if (currentCodeEditor)
     {
         auto currentMinimap = ((wxStyledTextCtrl *)currentCodeEditor->GetChildren()[1]);
