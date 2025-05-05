@@ -24,14 +24,16 @@ public:
 	LanguageInfo const *currentLanguage;
 	wxPoint codeMapClickPoint = wxPoint(0, 0);
 	StatusBar *statusBar = ((StatusBar *)FindWindowById(ID_STATUS_BAR));
+	
 	CodeContainer(wxWindow *parent, wxString path);
 	void LoadPath(wxString path);
+
+	//file
 	bool Save(wxString path);
-	void OnSave(wxCommandEvent &event);
-	void OnSaveAs(wxCommandEvent &event);
-	void OnSaveAll(wxCommandEvent &event);
-	void OnCloseFile(wxCommandEvent &event);
-	void ToggleMiniMapView(wxCommandEvent &event);
+	void OnSave(wxCommandEvent &WXUNUSED(event));
+	void OnSaveAs(wxCommandEvent &WXUNUSED(event));
+	void OnSaveAll(wxCommandEvent &WXUNUSED(event));
+	void OnCloseFile(wxCommandEvent &WXUNUSED(event));
 	
 	//edit
 	void OnRedo(wxCommandEvent &WXUNUSED(event));
@@ -40,8 +42,17 @@ public:
 	void OnCut(wxCommandEvent &WXUNUSED(event));
 	void OnCopy(wxCommandEvent &WXUNUSED(event));
 	void OnPaste(wxCommandEvent &WXUNUSED(event));
-	void ToggleCommentLine(wxCommandEvent &event);
-	void ToggleCommentBlock(wxCommandEvent &event);
+	
+	//comment
+	void ToggleCommentLine(wxCommandEvent &WXUNUSED(event));
+	void ToggleCommentBlock(wxCommandEvent &WXUNUSED(event));
+	
+	//select
+	void OnSelectAll(wxCommandEvent &WXUNUSED(event));
+	void OnSelectLine(wxCommandEvent &WXUNUSED(event));
+	
+	//view
+	void ToggleMiniMapView(wxCommandEvent &WXUNUSED(event));
 private:
 	wxBoxSizer *sizer = new wxBoxSizer(wxHORIZONTAL);
 	LanguageInfo const *GetFilelanguage(wxString filename);

@@ -151,30 +151,38 @@ void CodeContainer::OnCloseFile(wxCommandEvent &event)
 LanguageInfo const *CodeContainer::GetFilelanguage(wxString filename)
 {
     // searching for the language with this file extension
-    for (auto &language : languages_prefs)
+    LanguageInfo const *currentInfo;
+    int languageNr;
+
+    bool found = false;
+    for (languageNr = 0; languageNr < languages_prefs_size; languageNr++)
     {
-        wxString filepattern = language.filepattern;
+        currentInfo = &languages_prefs[languageNr];
+        wxString filepattern = currentInfo->filepattern;
         filepattern.Lower();
-        while (!filepattern.empty())
+
+        while (!filepattern.empty() && !found)
         {
             wxString cur = filepattern.BeforeFirst(';');
             if ((cur == filename) ||
                 (cur == (filename.BeforeLast('.') + ".*")) ||
                 (cur == ("*." + filename.AfterLast('.'))))
             {
-                currentLanguage = &language;
+                found = true;
+                currentLanguage = currentInfo;
             }
             filepattern = filepattern.AfterFirst(';');
         }
     }
 
-    if (!currentLanguage)
+    if (!found)
         currentLanguage = &languages_prefs[0];
     return currentLanguage;
 }
 
 void CodeContainer::InitializeLanguagePrefs()
 {
+    return;
     if (!editor || !minimap)
         return;
 
@@ -409,5 +417,25 @@ void CodeContainer::ToggleCommentBlock(wxCommandEvent &WXUNUSED(event))
                 currentMinimap->InsertText(lineEnd, "*/");
             }
         }
+    }
+}
+
+void CodeContainer::OnSelectAll(wxCommandEvent &WXUNUSED(event))
+{
+    auto currentEditor = ((Editor *)wxFindWindowByLabel(current_openned_path + "_codeEditor"));
+    if (currentEditor)
+    {
+        currentEditor->SetSelection(0, currentEditor->GetTextLength());
+    }
+}
+
+void CodeContainer::OnSelectLine(wxCommandEvent &WXUNUSED(event))
+{
+    auto currentEditor = ((Editor *)wxFindWindowByLabel(current_openned_path + "_codeEditor"));
+    if (currentEditor)
+    {
+        int lineStart = currentEditor->PositionFromLine(currentEditor->GetCurrentLine());
+        int lineEnd = currentEditor->PositionFromLine(currentEditor->GetCurrentLine() + 1);
+        currentEditor->SetSelection(lineStart, lineEnd);
     }
 }

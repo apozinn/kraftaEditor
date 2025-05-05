@@ -33,11 +33,8 @@ public:
 		menuEdit->Append(ID_TOGGLE_COMMENT_BLOCK, _("&Toggle Block Comment\tShift+alt+A"));
 
 		wxMenu* menuSelection = new wxMenu;
-		menuSelection->Append(wxID_ANY, _("&Select All"));
-		menuSelection->Append(wxID_ANY, _("&Expand Selection"));
-		menuSelection->AppendSeparator();
-		menuSelection->Append(wxID_ANY, _("&Add Previous Line"));
-		menuSelection->Append(wxID_ANY, _("&Add Next Line"));
+		menuSelection->Append(ID_SELECT_ALL, _("&Select All"));
+		menuSelection->Append(ID_SELECT_LINE, _("&Select line"));
 
 		wxMenu* menuFind = new wxMenu;
 		menuFind->Append(wxID_ANY, _("&Find"));
