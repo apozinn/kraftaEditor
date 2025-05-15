@@ -24,12 +24,12 @@
 #include "./components/filesTree/files.cpp"
 #include "./components/statusBar/status.cpp"
 #include "./components/tabs/tabs.cpp"
+#include "./components/search/search.cpp"
 #include "./members/menuBar.cpp"
 #include "./members/emptyWindow.cpp"
 #include "./members/openFolderButton.cpp"
 #include "./members/controlPanel.cpp"
 #include "./members/terminal.cpp"
-#include "./members/find.cpp"
 #include "./utils/createAssetsDir.hpp"
 
 #if __WXMSW__
@@ -76,7 +76,7 @@ public:
 	void OpenFolderDialog();
 	void ToggleControlPanel(wxCommandEvent &event);
 	void LoadPath(wxString path);
-	void ToggleFind(wxCommandEvent &event);
+	void ToggleSearch(wxCommandEvent &event);
 	void OnPaintedComponent(wxPaintEvent &event);
 	void OnCloseFolder(wxCommandEvent &event);
 	void OnNewWindow(wxCommandEvent &event);
@@ -246,7 +246,7 @@ EVT_MENU(ID_HIDDE_TABS, MainFrame::OnHiddeTabs)
 EVT_MENU(ID_TOGGLE_CONTROL_PANEL, MainFrame::ToggleControlPanel)
 EVT_MENU(ID_OPEN_TERMINAL, MainFrame::OnOpenTerminal)
 EVT_MENU(ID_TOGGLE_MINI_MAP_VIEW, CodeContainer::ToggleMiniMapView)
-EVT_MENU(ID_TOGGLE_FIND, MainFrame::ToggleFind)
+EVT_MENU(ID_TOGGLE_FIND, MainFrame::ToggleSearch)
 
 EVT_MENU (wxID_CLEAR, CodeContainer::OnClear)
 EVT_MENU (wxID_CUT, CodeContainer::OnCut)

@@ -442,15 +442,22 @@ void MainFrame::OnOpenTerminal(wxCommandEvent &event)
 	}
 }
 
-void MainFrame::ToggleFind(wxCommandEvent &event)
+void MainFrame::ToggleSearch(wxCommandEvent &event)
 {
-	if (FindWindowById(ID_FIND_CONTAINER))
+	if (FindWindowById(ID_SEARCH_CONTAINER))
 	{
-		((wxWindow *)FindWindowById(ID_FIND_CONTAINER))->Destroy();
+		((wxWindow *)FindWindowById(ID_SEARCH_CONTAINER))->Destroy();
 	}
 	else
 	{
-		Find *find_container = new Find(this, "Find a text");
+		wxString defaultLabel = "Search a text";
+		auto currentEditor = ((wxStyledTextCtrl *)wxFindWindowByLabel(current_openned_path + "_codeEditor"));
+		if (currentEditor)
+		{
+			defaultLabel = currentEditor->GetSelectedText();
+		}
+
+		new Search(this, defaultLabel, currentEditor);
 	}
 }
 
@@ -458,7 +465,7 @@ void MainFrame::OnCloseFolder(wxCommandEvent &event)
 {
 	files_tree->projectFilesContainer->DestroyChildren();
 	files_tree->projectToggler->Hide();
-	
+
 	auto main_code = FindWindowById(ID_MAIN_CODE);
 
 	for (auto &&mainCodeChildren : main_code->GetChildren())

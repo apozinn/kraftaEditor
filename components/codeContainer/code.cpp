@@ -182,7 +182,6 @@ LanguageInfo const *CodeContainer::GetFilelanguage(wxString filename)
 
 void CodeContainer::InitializeLanguagePrefs()
 {
-    return;
     if (!editor || !minimap)
         return;
 
