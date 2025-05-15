@@ -50,7 +50,7 @@ void Search::EnterEvent(wxStyledTextEvent &event)
     char chr = (char)event.GetKey();
     if (chr == '\n')
     {
-        input->Remove(input->GetLength() - 2, input->GetLength());
+        input->Remove(input->GetLength() - 1, input->GetLength());
         if (currentEditor)
         {
             wxString textTarget = input->GetText();
