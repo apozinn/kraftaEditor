@@ -680,17 +680,6 @@ void FilesTree::OnDeleteFile(wxCommandEvent &event)
 			wxLogError("An error occurred while deleting the file");
 			return;
 		}
-
-		auto targetComp = wxFindWindowByLabel(menuFilePath + "_file_container");
-		if (!targetComp)
-			return;
-
-		wxWindow *parent = targetComp->GetParent();
-
-		targetComp->Destroy();
-		menuFilePath = "";
-
-		FitContainer(parent);
 	}
 }
 
@@ -733,29 +722,12 @@ void FilesTree::OnComponentModified(wxString type, wxString oldPath, wxString ne
 		}
 	};
 
+	
 	if (type == "CREATE")
 	{
 		CreateWithPosition();
 	}
-
-	if (type == "DELETE")
-	{
-		// deleting linked components
-		if (linkedCodeEditor)
-			linkedCodeEditor->Destroy();
-		if (linkedTab)
-			linkedTab->Destroy();
-
-		if (wxFindWindowByLabel(oldPath + "_file_container"))
-		{
-			wxFindWindowByLabel(oldPath + "_file_container")->Destroy();
-		}
-		else if (wxFindWindowByLabel(oldPath + osSlash + "_dir_container"))
-		{
-			wxFindWindowByLabel(oldPath + osSlash + "_dir_container")->Destroy();
-		}
-	}
-
+	
 	// getting the target component
 	wxWindow *targetComp;
 	if (isFile)
@@ -764,6 +736,17 @@ void FilesTree::OnComponentModified(wxString type, wxString oldPath, wxString ne
 		targetComp = wxFindWindowByLabel(oldPath + osSlash + "_dir_container");
 	if (!targetComp)
 		return;
+
+	if (type == "DELETE")
+	{
+		if(linkedTab) {
+			auto tabs = ((Tabs*)FindWindowById(ID_TABS));
+			if(tabs) {
+				tabs->Close(linkedTab, linkedTab->GetName());
+			}
+		}
+		targetComp->Destroy();
+	}
 
 	if (type == "RENAME" || type == "MODIFY")
 	{

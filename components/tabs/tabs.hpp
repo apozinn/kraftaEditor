@@ -32,12 +32,12 @@ class Tabs : public wxPanel {
 	void OnCloseTab(wxMouseEvent& event);
 	void OnMenu(wxMouseEvent& event);
 private:
-
 	void OnEnterComp(wxMouseEvent& event);
 	void OnLeaveComp(wxMouseEvent& event);
 	void OnPaint(wxPaintEvent& event);
 	void OnTabPaint(wxPaintEvent& event);
 	void OnPreviousTab(wxMouseEvent& event);
 	void OnNextTab(wxMouseEvent& event);
+	void OnTabDestroy(wxWindowDestroyEvent& event);
 	wxDECLARE_NO_COPY_CLASS(Tabs);
 };

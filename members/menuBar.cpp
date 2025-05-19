@@ -36,14 +36,6 @@ public:
 		menuSelection->Append(ID_SELECT_ALL, _("&Select All"));
 		menuSelection->Append(ID_SELECT_LINE, _("&Select line"));
 
-		wxMenu* menuFind = new wxMenu;
-		menuFind->Append(wxID_ANY, _("&Find"));
-		menuFind->Append(wxID_ANY, _("&Find Next"));
-		menuFind->Append(wxID_ANY, _("&Find Previous"));
-		menuFind->AppendSeparator();
-		menuFind->Append(wxID_ANY, _("&Replace"));
-		menuFind->Append(wxID_ANY, _("&Replace Next"));
-
 		wxMenu* menuView = new wxMenu;
 		menuView->Append(ID_HIDDE_FILES_TREE, _("&Hidde files-tree"));
 		menuView->Append(ID_HIDDE_SIDE_NAV, _("&Hidde Side-Nav"));
@@ -74,7 +66,6 @@ public:
 		this->Append(menuFile, _("&File"));
 		this->Append(menuEdit, _("&Edit"));
 		this->Append(menuSelection, _("&Selection"));
-		this->Append(menuFind, _("&Find"));
 		this->Append(menuView, _("&View"));
 		this->Append(menuTools, _("&Tools"));
 		this->Append(menuPreference, _("&Preferences"));
