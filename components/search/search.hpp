@@ -1,4 +1,4 @@
-#pragma onde
+#pragma once
 
 class Search : public wxPanel
 {
@@ -12,6 +12,7 @@ public:
 private:
     void EnterEvent(wxStyledTextEvent &event);
     void Close(wxCommandEvent &WXUNUSED(event));
+    void OnPaint(wxPaintEvent& event);
     wxDECLARE_NO_COPY_CLASS(Search);
     wxDECLARE_EVENT_TABLE();
 };

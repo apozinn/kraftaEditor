@@ -43,6 +43,8 @@ Search::Search(
     SetAcceleratorTable(accel);
 
     input->Bind(wxEVT_STC_CHARADDED, &Search::EnterEvent, this);
+
+    Bind(wxEVT_PAINT, &Search::OnPaint, this);
 }
 
 void Search::EnterEvent(wxStyledTextEvent &event)
@@ -62,7 +64,7 @@ void Search::EnterEvent(wxStyledTextEvent &event)
             wxString textTarget = input->GetText();
             int currentEditorLength = currentEditor->GetLength();
 
-            currentEditor->IndicatorSetStyle(0, wxSTC_INDIC_BOX);
+            currentEditor->IndicatorSetStyle(0, wxSTC_INDIC_COMPOSITIONTHICK);
             currentEditor->IndicatorClearRange(0, currentEditorLength);
 
             int start = currentEditor->SearchNext(0, textTarget);
@@ -70,8 +72,12 @@ void Search::EnterEvent(wxStyledTextEvent &event)
             currentEditor->SearchAnchor();
             currentEditor->SetTargetRange(start + textTarget.Length(), currentEditorLength);
 
-            if (start != -1)
+            if (start != -1) {
+                currentEditor->IndicatorSetForeground(0, wxColor(255, 0, 0));
                 currentEditor->IndicatorFillRange(start, textTarget.Length());
+            }
+
+            currentEditor->SetIndicatorValue(10);
 
             while (start != -1)
             {
@@ -85,6 +91,7 @@ void Search::EnterEvent(wxStyledTextEvent &event)
             }
 
             currentEditor->IndicatorSetForeground(0, wxColor(255, 0, 0));
+            currentEditor->IndicatorSetAlpha(0, 63);
         }
     }
 }
@@ -96,4 +103,8 @@ void Search::Close(wxCommandEvent &WXUNUSED(event))
         currentEditor->IndicatorClearRange(0, currentEditor->GetLength());
     }
     Destroy();
+}
+
+void Search::OnPaint(wxPaintEvent& event) {
+    Refresh();
 }
