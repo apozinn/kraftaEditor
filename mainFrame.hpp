@@ -78,7 +78,6 @@ public:
     void OnToggleMenuBarView(wxCommandEvent &WXUNUSED(event));
     void OnToggleStatusBarView(wxCommandEvent &WXUNUSED(event));
     void OnToggleTabBarView(wxCommandEvent &WXUNUSED(event));
-    void OnToggleMinimapView(wxCommandEvent &WXUNUSED(event));
 
 private:
     void CreateWatcher();

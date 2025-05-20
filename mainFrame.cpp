@@ -492,8 +492,5 @@ void MainFrame::OnToggleTabBarView(wxCommandEvent &WXUNUSED(event))
         else
             tabs->Show();
         mainContainer->GetSizer()->Layout();
-        mainContainer->Update();
     }
 }
-
-void MainFrame::OnToggleMinimapView(wxCommandEvent &WXUNUSED(event)) {}
