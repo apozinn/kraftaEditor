@@ -19,6 +19,7 @@ json UserConfig::Get()
 				json new_json_obj = {
 					{"show_minimap", true},
 					{"show_menu", true},
+					{"show_statusBar", true},
 				};
 				newConfigFile_locale << std::setw(4) << new_json_obj << std::endl;
 			}

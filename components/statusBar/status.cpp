@@ -28,6 +28,11 @@ StatusBar::StatusBar(wxWindow *parent, wxWindowID ID)
 
 void StatusBar::UpdateComponents(wxString path, wxString format, const char *language)
 {
+	if(!IsShown() && UserConfigs["show_statusBar"] == true) {
+		Show();
+		GetParent()->GetSizer()->Layout();
+	}
+
 	wxFileName fileProps = wxFileName(path);
 
 	if (format == "image")
@@ -55,6 +60,11 @@ void StatusBar::UpdateComponents(wxString path, wxString format, const char *lan
 
 void StatusBar::UpdateCodeLocale(wxStyledTextCtrl *codeEditor)
 {
+	if(!IsShown() && UserConfigs["show_statusBar"] == true) {
+		Show();
+		GetParent()->GetSizer()->Layout();
+	}
+
 	if (tabSize)
 		tabSize->SetLabel("Tab Size: " + std::to_string(codeEditor->GetTabWidth()));
 
@@ -68,6 +78,9 @@ void StatusBar::UpdateCodeLocale(wxStyledTextCtrl *codeEditor)
 
 void StatusBar::ClearLabels()
 {
+	Hide();
+	GetParent()->GetSizer()->Layout();
+
 	codeLocale->SetLabel("");
 	tabSize->SetLabel("");
 	fileExt->SetLabel("");

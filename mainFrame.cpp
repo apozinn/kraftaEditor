@@ -78,6 +78,7 @@ MainFrame::MainFrame(const wxString &title)
 
     statusBar = new StatusBar(applicationContent, ID_STATUS_BAR);
     applicationContentSizer->Add(statusBar, 0, wxEXPAND);
+    statusBar->Hide();
 
     applicationContent->SetSizerAndFit(applicationContentSizer);
 
@@ -92,7 +93,8 @@ MainFrame::MainFrame(const wxString &title)
     SetSizerAndFit(sizer);
 
     menuBar = new MenuBar();
-    if (UserConfigs["show_menu"] == true) {
+    if (UserConfigs["show_menu"] == true)
+    {
         SetMenuBar(menuBar);
     }
 
@@ -446,10 +448,13 @@ void MainFrame::OnToggleFileTreeView(wxCommandEvent &WXUNUSED(event))
 
 void MainFrame::OnToggleMenuBarView(wxCommandEvent &WXUNUSED(event))
 {
-    if(GetMenuBar()) {
+    if (GetMenuBar())
+    {
         SetMenuBar(nullptr);
         UserConfigs["show_menu"] = false;
-    } else {
+    }
+    else
+    {
         SetMenuBar(menuBar);
         UserConfigs["show_menu"] = true;
     }
@@ -464,13 +469,16 @@ void MainFrame::OnToggleStatusBarView(wxCommandEvent &WXUNUSED(event))
         if (statusBar->IsShown())
         {
             statusBar->Hide();
+            UserConfigs["show_statusBar"] = false;
         }
         else
+        {
             statusBar->Show();
-
-        GetSizer()->Layout();
-        Update();
+            UserConfigs["show_statusBar"] = true;
+        }
+        applicationContent->GetSizer()->Layout();
     }
+    UserConfig().Update(UserConfigs);
 }
 
 void MainFrame::OnToggleTabBarView(wxCommandEvent &WXUNUSED(event))

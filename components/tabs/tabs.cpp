@@ -224,14 +224,16 @@ void Tabs::Close(wxWindow *tab, wxString tab_path)
 		}
 
 		Hide();
-		if (FindWindowById(ID_EMPYT_WINDOW))
+		auto emptyWindow = FindWindowById(ID_EMPYT_WINDOW);
+		if (emptyWindow)
 		{
-			FindWindowById(ID_EMPYT_WINDOW)->Show();
+			emptyWindow->Show();
 		}
 
-		if (((StatusBar *)FindWindowById(ID_STATUS_BAR)))
+		auto statusBar = ((StatusBar *)FindWindowById(ID_STATUS_BAR));
+		if (statusBar)
 		{
-			((StatusBar *)FindWindowById(ID_STATUS_BAR))->ClearLabels();
+			statusBar->ClearLabels();
 		}
 	}
 
