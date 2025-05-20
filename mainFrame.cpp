@@ -21,7 +21,6 @@ MainFrame::MainFrame(const wxString &title)
 
     SetTitle(title);
     SetThemeEnabled(true);
-    Maximize();
 
     sizer = new wxBoxSizer(wxVERTICAL);
 
@@ -130,9 +129,43 @@ MainFrame::MainFrame(const wxString &title)
     entries[3].FromString("Ctrl+Shift+F");
     wxAcceleratorTable accel(4, entries);
     SetAcceleratorTable(accel);
+
+    if (UserConfigs["windowMaximized"] == true)
+    {
+        Maximize();
+    }
+    else
+    {
+        SetSize(wxSize(
+            UserConfigs["windowSizeX"].template get<int>(),
+            UserConfigs["windowSizeY"].template get<int>()));
+            Centre();
+    }
+
+    // resized events
+    Bind(wxEVT_SIZE, &MainFrame::OnFrameResized, this);
+    Bind(wxEVT_MAXIMIZE, &MainFrame::OnFrameMaximized, this);
 }
 
 MainFrame::~MainFrame() { delete m_watcher; }
+
+void MainFrame::OnFrameResized(wxSizeEvent &event)
+{
+    if (!IsMaximized())
+    {
+        UserConfigs["windowMaximized"] = false;
+        UserConfigs["windowSizeX"] = event.GetSize().x;
+        UserConfigs["windowSizeY"] = event.GetSize().y;
+        UserConfig().Update(UserConfigs);
+    }
+    event.Skip();
+}
+
+void MainFrame::OnFrameMaximized(wxMaximizeEvent &event)
+{
+    UserConfigs["windowMaximized"] = true;
+    UserConfig().Update(UserConfigs);
+}
 
 void MainFrame::OnNewWindow(wxCommandEvent &event)
 {

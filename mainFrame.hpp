@@ -87,6 +87,8 @@ private:
     void OnAbout(wxCommandEvent &event);
     void OnFileSystemEvent(wxFileSystemWatcherEvent &event);
     void OnOpenTerminal(wxCommandEvent &event);
+    void OnFrameResized(wxSizeEvent &event);
+    void OnFrameMaximized(wxMaximizeEvent &event);
     bool m_followLinks;
     wxFileSystemWatcher *m_watcher = nullptr;
     wxDECLARE_NO_COPY_CLASS(MainFrame);

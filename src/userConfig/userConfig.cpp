@@ -20,6 +20,9 @@ json UserConfig::Get()
 					{"show_minimap", true},
 					{"show_menu", true},
 					{"show_statusBar", true},
+					{"windowMaximized", true},
+					{"windowSizeX", 1000},
+					{"windowSizeY", 700}
 				};
 				newConfigFile_locale << std::setw(4) << new_json_obj << std::endl;
 			}
