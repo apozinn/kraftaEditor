@@ -120,7 +120,7 @@ MainFrame::MainFrame(const wxString &title)
 	}
 
 	wxAcceleratorEntry entries[4];
-	entries[0].Set(wxACCEL_ALT, WXK_ALT, ID_HIDDE_MENU_BAR);
+	entries[0].Set(wxACCEL_ALT, WXK_ALT, ID_TOGGLE_MENU_BAR_VIEW);
 	entries[1].Set(wxACCEL_CTRL, WXK_SHIFT, ID_TOGGLE_CONTROL_PANEL);
 	entries[1].FromString("Ctrl+Shift+P");
 	entries[2].Set(wxACCEL_CTRL, WXK_CONTROL_F, ID_TOGGLE_FIND);

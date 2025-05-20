@@ -31,19 +31,32 @@ public:
 		menuEdit->AppendSeparator();
 		menuEdit->Append(ID_TOGGLE_COMMENT_LINE, _("&Toggle Comment\tCtrl+;"));
 		menuEdit->Append(ID_TOGGLE_COMMENT_BLOCK, _("&Toggle Block Comment\tShift+alt+A"));
-
+  
 		wxMenu* menuSelection = new wxMenu;
-		menuSelection->Append(ID_SELECT_ALL, _("&Select All"));
+		menuSelection->Append(ID_SELECT_ALL, _("&Select All") );
 		menuSelection->Append(ID_SELECT_LINE, _("&Select line"));
 
 		wxMenu* menuView = new wxMenu;
-		menuView->Append(ID_HIDDE_FILES_TREE, _("&Hidde files-tree"));
-		menuView->Append(ID_HIDDE_SIDE_NAV, _("&Hidde Side-Nav"));
-		menuView->Append(ID_HIDDE_MENU_BAR, _("&Hidde Menu"));
-		menuView->Append(ID_HIDDE_STATUS_BAR, _("&Hidde Status Bar"));
-		menuView->Append(ID_HIDDE_TABS, _("&Hidde Tabs"));
-		menuView->Append(ID_FOCUS_MODE, _("&Focus Mode\tShift-f11"));
-		menuView->Append(ID_TOGGLE_MINI_MAP_VIEW, _("&Hide Minimap"));
+		
+		wxMenuItem* toggleFileTreeView = new wxMenuItem(menuView, ID_TOGGLE_FILE_TREE_VIEW, "File Tree", wxEmptyString, wxITEM_CHECK );
+		menuView->Append(toggleFileTreeView);
+		toggleFileTreeView->Check(true);
+
+		wxMenuItem* toggleMenuBarView = new wxMenuItem(menuView, ID_TOGGLE_MENU_BAR_VIEW, "Menu Bar", wxEmptyString, wxITEM_CHECK );
+		menuView->Append(toggleMenuBarView);
+		toggleMenuBarView->Check(true);
+
+		wxMenuItem* toggleStatusBarView = new wxMenuItem(menuView, ID_TOGGLE_STATUS_BAR_VIEW, "Status Bar", wxEmptyString, wxITEM_CHECK );
+		menuView->Append(toggleStatusBarView);
+		toggleStatusBarView->Check(true);
+
+		wxMenuItem* toggleTabBarView = new wxMenuItem(menuView, ID_TOGGLE_TAB_BAR_VIEW, "Tab bar", wxEmptyString, wxITEM_CHECK );
+		menuView->Append(toggleTabBarView);
+		toggleTabBarView->Check(true);
+
+		wxMenuItem* toggleMinimapView = new wxMenuItem(menuView, ID_TOGGLE_MINI_MAP_VIEW, "Minimap", wxEmptyString, wxITEM_CHECK );
+		menuView->Append(toggleMinimapView);
+		toggleMinimapView->Check(true);
 
 		wxMenu* menuTools = new wxMenu;
 		menuTools->Append(wxID_ANY, _("&Command Palette"));
