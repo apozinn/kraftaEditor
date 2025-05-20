@@ -92,9 +92,9 @@ MainFrame::MainFrame(const wxString &title)
     SetSizerAndFit(sizer);
 
     menuBar = new MenuBar();
-    SetMenuBar(menuBar);
-    if (UserConfigs["show_menu"] == false)
-        menuBar->Hide();
+    if (UserConfigs["show_menu"] == true) {
+        SetMenuBar(menuBar);
+    }
 
     wxConfig *config = new wxConfig("krafta-editor");
     wxString str;
@@ -446,25 +446,15 @@ void MainFrame::OnToggleFileTreeView(wxCommandEvent &WXUNUSED(event))
 
 void MainFrame::OnToggleMenuBarView(wxCommandEvent &WXUNUSED(event))
 {
-    if (menuBar)
-    {
-        if (menuBar->IsShown())
-        {
-            menuBar->Hide();
-        }
-        else
-            menuBar->Show();
-
-        auto is_visible = UserConfigs["show_menu"];
-
-        if (is_visible)
-        {
-            UserConfigs["show_menu"] = false;
-        }
-        else
-            UserConfigs["show_menu"] = true;
-        UserConfig().Update(UserConfigs);
+    if(GetMenuBar()) {
+        SetMenuBar(nullptr);
+        UserConfigs["show_menu"] = false;
+    } else {
+        SetMenuBar(menuBar);
+        UserConfigs["show_menu"] = true;
     }
+
+    UserConfig().Update(UserConfigs);
 }
 
 void MainFrame::OnToggleStatusBarView(wxCommandEvent &WXUNUSED(event))
