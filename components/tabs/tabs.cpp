@@ -162,7 +162,7 @@ void Tabs::Close(wxWindow *tab, wxString tab_path)
 	auto codeContainer = ((CodeContainer *)FindWindowByName(tab_path + "_codeContainer"));
 	auto imgContainer = ((wxPanel *)FindWindowByLabel(tab_path + "_imgContainer"));
 	auto fileContainer = ((FilesTree *)FindWindowById(ID_FILES_TREE));
-	auto main_code = FindWindowById(ID_MAIN_CODE);
+	auto mainCode = FindWindowById(ID_MAIN_CODE);
 
 	// close linked components
 	if (codeContainer)
@@ -239,7 +239,7 @@ void Tabs::Close(wxWindow *tab, wxString tab_path)
 	tab->Destroy();
 	tabs_container->GetSizer()->Layout();
 	tabs_container->FitInside();
-	main_code->GetSizer()->Layout();
+	mainCode->GetSizer()->Layout();
 }
 
 void Tabs::CloseAll()
@@ -252,7 +252,7 @@ void Tabs::CloseAll()
 
 void Tabs::Select()
 {
-	auto main_code = FindWindowById(ID_MAIN_CODE);
+	auto mainCode = FindWindowById(ID_MAIN_CODE);
 
 	for (auto &children : tabs_container->GetChildren())
 		children->Refresh();
@@ -261,7 +261,7 @@ void Tabs::Select()
 	auto imageContainer = ((wxStaticBitmap *)FindWindowByLabel(current_openned_path + "_imageContainer"));
 	auto statusBar = ((StatusBar *)FindWindowById(ID_STATUS_BAR));
 
-	for (auto &&other_ct : main_code->GetChildren())
+	for (auto &&other_ct : mainCode->GetChildren())
 	{
 		if (other_ct->GetId() != ID_TABS)
 			other_ct->Hide();
@@ -279,8 +279,8 @@ void Tabs::Select()
 		statusBar->UpdateComponents(current_openned_path, "image", "img");
 	}
 
-	main_code->GetSizer()->Layout();
-	main_code->Update();
+	mainCode->GetSizer()->Layout();
+	mainCode->Update();
 }
 
 void Tabs::OnTabClick(wxMouseEvent &event)

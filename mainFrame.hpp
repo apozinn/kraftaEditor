@@ -40,22 +40,19 @@
 class MainFrame : public wxFrame
 {
     wxBoxSizer *sizer;
-    wxPanel *main_container;
-    wxSplitterWindow *main_splitter;
-    FilesTree *files_tree;
-    wxPanel *main_code;
+    FilesTree *filesTree;
     Tabs *tabs;
-    MenuBar *menu_bar;
-    EmptyWindow *empty_window;
-    wxPanel *side_container;
+    MenuBar *menuBar;
+    EmptyWindow *emptyWindow;
     OpenFolderButton *openFolderButton;
-    ControlPanel *control_panel;
+    ControlPanel *controlPanel;
     Terminal *terminal;
-    wxSplitterWindow *servical_container;
+    wxSplitterWindow *servicalContainer;
     wxSplitterWindow *mainSplitter;
     wxPanel *navigationContainer;
     wxPanel *mainContainer;
     wxPanel *mainCode;
+    wxPanel *applicationContent;
 
 public:
     StatusBar *statusBar;

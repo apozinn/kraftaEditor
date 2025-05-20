@@ -19,7 +19,7 @@ MainFrame::MainFrame(const wxString &title)
         SetIcon(app_icon);
     }
 
-    SetTitle("Krafta Editor");
+    SetTitle(title);
     SetThemeEnabled(true);
     Maximize();
 
@@ -32,11 +32,11 @@ MainFrame::MainFrame(const wxString &title)
 
     navigationContainer = new wxPanel(mainSplitter);
     wxBoxSizer *navigationContainerSizer = new wxBoxSizer(wxVERTICAL);
-    files_tree = new FilesTree(navigationContainer, ID_FILES_TREE);
-    navigationContainerSizer->Add(files_tree, 1, wxEXPAND);
+    filesTree = new FilesTree(navigationContainer, ID_FILES_TREE);
+    navigationContainerSizer->Add(filesTree, 1, wxEXPAND);
     navigationContainer->SetSizerAndFit(navigationContainerSizer);
 
-    wxPanel *applicationContent = new wxPanel(mainSplitter, ID_APPLICATION_CONTENT);
+    applicationContent = new wxPanel(mainSplitter, ID_APPLICATION_CONTENT);
     wxBoxSizer *applicationContentSizer = new wxBoxSizer(wxVERTICAL);
 
     wxSplitterWindow *mainContainerSplitter = new wxSplitterWindow(applicationContent, ID_MAIN_CONTAINER_SPLITTER);
@@ -55,8 +55,8 @@ MainFrame::MainFrame(const wxString &title)
 
     wxBoxSizer *mainCodeSizer = new wxBoxSizer(wxVERTICAL);
 
-    empty_window = new EmptyWindow(mainContainer, ID_EMPYT_WINDOW);
-    mainContainerSizer->Add(empty_window, 1, wxEXPAND);
+    emptyWindow = new EmptyWindow(mainContainer, ID_EMPYT_WINDOW);
+    mainContainerSizer->Add(emptyWindow, 1, wxEXPAND);
 
     mainContainer->SetSizerAndFit(mainContainerSizer);
 
@@ -91,10 +91,10 @@ MainFrame::MainFrame(const wxString &title)
 
     SetSizerAndFit(sizer);
 
-    menu_bar = new MenuBar();
-    SetMenuBar(menu_bar);
+    menuBar = new MenuBar();
+    SetMenuBar(menuBar);
     if (UserConfigs["show_menu"] == false)
-        menu_bar->Hide();
+        menuBar->Hide();
 
     wxConfig *config = new wxConfig("krafta-editor");
     wxString str;
@@ -218,7 +218,7 @@ void MainFrame::AddEntry(wxFSWPathType type, wxString filename)
 void MainFrame::OnFileSystemEvent(wxFileSystemWatcherEvent &event)
 {
     wxString type = GetFSWEventChangeTypeName(event.GetChangeType());
-    files_tree->OnComponentModified(
+    filesTree->OnComponentModified(
         type,
         event.GetPath().GetFullPath(),
         event.GetNewPath().GetFullPath());
@@ -239,7 +239,7 @@ void MainFrame::OpenFolderDialog()
         if (tabs)
             tabs->CloseAll();
 
-        files_tree->Load(files_tree->projectFilesContainer, path.ToStdString());
+        filesTree->Load(filesTree->projectFilesContainer, path.ToStdString());
 
         wxConfig *config = new wxConfig("krafta-editor");
         config->Write("workspace", project_path);
@@ -257,7 +257,7 @@ void MainFrame::OnOpenFile(wxCommandEvent &WXUNUSED(event))
     wxString path = dlg->GetPath();
     if (path.size())
     {
-        files_tree->OpenFile(path);
+        filesTree->OpenFile(path);
         AddEntry(wxFSWPath_File, path);
     }
 }
@@ -310,8 +310,8 @@ void MainFrame::OnSashPosChange(wxSplitterEvent &event)
 void MainFrame::CloseAllFiles(wxCommandEvent &WXUNUSED(event))
 {
     tabs->CloseAll();
-    files_tree->selectedFile->SetBackgroundColour(wxColor(UserTheme["main"].template get<std::string>()));
-    files_tree->selectedFile = nullptr;
+    filesTree->selectedFile->SetBackgroundColour(wxColor(UserTheme["main"].template get<std::string>()));
+    filesTree->selectedFile = nullptr;
 }
 
 void MainFrame::LoadPath(wxString path)
@@ -345,7 +345,7 @@ void MainFrame::LoadPath(wxString path)
     delete config;
 
     tabs->CloseAll();
-    files_tree->Load(files_tree->projectFilesContainer, project_path.ToStdString());
+    filesTree->Load(filesTree->projectFilesContainer, project_path.ToStdString());
     SetTitle("Krafta Editor - " + project_name);
 
     AddEntry(wxFSWPath_Tree, path);
@@ -353,24 +353,24 @@ void MainFrame::LoadPath(wxString path)
 
 void MainFrame::OnOpenTerminal(wxCommandEvent &event)
 {
-    if (servical_container->IsSplit())
+    if (servicalContainer->IsSplit())
     {
-        servical_container->Unsplit(FindWindowById(ID_TERMINAL));
+        servicalContainer->Unsplit(FindWindowById(ID_TERMINAL));
     }
     else
     {
-        servical_container->SplitHorizontally(mainContainer, FindWindowById(ID_TERMINAL), 0);
+        servicalContainer->SplitHorizontally(mainContainer, FindWindowById(ID_TERMINAL), 0);
     }
 }
 
 void MainFrame::OnCloseFolder(wxCommandEvent &event)
 {
-    files_tree->projectFilesContainer->DestroyChildren();
-    files_tree->projectToggler->Hide();
+    filesTree->projectFilesContainer->DestroyChildren();
+    filesTree->projectToggler->Hide();
 
-    auto main_code = FindWindowById(ID_MAIN_CODE);
+    auto mainCode = FindWindowById(ID_MAIN_CODE);
 
-    for (auto &&mainCodeChildren : main_code->GetChildren())
+    for (auto &&mainCodeChildren : mainCode->GetChildren())
     {
         std::string childrenName = mainCodeChildren->GetLabel().ToStdString();
         if (childrenName.find("_codeContainer") != std::string::npos)
@@ -381,7 +381,7 @@ void MainFrame::OnCloseFolder(wxCommandEvent &event)
             mainCodeChildren->Hide();
     }
 
-    empty_window->Show();
+    emptyWindow->Show();
     tabs->CloseAll();
 
     wxConfig *config = new wxConfig("krafta-editor");
@@ -424,36 +424,36 @@ void MainFrame::OnToggleControlPanel(wxCommandEvent &event)
 {
     if (FindWindowById(ID_CONTROL_PANEL))
     {
-        control_panel->Destroy();
+        controlPanel->Destroy();
     }
     else
     {
-        control_panel = new ControlPanel(this, ID_CONTROL_PANEL);
+        controlPanel = new ControlPanel(this, ID_CONTROL_PANEL);
     }
 }
 
 void MainFrame::OnToggleFileTreeView(wxCommandEvent &WXUNUSED(event))
 {
-    if (main_splitter->IsSplit())
+    if (mainSplitter->IsSplit())
     {
-        main_splitter->Unsplit(side_container);
+        mainSplitter->Unsplit(navigationContainer);
     }
     else
     {
-        main_splitter->SplitVertically(side_container, servical_container, 1);
+        mainSplitter->SplitVertically(navigationContainer, applicationContent, 1);
     }
 }
 
 void MainFrame::OnToggleMenuBarView(wxCommandEvent &WXUNUSED(event))
 {
-    if (menu_bar)
+    if (menuBar)
     {
-        if (menu_bar->IsShown())
+        if (menuBar->IsShown())
         {
-            menu_bar->Hide();
+            menuBar->Hide();
         }
         else
-            menu_bar->Show();
+            menuBar->Show();
 
         auto is_visible = UserConfigs["show_menu"];
 
