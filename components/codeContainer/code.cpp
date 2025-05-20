@@ -231,7 +231,7 @@ void CodeContainer::InitializeLanguagePrefs()
     }
 }
 
-void CodeContainer::ToggleMiniMapView(wxCommandEvent &event)
+void CodeContainer::OnToggleMinimapView(wxCommandEvent &event)
 {
     auto mainCodeComponent = FindWindowById(ID_MAIN_CODE);
     wxWindow *currentCodeEditor = wxFindWindowByLabel(current_openned_path + "_codeContainer");

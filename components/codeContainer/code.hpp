@@ -52,7 +52,7 @@ public:
 	void OnSelectLine(wxCommandEvent &WXUNUSED(event));
 	
 	//view
-	void ToggleMiniMapView(wxCommandEvent &WXUNUSED(event));
+	void OnToggleMinimapView(wxCommandEvent &WXUNUSED(event));
 private:
 	wxBoxSizer *sizer = new wxBoxSizer(wxHORIZONTAL);
 	LanguageInfo const *GetFilelanguage(wxString filename);

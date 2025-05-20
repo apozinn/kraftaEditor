@@ -8,7 +8,6 @@
 #include <wx/statline.h>
 #include <wx/app.h>
 #include <wx/statbmp.h>
-#include "../../main.hpp"
 
 #include "../../utils/randoms.hpp"
 #include "../../members/imagePanel.cpp"
