@@ -23,26 +23,12 @@ bool KraftaEditor::OnInit()
     UserTheme = UserConfig().GetThemes();
 
     // define the app dirs path
-    if (osName == "Windows")
-    {
-        applicationPath = wxStandardPaths::Get()
-                              .GetUserConfigDir()
-                              .ToStdString() +
-                          "\\.kraftaEditor\\";
-
-        icons_dir = applicationPath + "icons\\";
-        assetsDir = applicationPath + "assets\\";
-    }
-    else
-    {
-        applicationPath = wxStandardPaths::Get()
-                              .GetUserConfigDir()
-                              .ToStdString() +
-                          "/.kraftaEditor/";
-
-        icons_dir = applicationPath + "icons/";
-        assetsDir = applicationPath + "assets/";
-    }
+    applicationPath = wxStandardPaths::Get()
+                          .GetUserConfigDir()
+                          .ToStdString() +
+                      osSlash + ".kraftaEditor" + osSlash;
+    icons_dir = applicationPath + "icons" + osSlash;
+    assetsDir = applicationPath + "assets" + osSlash;
 
     if (!wxDirExists(icons_dir))
     {

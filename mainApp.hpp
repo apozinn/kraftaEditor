@@ -42,6 +42,8 @@ EVT_MENU(ID_TOGGLE_STATUS_BAR_VIEW, MainFrame::OnToggleStatusBarView)
 EVT_MENU(ID_TOGGLE_TAB_BAR_VIEW, MainFrame::OnToggleTabBarView)
 EVT_MENU(ID_TOGGLE_MINI_MAP_VIEW, CodeContainer::OnToggleMinimapView)
 
+EVT_MENU(ID_EDIT_SETTINGS, MainFrame::OnEditSettings)
+
 EVT_MENU (wxID_CLEAR, CodeContainer::OnClear)
 EVT_MENU (wxID_CUT, CodeContainer::OnCut)
 EVT_MENU (wxID_COPY,CodeContainer::OnCopy)

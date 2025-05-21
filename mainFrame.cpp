@@ -527,3 +527,12 @@ void MainFrame::OnToggleTabBarView(wxCommandEvent &WXUNUSED(event))
         mainContainer->GetSizer()->Layout();
     }
 }
+
+void MainFrame::OnEditSettings(wxCommandEvent& WXUNUSED(event)) {
+    wxString path = applicationPath+"userconfig.json";
+    if (wxFileExists(path))
+    {
+        filesTree->OpenFile(path);
+        AddEntry(wxFSWPath_File, path);
+    }
+}

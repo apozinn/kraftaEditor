@@ -67,7 +67,7 @@ public:
 		menuTools->Append(ID_OPEN_TERMINAL, _("&Open Terminal\tCtrl+T"));
 
 		wxMenu* menuPreference = new wxMenu;
-		menuPreference->Append(wxID_ANY, _("&Settings"));
+		menuPreference->Append(ID_EDIT_SETTINGS, _("&Settings"));
 		menuPreference->Append(wxID_ANY, _("&Key Bindings"));
 
 		wxMenu* menuHelp = new wxMenu;

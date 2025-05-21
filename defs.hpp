@@ -28,6 +28,8 @@ std::string applicationPath;
 std::string project_name;
 std::string assetsDir;
 
+std::string config_path;
+
 json UserTheme;
 json UserConfigs;
 
@@ -44,6 +46,7 @@ enum
 	ID_ABOUT,
 	ID_NEW_FILE,
 	ID_OPEN_FOLDER,
+	ID_EDIT_SETTINGS,
 	ID_OPEN_FILE,
 	ID_TABS,
 	ID_SIDE_NAVIGATION,

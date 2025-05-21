@@ -79,6 +79,8 @@ public:
     void OnToggleStatusBarView(wxCommandEvent &WXUNUSED(event));
     void OnToggleTabBarView(wxCommandEvent &WXUNUSED(event));
 
+    void OnEditSettings(wxCommandEvent& WXUNUSED(event));
+
 private:
     void CreateWatcher();
     void OnQuit(wxCommandEvent &WXUNUSED(event)) { Close(true); }
