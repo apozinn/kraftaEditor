@@ -3,46 +3,24 @@
 Tabs::Tabs(wxPanel *parent, wxWindowID ID) : wxPanel(parent, ID)
 {
 	auto background_color = UserTheme["main"].template get<std::string>();
-
 	SetBackgroundColour(wxColor(background_color));
 	sizer = new wxBoxSizer(wxHORIZONTAL);
 
-	wxPanel *tabs_controller = new wxPanel(this);
-	wxBoxSizer *tabs_controller_sizer = new wxBoxSizer(wxHORIZONTAL);
-
-	wxVector<wxBitmap> arrow_left_bitmap;
-	arrow_left_bitmap.push_back(wxBitmap(icons_dir + "arrow_left.png", wxBITMAP_TYPE_PNG));
-	arrow_left = new wxStaticBitmap(tabs_controller, wxID_ANY, wxBitmapBundle::FromBitmaps(arrow_left_bitmap));
-	arrow_left->Bind(wxEVT_LEFT_UP, &Tabs::OnPreviousTab, this);
-
-	tabs_controller_sizer->Add(arrow_left, 0, wxLEFT, 5);
-
-	wxVector<wxBitmap> arrow_right_bitmap;
-	arrow_right_bitmap.push_back(wxBitmap(icons_dir + "arrow_right.png", wxBITMAP_TYPE_PNG));
-	arrow_right = new wxStaticBitmap(tabs_controller, wxID_ANY, wxBitmapBundle::FromBitmaps(arrow_right_bitmap));
-	arrow_right->Bind(wxEVT_LEFT_UP, &Tabs::OnNextTab, this);
-
-	tabs_controller_sizer->Add(arrow_right, 0, wxRIGHT, 5);
-
-	tabs_controller->SetSizerAndFit(tabs_controller_sizer);
-
-	sizer->Add(tabs_controller, 0, wxALIGN_CENTER);
-
-	tabs_container = new wxScrolled<wxPanel>(this, ID_TABS_CONTAINER);
-	tabs_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
-	tabs_container->SetSizerAndFit(tabs_ctn_sizer);
+	tabsContainer = new wxScrolled<wxPanel>(this, ID_TABS_CONTAINER);
+	tabsContainerSizer = new wxBoxSizer(wxHORIZONTAL);
+	tabsContainer->SetSizerAndFit(tabsContainerSizer);
 
 	wxVector<wxBitmap> bitmaps;
 	bitmaps.push_back(wxBitmap(icons_dir + "menu_down.png", wxBITMAP_TYPE_PNG));
 	menu = new wxStaticBitmap(this, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps));
 	menu->Bind(wxEVT_LEFT_UP, &Tabs::OnMenu, this);
 
-	sizer->Add(tabs_container, 1, wxEXPAND | wxTOP | wxBOTTOM, 5);
+	sizer->Add(tabsContainer, 1, wxEXPAND | wxTOP | wxBOTTOM, 5);
 	sizer->Add(menu, 0, wxALIGN_CENTER | wxRIGHT, 10);
 
 	SetSizerAndFit(sizer);
-	tabs_container->SetScrollRate(20, 20);
-	tabs_container->EnableScrolling(true, false);
+	tabsContainer->SetScrollRate(20, 20);
+	tabsContainer->EnableScrolling(true, false);
 	Bind(wxEVT_PAINT, &Tabs::OnPaint, this);
 
 	SetMinSize(wxSize(parent->GetSize().x, 50));
@@ -57,7 +35,7 @@ void Tabs::Add(wxString tab_name, wxString path)
 
 	bool exists = false;
 	current_openned_path = path;
-	for (auto &a_tab : tabs_container->GetChildren())
+	for (auto &a_tab : tabsContainer->GetChildren())
 	{
 		if (a_tab->GetName() == path)
 		{
@@ -69,7 +47,7 @@ void Tabs::Add(wxString tab_name, wxString path)
 	if (exists)
 		return;
 
-	wxPanel *new_tab = new wxPanel(tabs_container);
+	wxPanel *new_tab = new wxPanel(tabsContainer);
 
 	new_tab->SetName(path);
 	new_tab->SetLabel(path + "_tab");
@@ -134,27 +112,19 @@ void Tabs::Add(wxString tab_name, wxString path)
 	new_tab_sizer->Add(active_bar, 0, wxEXPAND);
 
 	new_tab->SetSizerAndFit(new_tab_sizer);
-	tabs_ctn_sizer->Add(new_tab, 0, wxALIGN_CENTER | wxLEFT, 5);
-	tabs_container->FitInside();
-	tabs_container->Scroll(1000, 0);
+	tabsContainerSizer->Add(new_tab, 0, wxALIGN_CENTER | wxLEFT, 5);
+	tabsContainer->FitInside();
+	tabsContainer->Scroll(1000, 0);
 	new_tab->Bind(wxEVT_PAINT, &Tabs::OnTabPaint, this);
 
 	SetMinSize(wxSize(GetSize().GetWidth(), new_tab->GetSize().GetHeight() + 10));
 
-	for (auto &&tab : tabs_container->GetChildren())
+	for (auto &&tab : tabsContainer->GetChildren())
 		tab->Refresh();
 
 	sizer->Layout();
-	tabs_ctn_sizer->Layout();
-
-	// adding to list
-	const TabInfo tabInfo = {
-		path,
-		tab_name,
-		currentLanguageInfo,
-		true,
-	};
-	tabList.push_back(tabInfo);
+	tabsContainerSizer->Layout();
+	;
 }
 
 void Tabs::Close(wxWindow *tab, wxString tab_path)
@@ -239,14 +209,14 @@ void Tabs::Close(wxWindow *tab, wxString tab_path)
 
 	// destroy tab and update
 	tab->Destroy();
-	tabs_container->GetSizer()->Layout();
-	tabs_container->FitInside();
+	tabsContainer->GetSizer()->Layout();
+	tabsContainer->FitInside();
 	mainCode->GetSizer()->Layout();
 }
 
 void Tabs::CloseAll()
 {
-	tabs_container->DestroyChildren();
+	tabsContainer->DestroyChildren();
 	Hide();
 	if (auto emptyWindow = FindWindowById(ID_EMPYT_WINDOW))
 		emptyWindow->Show();
@@ -256,7 +226,7 @@ void Tabs::Select()
 {
 	auto mainCode = FindWindowById(ID_MAIN_CODE);
 
-	for (auto &children : tabs_container->GetChildren())
+	for (auto &children : tabsContainer->GetChildren())
 		children->Refresh();
 
 	auto codeContainer = ((CodeContainer *)FindWindowByName(current_openned_path + "_codeContainer"));
@@ -392,30 +362,30 @@ void Tabs::OnTabPaint(wxPaintEvent &event)
 	delete gc;
 }
 
-void Tabs::OnPreviousTab(wxMouseEvent &event)
+void Tabs::OnPreviousTab()
 {
-	for (auto &&tab : tabs_container->GetChildren())
+	for (auto &&tab : tabsContainer->GetChildren())
 		if (tab->GetName() == current_openned_path)
 		{
 			auto prevTab = tab->GetPrevSibling();
 			if (prevTab)
 			{
 				current_openned_path = prevTab->GetName();
-				this->Select();
+				Select();
 			}
 		}
 }
 
-void Tabs::OnNextTab(wxMouseEvent &event)
+void Tabs::OnNextTab()
 {
-	for (auto &&tab : tabs_container->GetChildren())
+	for (auto &&tab : tabsContainer->GetChildren())
 		if (tab->GetName() == current_openned_path)
 		{
 			auto nextTab = tab->GetNextSibling();
 			if (nextTab)
 			{
 				current_openned_path = nextTab->GetName();
-				this->Select();
+				Select();
 			}
 		}
 }
