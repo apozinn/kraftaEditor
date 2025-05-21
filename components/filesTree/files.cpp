@@ -753,6 +753,8 @@ void FilesTree::OnComponentModified(wxString type, wxString oldPath, wxString ne
 
 	if (type == "RENAME" || type == "MODIFY")
 	{
+		if(targetComp->GetName() == newPath) return;
+
 		targetComp->Destroy();
 		if (isFile)
 		{
