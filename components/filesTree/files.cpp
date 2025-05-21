@@ -41,7 +41,7 @@ FilesTree::FilesTree(wxWindow *parent, wxWindowID ID)
 	projectTogglerSizer->Add(projectName, 1, wxEXPAND | wxLEFT, 4);
 
 	// adding projectToggler to main sizer
-	sizer->Add(projectToggler, 0, wxEXPAND | wxTOP | wxBOTTOM, 7);
+	sizer->Add(projectToggler, 0, wxEXPAND | wxTOP | wxBOTTOM, 5);
 
 	// projectFilesContainer
 	projectFilesContainer = new wxScrolled<wxPanel>(this, ID_PROJECT_FILES_CTN);
