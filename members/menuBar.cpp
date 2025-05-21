@@ -59,22 +59,14 @@ public:
 		toggleMinimapView->Check(true);
 
 		wxMenu* menuTools = new wxMenu;
-		menuTools->Append(wxID_ANY, _("&Command Palette"));
-		menuTools->Append(wxID_ANY, _("&Snippets"));
-		menuTools->AppendSeparator();
-		menuTools->Append(wxID_ANY, _("&Build"));
-		menuTools->AppendSeparator();
-		menuTools->Append(ID_OPEN_TERMINAL, _("&Open Terminal\tCtrl+T"));
+		menuTools->Append(ID_TOGGLE_CONTROL_PANEL, _("&Command Palette\tCtrl+Shift+P"));
+		menuTools->Append(ID_OPEN_TERMINAL, _("&Open Terminal\tCtrl+J"));
 
 		wxMenu* menuPreference = new wxMenu;
 		menuPreference->Append(ID_EDIT_SETTINGS, _("&Settings"));
-		menuPreference->Append(wxID_ANY, _("&Key Bindings"));
 
 		wxMenu* menuHelp = new wxMenu;
-		menuHelp->Append(wxID_ANY, _("&Documentation"));
-		menuHelp->Append(wxID_ANY, _("&Report a Bug"));
-		menuHelp->AppendSeparator();
-		menuHelp->Append(wxID_ABOUT, _("&About KraftaEditor"));
+		menuHelp->Append(wxID_ABOUT, _("&About Krafta Editor"));
 
 		this->Append(menuFile, _("&File"));
 		this->Append(menuEdit, _("&Edit"));

@@ -53,6 +53,8 @@ class MainFrame : public wxFrame
     wxPanel *mainContainer;
     wxPanel *mainCode;
     wxPanel *applicationContent;
+    wxSplitterWindow *mainContainerSplitter;
+    wxPanel *centeredContent;
 
 public:
     StatusBar *statusBar;

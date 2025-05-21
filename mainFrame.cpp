@@ -38,12 +38,12 @@ MainFrame::MainFrame(const wxString &title)
     applicationContent = new wxPanel(mainSplitter, ID_APPLICATION_CONTENT);
     wxBoxSizer *applicationContentSizer = new wxBoxSizer(wxVERTICAL);
 
-    wxSplitterWindow *mainContainerSplitter = new wxSplitterWindow(applicationContent, ID_MAIN_CONTAINER_SPLITTER);
+    mainContainerSplitter = new wxSplitterWindow(applicationContent, ID_MAIN_CONTAINER_SPLITTER);
     wxBoxSizer *mainContainerSplitterSizer = new wxBoxSizer(wxVERTICAL);
 
     mainContainerSplitter->Bind(wxEVT_PAINT, &MainFrame::OnPaintedComponent, this);
 
-    wxPanel *centeredContent = new wxPanel(mainContainerSplitter, ID_CENTERED_CONTENT);
+    centeredContent = new wxPanel(mainContainerSplitter, ID_CENTERED_CONTENT);
     wxBoxSizer *centeredContentSizer = new wxBoxSizer(wxVERTICAL);
 
     mainContainer = new wxPanel(centeredContent, ID_MAIN_CODE);
@@ -191,9 +191,8 @@ void MainFrame::CreateWatcher()
 
 void MainFrame::OnAbout(wxCommandEvent &WXUNUSED(event))
 {
-    wxMessageBox("A simple Code-editor for multiple usages and languages"
-                 "(c) 2023 Okarin Services\n",
-                 "About Krafta-editor",
+    wxMessageBox("A simple code editor for multiple languages",
+                 "About Krafta Editor",
                  wxOK | wxICON_INFORMATION, this);
 }
 
@@ -388,13 +387,13 @@ void MainFrame::LoadPath(wxString path)
 
 void MainFrame::OnOpenTerminal(wxCommandEvent &event)
 {
-    if (servicalContainer->IsSplit())
+    if (mainContainerSplitter->IsSplit())
     {
-        servicalContainer->Unsplit(FindWindowById(ID_TERMINAL));
+        mainContainerSplitter->Unsplit(terminal);
     }
     else
     {
-        servicalContainer->SplitHorizontally(mainContainer, FindWindowById(ID_TERMINAL), 0);
+        mainContainerSplitter->SplitHorizontally(centeredContent, terminal, 0);
     }
 }
 
