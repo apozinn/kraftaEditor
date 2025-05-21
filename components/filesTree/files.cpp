@@ -37,6 +37,7 @@ FilesTree::FilesTree(wxWindow *parent, wxWindowID ID)
 
 	// project namne
 	projectName = new wxStaticText(projectToggler, ID_PJT_TOOLS_PJTNAME, wxString(project_name));
+	projectName->SetFont(projectName->GetFont().Bold());
 	projectTogglerSizer->Add(projectName, 1, wxEXPAND | wxLEFT, 4);
 
 	// adding projectToggler to main sizer
