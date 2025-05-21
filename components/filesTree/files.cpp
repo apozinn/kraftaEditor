@@ -45,6 +45,7 @@ FilesTree::FilesTree(wxWindow *parent, wxWindowID ID)
 
 	// projectFilesContainer
 	projectFilesContainer = new wxScrolled<wxPanel>(this, ID_PROJECT_FILES_CTN);
+	projectFilesContainer->SetScrollbars(20, 20, 50, 50);
 	wxBoxSizer *projectFilesContainerSizer = new wxBoxSizer(wxVERTICAL);
 	projectFilesContainer->SetSizerAndFit(projectFilesContainerSizer);
 
