@@ -252,6 +252,7 @@ void FilesTree::CreateDir(
 	path.Append(osSlash);
 
 	wxPanel *dir_container = new wxPanel(parent);
+	dir_container->SetToolTip(path);
 
 	dir_container->SetMinSize(wxSize(dir_container->GetSize().GetWidth(), 20));
 	dir_container->SetSize(dir_container->GetSize().GetWidth(), 20);
@@ -260,6 +261,7 @@ void FilesTree::CreateDir(
 	wxBoxSizer *dir_ctn_sizer = new wxBoxSizer(wxVERTICAL);
 
 	wxPanel *dir_props = new wxPanel(dir_container);
+	dir_props->SetToolTip(path);
 	dir_props->SetLabel("dir_props");
 
 	dir_props->Bind(wxEVT_RIGHT_UP, &FilesTree::onDirRightClick, this);
