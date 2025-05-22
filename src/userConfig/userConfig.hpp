@@ -1,15 +1,9 @@
-#include <nlohmann/json.hpp>
 #include <fstream>
 #include <wx/stdpaths.h>
-using json = nlohmann::json;
 
 class UserConfig
 {
-	std::string config_path =
-		wxStandardPaths::Get()
-			.GetUserConfigDir()
-			.ToStdString() +
-		"/.kraftaEditor/userconfig.json";
+	std::string configPath;
 
 public:
 	json Get();

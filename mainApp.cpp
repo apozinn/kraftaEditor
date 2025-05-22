@@ -18,17 +18,35 @@ bool KraftaEditor::OnInit()
         MSWEnableDarkMode(DarkMode_Always);
 #endif
     }
-    // Get user config and theme
-    UserConfigs = UserConfig().Get();
-    UserTheme = UserConfig().GetThemes();
-
     // define the app dirs path
     applicationPath = wxStandardPaths::Get()
                           .GetUserConfigDir()
                           .ToStdString() +
                       osSlash + ".kraftaEditor" + osSlash;
+    if (!wxDirExists(applicationPath))
+    {
+        try
+        {
+            bool created = wxFileName::Mkdir(applicationPath);
+            if (!created)
+            {
+                wxMessageBox("an error occurred while creating the configuration dir");
+                return false;
+            }
+        }
+        catch (bool e)
+        {
+            return false;
+            wxMessageBox("an error occurred while creating the configuration dir");
+        }
+    }
+
     icons_dir = applicationPath + "icons" + osSlash;
     assetsDir = applicationPath + "assets" + osSlash;
+
+    // Get user config and theme
+    UserConfigs = UserConfig().Get();
+    UserTheme = UserConfig().GetThemes();
 
     if (!wxDirExists(icons_dir))
     {

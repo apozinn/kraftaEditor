@@ -1,5 +1,8 @@
 #pragma once
 
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+
 #define STYLE_TYPES_COUNT 32
 
 struct NotifyInteractions

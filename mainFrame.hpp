@@ -16,8 +16,8 @@
 #include <string>
 #include <iostream>
 
-#include "./src/userConfig/userConfig.cpp"
 #include "./defs.hpp"
+#include "./src/userConfig/userConfig.cpp"
 #include "./app.hpp"
 
 #include "./components/codeContainer/code.cpp"
