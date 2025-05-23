@@ -10,6 +10,7 @@ class ControlPanel : public wxPanel {
 	wxScrolled<wxPanel>* menusContainer;
 	wxPanel* selectedMenu;
 	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+	wxTextCtrl* searchInput;
 public:
 	ControlPanel(wxFrame* parent, wxWindowID ID) : wxPanel(
 		parent, ID, wxPoint(parent->GetSize().GetWidth() / 2 - 225, 50), wxSize(450, 200)
@@ -25,10 +26,11 @@ public:
 		wxStaticBitmap* search_icon = new wxStaticBitmap(topContainer, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps));
 		topContainerSizer->Add(search_icon, 0, wxEXPAND | wxALL, 5);
 
-		wxTextCtrl* searchInput = new wxTextCtrl(topContainer, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+		searchInput = new wxTextCtrl(topContainer, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
 		searchInput->SetMaxSize(wxSize(450, 20));
 		searchInput->SetBackgroundColour(wxColor(UserTheme["main"].template get<std::string>()));
 		searchInput->SetFocus();
+		searchInput->Bind(wxEVT_TEXT, &ControlPanel::SearchInputModified, this);
 		topContainerSizer->Add(searchInput, 1, wxEXPAND | wxTOP, 7);
 
 		topContainer->SetSizerAndFit(topContainerSizer);
@@ -150,9 +152,18 @@ public:
 		FindWindowById(ID_STATUS_BAR)->SetFocus();
 		Destroy();
 	}
+	void SearchInputModified(wxCommandEvent& event) {
+		for(auto&& menu : menusContainer->GetChildren()) {
+			if(menu->GetChildren()[0]->GetLabel().Lower().Find(searchInput->GetValue().Lower()) < 0) {
+				menu->Hide(); 
+			} else menu->Show();
+		}
+		menusContainer->GetSizer()->Layout();
+	}
 private:
 	std::vector<ControlMenu> menus{
 		{"Open Terminal", "Ctrl+Shift+T", 1},
+		{"Open sla", "Ctrl+Shift+T", 2},
 	};
 	wxDECLARE_NO_COPY_CLASS(ControlPanel);
 	wxDECLARE_EVENT_TABLE();
