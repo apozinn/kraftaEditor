@@ -344,8 +344,6 @@ void MainFrame::OnSashPosChange(wxSplitterEvent &event)
 void MainFrame::CloseAllFiles(wxCommandEvent &WXUNUSED(event))
 {
     tabs->CloseAll();
-    filesTree->selectedFile->SetBackgroundColour(wxColor(UserTheme["main"].template get<std::string>()));
-    filesTree->selectedFile = nullptr;
 }
 
 void MainFrame::LoadPath(wxString path)

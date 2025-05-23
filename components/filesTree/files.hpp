@@ -24,7 +24,7 @@ public:
 	void onTopMenuClick(wxMouseEvent &event);
 	void onFileRightClick(wxMouseEvent &event);
 	void onDirRightClick(wxMouseEvent &event);
-	void SetSelectedFile(wxWindow *new_window) { selectedFile = new_window; }
+	void SetSelectedFile(wxWindow *target);
 	void FitContainer(wxWindow *window);
 	void OnPaint(wxPaintEvent &event);
 	void OnCreateDir(wxCommandEvent &event);

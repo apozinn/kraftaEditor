@@ -15,7 +15,6 @@
 #include "../codeContainer/code.hpp"
 #include "../tabs/tabs.hpp"
 #include <wx/graphics.h>
-#include "searchFiles.cpp"
 
 FilesTree::FilesTree(wxWindow *parent, wxWindowID ID)
 	: wxPanel(parent, ID)
@@ -331,13 +330,6 @@ void FilesTree::OnFileSelect(wxMouseEvent &event)
 
 	if (path.size())
 	{
-		// highlighting the file component
-		if (selectedFile)
-		{
-			selectedFile->SetBackgroundColour(wxColor(mainColor));
-			selectedFile->Refresh();
-		}
-
 		// openning file
 		OpenFile(path);
 	}
@@ -351,14 +343,8 @@ void FilesTree::OpenFile(wxString path)
 	auto statusBar = ((StatusBar *)FindWindowById(ID_STATUS_BAR));
 
 	// highlighting the file component
-	auto selectedFileColor = UserTheme["selectedFile"].template get<std::string>();
-	selectedFile = wxFindWindowByLabel(path + "_file_container");
-
-	if (selectedFile)
-	{
-		selectedFile->SetBackgroundColour(wxColor(selectedFileColor));
-		selectedFile->Refresh();
-	}
+	auto newSelectedFile = wxFindWindowByLabel(path + "_file_container");
+	if(newSelectedFile) SetSelectedFile(newSelectedFile);
 
 	// hidding others comps: empty window or code container
 	for (auto &&other_ct : mainCode->GetChildren())
@@ -725,12 +711,11 @@ void FilesTree::OnComponentModified(wxString type, wxString oldPath, wxString ne
 		}
 	};
 
-	
 	if (type == "CREATE")
 	{
 		CreateWithPosition();
 	}
-	
+
 	// getting the target component
 	wxWindow *targetComp;
 	if (isFile)
@@ -742,9 +727,11 @@ void FilesTree::OnComponentModified(wxString type, wxString oldPath, wxString ne
 
 	if (type == "DELETE")
 	{
-		if(linkedTab) {
-			auto tabs = ((Tabs*)FindWindowById(ID_TABS));
-			if(tabs) {
+		if (linkedTab)
+		{
+			auto tabs = ((Tabs *)FindWindowById(ID_TABS));
+			if (tabs)
+			{
 				tabs->Close(linkedTab, linkedTab->GetName());
 			}
 		}
@@ -753,7 +740,8 @@ void FilesTree::OnComponentModified(wxString type, wxString oldPath, wxString ne
 
 	if (type == "RENAME" || type == "MODIFY")
 	{
-		if(targetComp->GetName() == newPath) return;
+		if (targetComp->GetName() == newPath)
+			return;
 
 		targetComp->Destroy();
 		if (isFile)
@@ -858,4 +846,38 @@ void FilesTree::OnDirRename(wxCommandEvent &event)
 
 	if (!wxDirExists(newPath))
 		wxMessageBox("An error occurred while renaming the folder", "", wxOK | wxICON_INFORMATION);
+}
+
+void FilesTree::SetSelectedFile(wxWindow *target)
+{
+	auto defaultFileColor = UserTheme["main"].template get<std::string>();
+	auto selectedFileColor = UserTheme["selectedFile"].template get<std::string>();
+
+	if (target)
+	{
+		if (selectedFile)
+		{
+			selectedFile->SetBackgroundColour(wxColor(defaultFileColor));
+			selectedFile->Refresh();
+
+			selectedFile = target;
+			selectedFile->SetBackgroundColour(wxColor(selectedFileColor));
+			selectedFile->Refresh();
+		}
+		else
+		{
+			selectedFile = target;
+			selectedFile->SetBackgroundColour(wxColor(selectedFileColor));
+			selectedFile->Refresh();
+		}
+	}
+	else
+	{
+		if (selectedFile)
+		{
+			selectedFile->SetBackgroundColour(wxColor(defaultFileColor));
+			selectedFile->Refresh();
+		}
+		selectedFile = target;
+	}
 }

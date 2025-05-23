@@ -157,21 +157,11 @@ void Tabs::Close(wxWindow *tab, wxString tab_path)
 		current_openned_path = descendantTab->GetName();
 		descendantTab->Refresh();
 
-		auto selectedFileColor = UserTheme["selectedFile"].template get<std::string>();
-
 		// getting linked file from filesTree and changing highlight file
 		auto linkedFile = FindWindowByLabel(current_openned_path + "_file_container");
 		if (linkedFile)
 		{
-			linkedFile->SetBackgroundColour(wxColor(selectedFileColor));
-			linkedFile->Refresh();
-
-			if (fileContainer->selectedFile)
-			{
-				fileContainer->selectedFile->SetBackgroundColour(fileContainer->GetBackgroundColour());
-				fileContainer->selectedFile->Refresh();
-				fileContainer->SetSelectedFile(linkedFile);
-			}
+			fileContainer->SetSelectedFile(linkedFile);
 		}
 
 		// openning the new component
@@ -186,12 +176,7 @@ void Tabs::Close(wxWindow *tab, wxString tab_path)
 	else
 	{
 		// If you don't have another tab, close the tabContainer and show the empty window
-		if (fileContainer->selectedFile)
-		{
-			fileContainer->selectedFile->SetBackgroundColour(fileContainer->GetBackgroundColour());
-			fileContainer->selectedFile->Refresh();
-			fileContainer->selectedFile = nullptr;
-		}
+		fileContainer->SetSelectedFile(nullptr);
 
 		Hide();
 		auto emptyWindow = FindWindowById(ID_EMPYT_WINDOW);
@@ -216,10 +201,17 @@ void Tabs::Close(wxWindow *tab, wxString tab_path)
 
 void Tabs::CloseAll()
 {
+	auto fileContainer = ((FilesTree *)FindWindowById(ID_FILES_TREE));
+	if (fileContainer)
+	{
+		fileContainer->SetSelectedFile(nullptr);
+	}
+	
 	tabsContainer->DestroyChildren();
 	Hide();
 	if (auto emptyWindow = FindWindowById(ID_EMPYT_WINDOW))
 		emptyWindow->Show();
+
 }
 
 void Tabs::Select()
