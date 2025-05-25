@@ -91,7 +91,7 @@ void Tabs::Add(wxString tab_name, wxString path)
 	tab_infos_sizer->Add(ico, 0, wxALIGN_CENTER | wxLEFT, 10);
 
 	wxStaticText *name = new wxStaticText(tab_infos, wxID_ANY, tab_name);
-
+	name->SetToolTip(path);
 	name->SetName(path);
 	name->Bind(wxEVT_LEFT_UP, &Tabs::OnTabClick, this);
 	tab_infos_sizer->Add(name, 1, wxEXPAND | wxLEFT | wxRIGHT, 6);
