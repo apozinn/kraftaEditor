@@ -25,19 +25,11 @@ bool KraftaEditor::OnInit()
                       osSlash + ".kraftaEditor" + osSlash;
     if (!wxDirExists(applicationPath))
     {
-        try
+        bool created = wxFileName::Mkdir(applicationPath);
+        if (!created)
         {
-            bool created = wxFileName::Mkdir(applicationPath);
-            if (!created)
-            {
-                wxMessageBox("an error occurred while creating the configuration dir");
-                return false;
-            }
-        }
-        catch (bool e)
-        {
-            return false;
             wxMessageBox("an error occurred while creating the configuration dir");
+            return false;
         }
     }
 
