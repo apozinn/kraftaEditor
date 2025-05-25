@@ -114,8 +114,13 @@ void Editor::InitializePrefs()
 
 void Editor::OnChange(wxStyledTextEvent &event)
 {
-    if (event.GetString() == wxEmptyString || GetText() == event.GetString())
-        return;
+    // if (event.GetString() == wxEmptyString || GetText() == event.GetString())
+    //     return;
+
+    if (event.GetModificationType() == wxSTC_MOD_DELETETEXT)
+    {
+        wxLogMessage("apagou");
+    }
 
     if (!changedFile && GetModify())
     {
@@ -149,8 +154,23 @@ void Editor::OnMarginClick(wxStyledTextEvent &event)
     }
 }
 
+void Editor::OnBackspace(wxKeyEvent &event)
+{
+    char chr = (char)GetCharAt(GetCurrentPos());
+
+    if (chr == ']' || chr == '}' || chr == '"' || chr == '\'' || chr == '`' || chr == ')')
+    {
+        Remove(GetCurrentPos(), GetCurrentPos() + 1);
+    }
+}
+
 void Editor::OnArrowsPress(wxKeyEvent &event)
 {
+    if (event.GetKeyCode() == 8)
+    {
+        OnBackspace(event);
+    }
+
     statusBar->UpdateCodeLocale(this);
 }
 

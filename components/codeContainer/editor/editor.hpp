@@ -16,6 +16,7 @@ private:
     void InitializePrefs();
     void OnChange(wxStyledTextEvent &event);
     void OnMarginClick(wxStyledTextEvent &event);
+    void OnBackspace(wxKeyEvent &event);
     void OnArrowsPress(wxKeyEvent &event);
     void CharAdd(wxStyledTextEvent &event);
     void OnClick(wxMouseEvent &event);
