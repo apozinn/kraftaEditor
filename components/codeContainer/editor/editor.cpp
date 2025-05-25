@@ -114,13 +114,8 @@ void Editor::InitializePrefs()
 
 void Editor::OnChange(wxStyledTextEvent &event)
 {
-    // if (event.GetString() == wxEmptyString || GetText() == event.GetString())
-    //     return;
-
-    if (event.GetModificationType() == wxSTC_MOD_DELETETEXT)
-    {
-        wxLogMessage("apagou");
-    }
+    if (event.GetString() == wxEmptyString || GetText() == event.GetString())
+        return;
 
     if (!changedFile && GetModify())
     {
@@ -180,7 +175,7 @@ void Editor::CharAdd(wxStyledTextEvent &event)
     ((wxStyledTextCtrl *)GetParent()->GetChildren()[1])->SetText(GetText());
 
     char chr = (char)event.GetKey();
-    char previous_char = (char)GetCharAt(GetCurrentPos() - 2);
+    char previous_char = (char)GetCharAt(GetCurrentPos() - 1);
     char next_char = (char)GetCharAt(GetCurrentPos());
 
     int previousLine = GetCurrentLine() - 1;
@@ -193,7 +188,8 @@ void Editor::CharAdd(wxStyledTextEvent &event)
 
     if (chr == '\n')
     {
-        if (previous_char == '{' && next_char == '}')
+        if (previous_char == '\n' && next_char == '}' 
+            || previous_char == '\n' && next_char == ']')
         {
             SetLineIndentation(currentLine, currentLineInd + GetIndent());
             GotoPos(GetLineEndPosition(currentLine) - 1);
@@ -201,7 +197,7 @@ void Editor::CharAdd(wxStyledTextEvent &event)
             InsertText(GetCurrentPos(), "\n");
             return;
         }
-
+        
         if (currentLineInd < nextLineInd)
         {
             SetLineIndentation(currentLine, nextLineInd);
