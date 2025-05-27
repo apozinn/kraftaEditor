@@ -456,11 +456,6 @@ void FilesTree::ToggleDir(wxMouseEvent &event)
 			bitmaps.push_back(wxBitmap(arrow_bit.ConvertToImage().Rotate90(true), -1));
 			dir_childrens->Show();
 
-			for (auto &w : dir_childrens->GetChildren())
-			{
-				w->Show();
-			}
-
 			// load the dir content
 			Load(dir_childrens, path.ToStdString());
 		}
@@ -648,9 +643,7 @@ void FilesTree::OnDeleteDir(wxCommandEvent &event)
 	auto confirmDialog = wxMessageDialog(NULL, "Are you sure you want to delete this folder?", "Delete Folder", wxOK | wxCANCEL);
 	if (confirmDialog.ShowModal() == wxID_OK)
 	{
-		bool deleted = fileManager->DeleteDir(wxString(menuDirPath));
-
-		if (!deleted)
+		if (!fileManager->DeleteDir(wxString(menuDirPath)))
 		{
 			wxLogError("An error occurred while deleting the folder");
 			return;
@@ -674,13 +667,8 @@ void FilesTree::OnDeleteFile(wxCommandEvent &event)
 	auto confirmDialog = wxMessageDialog(NULL, "Are you sure you want to delete this file?", "Delete file", wxOK | wxCANCEL);
 	if (confirmDialog.ShowModal() == wxID_OK)
 	{
-		fileManager->DeleteFile(wxString(menuFilePath));
-
-		if (wxFileExists(menuFilePath))
-		{
+		if (!fileManager->DeleteFile(wxString(menuFilePath)))
 			wxLogError("An error occurred while deleting the file");
-			return;
-		}
 	}
 }
 
@@ -692,9 +680,7 @@ void FilesTree::OnComponentModified(wxString type, wxString oldPath, wxString ne
 	auto parentComp = wxFindWindowByLabel(parentCompPath + "_dir_childrens");
 
 	if (!parentComp)
-	{
 		return;
-	}
 	if (parentCompPath == project_path)
 		parentComp = projectFilesContainer;
 

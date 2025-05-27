@@ -9,24 +9,18 @@ namespace fs = std::filesystem;
 class FileManager {
 public:
 	bool CreateFile(wxString path) {
-		wxFile fname;
-		bool created = fname.Create(path);
-		return created;
+		return wxFile().Create(path);
 	}
 
 	bool CreateDir(wxString path) {
-		bool created = wxFileName::Mkdir(path);
-		return created;
+		return wxFileName::Mkdir(path);
 	}
 
 	bool DeleteFile(wxString path) {
-		int deleted = remove(path);
-		if (!deleted) return false;
-		return true;
+		return wxRemoveFile(path);
 	}
 
 	bool DeleteDir(wxString path) {
-		bool deleted = wxFileName::Rmdir(path, wxPATH_RMDIR_RECURSIVE);
-		return deleted;
+		return wxFileName::Rmdir(path, wxPATH_RMDIR_RECURSIVE);
 	}
 };
