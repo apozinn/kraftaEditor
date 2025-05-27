@@ -134,6 +134,7 @@ void FilesTree::CreateFile(
 {
 	if (!parent || FindWindowByLabel(path + "_file_container"))
 		return;
+
 	auto parentSizer = parent->GetSizer();
 	if (!parentSizer)
 	{
@@ -239,6 +240,7 @@ void FilesTree::CreateFile(
 void FilesTree::CreateDir(
 	wxWindow *parent, wxString name, wxString path, int pos)
 {
+	path.Append(osSlash);
 	if (!parent || FindWindowByLabel(path + "_dir_container"))
 		return;
 	auto parentSizer = parent->GetSizer();
@@ -247,8 +249,6 @@ void FilesTree::CreateDir(
 		parentSizer = new wxBoxSizer(wxHORIZONTAL);
 		parent->SetSizerAndFit(parentSizer);
 	}
-
-	path.Append(osSlash);
 
 	wxPanel *dir_container = new wxPanel(parent);
 	dir_container->SetToolTip(path);
@@ -282,6 +282,7 @@ void FilesTree::CreateDir(
 
 	wxPanel *dir_childrens = new wxPanel(dir_container);
 	dir_childrens->SetName(path + "_dir_childrens");
+	dir_childrens->SetLabel(path + "_dir_childrens");
 
 	// event to draw a dotted line next side to the dir childrens
 	dir_childrens->Bind(wxEVT_PAINT, [=](wxPaintEvent &event)
@@ -344,7 +345,8 @@ void FilesTree::OpenFile(wxString path)
 
 	// highlighting the file component
 	auto newSelectedFile = wxFindWindowByLabel(path + "_file_container");
-	if(newSelectedFile) SetSelectedFile(newSelectedFile);
+	if (newSelectedFile)
+		SetSelectedFile(newSelectedFile);
 
 	// hidding others comps: empty window or code container
 	for (auto &&other_ct : mainCode->GetChildren())
@@ -555,12 +557,15 @@ void FilesTree::FitContainer(wxWindow *window)
 	{
 		while (parent->GetId() != ID_PROJECT_FILES_CTN)
 		{
-
 			if (!parent->IsShownOnScreen())
-				parent->SetMinSize(wxSize(0, 0));
-			if (!parent->IsShownOnScreen())
+			{
 				parent->SetSize(wxSize(0, 0));
+				parent->SetMinSize(wxSize(0, 0));
+			}
+
 			parent->GetSizer()->Layout();
+			parent->Update();
+			parent->Refresh();
 
 			wxSize thisSize = wxSize(parent->GetSize().x, 20);
 			for (auto &&children : parent->GetChildren())
@@ -571,9 +576,16 @@ void FilesTree::FitContainer(wxWindow *window)
 				}
 			}
 
+			parent->Update();
+			parent->Refresh();
+
 			parent = parent->GetParent();
+
 			parent->SetMinSize(thisSize);
 			parent->GetSizer()->Layout();
+			parent->Update();
+			parent->Refresh();
+
 			parent = parent->GetParent();
 		}
 	}
@@ -677,10 +689,12 @@ void FilesTree::OnComponentModified(wxString type, wxString oldPath, wxString ne
 	// getting parent component
 	wxString parentCompPath = newPath.ToStdString().substr(0, newPath.ToStdString().find_last_of(osSlash));
 	parentCompPath = parentCompPath + osSlash;
-	auto parentComp = wxFindWindowByLabel(parentCompPath + "_dir_container");
+	auto parentComp = wxFindWindowByLabel(parentCompPath + "_dir_childrens");
 
-	if (parentComp)
+	if (!parentComp)
+	{
 		return;
+	}
 	if (parentCompPath == project_path)
 		parentComp = projectFilesContainer;
 
@@ -740,35 +754,35 @@ void FilesTree::OnComponentModified(wxString type, wxString oldPath, wxString ne
 
 	if (type == "RENAME" || type == "MODIFY")
 	{
-		if (targetComp->GetName() == newPath)
-			return;
-
-		targetComp->Destroy();
-		if (isFile)
+		if (targetComp->GetName() != newPath && oldPath != newPath)
 		{
-			CreateFile(parentComp, wxFileNameFromPath(newPath), newPath);
-
-			// updating the linked code editor
-			if (linkedCodeEditor)
-				linkedCodeEditor->LoadPath(newPath);
-
-			// updating the linked tabs
-			if (linkedTab)
+			targetComp->Destroy();
+			if (isFile)
 			{
-				linkedTab->SetName(newPath);
-				linkedTab->SetLabel(newPath + "_tab");
+				CreateFile(parentComp, wxFileNameFromPath(newPath), newPath);
 
-				// updating tab display name
-				wxStaticText *tabName = ((wxStaticText *)linkedTab->GetChildren()[0]->GetChildren()[1]);
-				if (tabName)
+				// updating the linked code editor
+				if (linkedCodeEditor)
+					linkedCodeEditor->LoadPath(newPath);
+
+				// updating the linked tabs
+				if (linkedTab)
 				{
-					tabName->SetName(newPath);
-					tabName->SetLabel(wxFileNameFromPath(newPath));
+					linkedTab->SetName(newPath);
+					linkedTab->SetLabel(newPath + "_tab");
+
+					// updating tab display name
+					wxStaticText *tabName = ((wxStaticText *)linkedTab->GetChildren()[0]->GetChildren()[1]);
+					if (tabName)
+					{
+						tabName->SetName(newPath);
+						tabName->SetLabel(wxFileNameFromPath(newPath));
+					}
 				}
 			}
+			else
+				CreateWithPosition();
 		}
-		else
-			CreateWithPosition();
 	}
 	FitContainer(parentComp);
 }
