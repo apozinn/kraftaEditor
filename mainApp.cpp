@@ -42,13 +42,13 @@ bool KraftaEditor::OnInit()
 
     if (!wxDirExists(icons_dir))
     {
-        if (!CreateApplicationAssetsDirectories(GetAppDirs("icons").ToStdString(), "icons"))
+        if (!CreateApplicationAssetsDirectories(GetAppDirs("icons").ToStdString(), applicationPath, "icons"))
         {
             return false;
         }
         else
         {
-            if (!CreateApplicationAssetsDirectories(GetAppDirs("icons").ToStdString() + "file_ext/", "file_ext"))
+            if (!CreateApplicationAssetsDirectories(GetAppDirs("icons").ToStdString() + "file_ext/", applicationPath, "file_ext"))
             {
                 return false;
             }
@@ -57,11 +57,13 @@ bool KraftaEditor::OnInit()
 
     if (!wxDirExists(assetsDir))
     {
-        if (!CreateApplicationAssetsDirectories(GetAppDirs("assets").ToStdString(), "assets"))
+        if (!CreateApplicationAssetsDirectories(GetAppDirs("assets").ToStdString(), applicationPath, "assets"))
         {
             return false;
         }
     }
+
+    std::cerr << "hello";
 
     // init images handlers
     wxInitAllImageHandlers();

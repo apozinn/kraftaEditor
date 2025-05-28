@@ -1,72 +1,63 @@
 #pragma once
 
-#include <exception>
 #include <filesystem>
 #include <iostream>
+#include <string>
+#include <string_view>
 
 namespace fs = std::filesystem;
 
-bool CreateApplicationFile(std::string from, std::string to)
+// Copies a file from source to destination. Returns true on success.
+inline bool CreateApplicationFile(std::string_view from, std::string_view to)
 {
-    std::string error;
-
     try
     {
         fs::copy_file(from, to, fs::copy_options::overwrite_existing);
     }
-    catch (std::exception &e)
+    catch (const std::exception &e)
     {
-        error = e.what();
-    }
-
-    if (wxFileExists(to))
-    {
-        return true;
-    }
-    else
-    {
-        wxLogError(wxString("An error occurred while creating the " + wxFileNameFromPath(to) + "\n" + error));
+        wxLogError(wxString("Error copying file from ") + wxString(from) + " to " + wxString(to) + "\n" + wxString(e.what()));
         return false;
     }
+
+    return fs::exists(to);
 }
 
-bool CreateApplicationAssetsDirectories(std::string target, std::string dirName)
+// Copies files from one directory to another, creating directories if needed.
+inline bool CreateApplicationAssetsDirectories(
+    std::string_view sourceDir,
+    std::string_view baseTargetDir,
+    std::string_view dirName)
 {
-    const std::filesystem::path assetsFiles{target};
-    std::string error;
-    for (auto const &dir_entry : std::filesystem::directory_iterator{assetsFiles})
+    fs::path sourcePath(sourceDir);
+    fs::path targetBase(baseTargetDir);
+    fs::path targetPath = targetBase / dirName;
+
+    if (dirName == "file_ext")
     {
-        fs::path sourceFile = dir_entry.path();
-        fs::path targetParent = applicationPath + dirName;
-        if (dirName == "file_ext")
+        targetPath = (osName == "Windows")
+                         ? (targetBase / "icons\\file_ext\\")
+                         : (targetBase / "icons/file_ext/");
+    }
+
+    try
+    {
+        fs::create_directories(targetPath);
+
+        for (const auto &entry : fs::directory_iterator(sourcePath))
         {
-            if (osName == "Windows")
+            if (fs::is_regular_file(entry.status()))
             {
-                targetParent = applicationPath + "icons\\file_ext\\";
+                fs::path destination = targetPath / entry.path().filename();
+                fs::copy_file(entry.path(), destination, fs::copy_options::overwrite_existing);
             }
-            else
-                targetParent = applicationPath + "icons/file_ext/";
-        }
-        auto target = targetParent / sourceFile.filename();
-
-        try
-        {
-            fs::create_directories(targetParent);
-            fs::copy_file(sourceFile, target, fs::copy_options::overwrite_existing);
-        }
-        catch (std::exception &e)
-        {
-            error = e.what();
         }
     }
-
-    if (wxDirExists(target))
+    catch (const std::exception &e)
     {
-        return true;
-    }
-    else
-    {
-        wxLogError(wxString("An error occurred while creating the " + dirName + " directory" + "\n" + error));
+        wxLogError(wxString("Error creating directory or copying files to ") + wxString(dirName) + "\n" + wxString(e.what()));
         return false;
     }
+
+    return fs::exists(targetPath);
 }
