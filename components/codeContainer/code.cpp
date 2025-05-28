@@ -43,6 +43,9 @@ void CodeContainer::LoadPath(wxString path)
     if (file_props.IsOk() && file_props.FileExists())
     {
         editor->LoadFile(path);
+        wxString text = editor->GetText().Upper();
+        editor->highlightSTCsyntax(0, editor->GetTextLength(), text);
+        editor->setfoldlevels(0, 0, text);
         editor->SetLabel(path + "_codeEditor");
 
         minimap->LoadFile(path);

@@ -18,9 +18,9 @@ const CommonInfo global_commonPrefs = {
     false, // readOnlyInitial
     false,  // wrapModeInitial
     false, // displayEOLEnable
-    false, // IndentGuideEnable
+    true, // IndentGuideEnable
     true,  // lineNumberEnable
-    false, // longLineOnEnable
+    true, // longLineOnEnable
     false, // whiteSpaceEnable
 };
 
