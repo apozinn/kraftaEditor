@@ -36,5 +36,5 @@ else()
     add_executable(KraftaEditor WIN32 ${SRCS} KraftaEditor.manifest)
 endif()
 
-target_link_libraries(KraftaEditor PRIVATE wxcore wxnet wxstc PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(KraftaEditor PRIVATE wxcore wxstc PRIVATE nlohmann_json::nlohmann_json)
 target_include_directories(KraftaEditor PRIVATE "include")

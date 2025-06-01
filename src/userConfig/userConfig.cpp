@@ -2,6 +2,14 @@
 
 json UserConfig::Get()
 {
+	json standardUserConfig = {
+		{"show_minimap", true},
+		{"show_menu", true},
+		{"show_statusBar", true},
+		{"windowMaximized", true},
+		{"windowSizeX", 1000},
+		{"windowSizeY", 700}};
+
 	configPath = wxString(applicationPath + "userconfig.json").ToStdString();
 	if (!wxFileExists(configPath))
 	{
@@ -10,14 +18,8 @@ json UserConfig::Get()
 		if (created)
 		{
 			std::ofstream newConfigFile_locale(configPath);
-			json new_json_obj = {
-				{"show_minimap", true},
-				{"show_menu", true},
-				{"show_statusBar", true},
-				{"windowMaximized", true},
-				{"windowSizeX", 1000},
-				{"windowSizeY", 700}};
-			newConfigFile_locale << std::setw(4) << new_json_obj << std::endl;
+			
+			newConfigFile_locale << std::setw(4) << standardUserConfig << std::endl;
 		}
 		else
 		{
@@ -27,11 +29,17 @@ json UserConfig::Get()
 	}
 
 	json data;
-
 	std::ifstream config_file(configPath);
 	if (config_file)
 	{
+		//create the element if it does not exist in the userConfig file
 		data = json::parse(config_file);
+		  for(auto& element : standardUserConfig.items()) {
+			if(!data.contains(element.key())) {
+				data[element.key()] = element.value();
+				Update(data);
+			}
+		  }
 	}
 
 	return data;

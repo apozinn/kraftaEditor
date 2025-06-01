@@ -63,8 +63,6 @@ bool KraftaEditor::OnInit()
         }
     }
 
-    std::cerr << "hello";
-
     // init images handlers
     wxInitAllImageHandlers();
 
