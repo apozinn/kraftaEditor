@@ -1,5 +1,7 @@
 #include "./code.hpp"
 #include <wx/filename.h>
+#include "path/path.hpp"
+#include "platform/platform.hpp"
 
 CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxScrolled<wxPanel>(parent)
 {
@@ -15,7 +17,7 @@ CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxScrolled<wxPan
     if (UserConfigs["show_minimap"] == false)
         minimap->Hide();
 
-    if (osName == "Windows")
+    if (Platform::OsName() == "Windows")
     {
         font = wxFont(wxFontInfo(10).FaceName("Cascadia Code"));
     }
@@ -77,7 +79,7 @@ bool CodeContainer::Save(wxString path)
             if (auto tab = FindWindowByLabel(path + "_tab"))
             {
                 ((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[2])
-                    ->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(icons_dir + "close.png", wxBITMAP_TYPE_PNG)));
+                    ->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(ApplicationPaths::IconsPath() + "close.png", wxBITMAP_TYPE_PNG)));
             }
             return true;
         }

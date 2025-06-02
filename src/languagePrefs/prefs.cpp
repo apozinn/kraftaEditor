@@ -2,6 +2,8 @@
 
 #include "prefs.hpp"
 
+#include "path/path.hpp"
+
 #include "languages/CPP.cpp"
 #include "languages/PLAINTEXT.cpp"
 #include "languages/JSON.cpp"
@@ -9,6 +11,7 @@
 #include "languages/UNKNOWN.cpp"
 #include "languages/JAVASCRIPT.cpp"
 #include "languages/html.cpp"
+
 
 const CommonInfo global_commonPrefs = {
     true,  // syntaxEnable

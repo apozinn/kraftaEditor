@@ -7,6 +7,7 @@ const char *words2 = "ABSOLUTE ABSTRACT ADDITIONAL_MAKE_CLEAN_FILESALL AND APPEN
 
 const LanguageInfo CMAKE_PREFS = {
 	"Cmake",
+	"cmake",
 	"*.cmake;",
 	wxSTC_LEX_CMAKE,
 	{{mySTC_TYPE_DEFAULT, nullptr},
@@ -42,4 +43,5 @@ const LanguageInfo CMAKE_PREFS = {
 	 {-1, nullptr},
 	 {-1, nullptr}},
 	mySTC_FOLD_COMMENT | mySTC_FOLD_COMPACT | mySTC_FOLD_PREPROC,
-	icons_dir + "file_ext" + osSlash + "cmake.png"};
+	
+};

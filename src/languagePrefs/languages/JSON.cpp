@@ -3,6 +3,7 @@
 
 const LanguageInfo JSON_PREFS = {
 	"Json",
+	"json",
 	"*.json;",
 	wxSTC_LEX_JSON,
 	{{mySTC_TYPE_DEFAULT, nullptr},
@@ -38,4 +39,5 @@ const LanguageInfo JSON_PREFS = {
 	 {-1, nullptr},
 	 {-1, nullptr}},
 	mySTC_FOLD_COMMENT | mySTC_FOLD_COMPACT | mySTC_FOLD_PREPROC,
-	icons_dir + "file_ext" + osSlash + "json.png"};
+	
+};

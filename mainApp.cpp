@@ -1,13 +1,13 @@
 #include "mainApp.hpp"
 #include "mainFrame.cpp"
 
+#include "path/path.hpp"
+#include "platform/platform.hpp"
+
 bool KraftaEditor::OnInit()
 {
     if (!wxApp::OnInit())
         return false;
-
-    // getting the OS name
-    osName = wxPlatformInfo::Get().GetOperatingSystemFamilyName();
 
     // verify if system theme is dark
     auto systemInfo = wxSystemSettings::GetAppearance();
@@ -19,10 +19,7 @@ bool KraftaEditor::OnInit()
 #endif
     }
     // define the app dirs path
-    applicationPath = wxStandardPaths::Get()
-                          .GetUserConfigDir()
-                          .ToStdString() +
-                      osSlash + ".kraftaEditor" + osSlash;
+    applicationPath = ApplicationPaths::ApplicationPath();
     if (!wxDirExists(applicationPath))
     {
         bool created = wxFileName::Mkdir(applicationPath);
@@ -33,14 +30,11 @@ bool KraftaEditor::OnInit()
         }
     }
 
-    icons_dir = applicationPath + "icons" + osSlash;
-    assetsDir = applicationPath + "assets" + osSlash;
-
     // Get user config and theme
     UserConfigs = UserConfig().Get();
     UserTheme = UserConfig().GetThemes();
 
-    if (!wxDirExists(icons_dir))
+    if (!wxDirExists(ApplicationPaths::IconsPath()))
     {
         if (!CreateApplicationAssetsDirectories(GetAppDirs("icons").ToStdString(), applicationPath, "icons"))
         {
@@ -55,7 +49,7 @@ bool KraftaEditor::OnInit()
         }
     }
 
-    if (!wxDirExists(assetsDir))
+    if (!wxDirExists(ApplicationPaths::AssetsPath()))
     {
         if (!CreateApplicationAssetsDirectories(GetAppDirs("assets").ToStdString(), applicationPath, "assets"))
         {

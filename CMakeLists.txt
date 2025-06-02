@@ -21,6 +21,10 @@ FetchContent_MakeAvailable(wxWidgets)
 FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz)
 FetchContent_MakeAvailable(json)
 
+file(GLOB_RECURSE HEADER_FILES 
+    "include/*.hpp"
+)
+
 set(SRCS mainApp.cpp)
 
 if(APPLE)
@@ -35,6 +39,10 @@ else()
     # so it works on all platforms
     add_executable(KraftaEditor WIN32 ${SRCS} KraftaEditor.manifest)
 endif()
+
+target_include_directories(KraftaEditor PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+)
 
 target_link_libraries(KraftaEditor PRIVATE wxcore wxstc PRIVATE nlohmann_json::nlohmann_json)
 target_include_directories(KraftaEditor PRIVATE "include")

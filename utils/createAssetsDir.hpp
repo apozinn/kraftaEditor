@@ -5,6 +5,8 @@
 #include <string>
 #include <string_view>
 
+#include "platform/platform.hpp"
+
 namespace fs = std::filesystem;
 
 // Copies a file from source to destination. Returns true on success.
@@ -35,7 +37,7 @@ inline bool CreateApplicationAssetsDirectories(
 
     if (dirName == "file_ext")
     {
-        targetPath = (osName == "Windows")
+        targetPath = (Platform::OsName() == "Windows")
                          ? (targetBase / "icons\\file_ext\\")
                          : (targetBase / "icons/file_ext/");
     }

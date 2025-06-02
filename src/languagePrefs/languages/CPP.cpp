@@ -26,6 +26,7 @@ const char *CppWordlist3 =
 
 const LanguageInfo CPP_PREFS = {
 	"C++",
+	"cpp",
 	"*.c;*.cc;*.cpp;*.cxx;*.cs;*.h;*.hh;*.hpp;*.hxx;*.sma",
 	wxSTC_LEX_CPP,
 	{{mySTC_TYPE_DEFAULT, nullptr},
@@ -61,4 +62,5 @@ const LanguageInfo CPP_PREFS = {
 	 {-1, nullptr},
 	 {-1, nullptr}},
 	mySTC_FOLD_COMMENT | mySTC_FOLD_COMPACT | mySTC_FOLD_PREPROC,
-	icons_dir + "file_ext" + osSlash + "cpp.png"};
+	
+};

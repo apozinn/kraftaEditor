@@ -1,4 +1,5 @@
 #include "./editor.hpp"
+#include "path/path.hpp"
 
 #define MY_FOLDMARGIN 2
 
@@ -44,8 +45,8 @@ void Editor::InitializePrefs()
     StyleSetForeground(wxSTC_STYLE_INDENTGUIDE, wxColor(secondaryTextColor));
 
     // linking autocomp icons
-    RegisterImage(0, wxBitmap(icons_dir + "thunder.png", wxBITMAP_TYPE_PNG));
-    RegisterImage(1, wxBitmap(icons_dir + "question.png", wxBITMAP_TYPE_PNG));
+    RegisterImage(0, wxBitmap(ApplicationPaths::IconsPath() + "thunder.png", wxBITMAP_TYPE_PNG));
+    RegisterImage(1, wxBitmap(ApplicationPaths::IconsPath() + "question.png", wxBITMAP_TYPE_PNG));
 }
 
 void Editor::SetFoldPreferences()
@@ -157,7 +158,7 @@ void Editor::OnChange(wxStyledTextEvent &event)
             if (icon)
             {
                 // setting the unsaved icon
-                icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(icons_dir + "white_circle.png", wxBITMAP_TYPE_PNG)));
+                icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(ApplicationPaths::IconsPath() + "white_circle.png", wxBITMAP_TYPE_PNG)));
             }
         }
 

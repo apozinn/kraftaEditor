@@ -1,4 +1,5 @@
 #include "terminal.cpp"
+#include "path/path.hpp"
 
 struct ControlMenu {
 	const char* name;
@@ -22,7 +23,7 @@ public:
 		wxBoxSizer* topContainerSizer = new wxBoxSizer(wxHORIZONTAL);
 
 		wxVector<wxBitmap> bitmaps;
-		bitmaps.push_back(wxBitmap(icons_dir + "search_gray.png", wxBITMAP_TYPE_PNG));
+		bitmaps.push_back(wxBitmap(ApplicationPaths::IconsPath() + "search_gray.png", wxBITMAP_TYPE_PNG));
 		wxStaticBitmap* search_icon = new wxStaticBitmap(topContainer, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps));
 		topContainerSizer->Add(search_icon, 0, wxEXPAND | wxALL, 5);
 

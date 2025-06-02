@@ -16,6 +16,9 @@
 #include "../tabs/tabs.hpp"
 #include <wx/graphics.h>
 
+#include "path/path.hpp"
+#include "platform/platform.hpp"
+
 FilesTree::FilesTree(wxWindow *parent, wxWindowID ID)
 	: wxPanel(parent, ID)
 {
@@ -30,7 +33,7 @@ FilesTree::FilesTree(wxWindow *parent, wxWindowID ID)
 
 	// arrow icon
 	wxVector<wxBitmap> bitmaps;
-	bitmaps.push_back(wxBitmap(icons_dir + "dir_arrow.png", wxBITMAP_TYPE_PNG));
+	bitmaps.push_back(wxBitmap(ApplicationPaths::IconsPath() + "dir_arrow.png", wxBITMAP_TYPE_PNG));
 	pjt_arrow = new wxStaticBitmap(projectToggler, ID_PJT_TOOLS_ARROW, wxBitmapBundle::FromBitmaps(bitmaps));
 	projectTogglerSizer->Add(pjt_arrow, 0, wxEXPAND);
 
@@ -66,10 +69,10 @@ FilesTree::FilesTree(wxWindow *parent, wxWindowID ID)
 	Bind(wxEVT_PAINT, &FilesTree::OnPaint, this);
 
 	// lincking components of the projectToggler
-	projectToggler->CallForEachChild([=](wxWindow *children)
+	projectToggler->CallForEachChild([this](wxWindow *children)
 									 {
 		//function to toggler view of the projectFilesContainer
-		children->Bind(wxEVT_LEFT_DOWN, [=](wxMouseEvent& event) {
+		children->Bind(wxEVT_LEFT_DOWN, [this](wxMouseEvent& event) {
 			auto arrow_bit = pjt_arrow->GetBitmap();
 			wxVector<wxBitmap> bitmaps;
 
@@ -192,30 +195,30 @@ void FilesTree::CreateFile(
 		{
 			if (file_ext == "png" || file_ext == "jpg" || file_ext == "jpeg")
 			{
-				if (osName == "Windows")
+				if (Platform::OsName() == "Windows")
 				{
-					bitmaps.push_back(wxBitmap(icons_dir + "file_ext" + "\\image_ext.png", wxBITMAP_TYPE_PNG));
+					bitmaps.push_back(wxBitmap(ApplicationPaths::IconsPath() + "file_ext" + "\\image_ext.png", wxBITMAP_TYPE_PNG));
 				}
 				else
 				{
-					bitmaps.push_back(wxBitmap(icons_dir + "file_ext" + "/image_ext.png", wxBITMAP_TYPE_PNG));
+					bitmaps.push_back(wxBitmap(ApplicationPaths::IconsPath() + "file_ext" + "/image_ext.png", wxBITMAP_TYPE_PNG));
 				}
 			}
 			else
 			{
-				bitmaps.push_back(wxBitmap(icons_dir + currentLanguageInfo->icon_path, wxBITMAP_TYPE_PNG));
+				bitmaps.push_back(wxBitmap(ApplicationPaths::GetLanguageIcon(currentLanguageInfo->iconFileName), wxBITMAP_TYPE_PNG));
 			}
 		}
 	}
 	else
 	{
-		if (osName == "Windows")
+		if (Platform::OsName() == "Windows")
 		{
-			bitmaps.push_back(wxBitmap(icons_dir + "file_ext\\no_ext.png", wxBITMAP_TYPE_PNG));
+			bitmaps.push_back(wxBitmap(ApplicationPaths::IconsPath() + "file_ext\\no_ext.png", wxBITMAP_TYPE_PNG));
 		}
 		else
 		{
-			bitmaps.push_back(wxBitmap(icons_dir + "file_ext/no_ext.png", wxBITMAP_TYPE_PNG));
+			bitmaps.push_back(wxBitmap(ApplicationPaths::IconsPath() + "file_ext/no_ext.png", wxBITMAP_TYPE_PNG));
 		}
 	}
 
@@ -233,7 +236,7 @@ void FilesTree::CreateFile(
 	parentSizer->Add(file_container, 0, wxEXPAND | wxLEFT | wxTOP, 2);
 	parentSizer->Layout();
 
-	file_container->CallForEachChild([=](wxWindow *win)
+	file_container->CallForEachChild([this](wxWindow *win)
 									 {
 		win->Bind(wxEVT_ENTER_WINDOW, &FilesTree::OnEnterComp, this);
 		win->Bind(wxEVT_LEAVE_WINDOW, &FilesTree::OnLeaveComp, this); });
@@ -271,7 +274,7 @@ void FilesTree::CreateDir(
 	dir_ctn_sizer->Add(dir_props, 0, wxEXPAND | wxLEFT, 8);
 
 	wxVector<wxBitmap> bitmaps;
-	bitmaps.push_back(wxBitmap(icons_dir + "dir_arrow.png", wxBITMAP_TYPE_PNG));
+	bitmaps.push_back(wxBitmap(ApplicationPaths::IconsPath() + "dir_arrow.png", wxBITMAP_TYPE_PNG));
 	wxStaticBitmap *dir_arrow = new wxStaticBitmap(dir_props, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps));
 	props_sizer->Add(dir_arrow, 0, wxEXPAND | wxTOP, 2);
 
@@ -695,7 +698,7 @@ void FilesTree::OnComponentModified(wxString type, wxString oldPath, wxString ne
 	if (std::filesystem::is_directory(newPath.ToStdString()))
 		isFile = false;
 
-	auto CreateWithPosition = [=]()
+	auto CreateWithPosition = [=, this]()
 	{
 		int position = 0;
 

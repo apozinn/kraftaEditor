@@ -18,7 +18,6 @@ std::string osSlash = "/";
 #endif
 
 wxString project_path = wxString("");
-wxString icons_dir = wxString("");
 wxString current_openned_path = wxString("");
 wxString osName;
 
@@ -29,8 +28,6 @@ std::string appExecutablePath;
 std::string applicationPath;
 
 std::string project_name;
-std::string assetsDir;
-
 std::string config_path;
 
 json UserTheme;

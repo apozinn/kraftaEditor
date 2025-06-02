@@ -12,7 +12,7 @@ public:
 		SetBackgroundColour(wxColor(background_color));
 		sizer = new wxBoxSizer(wxVERTICAL);
 
-		wxImagePanel* logo = new wxImagePanel(this, assetsDir + "emptyWindowLogo.png", wxBITMAP_TYPE_PNG);
+		wxImagePanel* logo = new wxImagePanel(this, ApplicationPaths::AssetsPath() + "emptyWindowLogo.png", wxBITMAP_TYPE_PNG);
 		sizer->AddStretchSpacer();
 		sizer->Add(logo, 0, wxALL | wxALIGN_CENTER, 10);
 		sizer->AddStretchSpacer();

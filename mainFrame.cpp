@@ -13,7 +13,7 @@ MainFrame::MainFrame(const wxString &title)
 {
     // set the app icon
     wxIcon app_icon;
-    app_icon.LoadFile(assetsDir + "kraftaEditor.png", wxBITMAP_TYPE_PNG);
+    app_icon.LoadFile(ApplicationPaths::AssetsPath() + "kraftaEditor.png", wxBITMAP_TYPE_PNG);
     if (app_icon.IsOk())
     {
         SetIcon(app_icon);

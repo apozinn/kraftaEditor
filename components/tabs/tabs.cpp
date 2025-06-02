@@ -1,4 +1,5 @@
 #include "tabs.hpp"
+#include "path/path.hpp"
 
 Tabs::Tabs(wxPanel *parent, wxWindowID ID) : wxPanel(parent, ID)
 {
@@ -11,7 +12,7 @@ Tabs::Tabs(wxPanel *parent, wxWindowID ID) : wxPanel(parent, ID)
 	tabsContainer->SetSizerAndFit(tabsContainerSizer);
 
 	wxVector<wxBitmap> bitmaps;
-	bitmaps.push_back(wxBitmap(icons_dir + "menu_down.png", wxBITMAP_TYPE_PNG));
+	bitmaps.push_back(wxBitmap(ApplicationPaths::IconsPath() + "menu_down.png", wxBITMAP_TYPE_PNG));
 	menu = new wxStaticBitmap(this, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps));
 	menu->Bind(wxEVT_LEFT_UP, &Tabs::OnMenu, this);
 
@@ -86,7 +87,7 @@ void Tabs::Add(wxString tab_name, wxString path)
 		currentLanguageInfo = &languages_prefs[0];
 
 	wxVector<wxBitmap> bitmaps_;
-	bitmaps_.push_back(wxBitmap(icons_dir + currentLanguageInfo->icon_path, wxBITMAP_TYPE_PNG));
+	bitmaps_.push_back(wxBitmap(ApplicationPaths::GetLanguageIcon(currentLanguageInfo->iconFileName), wxBITMAP_TYPE_PNG));
 	wxStaticBitmap *ico = new wxStaticBitmap(tab_infos, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps_));
 	tab_infos_sizer->Add(ico, 0, wxALIGN_CENTER | wxLEFT, 10);
 
@@ -97,7 +98,7 @@ void Tabs::Add(wxString tab_name, wxString path)
 	tab_infos_sizer->Add(name, 1, wxEXPAND | wxLEFT | wxRIGHT, 6);
 
 	wxVector<wxBitmap> bitmaps;
-	bitmaps.push_back(wxBitmap(wxBitmap(icons_dir + "close.png", wxBITMAP_TYPE_PNG)));
+	bitmaps.push_back(wxBitmap(wxBitmap(ApplicationPaths::IconsPath() + "close.png", wxBITMAP_TYPE_PNG)));
 	wxStaticBitmap *close_icon = new wxStaticBitmap(tab_infos, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps));
 	close_icon->Bind(wxEVT_LEFT_UP, &Tabs::OnCloseTab, this);
 	tab_infos_sizer->Add(close_icon, 0, wxALIGN_CENTER | wxRIGHT, 10);
@@ -291,7 +292,7 @@ void Tabs::OnEnterComp(wxMouseEvent &event)
 				if (codeEditor->GetModify())
 				{
 					icon->Show();
-					icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(icons_dir + "close.png", wxBITMAP_TYPE_PNG)));
+					icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(ApplicationPaths::IconsPath() + "close.png", wxBITMAP_TYPE_PNG)));
 				}
 			}
 		}
@@ -310,11 +311,11 @@ void Tabs::OnLeaveComp(wxMouseEvent &event)
 			auto codeEditor = ((wxStyledTextCtrl *)codeContainer->GetChildren()[0]);
 			if (codeEditor->GetModify())
 			{
-				icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(icons_dir + "white_circle.png", wxBITMAP_TYPE_PNG)));
+				icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(ApplicationPaths::IconsPath() + "white_circle.png", wxBITMAP_TYPE_PNG)));
 			}
 			else
 			{
-				icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(icons_dir + "close.png", wxBITMAP_TYPE_PNG)));
+				icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(ApplicationPaths::IconsPath() + "close.png", wxBITMAP_TYPE_PNG)));
 			}
 		}
 	}

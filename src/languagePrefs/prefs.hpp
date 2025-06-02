@@ -78,6 +78,7 @@ extern const CommonInfo g_CommonPrefs;
 struct LanguageInfo
 {
 	const char *name;
+	const char *iconFileName;
 	const char *filepattern;
 	int lexer;
 	struct
@@ -86,7 +87,6 @@ struct LanguageInfo
 		const char *words;
 	} styles[STYLE_TYPES_COUNT];
 	int folds;
-	wxString icon_path;
 };
 
 extern const LanguageInfo languages_prefs[];
