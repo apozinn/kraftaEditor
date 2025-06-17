@@ -1,72 +1,113 @@
+# **Krafta Editor**  
+
 <div align="center">
-<img width="200" src="https://raw.githubusercontent.com/apozinn/kraftaEditor/refs/heads/main/assets/kraftaEditor.png">
+  <img width="200" src="https://raw.githubusercontent.com/apozinn/kraftaEditor/refs/heads/main/assets/kraftaEditor.png" alt="Krafta Editor Logo">
+  
+  <h1 style="font-size: 2.5rem; margin: 0.5em 0">Krafta Editor</h1>
+  
+  <p style="font-size: 1.2rem; max-width: 600px; margin: 0 auto">
+    A fast, lightweight, and cross-platform code editor built with C++ and wxWidgets
+  </p>
+  
+  <div>
+    <img src="https://img.shields.io/badge/C++-17+-00599C?logo=cplusplus" alt="C++ 17+">
+    <img src="https://img.shields.io/badge/wxWidgets-3.1+-0078D6?logo=windowsterminal" alt="wxWidgets 3.1+">
+    <img src="https://img.shields.io/badge/License-LGPLv3-blue" alt="LGPLv3 License">
+  </div>
 </div>
 
-**<p align="center" style="font-size: 40px; font-weight: bold">Krafta Editor</p>**
+## ✨ **Features**  
 
-<p align="center">Fast, lightweight and cross-platform code editor</p>
+- **Blazing fast performance** with native C++ core  
+- **Cross-platform** (Windows, Linux, macOS)  
+- **Modern and customizable interface** with wxWidgets  
+- **Syntax highlighting** for multiple programming languages  
+- **Lightweight** compared to Electron-based editors  
+- **Intuitive interface** focused on productivity  
 
-#
+![Krafta Editor Screenshot](https://i.imgur.com/cj3d00m.png)  
 
-<img src="https://i.imgur.com/cj3d00m.png">
+## 🚀 **Getting Started**  
 
-Written in c++. Krafta Editor was created to be fast, efficient and cross-platform(with GUI framework [wxWidgets](https://wxwidgets.org)).
+### Prerequisites
 
-# Purpose
+| Platform       | Requirements |
+|---------------|-------------|
+| **All**       | CMake ≥ 3.21, C++20 compiler |
+| **Linux**     | GTK3, wxGTK |
+| **macOS**     | Xcode Command Line Tools |
+| **Windows**   | Visual Studio 2022+ | 
 
-With a focus on performance, functionality, Krafta tries to bring all the necessary tools to edit any code, in any language, and still with a modern and intuitive interface.
+### **Note**
+Alternatively, you can leverage CMake's FetchContent module to automatically download and integrate **wxWidgets**. While this simplifies the initial setup, be aware that it will download the complete **wxWidgets** source code, resulting in a much larger build directory.
 
-### System Requirements
+### **Installation**  
 
-To get started with this project, ensure you have the following tools and libraries:
+#### **Linux (Debian/Ubuntu)**  
+```bash
+sudo apt install build-essential cmake libgtk-3-dev libwxgtk3.0-gtk3-dev
+```  
 
-- **CMake (Version 3.14 or later):** Essential for building and managing the project files.
-- **C++ Compiler:** Compatible with Clang, GCC, or MSVC. Choose one based on your development environment.
-- **GTK3 Development Libraries (for Linux users):** Necessary for GUI development on Linux platforms.
+#### **macOS (Homebrew)**  
+```bash
+brew install cmake wxwidgets
+```  
 
-### Building the Project
+#### **Windows**  
+- Install [CMake](https://cmake.org/download/)  
+- Install [wxWidgets](https://www.wxwidgets.org/downloads/)  
+- Install **Visual Studio** with C++ support  
 
-#### Debug
-
-Follow these steps to build the project:
-
-1. **Create a build directory & configure the build:**
-   ```bash
-   cmake -S. -Bbuild
-   ```
-
-2. **Build the project:**
-   ```bash
-   cmake --build build -j
-   ```
-
-This will create a `build` directory and compile all necessary artifacts there. The main executable will be located in `build/`.
-
-#### Release
-
-For release build use `--config Release` on Windows:
+### **Building from Source**  
 
 ```bash
-cmake -S. -Bbuild
-cmake --build build -j --config Release
-```
+# Clone the repository
+git clone https://github.com/apozinn/kraftaEditor.git
+cd kraftaEditor
 
-Artifacts for both configurations will be generated in the `build` directory.
+# Configure (Debug build)
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
 
-On Mac or Linux you'll need to maintain two build trees:
+# Build
+cmake --build build --parallel
 
-```bash
-cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Debug
-cmake --build build -j
-cmake -S. -Bbuild-rel -DCMAKE_BUILD_TYPE=Release
-cmake --build build-rel -j
-```
-# Contributing
+# Run
+./build/bin/KraftaEditor
+```  
 
-Any help that will improve and implement the project is welcome. Feel free to send suggestions, revisions or new features.
+### Build Options:
 
-# License
+``` 
+-DUSE_SYSTEM_WXWIDGETS=ON - Use system wxWidgets
 
-Copyright (c) Okarin Softwares. All rights reserved.
+-DENABLE_TESTS=ON - Build test suite
 
-Licensed under the [GNU LGPLv3](https://github.com/apozinn/kraftaEditor/blob/main/LICENSE) license.
+-DCMAKE_BUILD_TYPE=Release - Optimized release build
+```  
+
+## 🛠️ **Development**  
+
+Contributions are welcome! Follow these steps:  
+
+1. **Fork** the repository  
+2. Create a **branch** (`git checkout -b feature/new-feature`)  
+3. **Commit** your changes (`git commit -am 'Add new feature'`)  
+4. **Push** to the branch (`git push origin feature/new-feature`)  
+5. Open a **Pull Request**  
+
+### **Code Style**  
+- Follow the current style (4-space indentation)  
+- Keep commits **clear and concise**  
+- Update documentation when needed  
+
+## 📜 **License**  
+
+Krafta Editor is licensed under the [GNU LGPLv3](https://github.com/apozinn/kraftaEditor/blob/main/LICENSE).  
+
+Copyright © 2023 Okarin Softwares. All rights reserved.  
+
+## 🤝 **Support**  
+
+Questions, suggestions, or bug reports?  
+- [Open an **Issue**](https://github.com/apozinn/kraftaEditor/issues)  
+- Join our [**Discord**](#) (coming soon)  
