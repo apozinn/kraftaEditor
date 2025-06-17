@@ -1,7 +1,7 @@
 # **Krafta Editor**  
 
 <div align="center">
-  <img width="200" src="https://raw.githubusercontent.com/apozinn/kraftaEditor/refs/heads/main/assets/kraftaEditor.png" alt="Krafta Editor Logo">
+  <img width="200" src="https://raw.githubusercontent.com/apozinn/kraftaEditor/refs/heads/main/assets/images/kraftaEditor.png" alt="Krafta Editor Logo">
   
   <h1 style="font-size: 2.5rem; margin: 0.5em 0">Krafta Editor</h1>
   
