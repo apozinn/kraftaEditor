@@ -610,6 +610,10 @@ void MainFrame::OnEditSettings(wxCommandEvent &WXUNUSED(event))
     }
 }
 
+void MainFrame::OnExit(wxCommandEvent& WXUNUSED(event)) {
+    Close(true);
+}
+
 void MainFrame::OnClose(wxCloseEvent &WXUNUSED(event))
 {
     m_tabs->CloseAll();
@@ -646,12 +650,12 @@ EVT_MENU(+Event::Edit::ToggleBlockComment, CodeContainer::ToggleCommentBlock)
 EVT_MENU(+Event::Edit::SelectLine, CodeContainer::OnSelectLine)
 EVT_MENU(+Event::Edit::SelectAll, CodeContainer::OnSelectAll)
 EVT_MENU(+Event::File::Save, CodeContainer::OnSave)
-
 EVT_MENU(+Event::Frame::NewWindow, MainFrame::OnNewWindow)
 EVT_MENU(+Event::Project::OpenFolder, MainFrame::OnOpenFolderMenu)
 EVT_MENU(+Event::File::OpenFile, MainFrame::OnOpenFile)
 EVT_MENU(+Event::File::CloseAll, MainFrame::CloseAllFiles)
 EVT_MENU(+Event::Project::CloseFolder, MainFrame::OnCloseFolder)
+EVT_MENU(+Event::Frame::Exit, MainFrame::OnExit)
 EVT_CLOSE(MainFrame::OnClose)
 EVT_MENU(+Event::Frame::About, MainFrame::OnAbout)
 EVT_MENU(+Event::View::ToggleCodeSearch, MainFrame::OnToggleSearch)

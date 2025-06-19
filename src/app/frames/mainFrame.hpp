@@ -100,6 +100,7 @@ private:
 
     void CreateWatcher();
     void OnClose(wxCloseEvent& WXUNUSED(event));
+    void OnExit(wxCommandEvent& WXUNUSED(event));
     void OnWatch(wxCommandEvent &event);
     void OnFollowLinks(wxCommandEvent &event);
     void OnAbout(wxCommandEvent &WXUNUSED(event));
