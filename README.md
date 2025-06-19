@@ -110,4 +110,4 @@ Copyright © 2023 Okarin Softwares. All rights reserved.
 
 Questions, suggestions, or bug reports?  
 - [Open an **Issue**](https://github.com/apozinn/kraftaEditor/issues)  
-- Join our [**Discord**](#) (coming soon)  
+- Join our [**Discord**](https://discord.gg/yWzdJbu2KP)
