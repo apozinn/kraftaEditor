@@ -10,6 +10,7 @@ public:
 	void VerifyIfSytemIsDarkMode();
 	void SetupThemeManager();
 	void SetupUserSettings();
+	void SetupLanguagePreferences();
 	bool SetupApplicationDirectories();
 	bool CreateMainWindow();
 	virtual void OnEventLoopEnter(wxEventLoopBase *WXUNUSED(loop)) override;

@@ -38,9 +38,9 @@ void KraftaEditor::VerifyIfSytemIsDarkMode()
     if (systemInfo.IsSystemDark())
     {
         SetAppearance(Appearance::Dark);
-        #if __WXMSW__
-                MSWEnableDarkMode(DarkMode_Always);
-        #endif
+#if __WXMSW__
+        MSWEnableDarkMode(DarkMode_Always);
+#endif
     }
 }
 

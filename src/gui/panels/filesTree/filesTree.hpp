@@ -21,8 +21,6 @@ class FilesTree : public wxPanel
     json Theme = ThemesManager::Get().currentTheme;
     const wxString& iconsDir = ApplicationPaths::AssetsPath("icons");
 	ProjectSettings& projectSettings = ProjectSettings::Get();
-	wxString menuDirPath = wxEmptyString;
-	wxString menuFilePath = wxEmptyString;
 public:
 	wxPanel *projectToggler = nullptr;
 	wxScrolled<wxPanel> *projectFilesContainer;

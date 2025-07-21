@@ -37,8 +37,6 @@ constexpr const LanguageInfo CPP_PREFS = {
 	 {mySTC_TYPE_COMMENT, nullptr},
 	 {mySTC_TYPE_COMMENT_LINE, nullptr},
 	 {mySTC_TYPE_COMMENT_DOC, nullptr},
-	 {mySTC_TYPE_NUMBER, nullptr},
-	 {mySTC_TYPE_WORD1, CppWordlist1}, // KEYWORDS
 	 {mySTC_TYPE_STRING, nullptr},
 	 {mySTC_TYPE_CHARACTER, nullptr},
 	 {mySTC_TYPE_UUID, nullptr},
@@ -47,6 +45,8 @@ constexpr const LanguageInfo CPP_PREFS = {
 	 {mySTC_TYPE_IDENTIFIER, nullptr},
 	 {mySTC_TYPE_STRING_EOL, nullptr},
 	 {mySTC_TYPE_DEFAULT, nullptr}, // VERBATIM
+	 {mySTC_TYPE_WORD1, CppWordlist1}, // KEYWORDS
+	 {mySTC_TYPE_NUMBER, nullptr},
 	 {mySTC_TYPE_REGEX, nullptr},
 	 {mySTC_TYPE_COMMENT_SPECIAL, nullptr}, // DOXY
 	 {mySTC_TYPE_WORD2, CppWordlist2},		// EXTRA WORDS

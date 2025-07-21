@@ -9,24 +9,20 @@ wxString ProjectSettings::GetProjectPath() const {
     return m_projectPath;
 }
 
-void ProjectSettings::SetProjectPath(const wxString& path) {
-    m_projectPath = path;
-}
-
 wxString ProjectSettings::GetProjectName() const {
     return m_projectName;
-}
-
-void ProjectSettings::SetProjectName(const wxString& name) {
-    m_projectName = name;
 }
 
 wxString ProjectSettings::GetCurrentlyFileOpen() const {
     return m_currentlyFileOpen;
 }
 
-void ProjectSettings::SetCurrentlyFileOpen(const wxString& filePath) {
-    m_currentlyFileOpen = filePath;
+wxString ProjectSettings::GetCurrentlyMenuDir() const {
+    return m_menuDirPath;
+}
+
+wxString ProjectSettings::GetCurrentlyMenuFile() const {
+    return m_menuFilePath;
 }
 
 wxString ProjectSettings::GetFullProjectIdentifier() const {
@@ -34,6 +30,26 @@ wxString ProjectSettings::GetFullProjectIdentifier() const {
         return wxEmptyString;
     }
     return wxFileName(m_projectPath, m_projectName).GetFullPath();
+}
+
+void ProjectSettings::SetProjectPath(const wxString& path) {
+    m_projectPath = path;
+}
+
+void ProjectSettings::SetProjectName(const wxString& name) {
+    m_projectName = name;
+}
+
+void ProjectSettings::SetCurrentlyFileOpen(const wxString& filePath) {
+    m_currentlyFileOpen = filePath;
+}
+
+void ProjectSettings::SetCurrentlyMenuDir(const wxString& filePath) {
+    m_menuDirPath = filePath;
+}
+
+void ProjectSettings::SetCurrentlyMenuFile(const wxString& filePath) {
+    m_menuFilePath = filePath;
 }
 
 bool ProjectSettings::IsProjectSet() const {
@@ -44,4 +60,6 @@ void ProjectSettings::ClearProject() {
     m_projectPath.clear();
     m_projectName.clear();
     m_currentlyFileOpen.clear();
+    m_menuDirPath.clear();
+    m_menuFilePath.clear();
 }

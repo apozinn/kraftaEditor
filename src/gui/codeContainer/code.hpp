@@ -32,6 +32,7 @@ public:
 
 	CodeContainer(wxWindow *parent, wxString path);
 	void LoadPath(wxString path);
+	// void SetupSyntaxeStyles(const wxStyledTextCtrl& component);
 
 	// file
 	bool Save(wxString path);

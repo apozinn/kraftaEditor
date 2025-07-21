@@ -5,6 +5,8 @@
 #include "./code.hpp"
 #include <wx/filename.h>
 
+#define STRINGIFY(x) #x
+
 wxBEGIN_EVENT_TABLE(CodeContainer, wxScrolled<wxPanel>)
     wxEND_EVENT_TABLE()
 
@@ -97,7 +99,6 @@ bool CodeContainer::Save(wxString path)
     }
     return false;
 }
-
 
 void CodeContainer::OnSaveAs(wxCommandEvent &WXUNUSED(event))
 {
@@ -237,6 +238,10 @@ void CodeContainer::InitializeLanguagePrefs()
         }
     }
 }
+
+// void CodeContainer::SetupSyntaxeStyles(const wxStyledTextCtrl &component)
+// {
+// }
 
 void CodeContainer::OnToggleMinimapView(wxCommandEvent &WXUNUSED(event))
 {
