@@ -41,7 +41,8 @@ UserSettingsManager::UserSettingsManager()
         {"windowMaximized", true},
         {"windowSizeX", 1000},
         {"windowSizeY", 700},
-        {"dontAskMeAgainFileDelete", false}};
+        {"dontAskMeAgainFileDelete", false},
+        {"dontAskMeAgainDirDelete", false}};
 
     // Load settings during initialization
     try

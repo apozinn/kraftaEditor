@@ -648,18 +648,18 @@ void FilesTree::OnCreateFile(wxCommandEvent &WXUNUSED(event))
 
 void FilesTree::OnDeleteDir(wxCommandEvent &WXUNUSED(event))
 {
-	auto confirmDialog = wxMessageDialog(NULL, "Are you sure you want to delete this folder?", "Delete Folder", wxOK | wxCANCEL);
-	if (confirmDialog.ShowModal() == wxID_OK)
+	auto deleteDir = [=]()
 	{
-		FileOperations::DeleteDir(ProjectSettings::Get().GetCurrentlyMenuDir());
+		wxString currentlyMenuDir = ProjectSettings::Get().GetCurrentlyMenuDir();
 
-		if (wxDirExists(ProjectSettings::Get().GetCurrentlyMenuDir()))
+		FileOperations::DeleteDir(currentlyMenuDir);
+		if (wxDirExists(currentlyMenuDir))
 		{
 			wxLogError("An error occurred while deleting the folder");
 			return;
 		}
 
-		auto targetComp = wxFindWindowByLabel(ProjectSettings::Get().GetCurrentlyMenuDir() + "_dir_container");
+		auto targetComp = wxFindWindowByLabel(currentlyMenuDir + "_dir_container");
 		if (!targetComp)
 			return;
 
@@ -669,6 +669,27 @@ void FilesTree::OnDeleteDir(wxCommandEvent &WXUNUSED(event))
 		ProjectSettings::Get().SetCurrentlyMenuDir(ProjectSettings::Get().GetProjectPath());
 
 		FitContainer(parent);
+	};
+
+	if (UserSettings["dontAskMeAgainDirDelete"] == false)
+	{
+		ConfirmDialog dlg(NULL, "Are you sure you want to delete this dir?", "Delete Dir");
+		int result = dlg.ShowModal();
+
+		if (result == wxID_OK)
+		{
+			bool dontAsk = dlg.DontAskAgain();
+			if (dontAsk)
+			{
+				UserSettings["dontAskMeAgainDirDelete"] = true;
+				UserSettingsManager::Get().Update(UserSettings);
+			}
+			deleteDir();
+		}
+	}
+	else
+	{
+		deleteDir();
 	}
 }
 
