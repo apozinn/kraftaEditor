@@ -6,6 +6,7 @@
 #include "appConstants/appConstants.hpp"
 #include "ui/ids.hpp"
 #include "projectSettings/projectSettings.hpp"
+#include "userSettings/userSettings.hpp"
 
 #include "core/languages/prefs.hpp"
 
@@ -18,9 +19,11 @@ using json = nlohmann::json;
 class FilesTree : public wxPanel
 {
 	wxSizer *sizer = new wxBoxSizer(wxVERTICAL);
-    json Theme = ThemesManager::Get().currentTheme;
-    const wxString& iconsDir = ApplicationPaths::AssetsPath("icons");
-	ProjectSettings& projectSettings = ProjectSettings::Get();
+	json Theme = ThemesManager::Get().currentTheme;
+	const wxString &iconsDir = ApplicationPaths::AssetsPath("icons");
+	ProjectSettings &projectSettings = ProjectSettings::Get();
+	json UserSettings = UserSettingsManager::Get().currentSettings;
+
 public:
 	wxPanel *projectToggler = nullptr;
 	wxScrolled<wxPanel> *projectFilesContainer;

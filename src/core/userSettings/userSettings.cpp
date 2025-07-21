@@ -40,7 +40,8 @@ UserSettingsManager::UserSettingsManager()
         {"show_statusBar", true},
         {"windowMaximized", true},
         {"windowSizeX", 1000},
-        {"windowSizeY", 700}};
+        {"windowSizeY", 700},
+        {"dontAskMeAgainFileDelete", false}};
 
     // Load settings during initialization
     try

@@ -8,20 +8,22 @@
 #include <wx/statline.h>
 #include <wx/statbmp.h>
 #include <wx/graphics.h>
+#include <wx/infobar.h>
 
 #include "platformInfos/platformInfos.hpp"
 #include "gui/widgets/statusBar/statusBar.hpp"
 #include "gui/panels/tabs/tabs.hpp"
 #include "gui/codeContainer/code.hpp"
+#include "gui/widgets/confirmDialog/confirmDialog.hpp"
 
 wxBEGIN_EVENT_TABLE(FilesTree, wxPanel)
 	EVT_MENU(+Event::File::RenameFile, FilesTree::OnFileRename)
-	EVT_MENU(+Event::File::DeleteFileEvent, FilesTree::OnDeleteFile)
-	EVT_MENU(+Event::File::RenameDir, FilesTree::OnDirRename)
-	EVT_MENU(+Event::File::DeleteDir, FilesTree::OnDeleteDir)
-wxEND_EVENT_TABLE()
+		EVT_MENU(+Event::File::DeleteFileEvent, FilesTree::OnDeleteFile)
+			EVT_MENU(+Event::File::RenameDir, FilesTree::OnDirRename)
+				EVT_MENU(+Event::File::DeleteDir, FilesTree::OnDeleteDir)
+					wxEND_EVENT_TABLE()
 
-FilesTree::FilesTree(wxWindow *parent, wxWindowID ID)
+						FilesTree::FilesTree(wxWindow *parent, wxWindowID ID)
 	: wxPanel(parent, ID)
 {
 	// setting the background color
@@ -672,13 +674,33 @@ void FilesTree::OnDeleteDir(wxCommandEvent &WXUNUSED(event))
 
 void FilesTree::OnDeleteFile(wxCommandEvent &WXUNUSED(event))
 {
-	auto confirmDialog = wxMessageDialog(NULL, "Are you sure you want to delete this file?", "Delete file", wxOK | wxCANCEL);
-	if (confirmDialog.ShowModal() == wxID_OK)
+	auto deleteFile = []()
 	{
 		FileOperations::DeleteFileK(ProjectSettings::Get().GetCurrentlyMenuFile());
 
 		if (wxFileExists(ProjectSettings::Get().GetCurrentlyMenuFile()))
 			wxLogError("An error occurred while deleting the file");
+	};
+
+	if (UserSettings["dontAskMeAgainFileDelete"] == false)
+	{
+		ConfirmDialog dlg(NULL, "Are you sure you want to delete this file?", "Delete File");
+		int result = dlg.ShowModal();
+
+		if (result == wxID_OK)
+		{
+			bool dontAsk = dlg.DontAskAgain();
+			if (dontAsk)
+			{
+				UserSettings["dontAskMeAgainFileDelete"] = true;
+				UserSettingsManager::Get().Update(UserSettings);
+			}
+			deleteFile();
+		}
+	}
+	else
+	{
+		deleteFile();
 	}
 }
 
