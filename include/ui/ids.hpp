@@ -52,6 +52,7 @@ namespace GUI
         MainSplitter,                  ///< Main window splitter control
         MainContainerSplitter,         ///< Secondary splitter for containers
         Terminal,                      ///< Integrated terminal emulator widget
+        TerminalCommandInput,          ///< Input where commands are entered
         ControlPanel,                  ///< Auxiliary control panel for commands
         MainContainer,                 ///< Primary container element for central UI
         FilesTree,                     ///< Tree view showing project files structure
@@ -173,7 +174,7 @@ namespace Event
         Exit = ID_BASE_TERMINAL + 2,         ///< Close terminal panel
         ControlUp = ID_BASE_TERMINAL + 3,    ///< Terminal control navigation up
         ControlDown = ID_BASE_TERMINAL + 4,  ///< Terminal control navigation down
-        ControlSelect = ID_BASE_TERMINAL + 5 ///< Terminal control selection
+        ControlSelect = ID_BASE_TERMINAL + 5, ///< Terminal control selection
     };
 
     /**

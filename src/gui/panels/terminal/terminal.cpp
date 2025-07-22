@@ -2,54 +2,60 @@
 #include <wx/txtstrm.h>
 #include <wx/process.h>
 
+#include "projectSettings/projectSettings.hpp"
+#include "ui/ids.hpp"
+
 Terminal::Terminal(wxWindow *parent, wxWindowID ID) : wxPanel(parent, ID)
 {
     SetBackgroundColour(ThemesManager::Get().GetColor("main"));
     wxBoxSizer *sizer = new wxBoxSizer(wxVERTICAL);
-    m_output = new wxTextCtrl(this, wxID_ANY, "",
-                              wxDefaultPosition, wxDefaultSize,
-                              wxTE_MULTILINE | wxTE_READONLY | wxTE_RICH2 | wxBORDER_NONE);
-    m_output->SetBackgroundColour(ThemesManager::Get().GetColor("main"));
-    m_output->SetForegroundColour(ThemesManager::Get().GetColor("text"));
 
-    m_input = new wxTextCtrl(this, wxID_ANY, "",
-                             wxDefaultPosition, wxDefaultSize,
-                             wxTE_PROCESS_ENTER | wxBORDER_NONE);
-    m_input->SetBackgroundColour(ThemesManager::Get().GetColor("main"));
-    m_input->SetForegroundColour(ThemesManager::Get().GetColor("text"));
+    m_commandInput = new wxTextCtrl(
+        this,
+        +GUI::ControlID::TerminalCommandInput,
+        "", wxDefaultPosition,
+        wxDefaultSize,
+        wxTE_MULTILINE | wxTE_PROCESS_ENTER | wxTE_RICH2 | wxBORDER_NONE);
 
-    m_input->SetFocus();
+    m_commandInput->SetBackgroundColour(ThemesManager::Get().GetColor("main"));
+    m_commandInput->SetForegroundColour(ThemesManager::Get().GetColor("text"));
 
-    m_input->Bind(wxEVT_TEXT_ENTER, &Terminal::OnCommand, this);
+    m_commandInput->SetFocus();
 
-    sizer->Add(m_output, 1, wxEXPAND);
-    sizer->Add(m_input, 0, wxEXPAND);
+    m_commandInput->Bind(wxEVT_TEXT_ENTER, &Terminal::OnCommand, this);
+    m_commandInput->Bind(wxEVT_LEFT_DOWN, &Terminal::OnCommandInputClick, this);
+
+    sizer->Add(m_commandInput, 1, wxEXPAND);
     SetSizer(sizer);
+
+    Bind(wxEVT_SHOW, [=](wxShowEvent &WXUNUSED(event))
+         {
+        if(m_commandInput->GetValue().IsEmpty() && !ProjectSettings::Get().GetProjectPath().IsEmpty()) {
+            m_commandInput->AppendText(ProjectSettings::Get().GetProjectPath()+">");
+        } });
 }
 
 void Terminal::OnCommand(wxCommandEvent &WXUNUSED(event))
 {
-    wxString cmd = m_input->GetValue();
-    m_output->AppendText("> " + cmd + "\n");
-    m_input->Clear();
+    wxString command = m_commandInput->GetValue().substr(
+        m_commandInput->GetValue().find_last_of(ProjectSettings::Get().GetProjectPath() + ">") - 1,
+        m_commandInput->GetValue().Len());
 
-    // Cria um processo para capturar a saída
     wxProcess *process = new wxProcess(this);
     process->Redirect();
 
 #ifdef __WINDOWS__
-    long pid = wxExecute("cmd /C " + cmd, wxEXEC_ASYNC, process);
+    long pid = wxExecute("cmd /C " + command, wxEXEC_ASYNC, process);
 #else
     long pid = wxExecute(cmd, wxEXEC_ASYNC, process);
 #endif
 
     if (!pid)
     {
-        m_output->AppendText("Erro ao executar comando\n");
+        m_commandInput->AppendText("Erro ao executar comando\n");
         return;
     }
 
-    // Lê a saída do processo
     wxInputStream *inputStream = process->GetInputStream();
     if (inputStream)
     {
@@ -57,11 +63,10 @@ void Terminal::OnCommand(wxCommandEvent &WXUNUSED(event))
         while (!inputStream->Eof())
         {
             wxString line = textStream.ReadLine();
-            m_output->AppendText(line + "\n");
+            m_commandInput->AppendText(line + "\n");
         }
     }
 
-    // Lê os erros do processo
     wxInputStream *errorStream = process->GetErrorStream();
     if (errorStream)
     {
@@ -69,7 +74,14 @@ void Terminal::OnCommand(wxCommandEvent &WXUNUSED(event))
         while (!errorStream->Eof())
         {
             wxString line = textStream.ReadLine();
-            m_output->AppendText(line + "\n");
+            m_commandInput->AppendText(line + "\n");
         }
     }
+
+    m_commandInput->AppendText(ProjectSettings::Get().GetProjectPath() + ">");
+}
+
+void Terminal::OnCommandInputClick(wxMouseEvent &WXUNUSED(event))
+{
+    m_commandInput->SetInsertionPoint(m_commandInput->GetValue().Len());
 }

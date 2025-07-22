@@ -12,8 +12,8 @@ class Terminal : public wxPanel
 public:
     Terminal(wxWindow *parent, wxWindowID ID);
     void OnCommand(wxCommandEvent &WXUNUSED(event));
+    void OnCommandInputClick(wxMouseEvent &WXUNUSED(event));
 private:
-    wxTextCtrl *m_output;
-    wxTextCtrl *m_input;
+    wxTextCtrl *m_commandInput;
 	json Theme = ThemesManager::Get().currentTheme;
 };
