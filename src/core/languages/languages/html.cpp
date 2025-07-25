@@ -7,6 +7,5 @@ constexpr const LanguageInfo htmlPrefs = {
 	".html",
 	wxSTC_LEX_HTML,
 	{{mySTC_TYPE_DEFAULT, nullptr}},
-	mySTC_FOLD_COMMENT | mySTC_FOLD_COMPACT | mySTC_FOLD_PREPROC,
-	
+	mySTC_FOLD_COMMENT | mySTC_FOLD_COMPACT | mySTC_FOLD_PREPROC
 };

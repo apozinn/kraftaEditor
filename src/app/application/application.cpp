@@ -12,7 +12,13 @@
 #include <wx/msw/darkmode.h>
 #endif
 
-using namespace PlatformInfos;
+#include "languagesPreferences/languagesPreferences.hpp"
+
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+
+
+using namespace PlatformInfos; 
 
 bool KraftaEditor::OnInit()
 {
@@ -29,6 +35,10 @@ bool KraftaEditor::OnInit()
         return false;
 
     CreateMainWindow();
+
+    json lp = LanguagesPreferences::Get().GetLanguagePreferences("html");
+    wxLogMessage(wxString(lp["name"].template get<std::string>()));
+
     return true;
 }
 

@@ -60,6 +60,8 @@
 
 #define mySTC_FLAG_WRAPMODE 16
 
+
+
 struct CommonInfo
 {
 	bool syntaxEnable;
