@@ -1,0 +1,22 @@
+{
+    "name": "go",
+    "icon_file_name": "go",
+    "file_patterns": [
+        "go"
+    ],
+    "lexer_id": 3,
+    "lexer_settings": {
+        "tab_width": 4,
+        "use_spaces": false
+    },
+    "syntax": {
+        "keyword_lists": {
+            "0": "break case chan const continue default defer else fallthrough for func go goto if import interface map package range return select struct switch type var",
+            "1": "true false nil iota",
+            "2": "int string bool float32 float64 rune byte"
+        }
+    },
+    "fold": {
+        "enabled": true
+    }
+}

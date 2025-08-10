@@ -1,0 +1,34 @@
+{
+  "font_default": {
+    "size": 12,
+    "family": "JetBrains Mono"
+  },
+  "styles": {
+    "0":  { "name": "DEFAULT",               "foreground": "#D4D4D4" },
+    "1":  { "name": "COMMENTBLOCK",          "foreground": "#6A9955" },
+    "2":  { "name": "COMMENTLINE",           "foreground": "#6A9955" },
+    "3":  { "name": "COMMENTBLOCKDOC",       "foreground": "#6A9955", "italic": true },
+    "4":  { "name": "COMMENTLINEDOC",        "foreground": "#6A9955", "italic": true },
+    "5":  { "name": "NUMBER",                "foreground": "#B5CEA8" },
+    "6":  { "name": "WORD (keywords)",       "foreground": "#569CD6", "bold": true },
+    "7":  { "name": "WORD2 (types)",         "foreground": "#4EC9B0" },
+    "8":  { "name": "WORD3 (traits)",        "foreground": "#4EC9B0", "italic": true },
+    "9":  { "name": "WORD4 (macros)",        "foreground": "#C586C0" },
+    "10": { "name": "WORD5 (builtins)",      "foreground": "#569CD6" },
+    "11": { "name": "WORD6 (attributes)",    "foreground": "#C586C0" },
+    "12": { "name": "WORD7 (unsafe)",        "foreground": "#F44747" },
+    "13": { "name": "STRING",                "foreground": "#CE9178" },
+    "14": { "name": "STRINGR (raw)",         "foreground": "#CE9178" },
+    "15": { "name": "CHARACTER",             "foreground": "#D7BA7D" },
+    "16": { "name": "OPERATOR",              "foreground": "#D4D4D4" },
+    "17": { "name": "IDENTIFIER",            "foreground": "#D4D4D4" },
+    "18": { "name": "LIFETIME",              "foreground": "#4EC9B0" },
+    "19": { "name": "MACRO",                 "foreground": "#C586C0" },
+    "20": { "name": "LEXERROR",              "foreground": "#F44747", "bold": true },
+    "21": { "name": "BYTESTRING",            "foreground": "#B5CEA8" },
+    "22": { "name": "BYTESTRINGR",           "foreground": "#B5CEA8" },
+    "23": { "name": "BYTECHARACTER",         "foreground": "#B5CEA8" },
+    "24": { "name": "CSTRING",               "foreground": "#CE9178" },
+    "25": { "name": "CSTRINGR",              "foreground": "#CE9178" }
+  }
+}

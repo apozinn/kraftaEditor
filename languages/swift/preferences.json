@@ -1,0 +1,22 @@
+{
+    "name": "swift",
+    "icon_file_name": "swift",
+    "file_patterns": [
+        "swift"
+    ],
+    "lexer_id": 3,
+    "lexer_settings": {
+        "tab_width": 4,
+        "use_spaces": true
+    },
+    "syntax": {
+        "keyword_lists": {
+            "0": "associatedtype class deinit enum extension func import init inout internal let operator private protocol public static struct subscript typealias var break case continue default defer do else fallthrough for guard if in repeat return switch where while",
+            "1": "true false nil",
+            "2": "self Self super"
+        }
+    },
+    "fold": {
+        "enabled": true
+    }
+}

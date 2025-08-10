@@ -1,0 +1,22 @@
+{
+  "font_default": {
+    "size": 12,
+    "family": "JetBrains Mono"
+  },
+  "styles": {
+    "0":  { "name": "DEFAULT",           "foreground": "#000000" },
+    "1":  { "name": "NUMBER",            "foreground": "#098658" },
+    "2":  { "name": "STRING",            "foreground": "#A31515" },
+    "3":  { "name": "STRINGEOL",         "foreground": "#A31515", "background": "#E5140020" },
+    "4":  { "name": "PROPERTYNAME",      "foreground": "#001080" },
+    "5":  { "name": "ESCAPESEQUENCE",    "foreground": "#795E26" },
+    "6":  { "name": "LINECOMMENT",       "foreground": "#008000" },
+    "7":  { "name": "BLOCKCOMMENT",      "foreground": "#008000" },
+    "8":  { "name": "OPERATOR",          "foreground": "#000000" },
+    "9":  { "name": "URI",               "foreground": "#0451A5", "underline": true },
+    "10": { "name": "COMPACTIRI",        "foreground": "#0451A5" },
+    "11": { "name": "KEYWORD",           "foreground": "#0000FF" },
+    "12": { "name": "LDKEYWORD",         "foreground": "#0000FF", "bold": true },
+    "13": { "name": "ERROR",             "foreground": "#E51400", "bold": true }
+  }
+}

@@ -1,0 +1,46 @@
+{
+     "markers": [
+                {
+                    "id": 31,
+                    "symbol": 6,
+                    "foreground": "#FFFFFF",
+                    "background": "#808080"
+                },
+                {
+                    "id": 30,
+                    "symbol": 2,
+                    "foreground": "#FFFFFF",
+                    "background": "#808080"
+                },
+                {
+                    "id": 29,
+                    "symbol": 9,
+                    "foreground": "#FFFFFF",
+                    "background": "#808080"
+                },
+                {
+                    "id": 28,
+                    "symbol": 10,
+                    "foreground": "#FFFFFF",
+                    "background": "#808080"
+                },
+                {
+                    "id": 27,
+                    "symbol": 11,
+                    "foreground": "#FFFFFF",
+                    "background": "#808080"
+                },
+                {
+                    "id": 26,
+                    "symbol": 6,
+                    "foreground": "#FFFFFF",
+                    "background": "#808080"
+                },
+                {
+                    "id": 25,
+                    "symbol": 2,
+                    "foreground": "#FFFFFF",
+                    "background": "#808080"
+                }
+            ]
+}

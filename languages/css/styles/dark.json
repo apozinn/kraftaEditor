@@ -1,0 +1,32 @@
+{
+  "font_default": {
+    "size": 12,
+    "family": "JetBrains Mono"
+  },
+  "styles": {
+    "0":  { "name": "DEFAULT",                   "foreground": "#D4D4D4" },
+    "1":  { "name": "TAG",                       "foreground": "#569CD6" },
+    "2":  { "name": "CLASS",                     "foreground": "#4EC9B0" },
+    "3":  { "name": "PSEUDOCLASS",               "foreground": "#4EC9B0", "italic": true },
+    "4":  { "name": "UNKNOWN_PSEUDOCLASS",       "foreground": "#F44747", "italic": true },
+    "5":  { "name": "OPERATOR",                  "foreground": "#D4D4D4" },
+    "6":  { "name": "IDENTIFIER",                "foreground": "#9CDCFE" },
+    "7":  { "name": "UNKNOWN_IDENTIFIER",        "foreground": "#F44747" },
+    "8":  { "name": "VALUE",                     "foreground": "#CE9178" },
+    "9":  { "name": "COMMENT",                   "foreground": "#6A9955" },
+    "10": { "name": "ID",                        "foreground": "#4EC9B0", "bold": true },
+    "11": { "name": "IMPORTANT",                 "foreground": "#569CD6", "bold": true },
+    "12": { "name": "DIRECTIVE",                 "foreground": "#C586C0" },
+    "13": { "name": "DOUBLESTRING",              "foreground": "#CE9178" },
+    "14": { "name": "SINGLESTRING",              "foreground": "#CE9178" },
+    "15": { "name": "IDENTIFIER2",               "foreground": "#9CDCFE" },
+    "16": { "name": "ATTRIBUTE",                 "foreground": "#9CDCFE" },
+    "17": { "name": "IDENTIFIER3",               "foreground": "#9CDCFE" },
+    "18": { "name": "PSEUDOELEMENT",             "foreground": "#4EC9B0", "italic": true },
+    "19": { "name": "EXTENDED_IDENTIFIER",       "foreground": "#9CDCFE" },
+    "20": { "name": "EXTENDED_PSEUDOCLASS",      "foreground": "#4EC9B0", "italic": true },
+    "21": { "name": "EXTENDED_PSEUDOELEMENT",    "foreground": "#4EC9B0", "italic": true },
+    "22": { "name": "GROUP_RULE",                "foreground": "#569CD6" },
+    "23": { "name": "VARIABLE",                  "foreground": "#9CDCFE", "bold": true }
+  }
+}

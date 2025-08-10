@@ -3,7 +3,6 @@
 #include "themesManager/themesManager.hpp"
 #include "appPaths/appPaths.hpp"
 #include "appConstants/appConstants.hpp"
-#include "core/languages/prefs.hpp"
 #include "projectSettings/projectSettings.hpp"
 
 #include <nlohmann/json.hpp>

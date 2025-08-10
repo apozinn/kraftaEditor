@@ -1,0 +1,36 @@
+{
+  "font_default": {
+    "size": 12,
+    "family": "JetBrains Mono"
+  },
+  "styles": {
+    "0":  { "name": "DEFAULT",                       "foreground": "#D4D4D4" },
+    "1":  { "name": "COMMENT (block)",               "foreground": "#6A9955" },
+    "2":  { "name": "COMMENTLINE",                   "foreground": "#6A9955" },
+    "3":  { "name": "COMMENTDOC",                    "foreground": "#6A9955" },
+    "4":  { "name": "NUMBER",                        "foreground": "#B5CEA8" },
+    "5":  { "name": "WORD (keywords)",               "foreground": "#569CD6", "bold": true },
+    "6":  { "name": "STRING",                        "foreground": "#CE9178" },
+    "7":  { "name": "CHARACTER",                     "foreground": "#D7BA7D" },
+    "8":  { "name": "UUID",                          "foreground": "#B8D7A3" },
+    "9":  { "name": "PREPROCESSOR",                  "foreground": "#C586C0" },
+    "10": { "name": "OPERATOR",                      "foreground": "#D4D4D4" },
+    "11": { "name": "IDENTIFIER",                    "foreground": "#D4D4D4" },
+    "12": { "name": "STRINGEOL",                     "foreground": "#CE9178", "background": "#F4474720" },
+    "13": { "name": "VERBATIM",                      "foreground": "#CE9178" },
+    "14": { "name": "REGEX",                         "foreground": "#D16969" },
+    "15": { "name": "COMMENTLINEDOC",                "foreground": "#6A9955" },
+    "16": { "name": "WORD2 (types)",                 "foreground": "#4EC9B0" },
+    "17": { "name": "COMMENTDOCKEYWORD",             "foreground": "#C8C8C8" },
+    "18": { "name": "COMMENTDOCKEYWORDERROR",        "foreground": "#F44747" },
+    "19": { "name": "GLOBALCLASS",                   "foreground": "#4EC9B0", "bold": true },
+    "20": { "name": "STRINGRAW",                     "foreground": "#CE9178" },
+    "21": { "name": "TRIPLEVERBATIM",                "foreground": "#CE9178" },
+    "22": { "name": "HASHQUOTEDSTRING",              "foreground": "#CE9178" },
+    "23": { "name": "PREPROCESSORCOMMENT",           "foreground": "#6A9955" },
+    "24": { "name": "PREPROCESSORCOMMENTDOC",        "foreground": "#6A9955" },
+    "25": { "name": "USERLITERAL",                   "foreground": "#B5CEA8" },
+    "26": { "name": "TASKMARKER",                    "foreground": "#C586C0", "italic": true },
+    "27": { "name": "ESCAPESEQUENCE",                "foreground": "#D7BA7D" }
+  }
+}

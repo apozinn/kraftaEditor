@@ -1,5 +1,12 @@
 #include "filesTree.hpp"
 
+#include "platformInfos/platformInfos.hpp"
+#include "gui/widgets/statusBar/statusBar.hpp"
+#include "gui/panels/tabs/tabs.hpp"
+#include "gui/codeContainer/code.hpp"
+#include "gui/widgets/confirmDialog/confirmDialog.hpp"
+#include "languagesPreferences/languagesPreferences.hpp"
+
 #include <vector>
 #include <wx/scrolwin.h>
 #include <wx/wfstream.h>
@@ -9,12 +16,6 @@
 #include <wx/statbmp.h>
 #include <wx/graphics.h>
 #include <wx/infobar.h>
-
-#include "platformInfos/platformInfos.hpp"
-#include "gui/widgets/statusBar/statusBar.hpp"
-#include "gui/panels/tabs/tabs.hpp"
-#include "gui/codeContainer/code.hpp"
-#include "gui/widgets/confirmDialog/confirmDialog.hpp"
 
 wxBEGIN_EVENT_TABLE(FilesTree, wxPanel)
 	EVT_MENU(+Event::File::RenameFile, FilesTree::OnFileRename)
@@ -162,31 +163,6 @@ void FilesTree::CreateFile(
 	file_container->Bind(wxEVT_LEFT_UP, &FilesTree::OnFileSelect, this);
 	wxBoxSizer *file_ctn_sizer = new wxBoxSizer(wxHORIZONTAL);
 
-	LanguageInfo const *currentLanguageInfo = &languages_prefs[0];
-	LanguageInfo const *currentInfo;
-	int languageNr;
-
-	bool found = false;
-	for (languageNr = 0; languageNr < languages_prefs_size; languageNr++)
-	{
-		currentInfo = &languages_prefs[languageNr];
-		wxString filepattern = currentInfo->filepattern;
-		filepattern.Lower();
-
-		while (!filepattern.empty() && !found)
-		{
-			wxString cur = filepattern.BeforeFirst(';');
-			if ((cur == path) ||
-				(cur == (path.BeforeLast('.') + ".*")) ||
-				(cur == ("*." + path.AfterLast('.'))))
-			{
-				found = true;
-				currentLanguageInfo = currentInfo;
-			}
-			filepattern = filepattern.AfterFirst(';');
-		}
-	}
-
 	wxVector<wxBitmap> bitmaps;
 	auto last_dot = path.find_last_of(".");
 	if (last_dot != std::string::npos)
@@ -200,7 +176,7 @@ void FilesTree::CreateFile(
 			}
 			else
 			{
-				bitmaps.push_back(wxBitmap(ApplicationPaths::GetLanguageIcon(currentLanguageInfo->iconFileName), wxBITMAP_TYPE_PNG));
+				bitmaps.push_back(wxBitmap(LanguagesPreferences::Get().GetLanguageIconPath(path), wxBITMAP_TYPE_PNG));
 			}
 		}
 	}

@@ -1,0 +1,22 @@
+{
+    "name": "ruby",
+    "icon_file_name": "ruby",
+    "file_patterns": [
+        "rb"
+    ],
+    "lexer_id": 22,
+    "lexer_settings": {
+        "tab_width": 2,
+        "use_spaces": true
+    },
+    "syntax": {
+        "keyword_lists": {
+            "0": "__ENCODING__ __LINE__ __FILE__ BEGIN END alias and begin break case class def defined? do else elsif end ensure false for if in module next nil not or redo rescue retry return self super then true undef unless until when while yield",
+            "1": "require include extend attr_reader attr_writer attr_accessor",
+            "2": "Array Hash String Integer Float Symbol"
+        }
+    },
+    "fold": {
+        "enabled": true
+    }
+}

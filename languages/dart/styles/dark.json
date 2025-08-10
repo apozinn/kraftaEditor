@@ -1,0 +1,35 @@
+{
+  "font_default": {
+    "size": 12,
+    "family": "JetBrains Mono"
+  },
+  "styles": {
+    "0":  { "name": "DEFAULT",               "foreground": "#D4D4D4" },
+    "1":  { "name": "COMMENTLINE",           "foreground": "#6A9955" },
+    "2":  { "name": "COMMENTLINEDOC",        "foreground": "#6A9955", "italic": true },
+    "3":  { "name": "COMMENTBLOCK",          "foreground": "#6A9955" },
+    "4":  { "name": "COMMENTBLOCKDOC",       "foreground": "#6A9955", "italic": true },
+    "5":  { "name": "STRING_SQ",             "foreground": "#CE9178" },
+    "6":  { "name": "STRING_DQ",             "foreground": "#CE9178" },
+    "7":  { "name": "TRIPLE_STRING_SQ",      "foreground": "#CE9178", "italic": true },
+    "8":  { "name": "TRIPLE_STRING_DQ",      "foreground": "#CE9178", "italic": true },
+    "9":  { "name": "RAWSTRING_SQ",          "foreground": "#CE9178" },
+    "10": { "name": "RAWSTRING_DQ",          "foreground": "#CE9178" },
+    "11": { "name": "TRIPLE_RAWSTRING_SQ",   "foreground": "#CE9178", "italic": true },
+    "12": { "name": "TRIPLE_RAWSTRING_DQ",   "foreground": "#CE9178", "italic": true },
+    "13": { "name": "ESCAPECHAR",            "foreground": "#D7BA7D" },
+    "14": { "name": "IDENTIFIER",            "foreground": "#D4D4D4" },
+    "15": { "name": "IDENTIFIER_STRING",     "foreground": "#9CDCFE" },
+    "16": { "name": "OPERATOR",              "foreground": "#D4D4D4" },
+    "17": { "name": "OPERATOR_STRING",       "foreground": "#D4D4D4" },
+    "18": { "name": "SYMBOL_IDENTIFIER",     "foreground": "#D7BA7D" },
+    "19": { "name": "SYMBOL_OPERATOR",       "foreground": "#D7BA7D" },
+    "20": { "name": "NUMBER",                "foreground": "#B5CEA8" },
+    "21": { "name": "KEY",                   "foreground": "#9CDCFE" },
+    "22": { "name": "METADATA",              "foreground": "#C586C0" },
+    "23": { "name": "KW_PRIMARY",            "foreground": "#569CD6", "bold": true },
+    "24": { "name": "KW_SECONDARY",          "foreground": "#569CD6" },
+    "25": { "name": "KW_TERTIARY",           "foreground": "#569CD6", "italic": true },
+    "26": { "name": "KW_TYPE",               "foreground": "#4EC9B0" }
+  }
+}

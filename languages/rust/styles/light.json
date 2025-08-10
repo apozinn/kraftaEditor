@@ -1,0 +1,34 @@
+{
+  "font_default": {
+    "size": 12,
+    "family": "JetBrains Mono"
+  },
+  "styles": {
+    "0":  { "name": "DEFAULT",               "foreground": "#000000" },
+    "1":  { "name": "COMMENTBLOCK",          "foreground": "#008000" },
+    "2":  { "name": "COMMENTLINE",           "foreground": "#008000" },
+    "3":  { "name": "COMMENTBLOCKDOC",       "foreground": "#008000", "italic": true },
+    "4":  { "name": "COMMENTLINEDOC",        "foreground": "#008000", "italic": true },
+    "5":  { "name": "NUMBER",                "foreground": "#098658" },
+    "6":  { "name": "WORD (keywords)",       "foreground": "#0000FF", "bold": true },
+    "7":  { "name": "WORD2 (types)",         "foreground": "#2B91AF" },
+    "8":  { "name": "WORD3 (traits)",        "foreground": "#2B91AF", "italic": true },
+    "9":  { "name": "WORD4 (macros)",        "foreground": "#AF00DB" },
+    "10": { "name": "WORD5 (builtins)",      "foreground": "#0000FF" },
+    "11": { "name": "WORD6 (attributes)",    "foreground": "#AF00DB" },
+    "12": { "name": "WORD7 (unsafe)",        "foreground": "#E51400" },
+    "13": { "name": "STRING",                "foreground": "#A31515" },
+    "14": { "name": "STRINGR (raw)",         "foreground": "#A31515" },
+    "15": { "name": "CHARACTER",             "foreground": "#795E26" },
+    "16": { "name": "OPERATOR",              "foreground": "#000000" },
+    "17": { "name": "IDENTIFIER",            "foreground": "#000000" },
+    "18": { "name": "LIFETIME",              "foreground": "#2B91AF" },
+    "19": { "name": "MACRO",                 "foreground": "#AF00DB" },
+    "20": { "name": "LEXERROR",              "foreground": "#E51400", "bold": true },
+    "21": { "name": "BYTESTRING",            "foreground": "#098658" },
+    "22": { "name": "BYTESTRINGR",           "foreground": "#098658" },
+    "23": { "name": "BYTECHARACTER",         "foreground": "#098658" },
+    "24": { "name": "CSTRING",               "foreground": "#A31515" },
+    "25": { "name": "CSTRINGR",              "foreground": "#A31515" }
+  }
+}

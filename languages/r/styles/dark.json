@@ -1,0 +1,24 @@
+{
+  "font_default": {
+    "size": 12,
+    "family": "JetBrains Mono"
+  },
+  "styles": {
+    "0":  { "name": "DEFAULT",           "foreground": "#D4D4D4" },
+    "1":  { "name": "COMMENT",           "foreground": "#6A9955" },
+    "2":  { "name": "KWORD",             "foreground": "#569CD6" },
+    "3":  { "name": "BASEKWORD",         "foreground": "#569CD6", "bold": true },
+    "4":  { "name": "OTHERKWORD",        "foreground": "#C586C0" },
+    "5":  { "name": "NUMBER",            "foreground": "#B5CEA8" },
+    "6":  { "name": "STRING",            "foreground": "#CE9178" },
+    "7":  { "name": "STRING2",           "foreground": "#CE9178" },
+    "8":  { "name": "OPERATOR",          "foreground": "#D4D4D4" },
+    "9":  { "name": "IDENTIFIER",        "foreground": "#D4D4D4" },
+    "10": { "name": "INFIX",             "foreground": "#9CDCFE" },
+    "11": { "name": "INFIXEOL",          "foreground": "#9CDCFE" },
+    "12": { "name": "BACKTICKS",         "foreground": "#D7BA7D" },
+    "13": { "name": "RAWSTRING",         "foreground": "#CE9178" },
+    "14": { "name": "RAWSTRING2",        "foreground": "#CE9178" },
+    "15": { "name": "ESCAPESEQUENCE",    "foreground": "#D7BA7D" }
+  }
+}

@@ -72,4 +72,6 @@ namespace ApplicationPaths
      * @note Falls back to "unknown_ext.png" if language icon not found
      */
     wxString GetLanguageIcon(const wxString &languageName);
+
+    wxString GetLanguagePreferencesPath(const wxString& languageName);
 }

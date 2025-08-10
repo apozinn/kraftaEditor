@@ -31,7 +31,7 @@ StatusBar::StatusBar(wxWindow *parent, wxWindowID ID)
 	SetMinSize(wxSize(GetSize().x, 20));
 }
 
-void StatusBar::UpdateComponents(wxString path, wxString format, const char *language)
+void StatusBar::UpdateComponents(wxString path, wxString format, wxString languageName)
 {
 	if(!IsShown() && UserSettings["show_statusBar"] == true) {
 		Show();
@@ -55,7 +55,7 @@ void StatusBar::UpdateComponents(wxString path, wxString format, const char *lan
 	}
 	else
 	{
-		fileExt->SetLabel(wxString(language));
+		fileExt->SetLabel(languageName);
 	}
 
 	Refresh();
@@ -99,4 +99,11 @@ void StatusBar::OnPaint(wxPaintEvent& WXUNUSED(event))
 	dc.SetBrush(wxColor(Theme["border"].template get<std::string>()));
 	dc.SetPen(wxPen(wxColor(Theme["border"].template get<std::string>()), 0.20));
 	dc.DrawLine(0, 0, GetSize().GetWidth(), 0);
+}
+
+void StatusBar::UpdateLanguage(const languagePreferencesStruct& language) {
+	fileExt->SetLabel(wxString(language.preferences["name"].template get<std::string>()));
+
+	Refresh();
+	sizer->Layout();
 }

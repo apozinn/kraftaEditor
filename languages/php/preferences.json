@@ -1,0 +1,23 @@
+{
+    "name": "php",
+    "icon_file_name": "php",
+    "file_patterns": [
+        "php"
+    ],
+    "lexer_id": 69,
+    "lexer_settings": {
+        "tab_width": 4,
+        "use_spaces": true
+    },
+    "syntax": {
+        "keyword_lists": {
+            "0": "__halt_compiler abstract and array as break callable case catch class clone const continue declare default die do echo else elseif empty enddeclare endfor endforeach endif endswitch endwhile eval exit extends final finally fn for foreach function global goto if implements include include_once instanceof insteadof interface isset list namespace new or print private protected public require require_once return static switch throw trait try unset use var while xor yield",
+            "1": "true false null",
+            "2": "$_GET $_POST $_SERVER $_SESSION $_COOKIE"
+        }
+    },
+    "fold": {
+        "enabled": true,
+        "html": true
+    }
+}

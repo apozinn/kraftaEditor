@@ -1,0 +1,24 @@
+{
+    "name": "kotlin",
+    "icon_file_name": "kotlin",
+    "file_patterns": [
+        "kt",
+        "kts"
+    ],
+    "lexer_id": 3,
+    "lexer_settings": {
+        "tab_width": 4,
+        "use_spaces": true
+    },
+    "syntax": {
+        "keyword_lists": {
+            "0": "as as? break class continue do else false for fun if in interface is !in !is null object package return super this throw true try typealias typeof val var when while",
+            "1": "data enum inner internal open private protected public sealed abstract companion object inline noinline crossinline reified external tailrec vararg const operator infix suspend expect actual",
+            "2": "get set field it"
+        }
+    },
+    "fold": {
+        "enabled": true,
+        "compact": true
+    }
+}

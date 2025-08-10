@@ -1,0 +1,32 @@
+{
+  "font_default": {
+    "size": 12,
+    "family": "JetBrains Mono"
+  },
+  "styles": {
+    "0":  { "name": "DEFAULT",                   "foreground": "#000000" },
+    "1":  { "name": "TAG",                       "foreground": "#0000FF" },
+    "2":  { "name": "CLASS",                     "foreground": "#2B91AF" },
+    "3":  { "name": "PSEUDOCLASS",               "foreground": "#2B91AF", "italic": true },
+    "4":  { "name": "UNKNOWN_PSEUDOCLASS",       "foreground": "#E51400", "italic": true },
+    "5":  { "name": "OPERATOR",                  "foreground": "#000000" },
+    "6":  { "name": "IDENTIFIER",                "foreground": "#001080" },
+    "7":  { "name": "UNKNOWN_IDENTIFIER",        "foreground": "#E51400" },
+    "8":  { "name": "VALUE",                     "foreground": "#A31515" },
+    "9":  { "name": "COMMENT",                   "foreground": "#008000" },
+    "10": { "name": "ID",                        "foreground": "#2B91AF", "bold": true },
+    "11": { "name": "IMPORTANT",                 "foreground": "#0000FF", "bold": true },
+    "12": { "name": "DIRECTIVE",                 "foreground": "#AF00DB" },
+    "13": { "name": "DOUBLESTRING",              "foreground": "#A31515" },
+    "14": { "name": "SINGLESTRING",              "foreground": "#A31515" },
+    "15": { "name": "IDENTIFIER2",               "foreground": "#001080" },
+    "16": { "name": "ATTRIBUTE",                 "foreground": "#001080" },
+    "17": { "name": "IDENTIFIER3",               "foreground": "#001080" },
+    "18": { "name": "PSEUDOELEMENT",             "foreground": "#2B91AF", "italic": true },
+    "19": { "name": "EXTENDED_IDENTIFIER",       "foreground": "#001080" },
+    "20": { "name": "EXTENDED_PSEUDOCLASS",      "foreground": "#2B91AF", "italic": true },
+    "21": { "name": "EXTENDED_PSEUDOELEMENT",    "foreground": "#2B91AF", "italic": true },
+    "22": { "name": "GROUP_RULE",                "foreground": "#0000FF" },
+    "23": { "name": "VARIABLE",                  "foreground": "#001080", "bold": true }
+  }
+}

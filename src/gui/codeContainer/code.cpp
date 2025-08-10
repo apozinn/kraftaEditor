@@ -1,16 +1,12 @@
 #include "platformInfos/platformInfos.hpp"
 #include "appConstants/appConstants.hpp"
 #include "core/lexerStyles/lexerStyle.hpp"
+#include "languagesPreferences/languagesPreferences.hpp"
 
 #include "./code.hpp"
 #include <wx/filename.h>
 
-#define STRINGIFY(x) #x
-
-wxBEGIN_EVENT_TABLE(CodeContainer, wxScrolled<wxPanel>)
-    wxEND_EVENT_TABLE()
-
-        CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxScrolled<wxPanel>(parent)
+CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxScrolled<wxPanel>(parent)
 {
     // setting components
     editor = new Editor(this);
@@ -33,9 +29,9 @@ wxBEGIN_EVENT_TABLE(CodeContainer, wxScrolled<wxPanel>)
         font = wxFont(wxFontInfo(10).FaceName("Monospace"));
     }
 
-    LoadPath(path);
     SetName(path);
     SetLabel(path + "_codeContainer");
+    LoadPath(path);
     currentPath = path;
 
     // keyboard shortcuts
@@ -53,18 +49,22 @@ void CodeContainer::LoadPath(wxString path)
     wxFileName file_props(path);
     if (file_props.IsOk() && file_props.FileExists())
     {
+
+        // editor setup
+        editor->SetLabel(path + "_codeEditor");
+        editor->SetName(path);
         editor->LoadFile(path);
         wxString text = editor->GetText().Upper();
-        editor->highlightSTCsyntax(0, editor->GetTextLength(), text);
-        editor->setfoldlevels(0, 0, text);
-        editor->SetLabel(path + "_codeEditor");
+        editor->HighlightSyntax(0, editor->GetTextLength(), text);
+        editor->UpdateFoldLevels(0, 0, text);
 
-        minimap->LoadFile(path);
+        // minimap setup
         minimap->SetLabel(path + "_codeMap");
-
+        minimap->SetName(path);
+        minimap->LoadFile(path);
         statusBar->UpdateCodeLocale(editor);
-        GetFilelanguage(path);
-        InitializeLanguagePrefs();
+
+        languagePreferences = LanguagesPreferences::Get().SetupLanguagesPreferences(this);
     }
     else
     {
@@ -156,92 +156,6 @@ void CodeContainer::OnCloseFile(wxCommandEvent &WXUNUSED(event))
     }
 }
 
-LanguageInfo const *CodeContainer::GetFilelanguage(wxString filename)
-{
-    // searching for the language with this file extension
-    LanguageInfo const *currentInfo;
-    int languageNr;
-
-    bool found = false;
-    for (languageNr = 0; languageNr < languages_prefs_size; languageNr++)
-    {
-        currentInfo = &languages_prefs[languageNr];
-        wxString filepattern = currentInfo->filepattern;
-        filepattern.Lower();
-
-        while (!filepattern.empty() && !found)
-        {
-            wxString cur = filepattern.BeforeFirst(';');
-            if ((cur == filename) ||
-                (cur == (filename.BeforeLast('.') + ".*")) ||
-                (cur == ("*." + filename.AfterLast('.'))))
-            {
-                found = true;
-                currentLanguage = currentInfo;
-            }
-            filepattern = filepattern.AfterFirst(';');
-        }
-    }
-
-    if (!found)
-        currentLanguage = &languages_prefs[0];
-    return currentLanguage;
-}
-
-void CodeContainer::InitializeLanguagePrefs()
-{
-    if (!editor || !minimap)
-        return;
-
-    // setting the lexer
-    editor->SetLexer(currentLanguage->lexer);
-    minimap->SetLexer(currentLanguage->lexer);
-
-    // setting the same font for all styles
-    int Nr;
-    for (Nr = 0; Nr < wxSTC_STYLE_LASTPREDEFINED; Nr++)
-    {
-        editor->StyleSetFont(Nr, font);
-        minimap->StyleSetFont(Nr, font);
-    }
-
-    if (g_CommonPrefs.syntaxEnable)
-    {
-        int keywordnr = 0;
-        for (Nr = 0; Nr < StyleConstants::TYPES_COUNT; Nr++)
-        {
-            if (currentLanguage->styles[Nr].type == -1)
-                continue;
-
-            const StyleInfo &curType = global_lexer_styles[currentLanguage->styles[Nr].type];
-            auto setStyles = [&](wxStyledTextCtrl *component)
-            {
-                component->StyleSetFont(Nr, font);
-                component->StyleSetForeground(Nr, curType.foreground);
-                component->StyleSetBold(Nr, (curType.fontstyle & mySTC_STYLE_BOLD) > 0);
-                component->StyleSetItalic(Nr, (curType.fontstyle & mySTC_STYLE_ITALIC) > 0);
-                component->StyleSetUnderline(Nr, (curType.fontstyle & mySTC_STYLE_UNDERL) > 0);
-                component->StyleSetVisible(Nr, (curType.fontstyle & mySTC_STYLE_HIDDEN) == 0);
-                component->StyleSetCase(Nr, curType.lettercase);
-            };
-
-            const char *pwords = currentLanguage->styles[Nr].words;
-            if (pwords)
-            {
-                editor->SetKeyWords(keywordnr, pwords);
-                minimap->SetKeyWords(keywordnr, pwords);
-                keywordnr += 1;
-            }
-
-            setStyles(editor);
-            setStyles(minimap);
-        }
-    }
-}
-
-// void CodeContainer::SetupSyntaxeStyles(const wxStyledTextCtrl &component)
-// {
-// }
 
 void CodeContainer::OnToggleMinimapView(wxCommandEvent &WXUNUSED(event))
 {

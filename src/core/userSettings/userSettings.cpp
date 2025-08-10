@@ -14,7 +14,7 @@
 
 using json = nlohmann::json;
 
-UserSettingsManager& UserSettingsManager::Get()
+UserSettingsManager &UserSettingsManager::Get()
 {
     static UserSettingsManager instance;
     return instance;
@@ -49,14 +49,14 @@ UserSettingsManager::UserSettingsManager()
     {
         currentSettings = LoadSettingsFromFile();
     }
-    catch (const std::exception& e)
+    catch (const std::exception &e)
     {
         wxLogError("Initial settings load failed: %s", e.what());
         currentSettings = DefaultSettings;
     }
 }
 
-bool UserSettingsManager::Update(const json& data)
+bool UserSettingsManager::Update(const json &data)
 {
     std::lock_guard<std::mutex> lock(settingsMutex);
 
@@ -85,7 +85,7 @@ bool UserSettingsManager::Update(const json& data)
         currentSettings = data;
         return true;
     }
-    catch (const std::exception& e)
+    catch (const std::exception &e)
     {
         wxLogError("Settings update failed: %s", e.what());
         return false;
@@ -111,7 +111,7 @@ json UserSettingsManager::LoadSettingsFromFile()
         json data = json::parse(config_file);
         return MergeWithDefaults(data);
     }
-    catch (const json::exception& e)
+    catch (const json::exception &e)
     {
         wxLogError("JSON parsing error: %s", e.what());
         // Try to create new file if original is corrupted
@@ -141,18 +141,18 @@ void UserSettingsManager::CreateDefaultSettingsFile()
             throw std::runtime_error("Failed to replace settings file with defaults");
         }
     }
-    catch (const std::exception& e)
+    catch (const std::exception &e)
     {
         wxLogError("Failed to create default settings: %s", e.what());
         throw;
     }
 }
 
-json UserSettingsManager::MergeWithDefaults(json& data)
+json UserSettingsManager::MergeWithDefaults(json &data)
 {
     bool needsUpdate = false;
 
-    for (const auto& [key, value] : DefaultSettings.items())
+    for (const auto &[key, value] : DefaultSettings.items())
     {
         if (!data.contains(key))
         {
@@ -163,7 +163,7 @@ json UserSettingsManager::MergeWithDefaults(json& data)
 
     if (needsUpdate)
     {
-        Update(data); 
+        Update(data);
     }
 
     return data;

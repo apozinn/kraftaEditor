@@ -1,0 +1,19 @@
+{
+  "font_default": {
+    "size": 12,
+    "family": "JetBrains Mono"
+  },
+  "styles": {
+    "0":  { "name": "DEFAULT",               "foreground": "#000000" },
+    "1":  { "name": "TAG",                   "foreground": "#0000FF" },
+    "2":  { "name": "TAGUNKNOWN",            "foreground": "#0000FF", "italic": true },
+    "3":  { "name": "ATTRIBUTE",             "foreground": "#001080" },
+    "4":  { "name": "ATTRIBUTEUNKNOWN",      "foreground": "#001080", "italic": true },
+    "5":  { "name": "NUMBER",                "foreground": "#098658" },
+    "6":  { "name": "DOUBLESTRING",          "foreground": "#A31515" },
+    "7":  { "name": "SINGLESTRING",          "foreground": "#A31515" },
+    "8":  { "name": "OTHER",                 "foreground": "#000000" },
+    "9":  { "name": "COMMENT",               "foreground": "#008000" },
+    "10": { "name": "ENTITY",                "foreground": "#795E26" }
+  }
+}

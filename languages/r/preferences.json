@@ -1,0 +1,23 @@
+{
+    "name": "r",
+    "icon_file_name": "r",
+    "file_patterns": [
+        "r",
+        "R"
+    ],
+    "lexer_id": 86,
+    "lexer_settings": {
+        "tab_width": 2,
+        "use_spaces": true
+    },
+    "syntax": {
+        "keyword_lists": {
+            "0": "break else FALSE for function if in Inf NA NaN next NULL repeat return TRUE while",
+            "1": "library ggplot2 lm summary str head tail",
+            "2": "data.frame matrix vector list"
+        }
+    },
+    "fold": {
+        "enabled": true
+    }
+}

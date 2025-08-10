@@ -1,10 +1,9 @@
 #include "tabs.hpp"
 #include "ui/ids.hpp"
-
-// #include "gui/editor/codeEditor/codeEditor.hpp"
 #include "gui/codeContainer/code.hpp"
 #include "gui/panels/filesTree/filesTree.hpp"
 #include "gui/widgets/statusBar/statusBar.hpp"
+#include "languagesPreferences/languagesPreferences.hpp"
 
 #include <wx/graphics.h>
 
@@ -65,33 +64,8 @@ void Tabs::Add(wxString tab_name, wxString path)
 	wxPanel *tab_infos = new wxPanel(new_tab);
 	wxBoxSizer *tab_infos_sizer = new wxBoxSizer(wxHORIZONTAL);
 
-	LanguageInfo const *currentLanguageInfo = &languages_prefs[0];
-	LanguageInfo const *currentInfo;
-	int languageNr;
-
-	bool found = false;
-	for (languageNr = 0; languageNr < languages_prefs_size; languageNr++)
-	{
-		currentInfo = &languages_prefs[languageNr];
-		wxString filepattern = currentInfo->filepattern;
-		filepattern.Lower();
-
-		while (!filepattern.empty() && !found)
-		{
-			wxString cur = filepattern.BeforeFirst(';');
-			if ((cur == path) ||
-				(cur == (path.BeforeLast('.') + ".*")) ||
-				(cur == ("*." + path.AfterLast('.'))))
-			{
-				found = true;
-				currentLanguageInfo = currentInfo;
-			}
-			filepattern = filepattern.AfterFirst(';');
-		}
-	}
-
 	wxVector<wxBitmap> bitmaps_;
-	bitmaps_.push_back(wxBitmap(ApplicationPaths::GetLanguageIcon(currentLanguageInfo->iconFileName), wxBITMAP_TYPE_PNG));
+	bitmaps_.push_back(wxBitmap(LanguagesPreferences::Get().GetLanguageIconPath(path), wxBITMAP_TYPE_PNG));
 	wxStaticBitmap *ico = new wxStaticBitmap(tab_infos, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps_));
 	tab_infos_sizer->Add(ico, 0, wxALIGN_CENTER | wxLEFT, 10);
 
@@ -239,7 +213,7 @@ void Tabs::Select()
 	if (codeContainer)
 	{
 		codeContainer->Show();
-		statusBar->UpdateComponents(ProjectSettings::Get().GetCurrentlyFileOpen(), "text", codeContainer->currentLanguage->name);
+		// statusBar->UpdateComponents(ProjectSettings::Get().GetCurrentlyFileOpen(), "text", wxString(codeContainer->languagePreferences.preferences["name"].template get<std::string>()));
 	}
 
 	if (imageContainer)

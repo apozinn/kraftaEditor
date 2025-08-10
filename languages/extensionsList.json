@@ -1,0 +1,54 @@
+{
+  ".cmake": "cmake",
+
+  ".cpp": "c++",
+  ".cc": "c++",
+  ".cxx": "c++",
+  ".hpp": "c++",
+  ".h": "c++",
+
+  ".cs": "csharp",
+
+  ".css": "css",
+
+  ".dart": "dart",
+
+  ".go": "go",
+
+  ".html": "html",
+  ".htm": "html",
+
+  ".java": "java",
+
+  ".js": "javascript",
+  ".mjs": "javascript",
+  ".cjs": "javascript",
+
+  ".json": "json",
+
+  ".kt": "kotlin",
+  ".kts": "kotlin",
+
+  ".md": "markdown",
+
+  ".php": "php",
+  ".phtml": "php",
+
+  ".py": "python",
+  ".pyw": "python",
+
+  ".r": "r",
+
+  ".rb": "ruby",
+  ".erb": "ruby",
+
+  ".rs": "rust",
+
+  ".scala": "scala",
+  ".sc": "scala",
+
+  ".swift": "swift",
+
+  ".ts": "typescript",
+  ".tsx": "typescript"
+}

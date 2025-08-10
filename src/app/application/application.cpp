@@ -6,17 +6,15 @@
 #include "appConstants/appConstants.hpp"
 #include "themesManager/themesManager.hpp"
 #include "userSettings/userSettings.hpp"
+#include "languagesPreferences/languagesPreferences.hpp"
 
 #if __WXMSW__
 #include <wx/msw/private.h>
 #include <wx/msw/darkmode.h>
 #endif
 
-#include "languagesPreferences/languagesPreferences.hpp"
-
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
-
 
 using namespace PlatformInfos; 
 
@@ -35,9 +33,7 @@ bool KraftaEditor::OnInit()
         return false;
 
     CreateMainWindow();
-
-    json lp = LanguagesPreferences::Get().GetLanguagePreferences("html");
-    wxLogMessage(wxString(lp["name"].template get<std::string>()));
+    LoadLanguagesPreferences();
 
     return true;
 }
@@ -134,4 +130,9 @@ bool KraftaEditor::OnCmdLineParsed(wxCmdLineParser &parser)
     if (parser.GetParamCount())
         m_dirToWatch = parser.GetParam();
     return true;
+}
+
+void KraftaEditor::LoadLanguagesPreferences()
+{
+    LanguagesPreferences::Get();
 }

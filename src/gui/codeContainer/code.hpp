@@ -7,7 +7,6 @@
 
 #include "./editor/editor.hpp"
 #include "./minimap/minimap.hpp"
-#include "core/languages/prefs.hpp"
 
 #include "gui/panels/tabs/tabs.hpp"
 #include "gui/widgets/statusBar/statusBar.hpp"
@@ -24,7 +23,7 @@ public:
 	MiniMap *minimap;
 	wxString currentPath;
 	bool codeMapMouseOver = false;
-	LanguageInfo const *currentLanguage;
+	languagePreferencesStruct languagePreferences;
 	wxPoint codeMapClickPoint = wxPoint(0, 0);
 	StatusBar *statusBar = ((StatusBar *)FindWindowById(+GUI::ControlID::StatusBar));
 	json UserSettings = UserSettingsManager::Get().currentSettings;
@@ -32,7 +31,6 @@ public:
 
 	CodeContainer(wxWindow *parent, wxString path);
 	void LoadPath(wxString path);
-	// void SetupSyntaxeStyles(const wxStyledTextCtrl& component);
 
 	// file
 	bool Save(wxString path);
@@ -61,7 +59,4 @@ public:
 
 private:
 	wxBoxSizer *sizer = new wxBoxSizer(wxHORIZONTAL);
-	LanguageInfo const *GetFilelanguage(wxString filename);
-	void InitializeLanguagePrefs();
-	wxDECLARE_EVENT_TABLE();
 };

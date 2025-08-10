@@ -17,8 +17,6 @@ void Editor::InitializePrefs()
     auto secondaryTextColor = Theme["secondaryText"].template get<std::string>();
 
     SetUseTabs(true);
-    SetTabWidth(4);
-    SetIndent(4);
     SetTabIndents(true);
     SetBackSpaceUnIndents(true);
     SetIndentationGuides(true);
@@ -52,66 +50,13 @@ void Editor::InitializePrefs()
 void Editor::SetFoldPreferences()
 {
     auto backgroundColor = Theme["secondary"].template get<std::string>();
-    auto textColor = Theme["text"].template get<std::string>();
     auto secondaryTextColor = Theme["secondaryText"].template get<std::string>();
-    
-    SetMarginWidth(MY_FOLDMARGIN, 14);
-    SetMarginType(MY_FOLDMARGIN, wxSTC_MARGIN_SYMBOL);
-    SetMarginMask(MY_FOLDMARGIN, wxSTC_MASK_FOLDERS);
+
+    MarkerEnableHighlight(true);
+    SetMarginSensitive(2, true);
+
     SetFoldMarginColour(true, wxColor(backgroundColor));
     SetFoldMarginHiColour(true, wxColor(backgroundColor));
-
-    std::vector<int> marks{wxSTC_MARKNUM_FOLDER,
-                           wxSTC_MARKNUM_FOLDEREND,
-                           wxSTC_MARKNUM_FOLDERMIDTAIL,
-                           wxSTC_MARKNUM_FOLDEROPEN,
-                           wxSTC_MARKNUM_FOLDEROPENMID,
-                           wxSTC_MARKNUM_FOLDERSUB,
-                           wxSTC_MARKNUM_FOLDERTAIL};
-    for (int mark : marks)
-    {
-        MarkerSetBackgroundSelected(mark, wxColor(secondaryTextColor));
-    }
-
-    // Set up the markers that will be shown in the fold margin
-    MarkerDefine(wxSTC_MARKNUM_FOLDER, wxSTC_MARK_ARROW);
-    MarkerSetForeground(wxSTC_MARKNUM_FOLDER, wxColor(backgroundColor));
-    MarkerSetBackground(wxSTC_MARKNUM_FOLDER, wxColor(secondaryTextColor));
-
-    MarkerDefine(wxSTC_MARKNUM_FOLDEREND, wxSTC_MARK_ARROW);
-    MarkerSetForeground(wxSTC_MARKNUM_FOLDEREND, wxColor(backgroundColor));
-    MarkerSetBackground(wxSTC_MARKNUM_FOLDEREND, wxColor(secondaryTextColor));
-
-    MarkerDefine(wxSTC_MARKNUM_FOLDERMIDTAIL, wxSTC_MARK_TCORNER);
-    MarkerSetForeground(wxSTC_MARKNUM_FOLDERMIDTAIL, wxColor(backgroundColor));
-    MarkerSetBackground(wxSTC_MARKNUM_FOLDERMIDTAIL, wxColor(secondaryTextColor));
-
-    MarkerDefine(wxSTC_MARKNUM_FOLDEROPEN, wxSTC_MARK_ARROWDOWN);
-    MarkerSetForeground(wxSTC_MARKNUM_FOLDEROPEN, wxColor(backgroundColor));
-    MarkerSetBackground(wxSTC_MARKNUM_FOLDEROPEN, wxColor(secondaryTextColor));
-
-    MarkerDefine(wxSTC_MARKNUM_FOLDEROPENMID, wxSTC_MARK_ARROWDOWN);
-    MarkerSetForeground(wxSTC_MARKNUM_FOLDEROPENMID, wxColor(backgroundColor));
-    MarkerSetBackground(wxSTC_MARKNUM_FOLDEROPENMID, wxColor(secondaryTextColor));
-
-    MarkerDefine(wxSTC_MARKNUM_FOLDERSUB, wxSTC_MARK_VLINE);
-    MarkerSetForeground(wxSTC_MARKNUM_FOLDERSUB, wxColor(backgroundColor));
-    MarkerSetBackground(wxSTC_MARKNUM_FOLDERSUB, wxColor(secondaryTextColor));
-
-    MarkerDefine(wxSTC_MARKNUM_FOLDERTAIL, wxSTC_MARK_LCORNER);
-    MarkerSetForeground(wxSTC_MARKNUM_FOLDERTAIL, wxColor(backgroundColor));
-    MarkerSetBackground(wxSTC_MARKNUM_FOLDERTAIL, wxColor(secondaryTextColor));
-
-    MarkerDefine(wxSTC_MASK_FOLDERS, wxSTC_MARK_LCORNER);
-    MarkerSetForeground(wxSTC_MASK_FOLDERS, wxColor(backgroundColor));
-    MarkerSetBackground(wxSTC_MASK_FOLDERS, wxColor(secondaryTextColor));
-
-    // Turn the fold markers red when the caret is a line in the group (optional)
-    MarkerEnableHighlight(true);
-
-    // The margin will only respond to clicks if it set sensitive.  Also, connect
-    // the event handler that will do the collapsing/restoring
-    SetMarginSensitive(MY_FOLDMARGIN, true);
 
     Bind(wxEVT_STC_STYLENEEDED, &Editor::OnStyleNeeded, this);
     Bind(wxEVT_STC_MODIFIED, &Editor::OnChange, this);
@@ -122,26 +67,6 @@ void Editor::SetFoldPreferences()
     Bind(wxEVT_STC_AUTOCOMP_COMPLETED, &Editor::OnAutoCompCompleted, this);
     Bind(wxEVT_STC_CLIPBOARD_PASTE, &Editor::OnClipBoardPaste, this);
     Bind(wxEVT_MOUSEWHEEL, &Editor::OnScroll, this);
-
-    // set color for G-Code highlighting
-    StyleSetForeground(19, m_GCodecolor);
-
-    // given the text above, folding should produce this output:
-    SetFoldLevel(0, 1024);
-    SetFoldLevel(1, 1024);
-    SetFoldLevel(2, 1024 | wxSTC_FOLDLEVELHEADERFLAG); // header flag: one item before increasing fold level!
-    SetFoldLevel(3, 1025);                             // here comes the new fold level in line G0 G54 M0
-    SetFoldLevel(4, 1025);                             // the ENDIF
-    SetFoldLevel(5, 1024);                             // and this has the lower fold level again
-    SetFoldLevel(6, 1024 | wxSTC_FOLDLEVELWHITEFLAG);  // this is an empty line: set fold level white flag
-                                                       // setting the fold
-    SetProperty(wxT("fold"), wxT("1"));
-    SetProperty(wxT("fold.comment"), wxT("1"));
-    SetProperty(wxT("fold.compact"), wxT("1"));
-    SetProperty(wxT("fold.preprocessor"), wxT("1"));
-    SetProperty(wxT("fold.html"), wxT("1"));
-    SetProperty(wxT("fold.html.preprocessor"), wxT("1"));
-    SetFoldFlags(wxSTC_FOLDFLAG_LINEBEFORE_CONTRACTED | wxSTC_FOLDFLAG_LINEAFTER_CONTRACTED);
 }
 
 void Editor::OnChange(wxStyledTextEvent &event)
@@ -317,188 +242,136 @@ bool Editor::Modified()
 
 void Editor::OnStyleNeeded(wxStyledTextEvent &WXUNUSED(event))
 {
-    /*this is called every time the styler detects a line that needs style, so we style that range.
-    This will save a lot of performance since we only style text when needed instead of parsing the whole file every time.*/
-    int line_end = LineFromPosition(GetCurrentPos());
-    int line_start = LineFromPosition(GetEndStyled());
-    /*fold level: May need to include the two lines in front because of the fold level these lines have- the line above
-    may be affected*/
-    if (line_start > 1)
+    const int currentLine = LineFromPosition(GetCurrentPos());
+    const int styledLine = LineFromPosition(GetEndStyled());
+
+    int startLine = std::max(0, styledLine - 2);
+    int endLine = currentLine;
+
+    if (GetLineCount() <= LinesOnScreen())
     {
-        line_start -= 2;
+        startLine = 0;
+        endLine = GetLineCount() - 1;
     }
-    else
+    else if (endLine < startLine)
     {
-        line_start = 0;
+        std::swap(startLine, endLine);
     }
-    // if it is so small that all lines are visible, style the whole document
-    if (GetLineCount() == LinesOnScreen())
+
+    if (endLine < GetLineCount() - 1)
     {
-        line_start = 0;
-        line_end = GetLineCount() - 1;
+        endLine++;
     }
-    if (line_end < line_start)
-    {
-        // that happens when you select parts that are in front of the styled area
-        size_t temp = line_end;
-        line_end = line_start;
-        line_start = temp;
-    }
-    // style the line following the style area too (if present) in case fold level decreases in that one
-    if (line_end < GetLineCount() - 1)
-    {
-        line_end++;
-    }
-    // get exact start positions
-    size_t startpos = PositionFromLine(line_start);
-    size_t endpos = (GetLineEndPosition(line_end));
-    int startfoldlevel = GetFoldLevel(line_start);
-    startfoldlevel &= wxSTC_FOLDFLAG_LEVELNUMBERS; // mask out the flags and only use the fold level
-    wxString text = GetTextRange(startpos, endpos).Upper();
-    // call highlighting function
-    this->highlightSTCsyntax(startpos, endpos, text);
-    // calculate and apply foldings
-    this->setfoldlevels(startpos, startfoldlevel, text);
+
+    const size_t startPos = PositionFromLine(startLine);
+    const size_t endPos = GetLineEndPosition(endLine);
+    const int foldLevel = GetFoldLevel(startLine) & wxSTC_FOLDFLAG_LEVELNUMBERS;
+    wxString text = GetTextRange(startPos, endPos).Upper();
+
+    HighlightSyntax(startPos, endPos, text);
+    UpdateFoldLevels(startPos, foldLevel, text);
 }
 
-void Editor::highlightSTCsyntax(size_t fromPos, size_t toPos, wxString &text)
+void Editor::HighlightSyntax(size_t fromPos, size_t toPos, const wxString &text)
 {
-    // this vector will hold the start and end position of each word to highlight
-    // if you want to highlight more than one, you should pass a whole class or struct containing the offsets
-    std::vector<std::pair<size_t, size_t>> GcodeVector;
-    // the following example is a quick and dirty parser for G-Codes.
-    // it just iterates through the Text Range and finds "Gxx" where xx is a digit.
-    // you could also use regex, but one can build a pretty fast routine based on single char evaluation
-    size_t actual_cursorpos = 0;
-    size_t startpos = 0;
-    size_t end_of_text = text.length();
-    bool word_boundary = true; // check for word boundary
-    char actualchar;
-    while (actual_cursorpos < end_of_text)
+    std::vector<std::pair<size_t, size_t>> codeBlocks;
+    bool isWordBoundary = true;
+
+    for (size_t pos = 0; pos < text.length(); ++pos)
     {
-        actualchar = text[actual_cursorpos];
-        // check if syntax matches "G" followed by a couple of numbers
-        if ((actualchar == 'G') && (word_boundary == true))
+        const char currentChar = text[pos];
+
+        if (currentChar == 'G' && isWordBoundary)
         {
-            // this is a new G-Code, store startposition
-            startpos = actual_cursorpos;
-            word_boundary = false;
-            actual_cursorpos++;
-            if (actual_cursorpos < end_of_text)
+            const size_t start = pos;
+            pos++; // Skip 'G'
+
+            while (pos < text.length() && isdigit(text[pos]))
             {
-                // refresh actual character
-                actualchar = text[actual_cursorpos];
+                pos++;
             }
-            // add digits
-            while ((std::isdigit(actualchar) && (actual_cursorpos < end_of_text)))
+
+            if (pos - start > 1 && IsWordBoundary(text, pos))
             {
-                actual_cursorpos++;
-                actualchar = text[actual_cursorpos];
+                codeBlocks.emplace_back(start + fromPos, pos + fromPos);
             }
-            // check if word boundary occurs at end of digits
-            if ((actualchar == ' ') || (actualchar == '\n') || (actualchar == '\r') || (actualchar == '\t') || (actual_cursorpos == end_of_text))
-            {
-                // success, append this one
-                if ((actual_cursorpos - startpos) > 1)
-                {
-                    // success, append to vector. DO NOT FORGET THE OFFSET HERE! We start from fromPos, so we need to add this
-                    GcodeVector.push_back(std::make_pair(startpos + fromPos, actual_cursorpos + fromPos));
-                }
-                word_boundary = true;
-            }
+
+            isWordBoundary = false;
         }
-        if ((actualchar == ' ') || (actualchar == '\n') || (actualchar == '\r') || (actualchar == '\t') || (actual_cursorpos == end_of_text))
-        {
-            word_boundary = true;
-        }
-        actual_cursorpos++;
+
+        isWordBoundary = IsWordBoundary(text, pos);
     }
-    // remove old styling
-    StartStyling(fromPos);          // from here
-    SetStyling(toPos - fromPos, 0); // with that length and style -> cleared
-    // now style the G-Codes
-    for (int i = 0; i < int(GcodeVector.size()); i++)
+
+    ApplySyntaxHighlighting(fromPos, toPos, codeBlocks);
+}
+
+bool Editor::IsWordBoundary(const wxString &text, size_t pos) const
+{
+    if (pos >= text.length())
+        return true;
+    const char c = text[pos];
+    return c == ' ' || c == '\n' || c == '\r' || c == '\t';
+}
+
+void Editor::ApplySyntaxHighlighting(size_t fromPos, size_t toPos,
+                                     const std::vector<std::pair<size_t, size_t>> &blocks)
+{
+    StartStyling(fromPos);
+    SetStyling(toPos - fromPos, STYLE_DEFAULT);
+
+    for (const auto &block : blocks)
     {
-        // size_t startpos = GcodeVector[i].first;
-        size_t endpos = GcodeVector[i].second;
-        size_t length = (endpos - startpos);
-        StartStyling(startpos);
-        SetStyling(length, 19); // must match the style set above
+        StartStyling(block.first);
+        SetStyling(block.second - block.first, STYLE_KEYWORD);
     }
 }
 
-void Editor::setfoldlevels(size_t fromPos, int startfoldlevel, wxString &text)
+void Editor::UpdateFoldLevels(size_t fromPos, int initialFoldLevel, const wxString &text)
 {
-    /*we'll increase the fold level with "IF" and decrease it with "ENDIF".
-    First, find all "IF" included in the text. Then we check if this IF is actually an ENDIF.
-    Keep in mind that you still need to check if this is actually commented out and so on.
-    This is a pretty simple and not perfect example to demonstrate basic folding*/
-    std::vector<size_t> if_positions;
-    size_t actual_cursorpos = 0;
-    while ((actual_cursorpos < text.size()) && (actual_cursorpos != wxNOT_FOUND))
+    std::vector<std::pair<size_t, int>> foldChanges;
+    int currentLevel = initialFoldLevel;
+    size_t pos = 0;
+
+    while ((pos = text.find("IF", pos)) != wxString::npos)
     {
-        actual_cursorpos = text.find("IF", actual_cursorpos + 1);
-        if (actual_cursorpos != wxNOT_FOUND)
-        {
-            if_positions.push_back(actual_cursorpos + fromPos);
-        }
+        const size_t line = LineFromPosition(pos + fromPos);
+        const bool isEndIf = (pos >= 3) && (text.substr(pos - 3, 5)) == "ENDIF";
+
+        currentLevel += isEndIf ? -1 : 1;
+        foldChanges.emplace_back(line, currentLevel);
+        pos += 2;
     }
-    // build a vector to include line and folding level
-    // also, check if this IF is actually an ENDIF
-    std::vector<std::pair<size_t, int>> foldingvector;
-    int actualfoldlevel = startfoldlevel;
-    for (int i = 0; i < int(if_positions.size()); i++)
+
+    ApplyFoldLevels(fromPos, initialFoldLevel, text.length(), foldChanges);
+}
+
+void Editor::ApplyFoldLevels(size_t startPos, int initialLevel, size_t textLength,
+                             const std::vector<std::pair<size_t, int>> &changes)
+{
+    const size_t startLine = LineFromPosition(startPos);
+    const size_t endLine = LineFromPosition(startPos + textLength);
+    int currentLevel = initialLevel;
+    size_t changeIndex = 0;
+
+    for (size_t line = startLine; line <= endLine; ++line)
     {
-        size_t this_line = LineFromPosition(if_positions[i]);
-        // check if that "IF" is an ENDIF
-        wxString endif_string;
-        if (if_positions[i] > 3)
-        { // if string is longer than 3
-            endif_string = text.substr(if_positions[i] - 3 - fromPos, 5);
-        }
-        // if it's an IF the fold level increases, if it's an ENDIF the foldlevel decreases
-        if (endif_string == "ENDIF")
+        int levelFlags = currentLevel | wxSTC_FOLDLEVELBASE;
+
+        if (changeIndex < changes.size() && line == changes[changeIndex].first)
         {
-            actualfoldlevel--;
-            foldingvector.push_back(std::make_pair(this_line, actualfoldlevel));
-        }
-        else
-        {
-            actualfoldlevel++;
-            foldingvector.push_back(std::make_pair(this_line, actualfoldlevel));
-        }
-    }
-    // now that we know which lines shall influence folding, we can apply to folding level to the STC line for line
-    int foldlevel = startfoldlevel; // this is a temporary marker containing the foldlevel of that position
-    size_t vectorcount = 0;
-    // get positions from line from start and end
-    size_t startline = LineFromPosition(fromPos);
-    size_t endline = LineFromPosition(fromPos + text.size());
-    // set folding for these lines
-    for (size_t i = startline; i <= endline; i++)
-    {
-        int prevlevel = foldlevel; // previous foldlevel
-        int foldflag = foldlevel;  // this flag will be applied to the line
-        if ((foldingvector.size() > 0) && (vectorcount < foldingvector.size()))
-        {
-            if (i == foldingvector[vectorcount].first)
-            { // if the fold level changes in that line
-                // new foldlevel = foldlevel in that line
-                foldlevel = foldingvector[vectorcount].second;
-                vectorcount++;
-                if (foldlevel > prevlevel)
-                {
-                    // when incremented, this line keeps the previous fold level (!) but is marked as a folder level header
-                    foldflag = foldflag | wxSTC_FOLDLEVELHEADERFLAG; // incremented, set header flag
-                }
+            currentLevel = changes[changeIndex].second;
+            if (currentLevel > (levelFlags & wxSTC_FOLDLEVELNUMBERMASK))
+            {
+                levelFlags |= wxSTC_FOLDLEVELHEADERFLAG;
             }
+            changeIndex++;
         }
-        foldflag = foldflag | wxSTC_FOLDLEVELBASE; // add 1024 to the fold level
-        if (GetLineLength(i) == 0)
-        { // if this does not contain any characters, set the white flag
-            foldflag = foldflag | wxSTC_FOLDLEVELWHITEFLAG;
+
+        if (GetLineLength(line) == 0)
+        {
+            levelFlags |= wxSTC_FOLDLEVELWHITEFLAG;
         }
-        // finally, set fold level to line
-        SetFoldLevel(i, foldflag);
+
+        SetFoldLevel(line, levelFlags);
     }
 }

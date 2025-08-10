@@ -1,0 +1,25 @@
+{
+    "name": "markdown",
+    "icon_file_name": "markdown",
+    "file_patterns": [
+        "md",
+        "markdown"
+    ],
+    "lexer_id": 98,
+    "lexer_settings": {
+        "tab_width": 4,
+        "use_spaces": true
+    },
+    "syntax": {
+        "keyword_lists": {
+            "0": "# ## ### #### ##### ######",
+            "1": "** * __ _ ~~ `",
+            "2": "``` ~~~",
+            "3": "> - + * 1."
+        }
+    },
+    "fold": {
+        "enabled": true,
+        "headers": true
+    }
+}

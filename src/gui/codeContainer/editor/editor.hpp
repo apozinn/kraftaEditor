@@ -18,12 +18,21 @@ class Editor : public wxStyledTextCtrl
     const wxString &iconsDir = ApplicationPaths::AssetsPath("icons");
     ProjectSettings &projectSettings = ProjectSettings::Get();
 
+    enum
+    {
+        STYLE_DEFAULT = 0, 
+        STYLE_KEYWORD = 19 
+    };
+
 public:
     Editor(wxWindow *parent);
     bool Modified();
     void OnStyleNeeded(wxStyledTextEvent &WXUNUSED(event));
-    void setfoldlevels(size_t fromPos, int startfoldlevel, wxString &text);
-    void highlightSTCsyntax(size_t fromPos, size_t toPos, wxString &text);
+    void HighlightSyntax(size_t fromPos, size_t toPos, const wxString &text);
+    bool IsWordBoundary(const wxString &text, size_t pos) const;
+    void ApplySyntaxHighlighting(size_t fromPos, size_t toPos, const std::vector<std::pair<size_t, size_t>> &blocks);
+    void ApplyFoldLevels(size_t startPos, int initialLevel, size_t textLength, const std::vector<std::pair<size_t, int>> &changes);
+    void UpdateFoldLevels(size_t fromPos, int initialFoldLevel, const wxString &text);
 
 private:
     wxStyledTextCtrl *MiniMap = nullptr;

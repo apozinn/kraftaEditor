@@ -2,6 +2,12 @@
 #include <wx/string.h>
 #include <wx/colour.h>
 
+enum {
+    FONTSTYLE_BOLD = 1,
+    FONTSTYLE_ITALIC = 2,
+    FONTSTYLE_UNDERLINE = 4
+};
+
 struct StyleInfo {
     wxString name;
     wxColour foreground;

@@ -1,0 +1,24 @@
+{
+    "name": "scala",
+    "icon_file_name": "scala",
+    "file_patterns": [
+        "scala",
+        "sc"
+    ],
+    "lexer_id": 3,
+    "lexer_settings": {
+        "tab_width": 4,
+        "use_spaces": true
+    },
+    "syntax": {
+        "keyword_lists": {
+            "0": "abstract case catch class def do else extends final finally for forSome if implicit import lazy match new null object override package private protected return sealed super this throw trait try type val var while with yield",
+            "1": "List Map Set Option Either Try Future",
+            "2": "=> <- <: >: # @"
+        }
+    },
+    "fold": {
+        "enabled": true,
+        "compact": true
+    }
+}

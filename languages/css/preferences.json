@@ -1,0 +1,26 @@
+{
+    "name": "css",
+    "icon_file_name": "css",
+    "file_patterns": [
+        "css",
+        "scss",
+        "less"
+    ],
+    "lexer_id": 38,
+    "lexer_settings": {
+        "tab_width": 2,
+        "use_spaces": true,
+        "case_sensitive": false
+    },
+    "syntax": {
+        "keyword_lists": {
+            "0": "@import @media @keyframes @font-face @supports @charset @namespace @page @viewport",
+            "1": "margin padding border display position float clear width height min-width max-width overflow font color background text align white-space visibility opacity",
+            "2": "flex grid inline block none absolute relative fixed sticky"
+        }
+    },
+    "fold": {
+        "enabled": true,
+        "compact": true
+    }
+}

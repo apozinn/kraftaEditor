@@ -1,0 +1,30 @@
+{
+  "font_default": {
+    "size": 12,
+    "family": "JetBrains Mono"
+  },
+  "styles": {
+    "0":  { "name": "DEFAULT",           "foreground": "#D4D4D4" },
+    "1":  { "name": "LINE_BEGIN",        "foreground": "#808080" },
+    "2":  { "name": "STRONG1",           "foreground": "#D4D4D4", "bold": true },
+    "3":  { "name": "STRONG2",           "foreground": "#D4D4D4", "bold": true },
+    "4":  { "name": "EM1",               "foreground": "#D4D4D4", "italic": true },
+    "5":  { "name": "EM2",               "foreground": "#D4D4D4", "italic": true },
+    "6":  { "name": "HEADER1",           "foreground": "#569CD6", "bold": true, "size": 1.6 },
+    "7":  { "name": "HEADER2",           "foreground": "#4EC9B0", "bold": true, "size": 1.4 },
+    "8":  { "name": "HEADER3",           "foreground": "#C586C0", "bold": true, "size": 1.2 },
+    "9":  { "name": "HEADER4",           "foreground": "#D4D4D4", "bold": true, "underline": true },
+    "10": { "name": "HEADER5",           "foreground": "#D4D4D4", "bold": true },
+    "11": { "name": "HEADER6",           "foreground": "#808080", "bold": true },
+    "12": { "name": "PRECHAR",           "foreground": "#808080" },
+    "13": { "name": "ULIST_ITEM",        "foreground": "#D4D4D4" },
+    "14": { "name": "OLIST_ITEM",        "foreground": "#D4D4D4" },
+    "15": { "name": "BLOCKQUOTE",        "foreground": "#6A9955", "italic": true },
+    "16": { "name": "STRIKEOUT",         "foreground": "#808080", "strikethrough": true },
+    "17": { "name": "HRULE",             "foreground": "#808080" },
+    "18": { "name": "LINK",              "foreground": "#9CDCFE", "underline": true },
+    "19": { "name": "CODE",              "foreground": "#CE9178", "background": "#1E1E1E" },
+    "20": { "name": "CODE2",             "foreground": "#CE9178", "background": "#1E1E1E" },
+    "21": { "name": "CODEBK",            "foreground": "#D4D4D4", "background": "#252525" }
+  }
+}

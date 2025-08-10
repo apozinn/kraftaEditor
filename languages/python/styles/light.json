@@ -1,0 +1,29 @@
+{
+  "font_default": {
+    "size": 12,
+    "family": "JetBrains Mono"
+  },
+  "styles": {
+    "0":  { "name": "DEFAULT",           "foreground": "#000000" },
+    "1":  { "name": "COMMENTLINE",       "foreground": "#008000" },
+    "2":  { "name": "NUMBER",            "foreground": "#098658" },
+    "3":  { "name": "STRING",            "foreground": "#A31515" },
+    "4":  { "name": "CHARACTER",         "foreground": "#795E26" },
+    "5":  { "name": "WORD (Keywords)",   "foreground": "#0000FF", "bold": true },
+    "6":  { "name": "TRIPLE",            "foreground": "#A31515", "italic": true },
+    "7":  { "name": "TRIPLEDOUBLE",      "foreground": "#A31515", "italic": true },
+    "8":  { "name": "CLASSNAME",         "foreground": "#2B91AF" },
+    "9":  { "name": "DEFNAME",           "foreground": "#795E26" },
+    "10": { "name": "OPERATOR",          "foreground": "#000000" },
+    "11": { "name": "IDENTIFIER",        "foreground": "#000000" },
+    "12": { "name": "COMMENTBLOCK",      "foreground": "#008000" },
+    "13": { "name": "STRINGEOL",         "foreground": "#A31515", "background": "#E5140020" },
+    "14": { "name": "WORD2",             "foreground": "#267F99" },
+    "15": { "name": "DECORATOR",         "foreground": "#AF00DB" },
+    "16": { "name": "FSTRING",           "foreground": "#A31515", "bold": true },
+    "17": { "name": "FCHARACTER",        "foreground": "#795E26", "bold": true },
+    "18": { "name": "FTRIPLE",           "foreground": "#A31515", "bold": true, "italic": true },
+    "19": { "name": "FTRIPLEDOUBLE",     "foreground": "#A31515", "bold": true, "italic": true },
+    "20": { "name": "ATTRIBUTE",         "foreground": "#001080" }
+  }
+}

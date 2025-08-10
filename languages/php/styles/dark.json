@@ -1,0 +1,18 @@
+{
+  "font_default": {
+    "size": 12,
+    "family": "JetBrains Mono"
+  },
+  "styles": {
+    "118": { "name": "DEFAULT",               "foreground": "#D4D4D4" },
+    "119": { "name": "HSTRING",               "foreground": "#CE9178", "background": "#1E1E1E" },
+    "120": { "name": "SIMPLESTRING",          "foreground": "#CE9178" },
+    "121": { "name": "WORD (keywords)",       "foreground": "#569CD6", "bold": true },
+    "122": { "name": "NUMBER",                "foreground": "#B5CEA8" },
+    "123": { "name": "VARIABLE",              "foreground": "#9CDCFE" },
+    "124": { "name": "COMMENT (block)",       "foreground": "#6A9955" },
+    "125": { "name": "COMMENTLINE",           "foreground": "#6A9955" },
+    "126": { "name": "HSTRING_VARIABLE",      "foreground": "#9CDCFE", "background": "#CE917822" },
+    "127": { "name": "OPERATOR",              "foreground": "#D4D4D4" }
+  }
+}

@@ -1,0 +1,25 @@
+{
+    "name": "cmake",
+    "icon_file_name": "cmake",
+    "file_patterns": [
+        "cmake"
+    ],
+    "lexer_id": 80,
+    "lexer_settings": {
+        "tab_width": 2,
+        "use_spaces": true,
+        "case_sensitive": false
+    },
+    "syntax": {
+        "keyword_lists": {
+            "0": "add_compile_definitions add_compile_options add_custom_command add_custom_target add_definitions add_dependencies add_executable add_library add_link_options add_subdirectory add_test aux_source_directory build_command cmake_host_system_information cmake_minimum_required cmake_parse_arguments cmake_policy configure_file define_property enable_language enable_testing execute_process export file find_file find_library find_package find_path find_program fltk_wrap_ui get_cmake_property get_directory_property get_filename_component get_property get_source_file_property get_target_property get_test_property include include_directories include_external_msproject include_guard install link_directories list load_cache load_command mark_as_advanced math message option project qt_wrap_cpp qt_wrap_ui remove_definitions return separate_arguments set set_directory_properties set_property set_source_files_properties set_target_properties set_tests_properties site_name source_group string target_compile_definitions target_compile_features target_compile_options target_include_directories target_link_directories target_link_libraries target_link_options target_precompile_headers target_sources try_compile try_run unset",
+            "1": "CMAKE_AR CMAKE_BUILD_TYPE CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_FIND_ROOT_PATH CMAKE_INSTALL_PREFIX CMAKE_MODULE_PATH CMAKE_MAKE_PROGRAM CMAKE_PROJECT_NAME CMAKE_SOURCE_DIR CMAKE_BINARY_DIR CMAKE_CURRENT_SOURCE_DIR CMAKE_CURRENT_BINARY_DIR CMAKE_CURRENT_LIST_DIR CMAKE_CURRENT_LIST_FILE CMAKE_COMMAND CMAKE_ROOT CMAKE_VERSION PROJECT_NAME PROJECT_SOURCE_DIR PROJECT_BINARY_DIR BUILD_SHARED_LIBS CMAKE_GENERATOR CMAKE_GENERATOR_TOOLSET CMAKE_GENERATOR_PLATFORM CMAKE_RUNTIME_OUTPUT_DIRECTORY CMAKE_LIBRARY_OUTPUT_DIRECTORY CMAKE_ARCHIVE_OUTPUT_DIRECTORY CMAKE_OSX_SYSROOT CMAKE_OSX_DEPLOYMENT_TARGET",
+            "2": "FindBoost FindCUDA FindCURL FindCurses FindDoxygen FindFLEX FindGTest FindGTK2 FindHDF5 FindJPEG FindMPI FindOpenAL FindOpenGL FindOpenMP FindOpenSSL FindPNG FindPostgreSQL FindProtobuf FindPython FindPythonInterp FindPythonLibs FindQt FindSDL FindSQLite3 FindThreads FindTIFF FindZLIB FindwxWidgets CheckFunctionExists CheckIncludeFile CheckIncludeFileCXX CheckLibraryExists CheckSymbolExists CheckTypeSize CheckCSourceCompiles CheckCSourceRuns CheckCXXSourceCompiles CheckCXXSourceRuns",
+            "3": "if elseif else endif while endwhile foreach endforeach function endfunction macro endmacro return break continue and or not defined in MATCHES LESS GREATER EQUAL STRLESS STRGREATER STREQUAL VERSION_LESS VERSION_GREATER VERSION_EQUAL PATH_EQUAL EXISTS COMMAND POLICY TARGET TEST DEFINED"
+        }
+    },
+    "fold": {
+        "enabled": true,
+        "compact": true
+    }
+}

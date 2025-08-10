@@ -1,0 +1,23 @@
+{
+    "name": "rust",
+    "icon_file_name": "rust",
+    "file_patterns": [
+        "rs"
+    ],
+    "lexer_id": 111,
+    "lexer_settings": {
+        "tab_width": 4,
+        "use_spaces": true
+    },
+    "syntax": {
+        "keyword_lists": {
+            "0": "as async await break const continue crate dyn else enum extern false fn for if impl in let loop match mod move mut pub ref return self Self static struct super trait true type union unsafe use where while",
+            "1": "i8 i16 i32 i64 i128 u8 u16 u32 u64 u128 f32 f64 bool char str String",
+            "2": "Some None Ok Err Box Vec"
+        }
+    },
+    "fold": {
+        "enabled": true,
+        "compact": false
+    }
+}

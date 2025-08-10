@@ -1,0 +1,23 @@
+{
+  "font_default": {
+    "size": 12,
+    "family": "JetBrains Mono"
+  },
+  "styles": {
+    "0":  { "name": "DEFAULT",           "foreground": "#000000" },
+    "1":  { "name": "COMMENT",           "foreground": "#008000" },
+    "2":  { "name": "STRINGDQ",          "foreground": "#A31515" },
+    "3":  { "name": "STRINGLQ",          "foreground": "#A31515" },
+    "4":  { "name": "STRINGRQ",          "foreground": "#A31515" },
+    "5":  { "name": "COMMANDS",          "foreground": "#0000FF", "bold": true },
+    "6":  { "name": "PARAMETERS",        "foreground": "#001080" },
+    "7":  { "name": "VARIABLE",          "foreground": "#001080" },
+    "8":  { "name": "USERDEFINED",       "foreground": "#2B91AF" },
+    "9":  { "name": "WHILEDEF",          "foreground": "#AF00DB" },
+    "10": { "name": "FOREACHDEF",        "foreground": "#AF00DB" },
+    "11": { "name": "IFDEFINEDEF",       "foreground": "#AF00DB" },
+    "12": { "name": "MACRODEF",          "foreground": "#AF00DB" },
+    "13": { "name": "STRINGVAR",         "foreground": "#A31515" },
+    "14": { "name": "NUMBER",            "foreground": "#098658" }
+  }
+}

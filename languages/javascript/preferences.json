@@ -1,0 +1,26 @@
+{
+    "name": "javaScript",
+    "icon_file_name": "javascript",
+    "file_patterns": [
+        "js",
+        "jsx",
+        "mjs"
+    ],
+    "lexer_id": 3,
+    "lexer_settings": {
+        "tab_width": 4,
+        "use_spaces": true
+    },
+    "syntax": {
+        "keyword_lists": {
+            "0": "break case catch class const continue debugger default delete do else export extends finally for function if import in instanceof new return super switch this throw try typeof var void while with yield",
+            "1": "await async static",
+            "2": "true false null undefined",
+            "3": "console window document fetch setTimeout"
+        }
+    },
+    "fold": {
+        "enabled": true,
+        "html": true
+    }
+}

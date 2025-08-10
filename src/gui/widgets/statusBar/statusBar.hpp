@@ -3,6 +3,7 @@
 #include "themesManager/themesManager.hpp"
 #include "appPaths/appPaths.hpp"
 #include "userSettings/userSettings.hpp"
+#include "languagesPreferences/languagesPreferences.hpp"
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -21,8 +22,10 @@ public:
 	wxStaticText* fileExt = nullptr;
 	
 	StatusBar(wxWindow* parent, wxWindowID ID);
-	void UpdateComponents(wxString path, wxString format, const char *language);
+	void UpdateComponents(wxString path, wxString format, wxString languageName);
 	void UpdateCodeLocale(wxStyledTextCtrl* codeEditor);
 	void ClearLabels();
 	void OnPaint(wxPaintEvent& WXUNUSED(event));
+
+	void UpdateLanguage(const languagePreferencesStruct& language);
 };

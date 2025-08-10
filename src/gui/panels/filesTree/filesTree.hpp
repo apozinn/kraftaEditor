@@ -8,8 +8,6 @@
 #include "projectSettings/projectSettings.hpp"
 #include "userSettings/userSettings.hpp"
 
-#include "core/languages/prefs.hpp"
-
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 

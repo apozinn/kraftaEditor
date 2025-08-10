@@ -8,6 +8,7 @@
 #include <wx/arrstr.h>
 #include "platformInfos/platformInfos.hpp"
 #include <wx/log.h>
+#include <wx/app.h>
 
 namespace ApplicationPaths
 {
@@ -151,5 +152,29 @@ namespace ApplicationPaths
             }
         }
         return iconFile.GetFullPath();
+    }
+
+    wxString GetLanguagePreferencesPath(const wxString &languageName)
+    {
+        wxString path = DevelopmentEnvironmentPath() + "languages" + languageName;
+        if (wxDirExists(path))
+        {
+            return path;
+        }
+        else
+        {
+            wxLogWarning("Missing %s preferences, trying to find  the default preferences", languageName);
+            wxString defaultPreferences = DevelopmentEnvironmentPath() + "languages" + "default";
+            if (wxDirExists(path))
+            {
+                return defaultPreferences;
+            }
+            else
+            {
+                wxLogWarning("Missing default language preferences, closing the app");
+                wxApp().Exit();
+                return "nullPath";
+            }
+        }
     }
 }
