@@ -72,7 +72,7 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build --parallel
 
 # Run
-./build/bin/KraftaEditor
+./build/bin/DEBUG/KraftaEditor
 ```  
 
 ### Build Options:
