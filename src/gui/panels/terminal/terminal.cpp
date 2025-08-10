@@ -28,7 +28,7 @@ Terminal::Terminal(wxWindow *parent, wxWindowID ID) : wxPanel(parent, ID)
     sizer->Add(m_commandInput, 1, wxEXPAND);
     SetSizer(sizer);
 
-    Bind(wxEVT_SHOW, [=](wxShowEvent &WXUNUSED(event))
+    Bind(wxEVT_SHOW, [this](wxShowEvent &WXUNUSED(event))
          {
         if(m_commandInput->GetValue().IsEmpty() && !ProjectSettings::Get().GetProjectPath().IsEmpty()) {
             m_commandInput->AppendText(ProjectSettings::Get().GetProjectPath()+">");
@@ -47,7 +47,7 @@ void Terminal::OnCommand(wxCommandEvent &WXUNUSED(event))
 #ifdef __WINDOWS__
     long pid = wxExecute("cmd /C " + command, wxEXEC_ASYNC, process);
 #else
-    long pid = wxExecute(cmd, wxEXEC_ASYNC, process);
+    long pid = wxExecute(command, wxEXEC_ASYNC, process);
 #endif
 
     if (!pid)

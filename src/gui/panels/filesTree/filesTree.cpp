@@ -74,10 +74,10 @@ wxBEGIN_EVENT_TABLE(FilesTree, wxPanel)
 	Bind(wxEVT_PAINT, &FilesTree::OnPaint, this);
 
 	// lincking components of the projectToggler
-	projectToggler->CallForEachChild([=](wxWindow *children)
+	projectToggler->CallForEachChild([this](wxWindow *children)
 									 {
 		//function to toggler view of the projectFilesContainer
-		children->Bind(wxEVT_LEFT_DOWN, [=](wxMouseEvent& WXUNUSED(event)) {
+		children->Bind(wxEVT_LEFT_DOWN, [this](wxMouseEvent& WXUNUSED(event)) {
 			auto arrow_bit = pjt_arrow->GetBitmap();
 			wxVector<wxBitmap> bitmaps;
 
@@ -199,7 +199,7 @@ void FilesTree::CreateFile(
 	parentSizer->Add(file_container, 0, wxEXPAND | wxLEFT | wxTOP, 2);
 	parentSizer->Layout();
 
-	file_container->CallForEachChild([=](wxWindow *win)
+	file_container->CallForEachChild([this](wxWindow *win)
 									 {
 		win->Bind(wxEVT_ENTER_WINDOW, &FilesTree::OnEnterComp, this);
 		win->Bind(wxEVT_LEAVE_WINDOW, &FilesTree::OnLeaveComp, this); });
@@ -254,7 +254,7 @@ void FilesTree::CreateDir(
 	dir_childrens->SetLabel(path + "_dir_childrens");
 
 	// event to draw a dotted line next side to the dir childrens
-	dir_childrens->Bind(wxEVT_PAINT, [=](wxPaintEvent &event)
+	dir_childrens->Bind(wxEVT_PAINT, [this](wxPaintEvent &event)
 						{
 		auto target = ((wxPanel*)event.GetEventObject());
 		if (!target) return;
@@ -624,7 +624,7 @@ void FilesTree::OnCreateFile(wxCommandEvent &WXUNUSED(event))
 
 void FilesTree::OnDeleteDir(wxCommandEvent &WXUNUSED(event))
 {
-	auto deleteDir = [=]()
+	auto deleteDir = [this]()
 	{
 		wxString currentlyMenuDir = ProjectSettings::Get().GetCurrentlyMenuDir();
 
@@ -723,7 +723,7 @@ void FilesTree::OnComponentModified(int type, wxString oldPath, wxString newPath
 	if (std::filesystem::is_directory(newPath.ToStdString()))
 		isFile = false;
 
-	auto CreateWithPosition = [=]()
+	auto CreateWithPosition = [this, newPath, isFile, parentComp]()
 	{
 		int position = 0;
 

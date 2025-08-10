@@ -17,7 +17,7 @@
 class CodeContainer : public wxScrolled<wxPanel>
 {
 public:
-	const wxString &iconsDir = ApplicationPaths::AssetsPath("icons");
+	wxString iconsDir = ApplicationPaths::AssetsPath("icons");
 	wxFont font;
 	Editor *editor;
 	MiniMap *minimap;

@@ -18,7 +18,7 @@ class FilesTree : public wxPanel
 {
 	wxSizer *sizer = new wxBoxSizer(wxVERTICAL);
 	json Theme = ThemesManager::Get().currentTheme;
-	const wxString &iconsDir = ApplicationPaths::AssetsPath("icons");
+	wxString iconsDir = ApplicationPaths::AssetsPath("icons");
 	ProjectSettings &projectSettings = ProjectSettings::Get();
 	json UserSettings = UserSettingsManager::Get().currentSettings;
 

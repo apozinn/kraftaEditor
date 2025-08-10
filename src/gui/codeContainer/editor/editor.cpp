@@ -146,7 +146,7 @@ void Editor::CharAdd(wxStyledTextEvent &event)
 
     if (chr == '\n')
     {
-        if (previous_char == '\n' && next_char == '}' || previous_char == '\n' && next_char == ']')
+        if ((previous_char == '\n' && next_char == '}') || (previous_char == '\n' && next_char == ']'))
         {
             SetLineIndentation(currentLine, currentLineInd + GetIndent());
             GotoPos(GetLineEndPosition(currentLine) - 1);
@@ -204,7 +204,6 @@ void Editor::OnClick(wxMouseEvent &event)
 
 void Editor::OnAutoCompCompleted(wxStyledTextEvent &event)
 {
-    wxString completion = event.GetString();
     int pos = event.GetPosition();
     Remove(pos - 1, pos);
 }

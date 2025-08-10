@@ -15,7 +15,7 @@ using json = nlohmann::json;
 class Editor : public wxStyledTextCtrl
 {
     json Theme = ThemesManager::Get().currentTheme;
-    const wxString &iconsDir = ApplicationPaths::AssetsPath("icons");
+    wxString iconsDir = ApplicationPaths::AssetsPath("icons");
     ProjectSettings &projectSettings = ProjectSettings::Get();
 
     enum
