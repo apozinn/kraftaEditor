@@ -1,5 +1,6 @@
 #include "./editor.hpp"
 #include "appConstants/appConstants.hpp"
+#include <unordered_map>
 
 #define MY_FOLDMARGIN 2
 
@@ -67,28 +68,28 @@ void Editor::SetFoldPreferences()
     Bind(wxEVT_STC_AUTOCOMP_COMPLETED, &Editor::OnAutoCompCompleted, this);
     Bind(wxEVT_STC_CLIPBOARD_PASTE, &Editor::OnClipBoardPaste, this);
     Bind(wxEVT_MOUSEWHEEL, &Editor::OnScroll, this);
+    Bind(wxEVT_KEY_DOWN, &Editor::OnBackspace, this);
 }
 
 void Editor::OnChange(wxStyledTextEvent &event)
 {
     if (event.GetString() == wxEmptyString || GetText() == event.GetString())
-        return;
 
-    if (!changedFile && GetModify())
-    {
-        auto tab = FindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_tab");
-        if (tab)
+        if (!changedFile && GetModify())
         {
-            auto icon = ((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[2]);
-            if (icon)
+            auto tab = FindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_tab");
+            if (tab)
             {
-                // setting the unsaved icon
-                icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(iconsDir + "white_circle.png", wxBITMAP_TYPE_PNG)));
+                auto icon = ((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[2]);
+                if (icon)
+                {
+                    // setting the unsaved icon
+                    icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(iconsDir + "white_circle.png", wxBITMAP_TYPE_PNG)));
+                }
             }
-        }
 
-        changedFile = true;
-    }
+            changedFile = true;
+        }
 
     if (MiniMap)
         MiniMap->SetText(GetText());
@@ -108,21 +109,84 @@ void Editor::OnMarginClick(wxStyledTextEvent &event)
     }
 }
 
-void Editor::OnBackspace(wxKeyEvent &WXUNUSED(event))
+void Editor::OnBackspace(wxKeyEvent &event)
 {
-    char chr = (char)GetCharAt(GetCurrentPos());
-
-    if (chr == ']' || chr == '}' || chr == '"' || chr == '\'' || chr == '`' || chr == ')')
+    const int key = event.GetKeyCode();
+    if (key != WXK_BACK && key != WXK_DELETE)
     {
-        Remove(GetCurrentPos(), GetCurrentPos() + 1);
+        event.Skip();
+        return;
     }
+
+    long startPos = GetSelectionStart();
+    long endPos = GetSelectionEnd();
+    bool hasSelection = startPos != endPos;
+
+    static const std::unordered_map<wxString, wxString> pairs = {
+        {"\"", "\""},
+        {"\'", "\'"},
+        {"]", "["},
+        {"}", "{"},
+        {")", "("},
+    };
+
+    if (hasSelection)
+    {
+        wxString selectedText = GetTextRange(startPos, endPos);
+        if (selectedText.Length() == 2)
+        {
+            wxString first = selectedText.Mid(0, 1);
+            wxString second = selectedText.Mid(1, 1);
+
+            auto it = pairs.find(second);
+            if (it != pairs.end() && it->second == first)
+            {
+                Remove(startPos, endPos);
+                return;
+            }
+        }
+        Remove(startPos, endPos);
+        return;
+    }
+    else
+    {
+        long pos = GetCurrentPos();
+        wxString prevChar, nextChar;
+
+        if (pos > 0)
+            prevChar = GetTextRange(pos - 1, pos);
+
+        if (pos < GetLength())
+            nextChar = GetTextRange(pos, pos + 1);
+
+        if (key == WXK_BACK)
+        {
+            auto it = pairs.find(nextChar);
+            if (it != pairs.end() && it->second == prevChar)
+            {
+                Remove(pos - 1, pos + 1);
+                return;
+            }
+        }
+        else if (key == WXK_DELETE)
+        {
+            auto it = pairs.find(prevChar);
+            if (it != pairs.end() && it->second == nextChar)
+            {
+                Remove(pos - 1, pos + 1);
+                return;
+            }
+        }
+    }
+    event.Skip();
 }
 
 void Editor::OnArrowsPress(wxKeyEvent &event)
 {
-    if(event.GetKeyCode() == 50) {
+    if (event.GetKeyCode() == 50)
+    {
         InsertText(GetCurrentPos(), "2");
-        GotoPos(GetCurrentPos()+1);
+        GotoPos(GetCurrentPos() + 1);
     }
 
     if (event.GetKeyCode() == 8)
@@ -137,7 +201,7 @@ void Editor::CharAdd(wxStyledTextEvent &event)
 {
     // adding same char to the minimap
     ((wxStyledTextCtrl *)GetParent()->GetChildren()[1])->SetText(GetText());
-    
+
     char chr = (char)event.GetKey();
     char previous_char = (char)GetCharAt(GetCurrentPos() - 1);
     char next_char = (char)GetCharAt(GetCurrentPos());
