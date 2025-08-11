@@ -12,7 +12,7 @@ class EmptyWindow : public wxPanel
 {
 	wxBoxSizer* sizer;
     json Theme = ThemesManager::Get().currentTheme;
-    const wxString& assetsDir = ApplicationPaths::AssetsPath("images");
+    wxString assetsDir = ApplicationPaths::AssetsPath("images");
 public:
 	EmptyWindow(wxWindow* parent, wxWindowID ID);
 };

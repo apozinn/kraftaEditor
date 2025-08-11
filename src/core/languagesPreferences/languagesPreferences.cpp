@@ -52,7 +52,7 @@ void LanguagesPreferences::LoadExtensionsList()
             m_extToLang.insert({key, value.template get<std::string>()});
         }
     }
-    catch (std::exception e)
+    catch (const std::exception& e)
     {
         wxLogError(e.what());
         throw std::runtime_error(e.what());
@@ -88,7 +88,7 @@ languagePreferencesStruct LanguagesPreferences::SetupLanguagesPreferences(wxWind
 
         return currentLanguagePreferences;
     }
-    catch (std::exception e)
+    catch (const std::exception& e)
     {
         wxLogError("Unexpected error in GetLanguagePreferences: %s", e.what());
         throw std::runtime_error(std::string("Failed to get language preferences: ") + e.what());
@@ -102,7 +102,7 @@ languagePreferencesStruct LanguagesPreferences::GetLanguagePreferences(const wxS
         wxFileName fileProps(path);
         wxString fileExt = "." + fileProps.GetExt();
 
-        auto GetLanguagesObjects = [=](wxString &languageDir) -> languagePreferencesStruct
+        auto GetLanguagesObjects = [this](wxString &languageDir) -> languagePreferencesStruct
         {
             if (!wxDirExists(languageDir))
             {

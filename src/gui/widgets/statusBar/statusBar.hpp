@@ -15,7 +15,7 @@ class StatusBar : public wxPanel {
 	wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
 	json Theme = ThemesManager::Get().currentTheme;
 	json UserSettings = UserSettingsManager::Get().currentSettings;
-    const wxString& iconsDir = ApplicationPaths::AssetsPath("icons");
+    wxString iconsDir = ApplicationPaths::AssetsPath("icons");
 public:
 	wxStaticText* codeLocale = nullptr;
 	wxStaticText* tabSize = nullptr;

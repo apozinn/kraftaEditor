@@ -1,5 +1,3 @@
-#pragma once
-
 #include "./application.hpp"
 #include "application.hpp"
 #include "platformInfos/platformInfos.hpp"

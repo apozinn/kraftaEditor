@@ -95,11 +95,11 @@ private:
     ProjectSettings& projectSettings = ProjectSettings::Get();
     json UserSettings = UserSettingsManager::Get().currentSettings;
     json Theme = ThemesManager::Get().currentTheme;
-    const wxString &assetsImagePath = ApplicationPaths::AssetsPath("images");
-    const wxString appPath = ApplicationPaths::ApplicationPath();
+    wxString assetsImagePath = ApplicationPaths::AssetsPath("images");
+    wxString appPath = ApplicationPaths::ApplicationPath();
 
     void CreateWatcher();
-    void OnClose(wxCloseEvent& WXUNUSED(event));
+    void OnClose(wxCloseEvent& (event));
     void OnExit(wxCommandEvent& WXUNUSED(event));
     void OnWatch(wxCommandEvent &event);
     void OnFollowLinks(wxCommandEvent &event);

@@ -18,7 +18,7 @@ class Tabs : public wxPanel
 	wxScrolled<wxPanel> *tabsContainer;
 	wxBoxSizer *tabsContainerSizer;
 	json Theme = ThemesManager::Get().currentTheme;
-    const wxString& iconsDir = ApplicationPaths::AssetsPath("icons");
+    wxString iconsDir = ApplicationPaths::AssetsPath("icons");
     ProjectSettings& projectSettings = ProjectSettings::Get();
 public:
 	wxString selected_tab;

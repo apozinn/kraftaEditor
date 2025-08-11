@@ -23,7 +23,7 @@ class ControlPanel : public wxPanel
     wxBoxSizer *sizer = new wxBoxSizer(wxVERTICAL);
     wxTextCtrl *searchInput;
     json Theme = ThemesManager::Get().currentTheme;
-    const wxString &iconsDir = ApplicationPaths::AssetsPath("icons");
+    wxString iconsDir = ApplicationPaths::AssetsPath("icons");
 
 public:
     ControlPanel(wxFrame *parent, wxWindowID ID);
