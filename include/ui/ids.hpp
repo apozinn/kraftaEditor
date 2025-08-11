@@ -126,7 +126,8 @@ namespace Event
     {
         Exit = ID_BASE_FRAME + 1,      ///< Exit application
         NewWindow = ID_BASE_FRAME + 2, ///< Create new application window
-        About = ID_BASE_FRAME + 3      ///< Show about dialog
+        About = ID_BASE_FRAME + 3,      ///< Show about dialog
+        DontSaveChanges = ID_BASE_FRAME + 4
     };
 
     /**

@@ -4,6 +4,7 @@
 #include "gui/panels/filesTree/filesTree.hpp"
 #include "gui/widgets/statusBar/statusBar.hpp"
 #include "languagesPreferences/languagesPreferences.hpp"
+#include "gui/widgets/saveChangesDialog/saveChangesDialog.hpp"
 
 #include <wx/graphics.h>
 
@@ -112,6 +113,22 @@ void Tabs::Close(wxWindow *tab, wxString tab_path)
 	auto imgContainer = ((wxPanel *)FindWindowByLabel(tab_path + "_imgContainer"));
 	auto fileContainer = ((FilesTree *)FindWindowById(+GUI::ControlID::FilesTree));
 	auto mainCode = FindWindowById(+GUI::ControlID::MainCode);
+
+	if(codeContainer->editor->Modified()){
+		SaveChangesDialog dlg(NULL, wxString("Do you want to save the changes you made to "+ wxFileNameFromPath(codeContainer->currentPath))+"?", "Krafta Editor");
+		int result = dlg.ShowModal();
+		
+		//save
+		if (result == wxID_OK) {
+			codeContainer->Save(codeContainer->currentPath);
+		}
+		//don't save
+		if(result == +Event::Frame::DontSaveChanges) {}
+		//cancel
+		if(result == wxID_CANCEL) {
+			return;
+		}
+	}
 
 	// close linked components
 	if (codeContainer)
