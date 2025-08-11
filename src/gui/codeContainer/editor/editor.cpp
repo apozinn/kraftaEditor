@@ -120,6 +120,11 @@ void Editor::OnBackspace(wxKeyEvent &WXUNUSED(event))
 
 void Editor::OnArrowsPress(wxKeyEvent &event)
 {
+    if(event.GetKeyCode() == 50) {
+        InsertText(GetCurrentPos(), "2");
+        GotoPos(GetCurrentPos()+1);
+    }
+
     if (event.GetKeyCode() == 8)
     {
         OnBackspace(event);
@@ -132,7 +137,7 @@ void Editor::CharAdd(wxStyledTextEvent &event)
 {
     // adding same char to the minimap
     ((wxStyledTextCtrl *)GetParent()->GetChildren()[1])->SetText(GetText());
-
+    
     char chr = (char)event.GetKey();
     char previous_char = (char)GetCharAt(GetCurrentPos() - 1);
     char next_char = (char)GetCharAt(GetCurrentPos());
