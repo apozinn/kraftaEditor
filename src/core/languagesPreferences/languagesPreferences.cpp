@@ -10,7 +10,7 @@
 #include <string>
 #include <wx/string.h>
 #include <wx/file.h>
-#include "fstream"
+#include <fstream>
 #include <wx/log.h>
 #include <functional>
 #include <wx/msgdlg.h>
@@ -39,20 +39,15 @@ void LanguagesPreferences::LoadExtensionsList()
     {
         wxString extensionsListPath = ApplicationPaths::DevelopmentEnvironmentPath() + "languages" + PlatformInfos::OsPathSepareator() + "extensionsList.json";
         if (!wxFileExists(extensionsListPath))
-        {
             throw EXTENSIONS_LIS_NOT_FOUND;
-            return;
-        }
 
         std::ifstream extensionsIo(extensionsListPath.ToStdString());
         json extensionsObject = json::parse(extensionsIo);
 
         for (auto &[key, value] : extensionsObject.items())
-        {
             m_extToLang.insert({key, value.template get<std::string>()});
-        }
     }
-    catch (const std::exception& e)
+    catch (const std::exception &e)
     {
         wxLogError(e.what());
         throw std::runtime_error(e.what());
@@ -69,11 +64,9 @@ languagePreferencesStruct LanguagesPreferences::SetupLanguagesPreferences(wxWind
 
         languagePreferencesStruct currentLanguagePreferences = GetLanguagePreferences(path);
 
-        // set lexer
         editor->SetLexer(currentLanguagePreferences.lexer);
         minimap->SetLexer(currentLanguagePreferences.lexer);
 
-        // tab and ident
         if (currentLanguagePreferences.preferences.contains("lexer_settings"))
         {
             int tabWidth = currentLanguagePreferences.preferences["lexer_settings"]["tab_width"].template get<int>();
@@ -88,7 +81,7 @@ languagePreferencesStruct LanguagesPreferences::SetupLanguagesPreferences(wxWind
 
         return currentLanguagePreferences;
     }
-    catch (const std::exception& e)
+    catch (const std::exception &e)
     {
         wxLogError("Unexpected error in GetLanguagePreferences: %s", e.what());
         throw std::runtime_error(std::string("Failed to get language preferences: ") + e.what());
@@ -105,9 +98,7 @@ languagePreferencesStruct LanguagesPreferences::GetLanguagePreferences(const wxS
         auto GetLanguagesObjects = [this](wxString &languageDir) -> languagePreferencesStruct
         {
             if (!wxDirExists(languageDir))
-            {
                 languageDir = ApplicationPaths::DevelopmentEnvironmentPath() + "languages" + PlatformInfos::OsPathSepareator() + "default" + PlatformInfos::OsPathSepareator();
-            }
 
             wxDir dir(languageDir);
 
@@ -118,17 +109,13 @@ languagePreferencesStruct LanguagesPreferences::GetLanguagePreferences(const wxS
             }
 
             wxString languagePreferencesJson = languageDir + "preferences.json";
-            wxString languageStyles =
-                languageDir + "styles" + PlatformInfos::OsPathSepareator() + (wxSystemSettings::GetAppearance().IsSystemDark() ? "dark.json" : "light.json");
+            wxString languageStyles = languageDir + "styles" + PlatformInfos::OsPathSepareator() + (wxSystemSettings::GetAppearance().IsSystemDark() ? "dark.json" : "light.json");
 
-            // load preferences & styles
             std::ifstream preferencesFile(languagePreferencesJson.ToStdString());
             std::ifstream stylesFile(languageStyles.ToStdString());
 
             if (!preferencesFile || !stylesFile)
-            {
                 throw std::runtime_error(ERROR_LANGUAGES_PREFERENCES_FILE_NOT_FOUND);
-            }
 
             json languagePreferencesObject = json::parse(preferencesFile);
             json languageStylesObject = json::parse(stylesFile);
@@ -146,9 +133,7 @@ languagePreferencesStruct LanguagesPreferences::GetLanguagePreferences(const wxS
                 return languageNewObjecy;
             }
             else
-            {
                 throw std::runtime_error(ERROR_LANGUAGES_PREFERENCES_FILE_NOT_FOUND);
-            }
         };
 
         std::string languageNameLocation = "default";
@@ -159,13 +144,9 @@ languagePreferencesStruct LanguagesPreferences::GetLanguagePreferences(const wxS
             auto languageObject = m_languages.find(languageName);
 
             if (languageObject != m_languages.end())
-            {
                 return languageObject->second;
-            }
             else
-            {
                 languageNameLocation = it->second;
-            }
         }
 
         wxString defaultLanguage = ApplicationPaths::DevelopmentEnvironmentPath() + "languages" + PlatformInfos::OsPathSepareator() + languageNameLocation + PlatformInfos::OsPathSepareator();
@@ -185,12 +166,9 @@ void LanguagesPreferences::SetupFold(const languagePreferencesStruct &currentLan
         return;
 
     if (currentLanguagePreferences.preferences["fold"]["enabled"].is_boolean())
-    {
         if (!currentLanguagePreferences.preferences["fold"]["enabled"])
             return;
-    }
 
-    // load preferences & styles
     wxString foldSettingsPath = ApplicationPaths::DevelopmentEnvironmentPath() + "config" + PlatformInfos::OsPathSepareator() + "foldSettings" + PlatformInfos::OsPathSepareator() + "foldSettings.json";
     if (!wxFileExists(foldSettingsPath))
     {
@@ -201,9 +179,7 @@ void LanguagesPreferences::SetupFold(const languagePreferencesStruct &currentLan
     std::ifstream foldSettingsIo(foldSettingsPath.ToStdString());
 
     if (!foldSettingsIo)
-    {
         throw std::runtime_error(ERROR_LANGUAGES_PREFERENCES_FILE_NOT_FOUND);
-    }
 
     json foldSettingsObject = json::parse(foldSettingsIo);
 
@@ -211,66 +187,40 @@ void LanguagesPreferences::SetupFold(const languagePreferencesStruct &currentLan
     {
         auto foldProperties = currentLanguagePreferences.preferences["fold"];
 
-        // fold proprerties
         for (const auto &[key, value] : foldProperties.items())
         {
             if (key == "enabled" && value.template get<bool>())
-            {
                 component->SetProperty("fold", "1");
-            }
 
             if (key == "compact" && value.template get<bool>())
-            {
-
                 component->SetProperty("fold.compact", "1");
-            }
 
             if (key == "html" && value.template get<bool>())
-            {
                 component->SetProperty("fold.html", "1");
-            }
 
             if (key == "preprocessor" && value.template get<bool>())
-            {
                 component->SetProperty("fold.preprocessor", "1");
-            }
 
             if (key == "comment" && value.template get<bool>())
-            {
                 component->SetProperty("fold.comment", "1");
-            }
         }
 
-        // fold flags
         for (const auto &[key, value] : foldSettingsObject["default_fold_flags"].items())
         {
             if (value.template get<std::string>() == "line_before")
-            {
                 component->SetFoldFlags(wxSTC_FOLDFLAG_LINEBEFORE_CONTRACTED);
-            }
             if (value.template get<std::string>() == "line_after")
-            {
                 component->SetFoldFlags(wxSTC_FOLDFLAG_LINEAFTER_CONTRACTED);
-            }
             if (value.template get<std::string>() == "level_numbers")
-            {
                 component->SetFoldFlags(wxSTC_FOLDFLAG_LEVELNUMBERS);
-            }
             if (value.template get<std::string>() == "line_after_expanded")
-            {
                 component->SetFoldFlags(wxSTC_FOLDFLAG_LINEAFTER_EXPANDED);
-            }
             if (value.template get<std::string>() == "line_before_expanded")
-            {
                 component->SetFoldFlags(wxSTC_FOLDFLAG_LINEBEFORE_EXPANDED);
-            }
             if (value.template get<std::string>() == "line_state")
-            {
                 component->SetFoldFlags(wxSTC_FOLDFLAG_LINESTATE);
-            }
         }
 
-        // markers
         for (const auto &marker : foldSettingsObject["default_markers"])
         {
             int markerId = marker["marker_id"];
@@ -279,18 +229,10 @@ void LanguagesPreferences::SetupFold(const languagePreferencesStruct &currentLan
             component->MarkerDefine(markerId, markerSymbol);
 
             if (marker.contains("foreground"))
-            {
-                component->MarkerSetForeground(
-                    markerId,
-                    wxColour(marker["foreground"].template get<std::string>()));
-            }
+                component->MarkerSetForeground(markerId, wxColour(marker["foreground"].template get<std::string>()));
 
             if (marker.contains("background"))
-            {
-                component->MarkerSetBackground(
-                    markerId,
-                    wxColour(marker["background"].template get<std::string>()));
-            }
+                component->MarkerSetBackground(markerId, wxColour(marker["background"].template get<std::string>()));
         }
     };
 
@@ -314,9 +256,7 @@ void LanguagesPreferences::SetupReservedWords(const languagePreferencesStruct &c
         auto setupPreferences = [=](wxStyledTextCtrl *component)
         {
             for (auto &[listId, listWords] : syntaxPreferences["keyword_lists"].items())
-            {
                 component->SetKeyWords(std::stoi(listId), listWords.template get<std::string>());
-            }
         };
 
         setupPreferences(editor);
@@ -328,9 +268,7 @@ void LanguagesPreferences::UpdateStatusBar(const languagePreferencesStruct &curr
 {
     StatusBar *statusBar = ((StatusBar *)wxWindow::FindWindowById(+GUI::ControlID::StatusBar));
     if (statusBar)
-    {
         statusBar->UpdateLanguage(currentLanguagePreferences);
-    }
 }
 
 wxString LanguagesPreferences::GetLanguageIconPath(const wxString &path)
@@ -338,13 +276,9 @@ wxString LanguagesPreferences::GetLanguageIconPath(const wxString &path)
     auto currentLanguagePreferences = GetLanguagePreferences(path).preferences;
 
     if (currentLanguagePreferences.contains("icon_file_name"))
-    {
         return ApplicationPaths::GetLanguageIcon(wxString(currentLanguagePreferences["icon_file_name"].template get<std::string>()));
-    }
     else
-    {
         return ApplicationPaths::GetLanguageIcon("unknown");
-    }
 }
 
 void LanguagesPreferences::ApplyLexerStyles(const languagePreferencesStruct &currentLanguagePreferences, wxStyledTextCtrl *editor, wxStyledTextCtrl *minimap)
@@ -360,10 +294,7 @@ void LanguagesPreferences::ApplyLexerStyles(const languagePreferencesStruct &cur
             std::map<int, nlohmann::json> sortedStyles;
 
             for (auto &[key, value] : stylesList.items())
-            {
-                int styleId = std::stoi(key);
-                sortedStyles[styleId] = value;
-            }
+                sortedStyles[std::stoi(key)] = value;
 
             for (auto &[styleId, styleConfig] : sortedStyles)
             {

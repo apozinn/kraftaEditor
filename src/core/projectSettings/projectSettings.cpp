@@ -44,8 +44,10 @@ void ProjectSettings::SetCurrentlyFileOpen(const wxString& filePath) {
     m_currentlyFileOpen = filePath;
 }
 
-void ProjectSettings::SetCurrentlyMenuDir(const wxString& filePath) {
-    m_menuDirPath = filePath;
+void ProjectSettings::SetCurrentlyMenuDir(const wxString& dirPath) {
+    if(wxDirExists(dirPath)) {
+        m_menuDirPath = dirPath;
+    }
 }
 
 void ProjectSettings::SetCurrentlyMenuFile(const wxString& filePath) {

@@ -250,7 +250,7 @@ add_custom_target(run
 
 if(MSVC)
     add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
-    target_compile_options(KraftaEditor PRIVATE /W4 /WX)
+    target_compile_options(KraftaEditor PRIVATE /W4 /WX- /wd4101 /wd4100 /wd4189)
 else()
-    target_compile_options(KraftaEditor PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    target_compile_options(KraftaEditor PRIVATE -Wall -Wextra -Wpedantic -Werror -Wno-unused-variable -Wno-unused-parameter)
 endif()

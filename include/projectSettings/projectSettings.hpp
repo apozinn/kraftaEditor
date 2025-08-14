@@ -28,7 +28,7 @@ public:
 
     // ==================== Currently menu dir Methods ====================
     wxString GetCurrentlyMenuDir() const;
-    void SetCurrentlyMenuDir(const wxString &filePath);
+    void SetCurrentlyMenuDir(const wxString &dirPath);
 
     // ==================== Currently menu file Methods ====================
     wxString GetCurrentlyMenuFile() const;

@@ -11,29 +11,46 @@
 #include <wx/msw/darkmode.h>
 #endif
 
+#include <wx/log.h>
+
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
-using namespace PlatformInfos; 
+using namespace PlatformInfos;
 
 bool KraftaEditor::OnInit()
 {
-    if (!wxApp::OnInit())
-        return false;
+    try
+    {
+        if (!wxApp::OnInit())
+            return false;
 
-    wxInitAllImageHandlers();
+        wxInitAllImageHandlers();
 
-    VerifyIfSytemIsDarkMode();
-    SetupThemeManager();
-    SetupUserSettings();
+        VerifyIfSytemIsDarkMode();
+        SetupThemeManager();
+        SetupUserSettings();
 
-    if (!SetupApplicationDirectories())
-        return false;
+        if (!SetupApplicationDirectories())
+            return false;
 
-    CreateMainWindow();
-    LoadLanguagesPreferences();
+        CreateMainWindow();
+        LoadLanguagesPreferences();
 
-    return true;
+        return true;
+    }
+    catch (const nlohmann::json::type_error &e)
+    {
+        wxMessageBox(e.what());
+        std::cerr << "JSON Type Error: " << e.what() << std::endl;
+    }
+    catch (const std::exception &e)
+    {
+        wxMessageBox(e.what());
+        std::cerr << "Standard Exception: " << e.what() << std::endl;
+    }
+
+    return false;
 }
 
 void KraftaEditor::VerifyIfSytemIsDarkMode()
@@ -114,7 +131,7 @@ void KraftaEditor::OnEventLoopEnter(wxEventLoopBase *WXUNUSED(loop))
         frame->LoadPath(str);
     }
 }
-
+ 
 void KraftaEditor::OnInitCmdLine(wxCmdLineParser &parser)
 {
     wxApp::OnInitCmdLine(parser);

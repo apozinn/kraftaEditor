@@ -22,7 +22,7 @@ MenuBar::MenuBar() {
 		menuEdit->Append (wxID_UNDO, _("&Undo\tCtrl+Z"));
 		menuEdit->Append (wxID_REDO, _("&Redo\tCtrl+Shift+Z"));
 		menuEdit->AppendSeparator();
-		menuEdit->Append (wxID_CUT, _("Cu&t\tCtrl+X"));
+		menuEdit->Append (wxID_CUT, _("&Cut\tCtrl+X"));
 		menuEdit->Append (wxID_COPY, _("&Copy\tCtrl+C"));
 		menuEdit->Append (wxID_PASTE, _("&Paste\tCtrl+V"));
 		menuEdit->AppendSeparator();

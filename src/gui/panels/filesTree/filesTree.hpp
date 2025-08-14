@@ -30,10 +30,11 @@ public:
 	wxWindow *selectedFile = nullptr;
 	FilesTree(wxWindow *parent, wxWindowID ID);
 	void Load(wxWindow *parent, std::string path);
-	void CreateFile(wxWindow *parent, wxString name, wxString path);
-	void CreateDir(wxWindow *parent, wxString name, wxString path, int pos = -1);
+	wxWindow* CreateFile(wxWindow *parent, wxString name, wxString path);
+	wxWindow* CreateDir(wxWindow *parent, wxString name, wxString path, int pos = -1);
 	void OnFileSelect(wxMouseEvent &event);
-	void ToggleDir(wxMouseEvent &event);
+	void OnDirClick(wxMouseEvent &event);
+	void ToggleDir(wxWindow* dirContainer);
 	void OpenFile(wxString path);
 	void onTopMenuClick(wxMouseEvent &WXUNUSED(event));
 	void onFileRightClick(wxMouseEvent &event);

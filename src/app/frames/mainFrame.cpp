@@ -51,9 +51,6 @@ MainFrame::MainFrame(const wxString &title)
     // Create and configure the status bar
     SetupStatusBar();
 
-    // Check for and load last workspace (if any)
-    SetupLastWordspace();
-
     // Configure keyboard shortcuts
     SetupAccelerators();
 
@@ -173,29 +170,6 @@ void MainFrame::SetupStatusBar()
     m_statusBar->Hide();
 }
 
-void MainFrame::SetupLastWordspace()
-{
-    wxConfig *config = new wxConfig("krafta-editor");
-    wxString str;
-    if (config->Read("workspace", &str))
-    {
-        wxString last_workspace = config->Read("workspace", str);
-        LoadPath(last_workspace);
-    }
-    else
-    {
-        m_tabs->CloseAll();
-        // creating a button to open a folder
-        if (auto projectContainer = FindWindowById(+GUI::ControlID::ProjectFilesContainer))
-        {
-            m_openFolderButton = new OpenFolderButton(projectContainer, +GUI::ControlID::OpenFolderButton);
-            m_openFolderButton->Bind(wxEVT_LEFT_UP, &MainFrame::OnOpenFolderClick, this);
-            for (auto &&children : m_openFolderButton->GetChildren())
-                children->Bind(wxEVT_LEFT_UP, &MainFrame::OnOpenFolderClick, this);
-        }
-    }
-}
-
 void MainFrame::SetupAccelerators()
 {
     wxAcceleratorEntry entries[4];
@@ -255,10 +229,11 @@ void MainFrame::OnNewWindow(wxCommandEvent &WXUNUSED(event))
 
 bool MainFrame::CreateWatcherIfNecessary()
 {
-    if (m_watcher) {
+    if (m_watcher)
+    {
         return false; // Watcher already exists
     }
-    
+
     CreateWatcher();
     Bind(wxEVT_FSWATCHER, &MainFrame::OnFileSystemEvent, this);
     return true;
@@ -267,20 +242,23 @@ bool MainFrame::CreateWatcherIfNecessary()
 void MainFrame::CreateWatcher()
 {
     // Check if application is in valid state for watcher creation
-    if (!wxTheApp || !wxTheApp->IsActive() || IsBeingDeleted()) {
+    if (!wxTheApp || !wxTheApp->IsActive() || IsBeingDeleted())
+    {
         wxLogWarning("Cannot create watcher - application not active or being destroyed");
         return;
     }
 
     // Prevent duplicate initialization
-    if (m_watcher) {
+    if (m_watcher)
+    {
         wxLogError("File watcher already initialized");
         return;
     }
 
     // Create watcher instance
     m_watcher = new wxFileSystemWatcher();
-    if (!m_watcher) {
+    if (!m_watcher)
+    {
         wxLogFatalError("Failed to create file system watcher - memory allocation error");
         return;
     }
@@ -320,7 +298,6 @@ void MainFrame::AddEntry(wxFSWPathType type, wxString filename)
         return;
 
     wxCHECK_RET(m_watcher, "Watcher not initialized");
-
     wxString prefix;
 
     wxFileName fn = wxFileName::DirName(filename);
@@ -446,7 +423,10 @@ void MainFrame::CloseAllFiles(wxCommandEvent &WXUNUSED(event))
 
 void MainFrame::LoadPath(wxString path)
 {
+    if (path == ProjectSettings::Get().GetProjectPath())
+        return;
     wxDir dir(path);
+
     // verify if dir exists
     if (!dir.Exists(path))
     {
@@ -634,33 +614,36 @@ void MainFrame::OnExit(wxCommandEvent &WXUNUSED(event))
     Close(true);
 }
 
-void MainFrame::OnClose(wxCloseEvent& event)
+void MainFrame::OnClose(wxCloseEvent &event)
 {
     static bool isClosing = false;
-    
+
     // Prevent reentrant calls
-    if (isClosing) {
+    if (isClosing)
+    {
         event.Skip();
         return;
     }
     isClosing = true;
 
     // Close all tabs
-    if (m_tabs) {
+    if (m_tabs)
+    {
         m_tabs->CloseAll();
     }
 
     // Clean up file watcher
-    if (m_watcher) {
+    if (m_watcher)
+    {
         wxLogDebug("Cleaning up file system watcher");
-        m_watcher->RemoveAll();  // Stop all watches
-        Unbind(wxEVT_FSWATCHER, &MainFrame::OnFileSystemEvent, this);  // Remove event handler
-        wxDELETE(m_watcher);  // Safe deletion (sets pointer to nullptr)
+        m_watcher->RemoveAll();                                       // Stop all watches
+        Unbind(wxEVT_FSWATCHER, &MainFrame::OnFileSystemEvent, this); // Remove event handler
+        wxDELETE(m_watcher);                                          // Safe deletion (sets pointer to nullptr)
     }
 
     // Initiate controlled shutdown
-    Destroy();  // This will automatically exit main loop when done
-    event.Skip(false);  // We've handled the event completely
+    Destroy();         // This will automatically exit main loop when done
+    event.Skip(false); // We've handled the event completely
 }
 
 void MainFrame::OnOpenFolderMenu(wxCommandEvent &WXUNUSED(event)) { OpenFolderDialog(); }
@@ -669,47 +652,47 @@ void MainFrame::OnOpenFolderClick(wxMouseEvent &WXUNUSED(event)) { OpenFolderDia
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     // File Operations
     EVT_MENU(+Event::File::CreateFileEvent, FilesTree::OnCreateFile)
-    EVT_MENU(+Event::File::CreateDir, FilesTree::OnCreateDir)
-    EVT_MENU(+Event::File::Save, CodeContainer::OnSave)
-    EVT_MENU(+Event::File::SaveAs, CodeContainer::OnSaveAs)
-    EVT_MENU(+Event::File::SaveAll, CodeContainer::OnSaveAll)
-    EVT_MENU(+Event::File::CloseFile, CodeContainer::OnCloseFile)
-    EVT_MENU(+Event::File::CloseAll, MainFrame::CloseAllFiles)
-    EVT_MENU(+Event::File::OpenFile, MainFrame::OnOpenFile)
+        EVT_MENU(+Event::File::CreateDir, FilesTree::OnCreateDir)
+            EVT_MENU(+Event::File::Save, CodeContainer::OnSave)
+                EVT_MENU(+Event::File::SaveAs, CodeContainer::OnSaveAs)
+                    EVT_MENU(+Event::File::SaveAll, CodeContainer::OnSaveAll)
+                        EVT_MENU(+Event::File::CloseFile, CodeContainer::OnCloseFile)
+                            EVT_MENU(+Event::File::CloseAll, MainFrame::CloseAllFiles)
+                                EVT_MENU(+Event::File::OpenFile, MainFrame::OnOpenFile)
 
     // Edit Operations
     EVT_MENU(+Event::Edit::Cut, CodeContainer::OnCut)
-    EVT_MENU(+Event::Edit::Copy, CodeContainer::OnCopy)
-    EVT_MENU(+Event::Edit::Paste, CodeContainer::OnPaste)
-    EVT_MENU(+Event::Edit::Redo, CodeContainer::OnRedo)
-    EVT_MENU(+Event::Edit::Undo, CodeContainer::OnUndo)
-    EVT_MENU(+Event::Edit::ToggleComment, CodeContainer::ToggleCommentLine)
-    EVT_MENU(+Event::Edit::ToggleBlockComment, CodeContainer::ToggleCommentBlock)
-    EVT_MENU(+Event::Edit::SelectLine, CodeContainer::OnSelectLine)
-    EVT_MENU(+Event::Edit::SelectAll, CodeContainer::OnSelectAll)
+        EVT_MENU(+Event::Edit::Copy, CodeContainer::OnCopy)
+            EVT_MENU(+Event::Edit::Paste, CodeContainer::OnPaste)
+                EVT_MENU(+Event::Edit::Redo, CodeContainer::OnRedo)
+                    EVT_MENU(+Event::Edit::Undo, CodeContainer::OnUndo)
+                        EVT_MENU(+Event::Edit::ToggleComment, CodeContainer::ToggleCommentLine)
+                            EVT_MENU(+Event::Edit::ToggleBlockComment, CodeContainer::ToggleCommentBlock)
+                                EVT_MENU(+Event::Edit::SelectLine, CodeContainer::OnSelectLine)
+                                    EVT_MENU(+Event::Edit::SelectAll, CodeContainer::OnSelectAll)
 
     // View Operations
     EVT_MENU(+Event::View::ToggleMiniMap, CodeContainer::OnToggleMinimapView)
-    EVT_MENU(+Event::View::ToggleCodeSearch, MainFrame::OnToggleSearch)
-    EVT_MENU(+Event::View::ToggleControlPanel, MainFrame::OnToggleControlPanel)
-    EVT_MENU(+Event::View::ToggleFileTree, MainFrame::OnToggleFileTreeView)
-    EVT_MENU(+Event::View::ToggleMenuBar, MainFrame::OnToggleMenuBarView)
-    EVT_MENU(+Event::View::ToggleStatusBar, MainFrame::OnToggleStatusBarView)
-    EVT_MENU(+Event::View::ToggleTabBar, MainFrame::OnToggleTabBarView)
+        EVT_MENU(+Event::View::ToggleCodeSearch, MainFrame::OnToggleSearch)
+            EVT_MENU(+Event::View::ToggleControlPanel, MainFrame::OnToggleControlPanel)
+                EVT_MENU(+Event::View::ToggleFileTree, MainFrame::OnToggleFileTreeView)
+                    EVT_MENU(+Event::View::ToggleMenuBar, MainFrame::OnToggleMenuBarView)
+                        EVT_MENU(+Event::View::ToggleStatusBar, MainFrame::OnToggleStatusBarView)
+                            EVT_MENU(+Event::View::ToggleTabBar, MainFrame::OnToggleTabBarView)
 
     // Project Operations
     EVT_MENU(+Event::Project::OpenFolder, MainFrame::OnOpenFolderMenu)
-    EVT_MENU(+Event::Project::CloseFolder, MainFrame::OnCloseFolder)
+        EVT_MENU(+Event::Project::CloseFolder, MainFrame::OnCloseFolder)
 
     // Frame Operations
     EVT_MENU(+Event::Frame::NewWindow, MainFrame::OnNewWindow)
-    EVT_MENU(+Event::Frame::Exit, MainFrame::OnExit)
-    EVT_MENU(+Event::Frame::About, MainFrame::OnAbout)
-    EVT_CLOSE(MainFrame::OnClose)
+        EVT_MENU(+Event::Frame::Exit, MainFrame::OnExit)
+            EVT_MENU(+Event::Frame::About, MainFrame::OnAbout)
+                EVT_CLOSE(MainFrame::OnClose)
 
     // Terminal
     EVT_MENU(+Event::Terminal::Open, MainFrame::OnOpenTerminal)
 
     // Settings
     EVT_MENU(+Event::UserSettings::Edit, MainFrame::OnEditSettings)
-wxEND_EVENT_TABLE()
+        wxEND_EVENT_TABLE()
