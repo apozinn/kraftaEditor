@@ -327,7 +327,7 @@ void MainFrame::AddEntry(wxFSWPathType type, wxString filename)
 
 void MainFrame::OnFileSystemEvent(wxFileSystemWatcherEvent &event)
 {
-    m_filesTree->OnComponentModified(
+    m_filesTree->OnFileSystemEvent(
         event.GetChangeType(),
         event.GetPath().GetFullPath(),
         event.GetNewPath().GetFullPath());
@@ -348,7 +348,7 @@ void MainFrame::OpenFolderDialog()
         if (m_tabs)
             m_tabs->CloseAll();
 
-        m_filesTree->Load(m_filesTree->projectFilesContainer, path.ToStdString());
+        m_filesTree->LoadProject(m_filesTree->GetProjectFilesContainer(), path);
 
         wxConfig *config = new wxConfig("krafta-editor");
         config->Write("workspace", path);
@@ -365,7 +365,7 @@ void MainFrame::OnOpenFile(wxCommandEvent &WXUNUSED(event))
     dlg->ShowModal();
     wxString path = dlg->GetPath();
     if (path.size())
-    {
+    {  
         m_filesTree->OpenFile(path);
         AddEntry(wxFSWPath_File, path);
     }
@@ -455,7 +455,7 @@ void MainFrame::LoadPath(wxString path)
     delete config;
 
     m_tabs->CloseAll();
-    m_filesTree->Load(m_filesTree->projectFilesContainer, path.ToStdString());
+    m_filesTree->LoadProject(m_filesTree->GetProjectFilesContainer(), path);
     SetTitle("Krafta Editor - " + projectSettings.GetProjectName());
 
     AddEntry(wxFSWPath_Tree, path);
@@ -471,8 +471,7 @@ void MainFrame::OnOpenTerminal(wxCommandEvent &WXUNUSED(event))
 
 void MainFrame::OnCloseFolder(wxCommandEvent &WXUNUSED(event))
 {
-    m_filesTree->projectFilesContainer->DestroyChildren();
-    m_filesTree->projectToggler->Hide();
+    m_filesTree->CloseProject();
 
     for (auto &&mainCodeChildren : m_mainCode->GetChildren())
     {
@@ -648,51 +647,3 @@ void MainFrame::OnClose(wxCloseEvent &event)
 
 void MainFrame::OnOpenFolderMenu(wxCommandEvent &WXUNUSED(event)) { OpenFolderDialog(); }
 void MainFrame::OnOpenFolderClick(wxMouseEvent &WXUNUSED(event)) { OpenFolderDialog(); }
-
-wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
-    // File Operations
-    EVT_MENU(+Event::File::CreateFileEvent, FilesTree::OnCreateFile)
-        EVT_MENU(+Event::File::CreateDir, FilesTree::OnCreateDir)
-            EVT_MENU(+Event::File::Save, CodeContainer::OnSave)
-                EVT_MENU(+Event::File::SaveAs, CodeContainer::OnSaveAs)
-                    EVT_MENU(+Event::File::SaveAll, CodeContainer::OnSaveAll)
-                        EVT_MENU(+Event::File::CloseFile, CodeContainer::OnCloseFile)
-                            EVT_MENU(+Event::File::CloseAll, MainFrame::CloseAllFiles)
-                                EVT_MENU(+Event::File::OpenFile, MainFrame::OnOpenFile)
-
-    // Edit Operations
-    EVT_MENU(+Event::Edit::Cut, CodeContainer::OnCut)
-        EVT_MENU(+Event::Edit::Copy, CodeContainer::OnCopy)
-            EVT_MENU(+Event::Edit::Paste, CodeContainer::OnPaste)
-                EVT_MENU(+Event::Edit::Redo, CodeContainer::OnRedo)
-                    EVT_MENU(+Event::Edit::Undo, CodeContainer::OnUndo)
-                        EVT_MENU(+Event::Edit::ToggleComment, CodeContainer::ToggleCommentLine)
-                            EVT_MENU(+Event::Edit::ToggleBlockComment, CodeContainer::ToggleCommentBlock)
-                                EVT_MENU(+Event::Edit::SelectLine, CodeContainer::OnSelectLine)
-                                    EVT_MENU(+Event::Edit::SelectAll, CodeContainer::OnSelectAll)
-
-    // View Operations
-    EVT_MENU(+Event::View::ToggleMiniMap, CodeContainer::OnToggleMinimapView)
-        EVT_MENU(+Event::View::ToggleCodeSearch, MainFrame::OnToggleSearch)
-            EVT_MENU(+Event::View::ToggleControlPanel, MainFrame::OnToggleControlPanel)
-                EVT_MENU(+Event::View::ToggleFileTree, MainFrame::OnToggleFileTreeView)
-                    EVT_MENU(+Event::View::ToggleMenuBar, MainFrame::OnToggleMenuBarView)
-                        EVT_MENU(+Event::View::ToggleStatusBar, MainFrame::OnToggleStatusBarView)
-                            EVT_MENU(+Event::View::ToggleTabBar, MainFrame::OnToggleTabBarView)
-
-    // Project Operations
-    EVT_MENU(+Event::Project::OpenFolder, MainFrame::OnOpenFolderMenu)
-        EVT_MENU(+Event::Project::CloseFolder, MainFrame::OnCloseFolder)
-
-    // Frame Operations
-    EVT_MENU(+Event::Frame::NewWindow, MainFrame::OnNewWindow)
-        EVT_MENU(+Event::Frame::Exit, MainFrame::OnExit)
-            EVT_MENU(+Event::Frame::About, MainFrame::OnAbout)
-                EVT_CLOSE(MainFrame::OnClose)
-
-    // Terminal
-    EVT_MENU(+Event::Terminal::Open, MainFrame::OnOpenTerminal)
-
-    // Settings
-    EVT_MENU(+Event::UserSettings::Edit, MainFrame::OnEditSettings)
-        wxEND_EVENT_TABLE()

@@ -111,7 +111,7 @@ namespace ApplicationPaths
         return path;
     }
 
-    wxString AssetsPath(const wxString &target = wxEmptyString)
+    wxString AssetsPath(const wxString &target)
     {
         wxString devPath = DevelopmentEnvironmentPath();
 
@@ -129,6 +129,15 @@ namespace ApplicationPaths
             return wxEmptyString;
         }
         return path;
+    }
+
+    wxString GetIconPath(const wxString& iconName) {
+        wxString iconPath = AssetsPath("icons")+iconName;
+        if(wxFileExists(iconPath)) {
+            return iconPath;
+        } else {
+            return wxEmptyString;
+        }
     }
 
     wxString GetLanguageIcon(const wxString &languageName)

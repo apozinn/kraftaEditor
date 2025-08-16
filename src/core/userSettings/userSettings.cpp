@@ -168,3 +168,32 @@ json UserSettingsManager::MergeWithDefaults(json &data)
 
     return data;
 }
+
+template<typename T>
+RequestedSetting<T> UserSettingsManager::GetSetting(const std::string& settingName)
+{
+    std::lock_guard<std::mutex> lock(settingsMutex);
+    RequestedSetting<T> result{};
+    auto it = currentSettings.find(settingName);
+    if (it != currentSettings.end())
+    {
+        try
+        {
+            result.value = it->get<T>();
+            result.found = true;
+        }
+        catch (nlohmann::json::type_error&)
+        {
+            result.found = false;
+        }
+    }
+    else
+    {
+        result.found = false;
+    }
+    return result;
+}
+
+template RequestedSetting<bool> UserSettingsManager::GetSetting<bool>(const std::string& settingName);
+template RequestedSetting<int> UserSettingsManager::GetSetting<int>(const std::string& settingName);
+template RequestedSetting<std::string> UserSettingsManager::GetSetting<std::string>(const std::string& settingName);

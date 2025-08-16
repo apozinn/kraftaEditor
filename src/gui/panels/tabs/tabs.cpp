@@ -157,7 +157,7 @@ void Tabs::Close(wxWindow *tab, wxString tab_path)
 		auto linkedFile = FindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_file_container");
 		if (linkedFile)
 		{
-			fileContainer->SetSelectedFile(linkedFile);
+			fileContainer->SetFileHighlight(linkedFile->GetName());
 		}
 
 		// openning the new component
@@ -172,7 +172,7 @@ void Tabs::Close(wxWindow *tab, wxString tab_path)
 	else
 	{
 		// If you don't have another tab, close the tabContainer and show the empty window
-		fileContainer->SetSelectedFile(nullptr);
+		fileContainer->SetFileHighlight("");
 
 		Hide();
 		auto emptyWindow = FindWindowById(+GUI::ControlID::EmptyWindow);
@@ -200,7 +200,7 @@ void Tabs::CloseAll()
 	auto fileContainer = ((FilesTree *)FindWindowById(+GUI::ControlID::FilesTree));
 	if (fileContainer)
 	{
-		fileContainer->SetSelectedFile(nullptr);
+		fileContainer->SetFileHighlight("");
 	}
 	
 	tabsContainer->DestroyChildren();
