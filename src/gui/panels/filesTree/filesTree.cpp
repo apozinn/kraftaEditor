@@ -627,7 +627,7 @@ void FilesTree::OnCreateDirRequested(wxCommandEvent &WXUNUSED(event))
 
 		if (!wxDirExists(ProjectSettings::Get().GetCurrentlyMenuDir()))
 		{
-			wxMessageBox(ErrorMessages::ItsWasNotPossivelToFindDirectoryParent, "Error", wxOK | wxICON_ERROR);
+			wxMessageBox(ErrorMessages::CannotFindDirectoryParent , "Error", wxOK | wxICON_ERROR);
 			return;
 		}
 
@@ -758,7 +758,7 @@ void FilesTree::OnCreateFileRequested(wxCommandEvent &WXUNUSED(event))
 
 		if (!wxDirExists(ProjectSettings::Get().GetCurrentlyMenuDir()))
 		{
-			wxMessageBox(ErrorMessages::ItsWasNotPossivelToFindDirectoryParent, "Error", wxOK | wxICON_ERROR);
+			wxMessageBox(ErrorMessages::CannotFindDirectoryParent , "Error", wxOK | wxICON_ERROR);
 			return;
 		}
 
