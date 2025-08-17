@@ -239,24 +239,30 @@ wxWindow *FilesTree::CreateFileContainer(wxWindow *parent, const wxString &path)
 	return fileContainer;
 }
 
-wxWindow *FilesTree::CreateDirContainer(wxWindow *parent, wxString path, int pos)
+wxWindow *FilesTree::CreateDirContainer(wxWindow *parent, wxString path, bool withPosition, int pos)
 {
 	if (wxString(path.Last()) != PlatformInfos::OsPathSepareator())
 		path.Append(PlatformInfos::OsPathSepareator());
 
 	if (!parent)
 		return nullptr;
+
 	if (!wxDirExists(path))
 	{
 		wxMessageBox(ErrorMessages::CannotOpenDirForReadContent, "Error", wxOK | wxICON_ERROR);
 		return nullptr;
 	}
+
 	if (FindWindowByLabel(path + "_dir_container"))
 		return nullptr;
 
 	wxSizer *parentSizer = parent->GetSizer();
 	wxPanel *dirContainer = new wxPanel(parent);
-	wxBoxSizer *dirContainer_sizer = new wxBoxSizer(wxHORIZONTAL);
+
+	dirContainer->SetMinSize(wxSize(dirContainer->GetSize().GetWidth(), 20));
+	dirContainer->SetSize(dirContainer->GetSize().GetWidth(), 20);
+
+	wxBoxSizer *dirContainer_sizer = new wxBoxSizer(wxVERTICAL);
 
 	dirContainer->SetToolTip(path);
 
@@ -272,7 +278,7 @@ wxWindow *FilesTree::CreateDirContainer(wxWindow *parent, wxString path, int pos
 	dirContainer_props->SetToolTip(path);
 	dirContainer_props->SetLabel("dir_props");
 
-	dirContainer_props->Bind(wxEVT_RIGHT_UP, &FilesTree::OnDirLeftClick, this);
+	dirContainer_props->Bind(wxEVT_LEFT_UP, &FilesTree::OnDirLeftClick, this);
 
 	wxString arrowPath = ApplicationPaths::GetIconPath("dir_arrow.png");
 	if (!arrowPath.IsEmpty())
@@ -288,7 +294,10 @@ wxWindow *FilesTree::CreateDirContainer(wxWindow *parent, wxString path, int pos
 		}
 	}
 
-	wxStaticText *dirContainer_name = new wxStaticText(dirContainer_props, wxID_ANY, wxFileNameFromPath(path));
+	wxString name = path;
+	name.RemoveLast();
+
+	wxStaticText *dirContainer_name = new wxStaticText(dirContainer_props, wxID_ANY, wxFileNameFromPath(name));
 	dirContainer_name->SetName("dir_name");
 
 	dirContainer_name->Bind(wxEVT_LEFT_UP, &FilesTree::OnDirLeftClick, this);
@@ -296,6 +305,8 @@ wxWindow *FilesTree::CreateDirContainer(wxWindow *parent, wxString path, int pos
 
 	dirContainer_props_sizer->Add(dirContainer_name, 0, wxEXPAND | wxLEFT, 4);
 	dirContainer_props->SetSizerAndFit(dirContainer_props_sizer);
+
+	dirContainer_sizer->Add(dirContainer_props, 0, wxEXPAND | wxLEFT, 8);
 
 	wxPanel *dirChildrens = new wxPanel(dirContainer);
 	wxBoxSizer *dirChildrens_sizer = new wxBoxSizer(wxVERTICAL);
@@ -305,21 +316,18 @@ wxWindow *FilesTree::CreateDirContainer(wxWindow *parent, wxString path, int pos
 
 	dirChildrens->Bind(wxEVT_PAINT, &FilesTree::OnDirChildrensPaint, this);
 
-	wxBoxSizer *dir_childrens_sizer = new wxBoxSizer(wxVERTICAL);
-	dirChildrens->SetSizerAndFit(dir_childrens_sizer);
+	dirChildrens->SetSizerAndFit(dirChildrens_sizer);
 	dirContainer_sizer->Add(dirChildrens, 0, wxEXPAND | wxLEFT, 10);
 
 	dirContainer->SetSizerAndFit(dirContainer_sizer);
 	dirChildrens->Hide();
 
-	if (pos >= 0)
-	{
+	if (withPosition)
 		parentSizer->Insert(pos, dirContainer, 0, wxEXPAND | wxLEFT, 2);
-	}
 	else
 		parentSizer->Add(dirContainer, 0, wxEXPAND | wxLEFT, 2);
 
-	parentSizer->Layout();
+	parent->Layout();
 	return dirContainer;
 }
 
@@ -564,54 +572,73 @@ void FilesTree::OnPaint(wxPaintEvent &event)
 
 void FilesTree::AdjustContainerSize(const wxString &componentIdentifier)
 {
-	wxWindow *dirContainer = wxFindWindowByLabel(componentIdentifier + "_dir_container");
-	if (!dirContainer)
-		return;
+    // Find the directory children panel based on its identifier
+    wxWindow* dirChildrens = wxFindWindowByLabel(componentIdentifier + "_dir_childrens");
+    if (!dirChildrens)
+        return;
 
-	wxWindow *parent = dirContainer;
-	const int mainContainerId = +GUI::ControlID::ProjectFilesContainer;
+    wxWindow* parent = dirChildrens;
+    const int mainContainerId = +GUI::ControlID::ProjectFilesContainer;
 
-	if (!parent->IsShownOnScreen())
-	{
-		while (parent && parent->GetId() != mainContainerId)
-		{
-			if (!parent->IsShownOnScreen())
-			{
-				parent->SetSize(wxSize(0, 0));
-				parent->SetMinSize(wxSize(0, 0));
-			}
+    // Case 1: The directory is hidden (collapsed)
+    if (!parent->IsShownOnScreen())
+    {
+        while (parent && parent->GetId() != mainContainerId)
+        {
+            // Ensure hidden containers collapse to size 0
+            if (!parent->IsShownOnScreen())
+            {
+                parent->SetSize(wxSize(0, 0));
+                parent->SetMinSize(wxSize(0, 0));
+            }
 
-			wxSize calculatedSize(parent->GetSize().x, 20);
-			for (wxWindow *child : parent->GetChildren())
-			{
-				if (child->IsShownOnScreen())
-					calculatedSize.IncBy(0, child->GetSize().y);
-			}
+            if (parent->GetSizer())
+                parent->GetSizer()->Layout();
 
-			parent->SetMinSize(calculatedSize);
-			if (parent->GetSizer())
-				parent->GetSizer()->Layout();
+            // Start with a minimal height and accumulate children's heights
+            wxSize calculatedSize(parent->GetSize().x, 16);
+            for (wxWindow* child : parent->GetChildren())
+            {
+                if (child->IsShownOnScreen())
+                    calculatedSize.IncBy(0, child->GetSize().y);
+            }
 
-			parent = parent->GetParent();
-		}
-	}
-	else
-	{
-		while (parent && parent->GetId() != mainContainerId)
-		{
-			parent->SetMinSize(parent->GetBestSize());
-			if (parent->GetSizer())
-				parent->GetSizer()->Layout();
+            // Refresh visuals to reflect size adjustments
+            parent->Update();
+            parent->Refresh();
 
-			parent = parent->GetParent();
-		}
-	}
+            // Move one level up and apply the calculated size
+            parent = parent->GetParent();
 
-	if (m_projectFilesContainer)
-	{
-		m_projectFilesContainer->FitInside();
-		m_projectFilesContainer->Layout();
-	}
+            if (parent)
+            {
+                parent->SetMinSize(calculatedSize);
+                if (parent->GetSizer())
+                    parent->GetSizer()->Layout();
+            }
+
+            parent = parent ? parent->GetParent() : nullptr;
+        }
+    }
+    // Case 2: The directory is visible (expanded)
+    else
+    {
+        while (parent && parent->GetId() != mainContainerId)
+        {
+            // Use the best size automatically when visible
+            parent->SetMinSize(parent->GetBestSize());
+            if (parent->GetSizer())
+                parent->GetSizer()->Layout();
+            parent = parent->GetParent();
+        }
+    }
+
+    // Ensure the main project files container recalculates its layout
+    if (m_projectFilesContainer)
+    {
+        m_projectFilesContainer->FitInside();
+        m_projectFilesContainer->Layout();
+    }
 }
 
 void FilesTree::OnCreateDirRequested(wxCommandEvent &WXUNUSED(event))
@@ -627,7 +654,7 @@ void FilesTree::OnCreateDirRequested(wxCommandEvent &WXUNUSED(event))
 
 		if (!wxDirExists(ProjectSettings::Get().GetCurrentlyMenuDir()))
 		{
-			wxMessageBox(ErrorMessages::CannotFindDirectoryParent , "Error", wxOK | wxICON_ERROR);
+			wxMessageBox(ErrorMessages::CannotFindDirectoryParent, "Error", wxOK | wxICON_ERROR);
 			return;
 		}
 
@@ -758,7 +785,7 @@ void FilesTree::OnCreateFileRequested(wxCommandEvent &WXUNUSED(event))
 
 		if (!wxDirExists(ProjectSettings::Get().GetCurrentlyMenuDir()))
 		{
-			wxMessageBox(ErrorMessages::CannotFindDirectoryParent , "Error", wxOK | wxICON_ERROR);
+			wxMessageBox(ErrorMessages::CannotFindDirectoryParent, "Error", wxOK | wxICON_ERROR);
 			return;
 		}
 
@@ -906,7 +933,7 @@ void FilesTree::OnFileSystemEvent(int type, const wxString &oldPath, wxString ne
 				if (isFile)
 					CreateFileContainer(parentComponent, newPath);
 				else
-					CreateDirContainer(parentComponent, newPath, position);
+					CreateDirContainer(parentComponent, newPath, true, position);
 			}
 			position++;
 		}

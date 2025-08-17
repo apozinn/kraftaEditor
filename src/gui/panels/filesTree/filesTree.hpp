@@ -120,6 +120,15 @@ private:
     wxWindow *CreateFileContainer(wxWindow *parent, const wxString &path);
 
     /**
+     * @brief Creates a container widget for displaying a directory.
+     * @param parent The parent window.
+     * @param path The path to the directory.
+     * @param pos Optional index position within the parent sizer.
+     * @return A pointer to the created directory container widget.
+     */
+    wxWindow *CreateDirContainer(wxWindow *parent, wxString path, bool withPosition=false, int pos = 0);
+
+    /**
      * @brief Links mouse click events to the project information components.
      *
      * Sets up event handlers so that clicking on specific project information UI elements
@@ -133,15 +142,6 @@ private:
      * @param event The wxMouseEvent containing information about the mouse click.
      */
     void ProjectInformationsLeftClick(wxMouseEvent &WXUNUSED(event));
-
-    /**
-     * @brief Creates a container widget for displaying a directory.
-     * @param parent The parent window.
-     * @param path The path to the directory.
-     * @param pos Optional index position within the parent sizer.
-     * @return A pointer to the created directory container widget.
-     */
-    wxWindow *CreateDirContainer(wxWindow *parent, wxString path, int pos = 0);
 
     /**
      * @brief Handles the paint event for directory child components.
