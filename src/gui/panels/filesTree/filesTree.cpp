@@ -237,10 +237,6 @@ wxWindow *FilesTree::CreateFileContainer(wxWindow *parent, const wxString &path)
 			win->Bind(wxEVT_LEAVE_WINDOW, &FilesTree::OnComponentMouseExit, this);
 		});
 
-	// if (ProjectSettings::Get().GetCurrentlyMenuFile() == path) {
-	// 	wxLogMessage("cu");
-	// }
-
 	return fileContainer;
 }
 
@@ -945,7 +941,6 @@ void FilesTree::OnFileSystemEvent(int type, const wxString &oldPath, wxString ne
 		auto component = wxFindWindowByLabel(oldPath + "_file_container");
 		if (!component)
 		{
-			wxLogMessage("merda");
 			if (auto isDirComponent = wxFindWindowByLabel(oldPath + PlatformInfos::OsPathSepareator() + "_dir_container"))
 				component = isDirComponent;
 			else
