@@ -110,29 +110,35 @@ void Tabs::Add(wxString tab_name, wxString path)
 void Tabs::Close(wxWindow *tab, wxString tab_path)
 {
 	auto codeContainer = ((CodeContainer *)FindWindowByName(tab_path + "_codeContainer"));
-	auto imgContainer = ((wxPanel *)FindWindowByLabel(tab_path + "_imgContainer"));
+	auto imgContainer = ((wxPanel *)FindWindowByLabel(tab_path + "_imageContainer"));
 	auto fileContainer = ((FilesTree *)FindWindowById(+GUI::ControlID::FilesTree));
 	auto mainCode = FindWindowById(+GUI::ControlID::MainCode);
 
-	if(codeContainer->editor->Modified()){
-		SaveChangesDialog dlg(NULL, wxString("Do you want to save the changes you made to "+ wxFileNameFromPath(codeContainer->currentPath))+"?", "Krafta Editor");
-		int result = dlg.ShowModal();
-		
-		//save
-		if (result == wxID_OK) {
-			codeContainer->Save(codeContainer->currentPath);
-		}
-		//don't save
-		if(result == +Event::Frame::DontSaveChanges) {}
-		//cancel
-		if(result == wxID_CANCEL) {
-			return;
-		}
-	}
-
 	// close linked components
 	if (codeContainer)
+	{
+		if (codeContainer->editor->Modified())
+		{
+			SaveChangesDialog dlg(NULL, wxString("Do you want to save the changes you made to " + wxFileNameFromPath(codeContainer->currentPath)) + "?", "Krafta Editor");
+			int result = dlg.ShowModal();
+
+			// save
+			if (result == wxID_OK)
+			{
+				codeContainer->Save(codeContainer->currentPath);
+			}
+			// don't save
+			if (result == +Event::Frame::DontSaveChanges)
+			{
+			}
+			// cancel
+			if (result == wxID_CANCEL)
+			{
+				return;
+			}
+		}
 		codeContainer->Destroy();
+	}
 	if (imgContainer)
 		imgContainer->Destroy();
 
@@ -165,7 +171,7 @@ void Tabs::Close(wxWindow *tab, wxString tab_path)
 		if (other_codeContainer)
 			other_codeContainer->Show();
 
-		auto new_imageContainer = FindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_imgContainer");
+		auto new_imageContainer = FindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_imageContainer");
 		if (new_imageContainer)
 			new_imageContainer->Show();
 	}
@@ -202,12 +208,11 @@ void Tabs::CloseAll()
 	{
 		fileContainer->SetFileHighlight("");
 	}
-	
+
 	tabsContainer->DestroyChildren();
 	Hide();
 	if (auto emptyWindow = FindWindowById(+GUI::ControlID::EmptyWindow))
 		emptyWindow->Show();
-
 }
 
 void Tabs::Select()
