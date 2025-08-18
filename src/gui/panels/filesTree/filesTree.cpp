@@ -535,7 +535,11 @@ void FilesTree::ToggleDirVisibility(const wxString &componentIdentifier, bool de
 	if (dirArrowIcon && dirChildrens)
 	{
 		auto arrow_bit = dirArrowIcon->GetBitmap();
-		if (defaultShow || !dirChildrens->IsShown())
+		if(defaultShow) {
+			dirChildrens->Show();
+			dirArrowIcon->SetBitmap(wxBitmap(arrow_bit.ConvertToImage().Rotate90(true), -1));
+			return;
+		} else if (!dirChildrens->IsShown())
 		{
 			dirChildrens->Show();
 			dirArrowIcon->SetBitmap(wxBitmap(arrow_bit.ConvertToImage().Rotate90(true), -1));
@@ -570,7 +574,6 @@ void FilesTree::AdjustContainerSize(wxWindow *target)
 		return;
 
 	wxWindow *parent = target;
-
 	const int mainContainerId = +GUI::ControlID::ProjectFilesContainer;
 
 	// Case 1: The directory is hidden (collapsed)
@@ -588,7 +591,7 @@ void FilesTree::AdjustContainerSize(wxWindow *target)
 			parent->Update();
 			parent->Refresh();
 
-			wxSize thisSize = wxSize(parent->GetSize().x, 20);
+			wxSize thisSize = wxSize(parent->GetSize().x, 16);
 			for (auto &&children : parent->GetChildren())
 			{
 				if (children->IsShownOnScreen())
@@ -789,6 +792,8 @@ void FilesTree::OnCreateFileRequested(wxCommandEvent &WXUNUSED(event))
 			{
 				wxFileName fullPath(filePath);
 				wxString parentPath = fullPath.GetPath(wxPATH_GET_VOLUME | wxPATH_GET_SEPARATOR);
+
+				ToggleDirVisibility(parentPath, true);
 
 				ProjectSettings::Get().SetCurrentlyMenuFile(filePath);
 			}
