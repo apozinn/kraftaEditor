@@ -62,9 +62,7 @@ FilesTree::FilesTree(wxWindow *parent, wxWindowID ID)
 	m_sizer->Add(m_projectInformations, 0, wxEXPAND | wxTOP | wxBOTTOM, 5);
 
 	if (!ProjectSettings::Get().IsProjectSet())
-	{
 		m_projectInformations->Hide();
-	}
 
 	m_projectFilesContainer = new wxScrolled<wxPanel>(this, +GUI::ControlID::ProjectFilesContainer);
 	m_projectFilesContainer->SetScrollbars(20, 20, 50, 50);
@@ -186,6 +184,9 @@ wxWindow *FilesTree::CreateFileContainer(wxWindow *parent, const wxString &path)
 	wxPanel *fileContainer = new wxPanel(parent);
 	wxBoxSizer *fileContainer_sizer = new wxBoxSizer(wxHORIZONTAL);
 
+	fileContainer->SetMinSize(wxSize(fileContainer->GetSize().GetWidth(), 20));
+	fileContainer->SetSize(fileContainer->GetSize().GetWidth(), 20);
+
 	fileContainer->SetToolTip(path);
 
 	fileContainer->Bind(wxEVT_LEFT_UP, &FilesTree::OnFileLeftClick, this);
@@ -277,6 +278,7 @@ wxWindow *FilesTree::CreateDirContainer(wxWindow *parent, wxString path, bool wi
 	wxBoxSizer *dirContainer_props_sizer = new wxBoxSizer(wxHORIZONTAL);
 
 	dirContainer_props->SetToolTip(path);
+	dirContainer_props->SetName(path);
 	dirContainer_props->SetLabel("dir_props");
 
 	dirContainer_props->Bind(wxEVT_LEFT_UP, &FilesTree::OnDirLeftClick, this);
@@ -291,7 +293,7 @@ wxWindow *FilesTree::CreateDirContainer(wxWindow *parent, wxString path, bool wi
 				dirContainer_props,
 				wxID_ANY,
 				arrowBitmap);
-			dirContainer_props_sizer->Add(dirContainer_arrow, 0, wxEXPAND);
+			dirContainer_props_sizer->Add(dirContainer_arrow, 0, wxALIGN_CENTRE_VERTICAL);
 		}
 	}
 
@@ -324,11 +326,19 @@ wxWindow *FilesTree::CreateDirContainer(wxWindow *parent, wxString path, bool wi
 	dirChildrens->Hide();
 
 	if (withPosition)
-		parentSizer->Insert(pos, dirContainer, 0, wxEXPAND | wxLEFT, 2);
+		parentSizer->Insert(pos, dirContainer, 0, wxEXPAND | wxLEFT | wxTOP, 2);
 	else
-		parentSizer->Add(dirContainer, 0, wxEXPAND | wxLEFT, 2);
+		parentSizer->Add(dirContainer, 0, wxEXPAND | wxLEFT | wxTOP, 2);
 
 	parent->Layout();
+
+	dirContainer->CallForEachChild(
+		[this](wxWindow *win)
+		{
+			win->Bind(wxEVT_ENTER_WINDOW, &FilesTree::OnComponentMouseEnter, this);
+			win->Bind(wxEVT_LEAVE_WINDOW, &FilesTree::OnComponentMouseExit, this);
+		});
+
 	return dirContainer;
 }
 
@@ -502,6 +512,7 @@ void FilesTree::OnDirRightClick(wxMouseEvent &event)
 		wxMessageBox(ErrorMessages::CreateMenuContextError, "Error", wxOK | wxICON_ERROR);
 		return;
 	}
+
 	PopupMenu(menuDir);
 }
 
@@ -589,28 +600,21 @@ void FilesTree::AdjustContainerSize(wxWindow *target, bool reduceSize)
 				parent->SetMinSize(wxSize(0, 0));
 			}
 
-			parent->GetSizer()->Layout();
-			parent->Update();
-			parent->Refresh();
+			parent->Layout();
 
-			wxSize thisSize = wxSize(parent->GetSize().x, 16);
+			wxSize thisSize = wxSize(parent->GetSize().x, 17);
 			for (auto &&children : parent->GetChildren())
 			{
 				if (children->IsShownOnScreen())
-				{
-					thisSize.SetHeight(thisSize.y + children->GetSize().y);
-				}
+					thisSize.SetHeight(thisSize.y + children->GetSize().y + 2);
 			}
 
-			parent->Update();
-			parent->Refresh();
+			parent->Layout();
 
 			parent = parent->GetParent();
 
 			parent->SetMinSize(thisSize);
-			parent->GetSizer()->Layout();
-			parent->Update();
-			parent->Refresh();
+			parent->Layout();
 
 			parent = parent->GetParent();
 		}
@@ -939,9 +943,7 @@ void FilesTree::OnFileSystemEvent(int type, const wxString &oldPath, wxString ne
 	};
 
 	if (type == wxFSW_EVENT_CREATE)
-	{
 		CreateWithPosition();
-	}
 
 	if (type == wxFSW_EVENT_DELETE)
 	{
@@ -1011,18 +1013,25 @@ void FilesTree::OnFileSystemEvent(int type, const wxString &oldPath, wxString ne
 
 void FilesTree::ChangeFileBackground(const wxString &componentIdentifier, wxColour color)
 {
-	auto fileContainer = FindWindowByLabel(componentIdentifier + "_file_container");
-	if (!fileContainer)
+	auto target = FindWindowByLabel(componentIdentifier + "_file_container");
+	if (!target)
+	{
+		target = FindWindowByLabel(componentIdentifier + "_dir_container");
+		if (target)
+			target = target->GetChildren()[0];
+	}
+
+	if (!target)
 		return;
 
 	if (m_currentSelectedFile)
 	{
-		if (m_currentSelectedFile->GetName() == fileContainer->GetName())
+		if (m_currentSelectedFile->GetName() == target->GetName())
 			return;
 	}
 
-	fileContainer->SetBackgroundColour(color);
-	fileContainer->Refresh();
+	target->SetBackgroundColour(color);
+	target->Refresh();
 }
 
 void FilesTree::OnComponentMouseEnter(wxMouseEvent &event)
@@ -1032,6 +1041,9 @@ void FilesTree::OnComponentMouseEnter(wxMouseEvent &event)
 		return;
 
 	auto highLigthFileColor = ThemesManager::Get().GetColor("selectedFile");
+	wxString path = target->GetName();
+	if (path == "dir_name")
+		target = target->GetGrandParent();
 	ChangeFileBackground(target->GetName(), highLigthFileColor);
 }
 
@@ -1042,6 +1054,9 @@ void FilesTree::OnComponentMouseExit(wxMouseEvent &event)
 		return;
 
 	auto defaultFileColor = ThemesManager::Get().GetColor("main");
+	wxString path = target->GetName();
+	if (path == "dir_name")
+		target = target->GetGrandParent();
 	ChangeFileBackground(target->GetName(), defaultFileColor);
 }
 
