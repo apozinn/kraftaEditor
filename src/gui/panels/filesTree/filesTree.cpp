@@ -697,7 +697,7 @@ void FilesTree::OnDeleteDirRequested(wxCommandEvent &WXUNUSED(event))
 			targetComp->Destroy();
 			ProjectSettings::Get().SetCurrentlyMenuDir(ProjectSettings::Get().GetProjectPath());
 
-			AdjustContainerSize(parent);
+			AdjustContainerSize(parent, true);
 		};
 
 		auto dontAskMeAgainDirDelete = UserSettingsManager::Get().GetSetting<bool>("dontAskMeAgainDirDelete");
