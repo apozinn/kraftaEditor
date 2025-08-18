@@ -429,6 +429,12 @@ bool FilesTree::OpenFile(const wxString &componentIdentifier)
 		LoadCodeEditor();
 
 	mainCode->Layout();
+
+	wxFileName fullPath(componentIdentifier);
+	wxString parentPath = fullPath.GetPath(wxPATH_GET_VOLUME | wxPATH_GET_SEPARATOR);
+	ProjectSettings::Get().SetCurrentlyMenuDir(parentPath);
+	ProjectSettings::Get().SetCurrentlyMenuFile(componentIdentifier);
+
 	return true;
 }
 
