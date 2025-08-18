@@ -190,7 +190,7 @@ private:
      * @brief Adjusts the size of a specific container to fit its contents.
      * @param componentIdentifier The unique identifier (path) of the component.
      */
-    void AdjustContainerSize(wxWindow* target);
+    void AdjustContainerSize(wxWindow* target, bool reduceSize=false);
 
     /**
      * @brief Handles a user request to rename a directory.

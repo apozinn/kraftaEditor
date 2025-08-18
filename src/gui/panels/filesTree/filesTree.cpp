@@ -569,7 +569,7 @@ void FilesTree::OnPaint(wxPaintEvent &event)
 		return;
 }
 
-void FilesTree::AdjustContainerSize(wxWindow *target)
+void FilesTree::AdjustContainerSize(wxWindow *target, bool reduceSize)
 {
 	if (!target)
 		return;
@@ -578,7 +578,7 @@ void FilesTree::AdjustContainerSize(wxWindow *target)
 	const int mainContainerId = +GUI::ControlID::ProjectFilesContainer;
 
 	// Case 1: The directory is visible or has no children
-	if (!parent->IsShownOnScreen() || parent->GetChildren().empty())
+	if (!parent->IsShownOnScreen() || parent->GetChildren().empty() || reduceSize)
 	{
 		while (parent->GetId() != +GUI::ControlID::ProjectFilesContainer)
 		{
@@ -962,6 +962,9 @@ void FilesTree::OnFileSystemEvent(int type, const wxString &oldPath, wxString ne
 		}
 		if (component)
 			component->Destroy();
+
+		AdjustContainerSize(parentComponent, true);
+		return;
 	}
 
 	if (type == wxFSW_EVENT_RENAME || type == wxFSW_EVENT_MODIFY)
