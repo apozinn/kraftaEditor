@@ -74,22 +74,22 @@ void Editor::SetFoldPreferences()
 void Editor::OnChange(wxStyledTextEvent &event)
 {
     if (event.GetString() == wxEmptyString || GetText() == event.GetString())
-
-        if (!changedFile && GetModify())
+        return;
+    if (!changedFile && GetModify())
+    {
+        auto tab = FindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_tab");
+        if (tab)
         {
-            auto tab = FindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_tab");
-            if (tab)
+            auto icon = ((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[2]);
+            if (icon)
             {
-                auto icon = ((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[2]);
-                if (icon)
-                {
-                    // setting the unsaved icon
-                    icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(iconsDir + "white_circle.png", wxBITMAP_TYPE_PNG)));
-                }
+                // setting the unsaved icon
+                icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(iconsDir + "white_circle.png", wxBITMAP_TYPE_PNG)));
             }
-
-            changedFile = true;
         }
+
+        changedFile = true;
+    }
 
     if (MiniMap)
         MiniMap->SetText(GetText());
