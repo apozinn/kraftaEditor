@@ -535,14 +535,15 @@ void FilesTree::ToggleDirVisibility(const wxString &componentIdentifier, bool de
 	if (dirArrowIcon && dirChildrens)
 	{
 		auto arrow_bit = dirArrowIcon->GetBitmap();
-		if(defaultShow) {
-			dirChildrens->Show();
-			dirArrowIcon->SetBitmap(wxBitmap(arrow_bit.ConvertToImage().Rotate90(true), -1));
-			return;
-		} else if (!dirChildrens->IsShown())
+		if (defaultShow)
 		{
 			dirChildrens->Show();
+			return;
+		}
+		else if (!dirChildrens->IsShown())
+		{
 			dirArrowIcon->SetBitmap(wxBitmap(arrow_bit.ConvertToImage().Rotate90(true), -1));
+			dirChildrens->Show();
 			CreateDirectoryComponents(dirChildrens, componentIdentifier);
 		}
 		else if (dirChildrens->IsShown())
@@ -576,11 +577,12 @@ void FilesTree::AdjustContainerSize(wxWindow *target)
 	wxWindow *parent = target;
 	const int mainContainerId = +GUI::ControlID::ProjectFilesContainer;
 
-	// Case 1: The directory is hidden (collapsed)
-	if (!parent->IsShownOnScreen())
+	// Case 1: The directory is visible or has no children
+	if (!parent->IsShownOnScreen() || parent->GetChildren().empty())
 	{
 		while (parent->GetId() != +GUI::ControlID::ProjectFilesContainer)
 		{
+
 			if (!parent->IsShownOnScreen())
 			{
 				parent->SetSize(wxSize(0, 0));
