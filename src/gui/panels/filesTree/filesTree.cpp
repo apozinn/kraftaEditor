@@ -195,10 +195,6 @@ wxWindow *FilesTree::CreateFileContainer(wxWindow *parent, const wxString &path)
 	fileContainer->SetName(path);
 	fileContainer->SetLabel(path + "_file_container");
 
-	wxVector<wxBitmap> bitmaps;
-	wxFileName pathProps(path);
-	wxString fileExt = pathProps.GetExt().Lower();
-
 	wxString fileIconPath = wxEmptyString;
 	wxImage fileImage = wxImage();
 	if (fileImage.CanRead(path))
@@ -429,7 +425,7 @@ bool FilesTree::OpenFile(const wxString &componentIdentifier)
 
 		imageContainer->SetLabel(componentIdentifier + "_imageContainer");
 		mainCode->GetSizer()->Add(imageContainer, 1, wxALIGN_CENTER);
-		statusBar->UpdateComponents(componentIdentifier, "image", "img");
+		statusBar->UpdateComponents(componentIdentifier);
 	}
 	else
 		LoadCodeEditor();
@@ -907,6 +903,9 @@ void FilesTree::OnRenameFileRequested(wxCommandEvent &WXUNUSED(event))
 
 void FilesTree::OnFileSystemEvent(int type, const wxString &oldPath, wxString newPath)
 {
+	if (oldPath.IsEmpty() || newPath.IsEmpty())
+		return;
+
 	wxFileName fullPath(newPath);
 	wxString parentComponentPath = fullPath.GetPath(wxPATH_GET_VOLUME | wxPATH_GET_SEPARATOR);
 
@@ -918,7 +917,7 @@ void FilesTree::OnFileSystemEvent(int type, const wxString &oldPath, wxString ne
 	if (!parentComponent)
 		return;
 
-	auto linkedCodeEditor = ((CodeContainer *)FindWindowByName(oldPath + "_codeEditor"));
+	auto linkedCodeEditor = ((CodeContainer *)FindWindowByName(oldPath + "_codeContainer"));
 	auto linkedTab = wxFindWindowByLabel(oldPath + "_tab");
 
 	bool isFile = true;
@@ -982,11 +981,28 @@ void FilesTree::OnFileSystemEvent(int type, const wxString &oldPath, wxString ne
 
 		if (targetComp->GetName() != newPath && oldPath != newPath)
 		{
-			targetComp->Destroy();
-
 			if (isFile)
 			{
-				CreateFileContainer(parentComponent, newPath);
+				targetComp->SetName(newPath);
+				targetComp->SetLabel(newPath + "_file_container");
+				auto fileName = ((wxStaticText *)targetComp->GetChildren()[1]);
+				if (fileName)
+				{
+					fileName->SetName(newPath);
+					fileName->SetLabel(wxFileNameFromPath(newPath));
+				}
+
+				auto fileIcon = ((wxStaticBitmap *)targetComp->GetChildren()[0]);
+				if (fileIcon)
+				{
+					wxString fileIconPath = LanguagesPreferences::Get().GetLanguageIconPath(newPath);
+					if (!fileIconPath.IsEmpty())
+					{
+						wxBitmap fileIconBitmap(fileIconPath, wxBITMAP_TYPE_PNG);
+						if (fileIconBitmap.IsOk())
+							fileIcon->SetBitmap(fileIconBitmap);
+					}
+				}
 
 				if (linkedCodeEditor)
 					linkedCodeEditor->LoadPath(newPath);
@@ -996,11 +1012,24 @@ void FilesTree::OnFileSystemEvent(int type, const wxString &oldPath, wxString ne
 					linkedTab->SetName(newPath);
 					linkedTab->SetLabel(newPath + "_tab");
 
-					wxStaticText *tabName = ((wxStaticText *)linkedTab->GetChildren()[0]->GetChildren()[1]);
-					if (tabName)
+					linkedTab->SetToolTip(newPath);
+					auto tabText = ((wxStaticText *)linkedTab->GetChildren()[0]->GetChildren()[1]);
+					if (tabText)
 					{
-						tabName->SetName(newPath);
-						tabName->SetLabel(wxFileNameFromPath(newPath));
+						tabText->SetName(newPath);
+						tabText->SetLabel(wxFileNameFromPath(newPath));
+					}
+
+					auto tabIcon = ((wxStaticBitmap *)linkedTab->GetChildren()[0]->GetChildren()[0]);
+					if (tabIcon)
+					{
+						wxString tabIconPath = LanguagesPreferences::Get().GetLanguageIconPath(newPath);
+						if (!tabIconPath.IsEmpty())
+						{
+							wxBitmap tabIconBitmap(tabIconPath, wxBITMAP_TYPE_PNG);
+							if (tabIconBitmap.IsOk())
+							tabIcon->SetBitmap(tabIconBitmap);
+						}
 					}
 				}
 			}

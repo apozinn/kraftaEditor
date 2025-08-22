@@ -22,7 +22,7 @@ public:
 	wxStaticText* fileExt = nullptr;
 	
 	StatusBar(wxWindow* parent, wxWindowID ID);
-	void UpdateComponents(wxString path, wxString format, wxString languageName);
+	void UpdateComponents(const wxString& path);
 	void UpdateCodeLocale(wxStyledTextCtrl* codeEditor);
 	void ClearLabels();
 	void OnPaint(wxPaintEvent& WXUNUSED(event));

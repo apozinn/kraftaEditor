@@ -8,6 +8,9 @@
 
 CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxScrolled<wxPanel>(parent)
 {
+    // initialize sizer
+    sizer = new wxBoxSizer(wxHORIZONTAL);
+
     // setting components
     editor = new Editor(this);
     minimap = new MiniMap(this);
@@ -16,6 +19,7 @@ CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxScrolled<wxPan
     sizer->Add(minimap, 0, wxEXPAND);
 
     SetSizerAndFit(sizer);
+    LoadPath(path);
 
     if (UserSettings["show_minimap"] == false)
         minimap->Hide();
@@ -28,11 +32,6 @@ CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxScrolled<wxPan
     {
         font = wxFont(wxFontInfo(10).FaceName("Monospace"));
     }
-
-    SetName(path);
-    SetLabel(path + "_codeContainer");
-    LoadPath(path);
-    currentPath = path;
 
     // keyboard shortcuts
     wxAcceleratorEntry entries[2];
@@ -47,8 +46,11 @@ CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxScrolled<wxPan
 void CodeContainer::LoadPath(wxString path)
 {
     wxFileName file_props(path);
-    if (file_props.IsOk() && file_props.FileExists())
+    if (file_props.IsOk() && file_props.FileExists() && editor && minimap)
     {
+        SetName(path);
+        SetLabel(path + "_codeContainer");
+        currentPath = path;
 
         // editor setup
         editor->SetLabel(path + "_codeEditor");
@@ -62,7 +64,7 @@ void CodeContainer::LoadPath(wxString path)
         minimap->SetLabel(path + "_codeMap");
         minimap->SetName(path);
         minimap->LoadFile(path);
-        statusBar->UpdateCodeLocale(editor);
+        statusBar->UpdateComponents(path);
 
         languagePreferences = LanguagesPreferences::Get().SetupLanguagesPreferences(this);
     }
@@ -155,7 +157,6 @@ void CodeContainer::OnCloseFile(wxCommandEvent &WXUNUSED(event))
         }
     }
 }
-
 
 void CodeContainer::OnToggleMinimapView(wxCommandEvent &WXUNUSED(event))
 {

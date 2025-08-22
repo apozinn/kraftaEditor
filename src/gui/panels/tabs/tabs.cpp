@@ -232,17 +232,7 @@ void Tabs::Select()
 			other_ct->Hide();
 	}
 
-	if (codeContainer)
-	{
-		codeContainer->Show();
-		// statusBar->UpdateComponents(ProjectSettings::Get().GetCurrentlyFileOpen(), "text", wxString(codeContainer->languagePreferences.preferences["name"].template get<std::string>()));
-	}
-
-	if (imageContainer)
-	{
-		imageContainer->Show();
-		statusBar->UpdateComponents(ProjectSettings::Get().GetCurrentlyFileOpen(), "image", "img");
-	}
+	statusBar->UpdateComponents(ProjectSettings::Get().GetCurrentlyFileOpen());
 
 	mainCode->GetSizer()->Layout();
 	mainCode->Update();
