@@ -218,13 +218,11 @@ void Tabs::CloseAll()
 void Tabs::Select()
 {
 	auto mainCode = FindWindowById(+GUI::ControlID::MainCode);
+	if (!mainCode)
+		return;
 
 	for (auto &children : tabsContainer->GetChildren())
 		children->Refresh();
-
-	auto codeContainer = ((CodeContainer *)FindWindowByName(ProjectSettings::Get().GetCurrentlyFileOpen() + "_codeContainer"));
-	auto imageContainer = ((wxStaticBitmap *)FindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_imageContainer"));
-	auto statusBar = ((StatusBar *)FindWindowById(+GUI::ControlID::StatusBar));
 
 	for (auto &&other_ct : mainCode->GetChildren())
 	{
@@ -232,7 +230,16 @@ void Tabs::Select()
 			other_ct->Hide();
 	}
 
-	statusBar->UpdateComponents(ProjectSettings::Get().GetCurrentlyFileOpen());
+	auto codeContainer = ((CodeContainer *)FindWindowByName(ProjectSettings::Get().GetCurrentlyFileOpen() + "_codeContainer"));
+	if (codeContainer)
+		codeContainer->Show();
+	auto imageContainer = ((wxStaticBitmap *)FindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_imageContainer"));
+	if (imageContainer)
+		imageContainer->Show();
+
+	auto statusBar = ((StatusBar *)FindWindowById(+GUI::ControlID::StatusBar));
+	if (statusBar)
+		statusBar->UpdateComponents(ProjectSettings::Get().GetCurrentlyFileOpen());
 
 	mainCode->GetSizer()->Layout();
 	mainCode->Update();
@@ -240,11 +247,15 @@ void Tabs::Select()
 
 void Tabs::OnTabClick(wxMouseEvent &event)
 {
-	auto this_tab = ((Tabs *)event.GetEventObject());
-	wxString tab_path = this_tab->GetName();
-	if (tab_path == ProjectSettings::Get().GetCurrentlyFileOpen())
+	auto target = ((wxWindow *)event.GetEventObject());
+	if (!target)
 		return;
-	projectSettings.SetCurrentlyFileOpen(tab_path);
+
+	wxString path = target->GetName();
+	if (path == ProjectSettings::Get().GetCurrentlyFileOpen())
+		return;
+
+	ProjectSettings::Get().SetCurrentlyFileOpen(path);
 	Select();
 }
 
