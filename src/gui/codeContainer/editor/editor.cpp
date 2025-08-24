@@ -75,15 +75,15 @@ void Editor::OnChange(wxStyledTextEvent &event)
 {
     if (event.GetString() == wxEmptyString || GetText() == event.GetString())
         return;
-    if (!changedFile && GetModify())
+    if (GetModify())
     {
+        wxLogMessage("File modified");
         auto tab = FindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_tab");
         if (tab)
         {
             auto icon = ((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[2]);
             if (icon)
             {
-                // setting the unsaved icon
                 icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(iconsDir + "white_circle.png", wxBITMAP_TYPE_PNG)));
             }
         }

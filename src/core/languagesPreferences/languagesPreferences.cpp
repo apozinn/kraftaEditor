@@ -2,7 +2,6 @@
 #include "appPaths/appPaths.hpp"
 #include "gui/widgets/statusBar/statusBar.hpp"
 #include "ui/ids.hpp"
-#include "core/lexerStyles/lexerStyle.hpp"
 #include "appPaths/appPaths.hpp"
 #include "platformInfos/platformInfos.hpp"
 

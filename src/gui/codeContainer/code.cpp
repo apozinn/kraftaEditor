@@ -1,6 +1,5 @@
 #include "platformInfos/platformInfos.hpp"
 #include "appConstants/appConstants.hpp"
-#include "core/lexerStyles/lexerStyle.hpp"
 #include "languagesPreferences/languagesPreferences.hpp"
 
 #include "./code.hpp"

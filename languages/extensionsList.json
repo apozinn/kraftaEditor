@@ -21,6 +21,7 @@
   ".java": "java",
 
   ".js": "javascript",
+  ".jsx": "javascript",
   ".mjs": "javascript",
   ".cjs": "javascript",
 

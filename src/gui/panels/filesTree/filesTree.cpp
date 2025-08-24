@@ -28,1099 +28,866 @@
 #include <wx/timer.h>
 
 FilesTree::FilesTree(wxWindow *parent, wxWindowID ID)
-	: wxPanel(parent, ID)
+    : wxPanel(parent, ID)
 {
-	wxSizer *m_sizer = new wxBoxSizer(wxVERTICAL);
-	SetBackgroundColour(ThemesManager::Get().GetColor("main"));
+    auto *mainSizer = new wxBoxSizer(wxVERTICAL);
+    SetBackgroundColour(ThemesManager::Get().GetColor("main"));
 
-	m_projectInformations = new wxPanel(this, +GUI::ControlID::ProjectToggler);
-	wxSizer *m_projectInformations_sizer = new wxBoxSizer(wxHORIZONTAL);
+    m_projectInformations = new wxPanel(this, +GUI::ControlID::ProjectToggler);
+    auto *projectInfoSizer = new wxBoxSizer(wxHORIZONTAL);
 
-	wxString arrowPath = ApplicationPaths::GetIconPath("dir_arrow.png");
-	if (!arrowPath.IsEmpty())
-	{
-		wxBitmap arrowBitmap(arrowPath, wxBITMAP_TYPE_PNG);
-		if (arrowBitmap.IsOk())
-		{
-			m_projectInformationsNameArrow = new wxStaticBitmap(
-				m_projectInformations,
-				+GUI::ControlID::ProjectToolsArrow,
-				arrowBitmap);
-			m_projectInformations_sizer->Add(m_projectInformationsNameArrow, 0, wxEXPAND);
-		}
-	}
+    wxString arrowPath = ApplicationPaths::GetIconPath("dir_arrow.png");
+    if (!arrowPath.IsEmpty()) {
+        wxBitmap arrowBitmap(arrowPath, wxBITMAP_TYPE_PNG);
+        if (arrowBitmap.IsOk()) {
+            m_projectInformationsNameArrow = new wxStaticBitmap(
+                m_projectInformations,
+                +GUI::ControlID::ProjectToolsArrow,
+                arrowBitmap);
+            projectInfoSizer->Add(m_projectInformationsNameArrow, 0, wxEXPAND);
+        }
+    }
 
-	m_projectInformationsName = new wxStaticText(m_projectInformations, +GUI::ControlID::ProjectToolsName, ProjectSettings::Get().GetProjectName());
-	wxFont newFont = m_projectInformationsName->GetFont();
-	newFont.SetWeight(wxFONTWEIGHT_MEDIUM);
-	m_projectInformationsName->SetFont(newFont);
-	m_projectInformationsName->Refresh();
-	m_projectInformations_sizer->Add(m_projectInformationsName, 1, wxEXPAND | wxLEFT, 4);
+    m_projectInformationsName = new wxStaticText(
+        m_projectInformations,
+        +GUI::ControlID::ProjectToolsName,
+        ProjectSettings::Get().GetProjectName());
+    auto font = m_projectInformationsName->GetFont();
+    font.SetWeight(wxFONTWEIGHT_MEDIUM);
+    m_projectInformationsName->SetFont(font);
+    m_projectInformationsName->Refresh();
+    projectInfoSizer->Add(m_projectInformationsName, 1, wxEXPAND | wxLEFT, 4);
 
-	m_projectInformations->SetSizerAndFit(m_projectInformations_sizer);
-	m_projectInformations->SetMinSize(wxSize(GetSize().x, 15));
-	m_sizer->Add(m_projectInformations, 0, wxEXPAND | wxTOP | wxBOTTOM, 5);
+    m_projectInformations->SetSizerAndFit(projectInfoSizer);
+    m_projectInformations->SetMinSize(wxSize(GetSize().x, 15));
+    mainSizer->Add(m_projectInformations, 0, wxEXPAND | wxTOP | wxBOTTOM, 5);
 
-	if (!ProjectSettings::Get().IsProjectSet())
-		m_projectInformations->Hide();
+    if (!ProjectSettings::Get().IsProjectSet())
+        m_projectInformations->Hide();
 
-	m_projectFilesContainer = new wxScrolled<wxPanel>(this, +GUI::ControlID::ProjectFilesContainer);
-	m_projectFilesContainer->SetScrollbars(20, 20, 50, 50);
-	wxBoxSizer *m_projectFilesContainer_sizer = new wxBoxSizer(wxVERTICAL);
-	m_projectFilesContainer->SetSizerAndFit(m_projectFilesContainer_sizer);
-	m_sizer->Add(m_projectFilesContainer, 1, wxEXPAND);
+    m_projectFilesContainer = new wxScrolled<wxPanel>(this, +GUI::ControlID::ProjectFilesContainer);
+    m_projectFilesContainer->SetScrollbars(20, 20, 50, 50);
+    auto *filesContainerSizer = new wxBoxSizer(wxVERTICAL);
+    m_projectFilesContainer->SetSizerAndFit(filesContainerSizer);
+    mainSizer->Add(m_projectFilesContainer, 1, wxEXPAND);
 
-	LinkClickEventToProjectInformationsComponents();
-	SetSizerAndFit(m_sizer);
+    LinkClickEventToProjectInformationsComponents();
+    SetSizerAndFit(mainSizer);
 }
 
 void FilesTree::LinkClickEventToProjectInformationsComponents()
 {
-	m_projectInformations->CallForEachChild(
-		[this](wxWindow *children)
-		{
-			children->Bind(wxEVT_LEFT_DOWN, &FilesTree::ProjectInformationsLeftClick, this);
-		});
+    m_projectInformations->CallForEachChild([this](wxWindow *child) {
+        child->Bind(wxEVT_LEFT_DOWN, &FilesTree::ProjectInformationsLeftClick, this);
+    });
 }
 
-void FilesTree::ProjectInformationsLeftClick(wxMouseEvent &WXUNUSED(event))
+void FilesTree::ProjectInformationsLeftClick(wxMouseEvent &)
 {
-	auto arrow_bit = m_projectInformationsNameArrow->GetBitmap();
-	wxVector<wxBitmap> bitmaps;
+    auto arrowBitmap = m_projectInformationsNameArrow->GetBitmap();
+    wxVector<wxBitmap> bitmaps;
 
-	if (m_projectFilesContainer->IsShown())
-	{
-		m_projectFilesContainer->Hide();
-		bitmaps.push_back(wxBitmap(arrow_bit.ConvertToImage().Rotate90(true), -1));
-	}
-	else
-	{
-		m_projectFilesContainer->Show();
-		bitmaps.push_back(wxBitmap(arrow_bit.ConvertToImage().Rotate90(false), -1));
-	}
+    if (m_projectFilesContainer->IsShown()) {
+        m_projectFilesContainer->Hide();
+        bitmaps.push_back(wxBitmap(arrowBitmap.ConvertToImage().Rotate90(true), -1));
+    } else {
+        m_projectFilesContainer->Show();
+        bitmaps.push_back(wxBitmap(arrowBitmap.ConvertToImage().Rotate90(false), -1));
+    }
 
-	m_projectInformationsNameArrow->SetBitmap(wxBitmapBundle::FromBitmaps(bitmaps));
+    m_projectInformationsNameArrow->SetBitmap(wxBitmapBundle::FromBitmaps(bitmaps));
 }
 
 void FilesTree::LoadProject(wxWindow *parent, const wxString &path)
 {
-	if (!parent)
-		return;
-	if (!wxDirExists(path))
-	{
-		wxMessageBox(ErrorMessages::InvalidProjectPath, "Error", wxOK | wxICON_ERROR);
-		return;
-	}
+    if (!parent) return;
+    if (!wxDirExists(path)) {
+        wxMessageBox(ErrorMessages::InvalidProjectPath, "Error", wxOK | wxICON_ERROR);
+        return;
+    }
 
-	m_projectFilesContainer->DestroyChildren();
+    m_projectFilesContainer->DestroyChildren();
 
-	m_projectInformationsName->SetName(ProjectSettings::Get().GetProjectName());
-	m_projectInformationsName->SetLabel(ProjectSettings::Get().GetProjectName());
-	m_projectInformationsName->SetToolTip(ProjectSettings::Get().GetProjectPath());
+    m_projectInformationsName->SetName(ProjectSettings::Get().GetProjectName());
+    m_projectInformationsName->SetLabel(ProjectSettings::Get().GetProjectName());
+    m_projectInformationsName->SetToolTip(ProjectSettings::Get().GetProjectPath());
 
-	m_projectFilesContainer->SetName(ProjectSettings::Get().GetProjectPath());
-	m_projectFilesContainer->SetLabel(ProjectSettings::Get().GetProjectPath() + "_project_files_container");
+    m_projectFilesContainer->SetName(ProjectSettings::Get().GetProjectPath());
+    m_projectFilesContainer->SetLabel(ProjectSettings::Get().GetProjectPath() + "_project_files_container");
 
-	ProjectSettings::Get().SetCurrentlyMenuDir(ProjectSettings::Get().GetProjectPath());
-	ProjectSettings::Get().SetCurrentlyMenuFile(ProjectSettings::Get().GetProjectPath());
+    ProjectSettings::Get().SetCurrentlyMenuDir(ProjectSettings::Get().GetProjectPath());
+    ProjectSettings::Get().SetCurrentlyMenuFile(ProjectSettings::Get().GetProjectPath());
 
-	m_projectInformations->Show();
+    m_projectInformations->Show();
 
-	CreateDirectoryComponents(parent, path);
+    CreateDirectoryComponents(parent, path);
 
-	m_projectFilesContainer->Layout();
-	Layout();
+    m_projectFilesContainer->Layout();
+    Layout();
 }
 
 void FilesTree::CloseProject()
 {
-	if (m_projectFilesContainer)
-		m_projectFilesContainer->DestroyChildren();
-	if (m_projectInformations)
-		m_projectInformations->Hide();
+    if (m_projectFilesContainer)
+        m_projectFilesContainer->DestroyChildren();
+    if (m_projectInformations)
+        m_projectInformations->Hide();
 }
 
 void FilesTree::CreateDirectoryComponents(wxWindow *parent, const wxString &path)
 {
-	if (!parent)
-		return;
-	if (!wxDirExists(path))
-	{
-		wxMessageBox(ErrorMessages::CannotOpenDirForReadContent, "Error", wxOK | wxICON_ERROR);
-		return;
-	}
+    if (!parent) return;
+    if (!wxDirExists(path)) {
+        wxMessageBox(ErrorMessages::CannotOpenDirForReadContent, "Error", wxOK | wxICON_ERROR);
+        return;
+    }
 
-	std::vector<std::filesystem::directory_entry> directoryFiles;
-	std::vector<std::filesystem::directory_entry> directoryFolders;
+    std::vector<std::filesystem::directory_entry> folders, files;
+    for (auto const &entry : std::filesystem::directory_iterator{path.ToStdString()}) {
+        if (entry.is_directory())
+            folders.push_back(entry);
+        else
+            files.push_back(entry);
+    }
 
-	for (auto const &dir_entry : std::filesystem::directory_iterator{path.ToStdString()})
-	{
-		if (dir_entry.is_directory())
-			directoryFolders.push_back(dir_entry);
-		else
-			directoryFiles.push_back(dir_entry);
-	}
-
-	for (auto &folder : directoryFolders)
-		CreateDirContainer(parent, wxString(folder.path()));
-
-	for (auto &file : directoryFiles)
-		CreateFileContainer(parent, wxString(file.path()));
+    for (auto &folder : folders)
+        CreateDirContainer(parent, wxString(folder.path()));
+    for (auto &file : files)
+        CreateFileContainer(parent, wxString(file.path()));
 }
 
 wxWindow *FilesTree::CreateFileContainer(wxWindow *parent, const wxString &path)
 {
-	if (!wxFileExists(path))
-	{
-		wxMessageBox(ErrorMessages::FileNotFound, "Error", wxOK | wxICON_ERROR);
-		return nullptr;
-	}
-	if (auto fileAlredyExists = FindWindowByLabel(path + "_file_container"))
-		return fileAlredyExists;
-	if (!parent)
-		return nullptr;
+    if (!wxFileExists(path)) {
+        wxMessageBox(ErrorMessages::FileNotFound, "Error", wxOK | wxICON_ERROR);
+        return nullptr;
+    }
+    if (auto exists = FindWindowByLabel(path + "_file_container"))
+        return exists;
+    if (!parent) return nullptr;
 
-	wxSizer *parentSizer = parent->GetSizer();
-	wxPanel *fileContainer = new wxPanel(parent);
-	wxBoxSizer *fileContainer_sizer = new wxBoxSizer(wxHORIZONTAL);
+    auto *parentSizer = parent->GetSizer();
+    auto *fileContainer = new wxPanel(parent);
+    auto *fileSizer = new wxBoxSizer(wxHORIZONTAL);
 
-	fileContainer->SetMinSize(wxSize(fileContainer->GetSize().GetWidth(), 20));
-	fileContainer->SetSize(fileContainer->GetSize().GetWidth(), 20);
+    fileContainer->SetMinSize(wxSize(fileContainer->GetSize().GetWidth(), 20));
+    fileContainer->SetSize(fileContainer->GetSize().GetWidth(), 20);
+    fileContainer->SetToolTip(path);
 
-	fileContainer->SetToolTip(path);
+    fileContainer->Bind(wxEVT_LEFT_UP, &FilesTree::OnFileLeftClick, this);
+    fileContainer->Bind(wxEVT_RIGHT_UP, &FilesTree::OnFileRightClick, this);
 
-	fileContainer->Bind(wxEVT_LEFT_UP, &FilesTree::OnFileLeftClick, this);
-	fileContainer->Bind(wxEVT_RIGHT_UP, &FilesTree::OnFileRightClick, this);
+    fileContainer->SetName(path);
+    fileContainer->SetLabel(path + "_file_container");
 
-	fileContainer->SetName(path);
-	fileContainer->SetLabel(path + "_file_container");
+    wxString iconPath;
+    wxImage fileImage;
+    if (fileImage.CanRead(path))
+        iconPath = ApplicationPaths::GetLanguageIcon("image");
+    else
+        iconPath = LanguagesPreferences::Get().GetLanguageIconPath(path);
 
-	wxString fileIconPath = wxEmptyString;
-	wxImage fileImage = wxImage();
-	if (fileImage.CanRead(path))
-		fileIconPath = ApplicationPaths::GetLanguageIcon("image");
-	else
-		fileIconPath = LanguagesPreferences::Get().GetLanguageIconPath(path);
+    if (!iconPath.IsEmpty()) {
+        wxBitmap iconBitmap(iconPath, wxBITMAP_TYPE_PNG);
+        if (iconBitmap.IsOk()) {
+            auto *icon = new wxStaticBitmap(fileContainer, wxID_ANY, iconBitmap);
+            fileSizer->Add(icon, 0, wxALIGN_CENTRE_VERTICAL | wxLEFT, 8);
+        }
+    }
 
-	if (!fileIconPath.IsEmpty())
-	{
-		wxBitmap fileIconBitmap(fileIconPath, wxBITMAP_TYPE_PNG);
-		if (fileIconBitmap.IsOk())
-		{
-			auto fileIcon = new wxStaticBitmap(
-				fileContainer,
-				wxID_ANY,
-				fileIconBitmap);
-			fileContainer_sizer->Add(fileIcon, 0, wxALIGN_CENTRE_VERTICAL | wxLEFT, 8);
-		}
-	}
+    auto *fileName = new wxStaticText(fileContainer, wxID_ANY, wxFileNameFromPath(path));
+    fileName->SetName(path);
+    fileName->Bind(wxEVT_LEFT_UP, &FilesTree::OnFileLeftClick, this);
+    fileName->Bind(wxEVT_RIGHT_UP, &FilesTree::OnFileRightClick, this);
 
-	wxStaticText *fileName = new wxStaticText(fileContainer, wxID_ANY, wxFileNameFromPath(path));
+    fileSizer->Add(fileName, 0, wxALIGN_CENTRE_VERTICAL | wxLEFT, 5);
+    fileContainer->SetSizerAndFit(fileSizer);
 
-	fileName->SetName(path);
-	fileName->Bind(wxEVT_LEFT_UP, &FilesTree::OnFileLeftClick, this);
-	fileName->Bind(wxEVT_RIGHT_UP, &FilesTree::OnFileRightClick, this);
+    parentSizer->Add(fileContainer, 0, wxEXPAND | wxLEFT | wxTOP, 2);
+    parentSizer->Layout();
 
-	fileContainer_sizer->Add(fileName, 0, wxALIGN_CENTRE_VERTICAL | wxLEFT, 5);
-	fileContainer->SetSizerAndFit(fileContainer_sizer);
+    fileContainer->CallForEachChild([this](wxWindow *win) {
+        win->Bind(wxEVT_ENTER_WINDOW, &FilesTree::OnComponentMouseEnter, this);
+        win->Bind(wxEVT_LEAVE_WINDOW, &FilesTree::OnComponentMouseExit, this);
+    });
 
-	parentSizer->Add(fileContainer, 0, wxEXPAND | wxLEFT | wxTOP, 2);
-	parentSizer->Layout();
-
-	fileContainer->CallForEachChild(
-		[this](wxWindow *win)
-		{
-			win->Bind(wxEVT_ENTER_WINDOW, &FilesTree::OnComponentMouseEnter, this);
-			win->Bind(wxEVT_LEAVE_WINDOW, &FilesTree::OnComponentMouseExit, this);
-		});
-
-	return fileContainer;
+    return fileContainer;
 }
 
 wxWindow *FilesTree::CreateDirContainer(wxWindow *parent, wxString path, bool withPosition, int pos)
 {
-	if (wxString(path.Last()) != PlatformInfos::OsPathSepareator())
-		path.Append(PlatformInfos::OsPathSepareator());
+    if (wxString(path.Last()) != PlatformInfos::OsPathSepareator())
+        path.Append(PlatformInfos::OsPathSepareator());
 
-	if (!parent)
-		return nullptr;
+    if (!parent) return nullptr;
+    if (!wxDirExists(path)) {
+        wxMessageBox(ErrorMessages::CannotOpenDirForReadContent, "Error", wxOK | wxICON_ERROR);
+        return nullptr;
+    }
+    if (FindWindowByLabel(path + "_dir_container"))
+        return nullptr;
 
-	if (!wxDirExists(path))
-	{
-		wxMessageBox(ErrorMessages::CannotOpenDirForReadContent, "Error", wxOK | wxICON_ERROR);
-		return nullptr;
-	}
+    auto *parentSizer = parent->GetSizer();
+    auto *dirContainer = new wxPanel(parent);
 
-	if (FindWindowByLabel(path + "_dir_container"))
-		return nullptr;
+    dirContainer->SetMinSize(wxSize(dirContainer->GetSize().GetWidth(), 20));
+    dirContainer->SetSize(dirContainer->GetSize().GetWidth(), 20);
 
-	wxSizer *parentSizer = parent->GetSizer();
-	wxPanel *dirContainer = new wxPanel(parent);
+    auto *dirSizer = new wxBoxSizer(wxVERTICAL);
+    dirContainer->SetToolTip(path);
 
-	dirContainer->SetMinSize(wxSize(dirContainer->GetSize().GetWidth(), 20));
-	dirContainer->SetSize(dirContainer->GetSize().GetWidth(), 20);
+    dirContainer->Bind(wxEVT_LEFT_UP, &FilesTree::OnDirLeftClick, this);
+    dirContainer->Bind(wxEVT_RIGHT_UP, &FilesTree::OnDirRightClick, this);
 
-	wxBoxSizer *dirContainer_sizer = new wxBoxSizer(wxVERTICAL);
+    dirContainer->SetName(path);
+    dirContainer->SetLabel(path + "_dir_container");
 
-	dirContainer->SetToolTip(path);
+    auto *propsPanel = new wxPanel(dirContainer);
+    auto *propsSizer = new wxBoxSizer(wxHORIZONTAL);
 
-	dirContainer->Bind(wxEVT_LEFT_UP, &FilesTree::OnDirLeftClick, this);
-	dirContainer->Bind(wxEVT_RIGHT_UP, &FilesTree::OnDirRightClick, this);
+    propsPanel->SetToolTip(path);
+    propsPanel->SetName(path);
+    propsPanel->SetLabel("dir_props");
+    propsPanel->Bind(wxEVT_LEFT_UP, &FilesTree::OnDirLeftClick, this);
 
-	dirContainer->SetName(path);
-	dirContainer->SetLabel(path + "_dir_container");
+    wxString arrowPath = ApplicationPaths::GetIconPath("dir_arrow.png");
+    if (!arrowPath.IsEmpty()) {
+        wxBitmap arrowBitmap(arrowPath, wxBITMAP_TYPE_PNG);
+        if (arrowBitmap.IsOk()) {
+            auto *arrow = new wxStaticBitmap(propsPanel, wxID_ANY, arrowBitmap);
+            propsSizer->Add(arrow, 0, wxALIGN_CENTRE_VERTICAL);
+        }
+    }
 
-	wxPanel *dirContainer_props = new wxPanel(dirContainer);
-	wxBoxSizer *dirContainer_props_sizer = new wxBoxSizer(wxHORIZONTAL);
+    wxString name = path;
+    name.RemoveLast();
+    auto *dirName = new wxStaticText(propsPanel, wxID_ANY, wxFileNameFromPath(name));
+    dirName->SetName("dir_name");
+    dirName->Bind(wxEVT_LEFT_UP, &FilesTree::OnDirLeftClick, this);
+    dirName->Bind(wxEVT_RIGHT_UP, &FilesTree::OnDirRightClick, this);
 
-	dirContainer_props->SetToolTip(path);
-	dirContainer_props->SetName(path);
-	dirContainer_props->SetLabel("dir_props");
+    propsSizer->Add(dirName, 0, wxEXPAND | wxLEFT, 4);
+    propsPanel->SetSizerAndFit(propsSizer);
 
-	dirContainer_props->Bind(wxEVT_LEFT_UP, &FilesTree::OnDirLeftClick, this);
+    dirSizer->Add(propsPanel, 0, wxEXPAND | wxLEFT, 8);
 
-	wxString arrowPath = ApplicationPaths::GetIconPath("dir_arrow.png");
-	if (!arrowPath.IsEmpty())
-	{
-		wxBitmap arrowBitmap(arrowPath, wxBITMAP_TYPE_PNG);
-		if (arrowBitmap.IsOk())
-		{
-			auto dirContainer_arrow = new wxStaticBitmap(
-				dirContainer_props,
-				wxID_ANY,
-				arrowBitmap);
-			dirContainer_props_sizer->Add(dirContainer_arrow, 0, wxALIGN_CENTRE_VERTICAL);
-		}
-	}
+    auto *childrenPanel = new wxPanel(dirContainer);
+    auto *childrenSizer = new wxBoxSizer(wxVERTICAL);
 
-	wxString name = path;
-	name.RemoveLast();
+    childrenPanel->SetName(path);
+    childrenPanel->SetLabel(path + "_dir_childrens");
+    childrenPanel->Bind(wxEVT_PAINT, &FilesTree::OnDirChildrensPaint, this);
 
-	wxStaticText *dirContainer_name = new wxStaticText(dirContainer_props, wxID_ANY, wxFileNameFromPath(name));
-	dirContainer_name->SetName("dir_name");
+    childrenPanel->SetSizerAndFit(childrenSizer);
+    dirSizer->Add(childrenPanel, 0, wxEXPAND | wxLEFT, 10);
 
-	dirContainer_name->Bind(wxEVT_LEFT_UP, &FilesTree::OnDirLeftClick, this);
-	dirContainer_name->Bind(wxEVT_RIGHT_UP, &FilesTree::OnDirRightClick, this);
+    dirContainer->SetSizerAndFit(dirSizer);
+    childrenPanel->Hide();
 
-	dirContainer_props_sizer->Add(dirContainer_name, 0, wxEXPAND | wxLEFT, 4);
-	dirContainer_props->SetSizerAndFit(dirContainer_props_sizer);
+    if (withPosition)
+        parentSizer->Insert(pos, dirContainer, 0, wxEXPAND | wxLEFT | wxTOP, 2);
+    else
+        parentSizer->Add(dirContainer, 0, wxEXPAND | wxLEFT | wxTOP, 2);
 
-	dirContainer_sizer->Add(dirContainer_props, 0, wxEXPAND | wxLEFT, 8);
+    parent->Layout();
 
-	wxPanel *dirChildrens = new wxPanel(dirContainer);
-	wxBoxSizer *dirChildrens_sizer = new wxBoxSizer(wxVERTICAL);
+    dirContainer->CallForEachChild([this](wxWindow *win) {
+        win->Bind(wxEVT_ENTER_WINDOW, &FilesTree::OnComponentMouseEnter, this);
+        win->Bind(wxEVT_LEAVE_WINDOW, &FilesTree::OnComponentMouseExit, this);
+    });
 
-	dirChildrens->SetName(path);
-	dirChildrens->SetLabel(path + "_dir_childrens");
-
-	dirChildrens->Bind(wxEVT_PAINT, &FilesTree::OnDirChildrensPaint, this);
-
-	dirChildrens->SetSizerAndFit(dirChildrens_sizer);
-	dirContainer_sizer->Add(dirChildrens, 0, wxEXPAND | wxLEFT, 10);
-
-	dirContainer->SetSizerAndFit(dirContainer_sizer);
-	dirChildrens->Hide();
-
-	if (withPosition)
-		parentSizer->Insert(pos, dirContainer, 0, wxEXPAND | wxLEFT | wxTOP, 2);
-	else
-		parentSizer->Add(dirContainer, 0, wxEXPAND | wxLEFT | wxTOP, 2);
-
-	parent->Layout();
-
-	dirContainer->CallForEachChild(
-		[this](wxWindow *win)
-		{
-			win->Bind(wxEVT_ENTER_WINDOW, &FilesTree::OnComponentMouseEnter, this);
-			win->Bind(wxEVT_LEAVE_WINDOW, &FilesTree::OnComponentMouseExit, this);
-		});
-
-	return dirContainer;
+    return dirContainer;
 }
 
 void FilesTree::OnDirChildrensPaint(wxPaintEvent &event)
 {
-	auto target = ((wxPanel *)event.GetEventObject());
-	if (!target)
-		return;
+    auto target = ((wxPanel *)event.GetEventObject());
+    if (!target) return;
 
-	auto color = ThemesManager::Get().GetColor("border");
-	wxPaintDC dc(target);
+    auto color = ThemesManager::Get().GetColor("border");
+    wxPaintDC dc(target);
 
-	dc.SetPen(wxPen(wxColor(color), 1.25, wxPENSTYLE_DOT));
-	dc.SetBrush(color);
-	dc.DrawLine(wxPoint(0, 0), wxPoint(0, target->GetSize().y));
+    dc.SetPen(wxPen(wxColor(color), 1.25, wxPENSTYLE_DOT));
+    dc.SetBrush(color);
+    dc.DrawLine(wxPoint(0, 0), wxPoint(0, target->GetSize().y));
 }
 
 void FilesTree::OnFileLeftClick(wxMouseEvent &event)
 {
-	auto file = ((wxWindow *)event.GetEventObject());
-	if (!file)
-		return;
+    auto file = ((wxWindow *)event.GetEventObject());
+    if (!file) return;
 
-	wxString path = file->GetName();
-	if (!wxFileExists(path))
-	{
-		wxMessageBox(ErrorMessages::FileNotFound, "Error", wxOK | wxICON_ERROR);
-		return;
-	}
+    wxString path = file->GetName();
+    if (!wxFileExists(path)) {
+        wxMessageBox(ErrorMessages::FileNotFound, "Error", wxOK | wxICON_ERROR);
+        return;
+    }
 
-	if (OpenFile(path))
-		SetFileHighlight(path);
+    if (OpenFile(path))
+        SetFileHighlight(path);
 }
 
 bool FilesTree::OpenFile(const wxString &componentIdentifier)
 {
-	auto mainCode = FindWindowById(+GUI::ControlID::MainCode);
-	auto tabsContainer = ((Tabs *)FindWindowById(+GUI::ControlID::Tabs));
-	auto statusBar = ((StatusBar *)FindWindowById(+GUI::ControlID::StatusBar));
+    auto mainCode = FindWindowById(+GUI::ControlID::MainCode);
+    auto tabsContainer = ((Tabs *)FindWindowById(+GUI::ControlID::Tabs));
+    auto statusBar = ((StatusBar *)FindWindowById(+GUI::ControlID::StatusBar));
 
-	if (!mainCode || !tabsContainer || !statusBar)
-	{
-		wxMessageBox(ErrorMessages::ComponentFindError, "Error", wxOK | wxICON_ERROR);
-		return false;
-	}
+    if (!mainCode || !tabsContainer || !statusBar) {
+        wxMessageBox(ErrorMessages::ComponentFindError, "Error", wxOK | wxICON_ERROR);
+        return false;
+    }
+    if (!wxFileExists(componentIdentifier)) {
+        wxMessageBox(ErrorMessages::FileNotFound, "Error", wxOK | wxICON_ERROR);
+        return false;
+    }
 
-	if (!wxFileExists(componentIdentifier))
-	{
-		wxMessageBox(ErrorMessages::FileNotFound, "Error", wxOK | wxICON_ERROR);
-		return false;
-	}
+    for (auto &&other : mainCode->GetChildren()) {
+        if (other->GetId() != +GUI::ControlID::Tabs)
+            other->Hide();
+    }
 
-	for (auto &&other_ct : mainCode->GetChildren())
-	{
-		if (other_ct->GetId() != +GUI::ControlID::Tabs)
-			other_ct->Hide();
-	}
+    tabsContainer->Add(wxFileNameFromPath(componentIdentifier), componentIdentifier);
 
-	tabsContainer->Add(wxFileNameFromPath(componentIdentifier), componentIdentifier);
+    auto LoadCodeEditor = [&]() {
+        auto codeEditor = ((CodeContainer *)wxFindWindowByLabel(componentIdentifier + "_codeEditor"));
+        if (!codeEditor) {
+            codeEditor = new CodeContainer(mainCode, componentIdentifier);
+            mainCode->GetSizer()->Add(codeEditor, 1, wxEXPAND);
+        } else
+            codeEditor->Show();
+    };
 
-	auto LoadCodeEditor = [&]()
-	{
-		auto CodeEditor = ((CodeContainer *)wxFindWindowByLabel(componentIdentifier + "_codeEditor"));
-		if (!CodeEditor)
-		{
-			CodeEditor = new CodeContainer(mainCode, componentIdentifier);
-			mainCode->GetSizer()->Add(CodeEditor, 1, wxEXPAND);
-		}
-		else
-			CodeEditor->Show();
-	};
+    wxImage fileImage;
+    if (fileImage.CanRead(componentIdentifier)) {
+        fileImage.LoadFile(componentIdentifier);
+        if (!fileImage.IsOk())
+            return false;
+        if (fileImage.GetWidth() > 1000 || fileImage.GetHeight() > 1000)
+            fileImage.Rescale(fileImage.GetWidth() / 2, fileImage.GetHeight() / 2);
 
-	wxImage fileImage = wxImage();
-	if (fileImage.CanRead(componentIdentifier))
-	{
-		fileImage.LoadFile(componentIdentifier);
-		if (!fileImage.IsOk())
-			return false;
+        auto imageContainer = new wxStaticBitmap(mainCode, wxID_ANY, fileImage);
+        imageContainer->SetLabel(componentIdentifier + "_imageContainer");
+        mainCode->GetSizer()->Add(imageContainer, 1, wxALIGN_CENTER);
+        statusBar->UpdateComponents(componentIdentifier);
+    } else
+        LoadCodeEditor();
 
-		// resize image if larger than 1000 pixel
-		if (fileImage.GetWidth() > 1000 || fileImage.GetHeight() > 1000)
-			fileImage.Rescale(fileImage.GetWidth() / 2, fileImage.GetHeight() / 2);
+    mainCode->Layout();
 
-		auto imageContainer = new wxStaticBitmap(
-			mainCode,
-			wxID_ANY,
-			fileImage);
+    wxFileName fullPath(componentIdentifier);
+    wxString parentPath = fullPath.GetPath(wxPATH_GET_VOLUME | wxPATH_GET_SEPARATOR);
+    ProjectSettings::Get().SetCurrentlyMenuDir(parentPath);
+    ProjectSettings::Get().SetCurrentlyMenuFile(componentIdentifier);
 
-		imageContainer->SetLabel(componentIdentifier + "_imageContainer");
-		mainCode->GetSizer()->Add(imageContainer, 1, wxALIGN_CENTER);
-		statusBar->UpdateComponents(componentIdentifier);
-	}
-	else
-		LoadCodeEditor();
-
-	mainCode->Layout();
-
-	wxFileName fullPath(componentIdentifier);
-	wxString parentPath = fullPath.GetPath(wxPATH_GET_VOLUME | wxPATH_GET_SEPARATOR);
-	ProjectSettings::Get().SetCurrentlyMenuDir(parentPath);
-	ProjectSettings::Get().SetCurrentlyMenuFile(componentIdentifier);
-
-	return true;
+    return true;
 }
 
 void FilesTree::OnFileRightClick(wxMouseEvent &event)
 {
-	auto target = ((wxWindow *)event.GetEventObject());
-	if (!target)
-		return;
+    auto target = ((wxWindow *)event.GetEventObject());
+    if (!target) return;
 
-	if (!wxFileExists(target->GetName()))
-	{
-		wxMessageBox(ErrorMessages::FileNotFound, "Error", wxOK | wxICON_ERROR);
-		return;
-	}
+    if (!wxFileExists(target->GetName())) {
+        wxMessageBox(ErrorMessages::FileNotFound, "Error", wxOK | wxICON_ERROR);
+        return;
+    }
 
-	ProjectSettings::Get().SetCurrentlyMenuFile(target->GetName());
-	auto menuFile = FileContextMenu::Get();
-	if (!menuFile)
-	{
-		wxMessageBox(ErrorMessages::CreateMenuContextError, "Error", wxOK | wxICON_ERROR);
-		return;
-	}
+    ProjectSettings::Get().SetCurrentlyMenuFile(target->GetName());
+    auto menuFile = FileContextMenu::Get();
+    if (!menuFile) {
+        wxMessageBox(ErrorMessages::CreateMenuContextError, "Error", wxOK | wxICON_ERROR);
+        return;
+    }
 
-	PopupMenu(menuFile);
+    PopupMenu(menuFile);
 }
 
 void FilesTree::OnDirLeftClick(wxMouseEvent &event)
 {
-	auto target = ((wxWindow *)event.GetEventObject());
-	if (!target)
-		return;
+    auto target = ((wxWindow *)event.GetEventObject());
+    if (!target) return;
 
-	if (target->GetLabel() == "dir_props")
-		target = target->GetParent();
-	else if (target->GetName() == "dir_name")
-		target = target->GetGrandParent();
+    if (target->GetLabel() == "dir_props")
+        target = target->GetParent();
+    else if (target->GetName() == "dir_name")
+        target = target->GetGrandParent();
 
-	if (!wxDirExists(target->GetName()))
-	{
-		wxMessageBox(ErrorMessages::CannotOpenDir, "Error", wxOK | wxICON_ERROR);
-		return;
-	}
+    if (!wxDirExists(target->GetName())) {
+        wxMessageBox(ErrorMessages::CannotOpenDir, "Error", wxOK | wxICON_ERROR);
+        return;
+    }
 
-	ToggleDirVisibility(target->GetName());
+    ToggleDirVisibility(target->GetName());
 }
 
 void FilesTree::OnDirRightClick(wxMouseEvent &event)
 {
-	auto target = ((wxWindow *)event.GetEventObject());
-	if (!target)
-		return;
+    auto target = ((wxWindow *)event.GetEventObject());
+    if (!target) return;
 
-	if (target->GetLabel() == "dir_props")
-		target = target->GetParent();
-	else if (target->GetName() == "dir_name")
-		target = target->GetGrandParent();
+    if (target->GetLabel() == "dir_props")
+        target = target->GetParent();
+    else if (target->GetName() == "dir_name")
+        target = target->GetGrandParent();
 
-	if (!wxDirExists(target->GetName()))
-	{
-		wxMessageBox(ErrorMessages::CannotOpenDir, "Error", wxOK | wxICON_ERROR);
-		return;
-	}
+    if (!wxDirExists(target->GetName())) {
+        wxMessageBox(ErrorMessages::CannotOpenDir, "Error", wxOK | wxICON_ERROR);
+        return;
+    }
 
-	ProjectSettings::Get().SetCurrentlyMenuDir(target->GetName());
+    ProjectSettings::Get().SetCurrentlyMenuDir(target->GetName());
 
-	auto menuDir = DirContextMenu::Get();
-	if (!menuDir)
-	{
-		wxMessageBox(ErrorMessages::CreateMenuContextError, "Error", wxOK | wxICON_ERROR);
-		return;
-	}
+    auto menuDir = DirContextMenu::Get();
+    if (!menuDir) {
+        wxMessageBox(ErrorMessages::CreateMenuContextError, "Error", wxOK | wxICON_ERROR);
+        return;
+    }
 
-	PopupMenu(menuDir);
+    PopupMenu(menuDir);
 }
 
 void FilesTree::ToggleDirVisibility(const wxString &componentIdentifier, bool defaultShow)
 {
-	auto dirContainer = wxFindWindowByLabel(componentIdentifier + "_dir_container");
-	if (!dirContainer)
-	{
-		wxMessageBox(ErrorMessages::CannotOpenDir, "Error", wxOK | wxICON_ERROR);
-		return;
-	}
+    auto dirContainer = wxFindWindowByLabel(componentIdentifier + "_dir_container");
+    if (!dirContainer) {
+        wxMessageBox(ErrorMessages::CannotOpenDir, "Error", wxOK | wxICON_ERROR);
+        return;
+    }
+    if (!wxDirExists(componentIdentifier)) {
+        auto parent = dirContainer->GetParent();
+        if (parent) {
+            dirContainer->Destroy();
+            AdjustContainerSize(parent);
+        }
+        wxMessageBox(ErrorMessages::CannotOpenDir, "Error", wxOK | wxICON_ERROR);
+        return;
+    }
 
-	if (!wxDirExists(componentIdentifier))
-	{
-		auto parent = dirContainer->GetParent();
-		if (parent)
-		{
-			dirContainer->Destroy();
-			AdjustContainerSize(parent);
-		}
+    auto dirArrowIcon = ((wxStaticBitmap *)dirContainer->GetChildren()[0]->GetChildren()[0]);
+    auto dirChildrens = dirContainer->GetChildren()[1];
 
-		wxMessageBox(ErrorMessages::CannotOpenDir, "Error", wxOK | wxICON_ERROR);
-		return;
-	}
+    ProjectSettings::Get().SetCurrentlyMenuDir(componentIdentifier);
 
-	auto dirArrowIcon = ((wxStaticBitmap *)dirContainer->GetChildren()[0]->GetChildren()[0]);
-	auto dirChildrens = dirContainer->GetChildren()[1];
-
-	ProjectSettings::Get().SetCurrentlyMenuDir(componentIdentifier);
-
-	if (dirArrowIcon && dirChildrens)
-	{
-		auto arrow_bit = dirArrowIcon->GetBitmap();
-		if (defaultShow)
-		{
-			dirChildrens->Show();
-			return;
-		}
-		else if (!dirChildrens->IsShown())
-		{
-			dirArrowIcon->SetBitmap(wxBitmap(arrow_bit.ConvertToImage().Rotate90(true), -1));
-			dirChildrens->Show();
-			CreateDirectoryComponents(dirChildrens, componentIdentifier);
-		}
-		else if (dirChildrens->IsShown())
-		{
-			dirChildrens->Hide();
-			dirArrowIcon->SetBitmap(wxBitmap(arrow_bit.ConvertToImage().Rotate90(false), -1));
-		}
-
-		AdjustContainerSize(dirChildrens);
-	}
-	else
-	{
-		wxMessageBox(ErrorMessages::ToggleDirectoryVisibilityError, "Error", wxOK | wxICON_ERROR);
-	}
+    if (dirArrowIcon && dirChildrens) {
+        auto arrowBitmap = dirArrowIcon->GetBitmap();
+        if (defaultShow) {
+            dirChildrens->Show();
+            return;
+        } else if (!dirChildrens->IsShown()) {
+            dirArrowIcon->SetBitmap(wxBitmap(arrowBitmap.ConvertToImage().Rotate90(true), -1));
+            dirChildrens->Show();
+            CreateDirectoryComponents(dirChildrens, componentIdentifier);
+        } else if (dirChildrens->IsShown()) {
+            dirChildrens->Hide();
+            dirArrowIcon->SetBitmap(wxBitmap(arrowBitmap.ConvertToImage().Rotate90(false), -1));
+        }
+        AdjustContainerSize(dirChildrens);
+    } else {
+        wxMessageBox(ErrorMessages::ToggleDirectoryVisibilityError, "Error", wxOK | wxICON_ERROR);
+    }
 }
 
 void FilesTree::OnPaint(wxPaintEvent &event)
 {
-	auto target = ((wxPanel *)event.GetEventObject());
-	if (!target)
-		return;
-	if (target->GetId() == +GUI::ControlID::FilesTree)
-		return;
+    auto target = ((wxPanel *)event.GetEventObject());
+    if (!target) return;
+    if (target->GetId() == +GUI::ControlID::FilesTree)
+        return;
 }
 
 void FilesTree::AdjustContainerSize(wxWindow *target, bool reduceSize)
 {
-	if (!target)
-		return;
+    if (!target) return;
 
-	wxWindow *parent = target;
-	const int mainContainerId = +GUI::ControlID::ProjectFilesContainer;
+    wxWindow *parent = target;
+    const int mainContainerId = +GUI::ControlID::ProjectFilesContainer;
 
-	// Case 1: The directory is visible or has no children
-	if (!parent->IsShownOnScreen() || parent->GetChildren().empty() || reduceSize)
-	{
-		while (parent->GetId() != +GUI::ControlID::ProjectFilesContainer)
-		{
+    if (!parent->IsShownOnScreen() || parent->GetChildren().empty() || reduceSize) {
+        while (parent->GetId() != mainContainerId) {
+            if (!parent->IsShownOnScreen()) {
+                parent->SetSize(wxSize(0, 0));
+                parent->SetMinSize(wxSize(0, 0));
+            }
+            parent->Layout();
 
-			if (!parent->IsShownOnScreen())
-			{
-				parent->SetSize(wxSize(0, 0));
-				parent->SetMinSize(wxSize(0, 0));
-			}
+            wxSize size(parent->GetSize().x, 17);
+            for (auto &&child : parent->GetChildren()) {
+                if (child->IsShownOnScreen())
+                    size.SetHeight(size.y + child->GetSize().y + 2);
+            }
+            parent->Layout();
 
-			parent->Layout();
+            parent = parent->GetParent();
+            parent->SetMinSize(size);
+            parent->Layout();
+            parent = parent->GetParent();
+        }
+    } else {
+        while (parent->GetId() != mainContainerId) {
+            parent->SetMinSize(wxSize(parent->GetBestSize()));
+            parent->GetSizer()->Layout();
+            parent = parent->GetParent();
+        }
+    }
 
-			wxSize thisSize = wxSize(parent->GetSize().x, 17);
-			for (auto &&children : parent->GetChildren())
-			{
-				if (children->IsShownOnScreen())
-					thisSize.SetHeight(thisSize.y + children->GetSize().y + 2);
-			}
-
-			parent->Layout();
-
-			parent = parent->GetParent();
-
-			parent->SetMinSize(thisSize);
-			parent->Layout();
-
-			parent = parent->GetParent();
-		}
-	}
-	else
-	{
-		while (parent->GetId() != +GUI::ControlID::ProjectFilesContainer)
-		{
-			parent->SetMinSize(wxSize(parent->GetBestSize()));
-			parent->GetSizer()->Layout();
-			parent = parent->GetParent();
-		}
-	}
-
-	// Ensure the main project files container recalculates its layout
-	if (m_projectFilesContainer)
-	{
-		m_projectFilesContainer->FitInside();
-		m_projectFilesContainer->Layout();
-	}
+    if (m_projectFilesContainer) {
+        m_projectFilesContainer->FitInside();
+        m_projectFilesContainer->Layout();
+    }
 }
 
-void FilesTree::OnCreateDirRequested(wxCommandEvent &WXUNUSED(event))
+void FilesTree::OnCreateDirRequested(wxCommandEvent &)
 {
-	try
-	{
-		wxString dirName = wxGetTextFromUser("Enter directory name: ", "Create Directory", "");
-		if (dirName.IsEmpty())
-		{
-			wxMessageBox(ErrorMessages::DirNameIsNotValid, "Error", wxOK | wxICON_ERROR);
-			return;
-		}
-
-		if (!wxDirExists(ProjectSettings::Get().GetCurrentlyMenuDir()))
-		{
-			wxMessageBox(ErrorMessages::CannotFindDirectoryParent, "Error", wxOK | wxICON_ERROR);
-			return;
-		}
-
-		bool created = FileOperations::CreateDir(ProjectSettings::Get().GetCurrentlyMenuDir() + dirName);
-		if (created)
-		{
-			ProjectSettings::Get().SetCurrentlyMenuDir(ProjectSettings::Get().GetCurrentlyMenuDir() + dirName + PlatformInfos::OsPathSepareator());
-		}
-		else
-		{
-			wxMessageBox(ErrorMessages::CreateDirRequestedError, "Error", wxOK | wxICON_ERROR);
-		}
-	}
-	catch (const std::exception &err)
-	{
-		wxMessageBox(ErrorMessages::CreateDirRequestedError + err.what(), "Error", wxOK | wxICON_ERROR);
-		return;
-	}
+    try {
+        wxString dirName = wxGetTextFromUser("Enter directory name: ", "Create Directory", "");
+        if (dirName.IsEmpty()) {
+            wxMessageBox(ErrorMessages::DirNameIsNotValid, "Error", wxOK | wxICON_ERROR);
+            return;
+        }
+        if (!wxDirExists(ProjectSettings::Get().GetCurrentlyMenuDir())) {
+            wxMessageBox(ErrorMessages::CannotFindDirectoryParent, "Error", wxOK | wxICON_ERROR);
+            return;
+        }
+        bool created = FileOperations::CreateDir(ProjectSettings::Get().GetCurrentlyMenuDir() + dirName);
+        if (created) {
+            ProjectSettings::Get().SetCurrentlyMenuDir(ProjectSettings::Get().GetCurrentlyMenuDir() + dirName + PlatformInfos::OsPathSepareator());
+        } else {
+            wxMessageBox(ErrorMessages::CreateDirRequestedError, "Error", wxOK | wxICON_ERROR);
+        }
+    } catch (const std::exception &err) {
+        wxMessageBox(ErrorMessages::CreateDirRequestedError + err.what(), "Error", wxOK | wxICON_ERROR);
+        return;
+    }
 }
 
-void FilesTree::OnDeleteDirRequested(wxCommandEvent &WXUNUSED(event))
+void FilesTree::OnDeleteDirRequested(wxCommandEvent &)
 {
-	try
-	{
-		auto deleteDir = [this]()
-		{
-			wxString currentlyMenuDir = ProjectSettings::Get().GetCurrentlyMenuDir();
-			if (!wxDirExists(currentlyMenuDir))
-			{
-				wxMessageBox(ErrorMessages::DirNotFound, "Error", wxOK | wxICON_ERROR);
-				return;
-			}
+    try {
+        auto deleteDir = [this]() {
+            wxString dir = ProjectSettings::Get().GetCurrentlyMenuDir();
+            if (!wxDirExists(dir)) {
+                wxMessageBox(ErrorMessages::DirNotFound, "Error", wxOK | wxICON_ERROR);
+                return;
+            }
+            FileOperations::DeleteDir(dir);
+            if (wxDirExists(dir)) {
+                wxMessageBox(ErrorMessages::DeleteDirRequestedError, "Error", wxOK | wxICON_ERROR);
+                return;
+            }
+            auto target = wxFindWindowByLabel(dir + "_dir_container");
+            if (!target) return;
+            wxWindow *parent = target->GetParent();
+            target->Destroy();
+            ProjectSettings::Get().SetCurrentlyMenuDir(ProjectSettings::Get().GetProjectPath());
+            AdjustContainerSize(parent, true);
+        };
 
-			FileOperations::DeleteDir(currentlyMenuDir);
-
-			if (wxDirExists(currentlyMenuDir))
-			{
-				wxMessageBox(ErrorMessages::DeleteDirRequestedError, "Error", wxOK | wxICON_ERROR);
-				return;
-			}
-
-			auto targetComp = wxFindWindowByLabel(currentlyMenuDir + "_dir_container");
-			if (!targetComp)
-				return;
-
-			wxWindow *parent = targetComp->GetParent();
-
-			targetComp->Destroy();
-			ProjectSettings::Get().SetCurrentlyMenuDir(ProjectSettings::Get().GetProjectPath());
-
-			AdjustContainerSize(parent, true);
-		};
-
-		auto dontAskMeAgainDirDelete = UserSettingsManager::Get().GetSetting<bool>("dontAskMeAgainDirDelete");
-		if (dontAskMeAgainDirDelete.found)
-		{
-			if (dontAskMeAgainDirDelete.value == false)
-			{
-				ConfirmDialog dlg(NULL, "Are you sure you want to delete this dir?", "Delete Dir");
-				int result = dlg.ShowModal();
-
-				if (result == wxID_OK)
-				{
-					bool dontAsk = dlg.DontAskAgain();
-					if (dontAsk)
-					{
-						UserSettingsManager::Get().currentSettings["dontAskMeAgainDirDelete"] = true;
-						UserSettingsManager::Get().Update(UserSettingsManager::Get().currentSettings);
-					}
-					deleteDir();
-					return;
-				}
-			}
-		}
-		deleteDir();
-	}
-	catch (const std::exception &err)
-	{
-		wxMessageBox(ErrorMessages::DeleteDirRequestedError + err.what(), "Error", wxOK | wxICON_ERROR);
-		return;
-	}
+        auto dontAsk = UserSettingsManager::Get().GetSetting<bool>("dontAskMeAgainDirDelete");
+        if (dontAsk.found && !dontAsk.value) {
+            ConfirmDialog dlg(NULL, "Are you sure you want to delete this dir?", "Delete Dir");
+            int result = dlg.ShowModal();
+            if (result == wxID_OK) {
+                if (dlg.DontAskAgain()) {
+                    UserSettingsManager::Get().currentSettings["dontAskMeAgainDirDelete"] = true;
+                    UserSettingsManager::Get().Update(UserSettingsManager::Get().currentSettings);
+                }
+                deleteDir();
+                return;
+            }
+        }
+        deleteDir();
+    } catch (const std::exception &err) {
+        wxMessageBox(ErrorMessages::DeleteDirRequestedError + err.what(), "Error", wxOK | wxICON_ERROR);
+        return;
+    }
 }
 
-void FilesTree::OnRenameDirRequested(wxCommandEvent &WXUNUSED(event))
+void FilesTree::OnRenameDirRequested(wxCommandEvent &)
 {
-	try
-	{
-		if (!wxDirExists(ProjectSettings::Get().GetCurrentlyMenuDir()))
-		{
-			wxMessageBox(ErrorMessages::DirNotFound, "Error", wxOK | wxICON_ERROR);
-			return;
-		}
-
-		wxString newDirName = wxGetTextFromUser("Enter directory name: ", "Rename directory", wxFileNameFromPath(ProjectSettings::Get().GetCurrentlyMenuDir()));
-		if (newDirName.IsEmpty())
-		{
-			wxMessageBox(ErrorMessages::DirNameIsNotValid, "Error", wxOK | wxICON_ERROR);
-			return;
-		}
-
-		wxFileName dirPath(ProjectSettings::Get().GetCurrentlyMenuDir());
-		dirPath.RemoveLastDir();
-		wxString newPath = dirPath.GetFullPath() + newDirName;
-
-		wxRename(wxString(ProjectSettings::Get().GetCurrentlyMenuDir()), newPath);
-
-		if (!wxDirExists(newPath))
-		{
-			wxMessageBox(ErrorMessages::RenameDirRequestedError, "Error", wxOK | wxICON_ERROR);
-			return;
-		}
-
-		ProjectSettings::Get().SetCurrentlyMenuDir(newPath);
-	}
-	catch (const std::exception &err)
-	{
-		wxMessageBox(ErrorMessages::RenameDirRequestedError + err.what(), "Error", wxOK | wxICON_ERROR);
-		return;
-	}
+    try {
+        if (!wxDirExists(ProjectSettings::Get().GetCurrentlyMenuDir())) {
+            wxMessageBox(ErrorMessages::DirNotFound, "Error", wxOK | wxICON_ERROR);
+            return;
+        }
+        wxString newDirName = wxGetTextFromUser("Enter directory name: ", "Rename directory", wxFileNameFromPath(ProjectSettings::Get().GetCurrentlyMenuDir()));
+        if (newDirName.IsEmpty()) {
+            wxMessageBox(ErrorMessages::DirNameIsNotValid, "Error", wxOK | wxICON_ERROR);
+            return;
+        }
+        wxFileName dirPath(ProjectSettings::Get().GetCurrentlyMenuDir());
+        dirPath.RemoveLastDir();
+        wxString newPath = dirPath.GetFullPath() + newDirName;
+        wxRename(wxString(ProjectSettings::Get().GetCurrentlyMenuDir()), newPath);
+        if (!wxDirExists(newPath)) {
+            wxMessageBox(ErrorMessages::RenameDirRequestedError, "Error", wxOK | wxICON_ERROR);
+            return;
+        }
+        ProjectSettings::Get().SetCurrentlyMenuDir(newPath);
+    } catch (const std::exception &err) {
+        wxMessageBox(ErrorMessages::RenameDirRequestedError + err.what(), "Error", wxOK | wxICON_ERROR);
+        return;
+    }
 }
 
-void FilesTree::OnCreateFileRequested(wxCommandEvent &WXUNUSED(event))
+void FilesTree::OnCreateFileRequested(wxCommandEvent &)
 {
-	try
-	{
-		wxString fileName = wxGetTextFromUser("Enter file name: ", "Create file", "");
-		if (fileName.IsEmpty())
-		{
-			wxMessageBox(ErrorMessages::FileNameIsNotValid, "Error", wxOK | wxICON_ERROR);
-			return;
-		}
-
-		if (!wxDirExists(ProjectSettings::Get().GetCurrentlyMenuDir()))
-		{
-			wxMessageBox(ErrorMessages::CannotFindDirectoryParent, "Error", wxOK | wxICON_ERROR);
-			return;
-		}
-
-		wxString filePath = ProjectSettings::Get().GetCurrentlyMenuDir() + fileName;
-
-		bool created = FileOperations::CreateFileK(filePath);
-		if (created)
-		{
-			if (OpenFile(filePath))
-			{
-				wxFileName fullPath(filePath);
-				wxString parentPath = fullPath.GetPath(wxPATH_GET_VOLUME | wxPATH_GET_SEPARATOR);
-
-				ToggleDirVisibility(parentPath, true);
-
-				ProjectSettings::Get().SetCurrentlyMenuFile(filePath);
-			}
-		}
-		else
-			wxMessageBox(ErrorMessages::CreateFileRequestedError, "Error", wxOK | wxICON_ERROR);
-	}
-	catch (const std::exception &err)
-	{
-		wxMessageBox(ErrorMessages::CreateFileRequestedError + err.what(), "Error", wxOK | wxICON_ERROR);
-		return;
-	}
+    try {
+        wxString fileName = wxGetTextFromUser("Enter file name: ", "Create file", "");
+        if (fileName.IsEmpty()) {
+            wxMessageBox(ErrorMessages::FileNameIsNotValid, "Error", wxOK | wxICON_ERROR);
+            return;
+        }
+        if (!wxDirExists(ProjectSettings::Get().GetCurrentlyMenuDir())) {
+            wxMessageBox(ErrorMessages::CannotFindDirectoryParent, "Error", wxOK | wxICON_ERROR);
+            return;
+        }
+        wxString filePath = ProjectSettings::Get().GetCurrentlyMenuDir() + fileName;
+        bool created = FileOperations::CreateFileK(filePath);
+        if (created) {
+            if (OpenFile(filePath)) {
+                wxFileName fullPath(filePath);
+                wxString parentPath = fullPath.GetPath(wxPATH_GET_VOLUME | wxPATH_GET_SEPARATOR);
+                ToggleDirVisibility(parentPath, true);
+                ProjectSettings::Get().SetCurrentlyMenuFile(filePath);
+            }
+        } else
+            wxMessageBox(ErrorMessages::CreateFileRequestedError, "Error", wxOK | wxICON_ERROR);
+    } catch (const std::exception &err) {
+        wxMessageBox(ErrorMessages::CreateFileRequestedError + err.what(), "Error", wxOK | wxICON_ERROR);
+        return;
+    }
 }
 
-void FilesTree::OnDeleteFileRequested(wxCommandEvent &WXUNUSED(event))
+void FilesTree::OnDeleteFileRequested(wxCommandEvent &)
 {
-	try
-	{
-		auto deleteFile = []()
-		{
-			wxString currentlyMenuFile = ProjectSettings::Get().GetCurrentlyMenuFile();
-			if (!wxFileExists(currentlyMenuFile))
-			{
-				wxMessageBox(ErrorMessages::FileNotFound, "Error", wxOK | wxICON_ERROR);
-				return;
-			}
+    try {
+        auto deleteFile = []() {
+            wxString file = ProjectSettings::Get().GetCurrentlyMenuFile();
+            if (!wxFileExists(file)) {
+                wxMessageBox(ErrorMessages::FileNotFound, "Error", wxOK | wxICON_ERROR);
+                return;
+            }
+            FileOperations::DeleteFileK(file);
+            if (wxFileExists(file)) {
+                wxMessageBox(ErrorMessages::DeleteFileRequestedError, "Error", wxOK | wxICON_ERROR);
+                return;
+            }
+            ProjectSettings::Get().SetCurrentlyMenuFile(ProjectSettings::Get().GetProjectPath());
+        };
 
-			FileOperations::DeleteFileK(currentlyMenuFile);
-
-			if (wxFileExists(currentlyMenuFile))
-			{
-				wxMessageBox(ErrorMessages::DeleteFileRequestedError, "Error", wxOK | wxICON_ERROR);
-				return;
-			}
-
-			ProjectSettings::Get().SetCurrentlyMenuFile(ProjectSettings::Get().GetProjectPath());
-		};
-
-		auto dontAskMeAgainFileDelete = UserSettingsManager::Get().GetSetting<bool>("dontAskMeAgainFileDelete");
-		if (dontAskMeAgainFileDelete.found)
-		{
-			if (dontAskMeAgainFileDelete.value == false)
-			{
-				ConfirmDialog dlg(NULL, "Are you sure you want to delete this file?", "Delete File");
-				int result = dlg.ShowModal();
-
-				if (result == wxID_OK)
-				{
-					bool dontAsk = dlg.DontAskAgain();
-					if (dontAsk)
-					{
-						UserSettingsManager::Get().currentSettings["dontAskMeAgainFileDelete"] = true;
-						UserSettingsManager::Get().Update(UserSettingsManager::Get().currentSettings);
-					}
-					deleteFile();
-					return;
-				}
-			}
-		}
-		deleteFile();
-	}
-	catch (const std::exception &err)
-	{
-		wxMessageBox(ErrorMessages::DeleteFileRequestedError + err.what(), "Error", wxOK | wxICON_ERROR);
-		return;
-	}
+        auto dontAsk = UserSettingsManager::Get().GetSetting<bool>("dontAskMeAgainFileDelete");
+        if (dontAsk.found && !dontAsk.value) {
+            ConfirmDialog dlg(NULL, "Are you sure you want to delete this file?", "Delete File");
+            int result = dlg.ShowModal();
+            if (result == wxID_OK) {
+                if (dlg.DontAskAgain()) {
+                    UserSettingsManager::Get().currentSettings["dontAskMeAgainFileDelete"] = true;
+                    UserSettingsManager::Get().Update(UserSettingsManager::Get().currentSettings);
+                }
+                deleteFile();
+                return;
+            }
+        }
+        deleteFile();
+    } catch (const std::exception &err) {
+        wxMessageBox(ErrorMessages::DeleteFileRequestedError + err.what(), "Error", wxOK | wxICON_ERROR);
+        return;
+    }
 }
 
-void FilesTree::OnRenameFileRequested(wxCommandEvent &WXUNUSED(event))
+void FilesTree::OnRenameFileRequested(wxCommandEvent &)
 {
-	try
-	{
-		if (!wxFileExists(ProjectSettings::Get().GetCurrentlyMenuFile()))
-		{
-			wxMessageBox(ErrorMessages::FileNotFound, "Error", wxOK | wxICON_ERROR);
-			return;
-		}
-
-		wxString newFileName = wxGetTextFromUser("Enter file name: ", "Rename File", wxFileNameFromPath(ProjectSettings::Get().GetCurrentlyMenuFile()));
-		if (newFileName.IsEmpty())
-		{
-			wxMessageBox(ErrorMessages::FileNameIsNotValid, "Error", wxOK | wxICON_ERROR);
-			return;
-		}
-
-		wxString parentPath = ProjectSettings::Get().GetCurrentlyMenuFile().substr(0, ProjectSettings::Get().GetCurrentlyMenuFile().find_last_of(PlatformInfos::OsPathSepareator()) + 1);
-		wxString newPath = parentPath + newFileName;
-
-		wxRename(wxString(ProjectSettings::Get().GetCurrentlyMenuFile()), newPath);
-
-		if (!wxFileExists(newPath))
-		{
-			wxMessageBox(ErrorMessages::RenameFileRequestedError, "Error", wxOK | wxICON_ERROR);
-			return;
-		}
-
-		ProjectSettings::Get().SetCurrentlyMenuFile(newPath);
-	}
-	catch (const std::exception &err)
-	{
-		wxMessageBox(ErrorMessages::RenameFileRequestedError + err.what(), "Error", wxOK | wxICON_ERROR);
-		return;
-	}
+    try {
+        if (!wxFileExists(ProjectSettings::Get().GetCurrentlyMenuFile())) {
+            wxMessageBox(ErrorMessages::FileNotFound, "Error", wxOK | wxICON_ERROR);
+            return;
+        }
+        wxString newFileName = wxGetTextFromUser("Enter file name: ", "Rename File", wxFileNameFromPath(ProjectSettings::Get().GetCurrentlyMenuFile()));
+        if (newFileName.IsEmpty()) {
+            wxMessageBox(ErrorMessages::FileNameIsNotValid, "Error", wxOK | wxICON_ERROR);
+            return;
+        }
+        wxString parentPath = ProjectSettings::Get().GetCurrentlyMenuFile().substr(0, ProjectSettings::Get().GetCurrentlyMenuFile().find_last_of(PlatformInfos::OsPathSepareator()) + 1);
+        wxString newPath = parentPath + newFileName;
+        wxRename(wxString(ProjectSettings::Get().GetCurrentlyMenuFile()), newPath);
+        if (!wxFileExists(newPath)) {
+            wxMessageBox(ErrorMessages::RenameFileRequestedError, "Error", wxOK | wxICON_ERROR);
+            return;
+        }
+        ProjectSettings::Get().SetCurrentlyMenuFile(newPath);
+    } catch (const std::exception &err) {
+        wxMessageBox(ErrorMessages::RenameFileRequestedError + err.what(), "Error", wxOK | wxICON_ERROR);
+        return;
+    }
 }
 
 void FilesTree::OnFileSystemEvent(int type, const wxString &oldPath, wxString newPath)
 {
-	if (oldPath.IsEmpty() || newPath.IsEmpty())
-		return;
+    if (oldPath.IsEmpty() || newPath.IsEmpty()) return;
 
-	wxFileName fullPath(newPath);
-	wxString parentComponentPath = fullPath.GetPath(wxPATH_GET_VOLUME | wxPATH_GET_SEPARATOR);
+    wxFileName fullPath(newPath);
+    wxString parentPath = fullPath.GetPath(wxPATH_GET_VOLUME | wxPATH_GET_SEPARATOR);
+    auto parentComponent = wxFindWindowByLabel(parentPath + "_dir_childrens");
+    if (parentPath == ProjectSettings::Get().GetProjectPath())
+        parentComponent = m_projectFilesContainer;
+    if (!parentComponent) return;
 
-	auto parentComponent = wxFindWindowByLabel(parentComponentPath + "_dir_childrens");
+    auto linkedEditor = ((CodeContainer *)FindWindowByName(oldPath + "_codeContainer"));
+    auto linkedTab = wxFindWindowByLabel(oldPath + "_tab");
 
-	if (parentComponentPath == ProjectSettings::Get().GetProjectPath())
-		parentComponent = m_projectFilesContainer;
+    bool isFile = !std::filesystem::is_directory(newPath.ToStdString());
 
-	if (!parentComponent)
-		return;
+    auto CreateWithPosition = [this, newPath, isFile, parentComponent]() {
+        int position = 0;
+        const std::filesystem::path pd{wxFileName(newPath).GetPath().ToStdString()};
+        for (auto const &entry : std::filesystem::directory_iterator{pd}) {
+            if (entry.path() == newPath.ToStdString()) {
+                if (isFile)
+                    CreateFileContainer(parentComponent, newPath);
+                else
+                    CreateDirContainer(parentComponent, newPath, true, position);
+            }
+            position++;
+        }
+    };
 
-	auto linkedCodeEditor = ((CodeContainer *)FindWindowByName(oldPath + "_codeContainer"));
-	auto linkedTab = wxFindWindowByLabel(oldPath + "_tab");
+    if (type == wxFSW_EVENT_CREATE)
+        CreateWithPosition();
 
-	bool isFile = true;
-	if (std::filesystem::is_directory(newPath.ToStdString()))
-		isFile = false;
+    if (type == wxFSW_EVENT_DELETE) {
+        auto component = wxFindWindowByLabel(oldPath + "_file_container");
+        if (!component) {
+            if (auto dirComp = wxFindWindowByLabel(oldPath + PlatformInfos::OsPathSepareator() + "_dir_container"))
+                component = dirComp;
+            else
+                return;
+        }
+        if (linkedTab) {
+            auto tabs = ((Tabs *)FindWindowById(+GUI::ControlID::Tabs));
+            if (tabs)
+                tabs->Close(linkedTab, linkedTab->GetName());
+        }
+        if (component)
+            component->Destroy();
+        AdjustContainerSize(parentComponent, true);
+        return;
+    }
 
-	auto CreateWithPosition = [this, newPath, isFile, parentComponent]()
-	{
-		int position = 0;
-		const std::filesystem::path pd{wxFileName(newPath).GetPath().ToStdString()};
-		for (auto const &dir_entry : std::filesystem::directory_iterator{pd})
-		{
-			if (dir_entry.path() == newPath.ToStdString())
-			{
-				if (isFile)
-					CreateFileContainer(parentComponent, newPath);
-				else
-					CreateDirContainer(parentComponent, newPath, true, position);
-			}
-			position++;
-		}
-	};
+    if (type == wxFSW_EVENT_RENAME || type == wxFSW_EVENT_MODIFY) {
+        wxWindow *targetComp;
+        if (isFile)
+            targetComp = wxFindWindowByLabel(oldPath + "_file_container");
+        else
+            targetComp = wxFindWindowByLabel(oldPath + PlatformInfos::OsPathSepareator() + "_dir_container");
+        if (!targetComp) return;
 
-	if (type == wxFSW_EVENT_CREATE)
-		CreateWithPosition();
-
-	if (type == wxFSW_EVENT_DELETE)
-	{
-		auto component = wxFindWindowByLabel(oldPath + "_file_container");
-		if (!component)
-		{
-			if (auto isDirComponent = wxFindWindowByLabel(oldPath + PlatformInfos::OsPathSepareator() + "_dir_container"))
-				component = isDirComponent;
-			else
-				return;
-		}
-
-		if (linkedTab)
-		{
-			auto tabs = ((Tabs *)FindWindowById(+GUI::ControlID::Tabs));
-			if (tabs)
-				tabs->Close(linkedTab, linkedTab->GetName());
-		}
-		if (component)
-			component->Destroy();
-
-		AdjustContainerSize(parentComponent, true);
-		return;
-	}
-
-	if (type == wxFSW_EVENT_RENAME || type == wxFSW_EVENT_MODIFY)
-	{
-		wxWindow *targetComp;
-		if (isFile)
-			targetComp = wxFindWindowByLabel(oldPath + "_file_container");
-		else
-			targetComp = wxFindWindowByLabel(oldPath + PlatformInfos::OsPathSepareator() + "_dir_container");
-
-		if (!targetComp)
-			return;
-
-		if (targetComp->GetName() != newPath && oldPath != newPath)
-		{
-			if (isFile)
-			{
-				targetComp->SetName(newPath);
-				targetComp->SetLabel(newPath + "_file_container");
-				auto fileName = ((wxStaticText *)targetComp->GetChildren()[1]);
-				if (fileName)
-				{
-					fileName->SetName(newPath);
-					fileName->SetLabel(wxFileNameFromPath(newPath));
-				}
-
-				auto fileIcon = ((wxStaticBitmap *)targetComp->GetChildren()[0]);
-				if (fileIcon)
-				{
-					wxString fileIconPath = LanguagesPreferences::Get().GetLanguageIconPath(newPath);
-					if (!fileIconPath.IsEmpty())
-					{
-						wxBitmap fileIconBitmap(fileIconPath, wxBITMAP_TYPE_PNG);
-						if (fileIconBitmap.IsOk())
-							fileIcon->SetBitmap(fileIconBitmap);
-					}
-				}
-
-				if (linkedCodeEditor)
-					linkedCodeEditor->LoadPath(newPath);
-
-				if (linkedTab)
-				{
-					linkedTab->SetName(newPath);
-					linkedTab->SetLabel(newPath + "_tab");
-
-					linkedTab->SetToolTip(newPath);
-					auto tabText = ((wxStaticText *)linkedTab->GetChildren()[0]->GetChildren()[1]);
-					if (tabText)
-					{
-						tabText->SetName(newPath);
-						tabText->SetLabel(wxFileNameFromPath(newPath));
-					}
-
-					auto tabIcon = ((wxStaticBitmap *)linkedTab->GetChildren()[0]->GetChildren()[0]);
-					if (tabIcon)
-					{
-						wxString tabIconPath = LanguagesPreferences::Get().GetLanguageIconPath(newPath);
-						if (!tabIconPath.IsEmpty())
-						{
-							wxBitmap tabIconBitmap(tabIconPath, wxBITMAP_TYPE_PNG);
-							if (tabIconBitmap.IsOk())
-							tabIcon->SetBitmap(tabIconBitmap);
-						}
-					}
-				}
-			}
-			else
-				CreateWithPosition();
-		}
-	}
-	AdjustContainerSize(parentComponent);
+        if (targetComp->GetName() != newPath && oldPath != newPath) {
+            if (isFile) {
+                targetComp->SetName(newPath);
+                targetComp->SetLabel(newPath + "_file_container");
+                auto fileName = ((wxStaticText *)targetComp->GetChildren()[1]);
+                if (fileName) {
+                    fileName->SetName(newPath);
+                    fileName->SetLabel(wxFileNameFromPath(newPath));
+                }
+                auto fileIcon = ((wxStaticBitmap *)targetComp->GetChildren()[0]);
+                if (fileIcon) {
+                    wxString iconPath = LanguagesPreferences::Get().GetLanguageIconPath(newPath);
+                    if (!iconPath.IsEmpty()) {
+                        wxBitmap iconBitmap(iconPath, wxBITMAP_TYPE_PNG);
+                        if (iconBitmap.IsOk())
+                            fileIcon->SetBitmap(iconBitmap);
+                    }
+                }
+                if (linkedEditor)
+                    linkedEditor->LoadPath(newPath);
+                if (linkedTab) {
+                    linkedTab->SetName(newPath);
+                    linkedTab->SetLabel(newPath + "_tab");
+                    linkedTab->SetToolTip(newPath);
+                    auto tabText = ((wxStaticText *)linkedTab->GetChildren()[0]->GetChildren()[1]);
+                    if (tabText) {
+                        tabText->SetName(newPath);
+                        tabText->SetLabel(wxFileNameFromPath(newPath));
+                    }
+                    auto tabIcon = ((wxStaticBitmap *)linkedTab->GetChildren()[0]->GetChildren()[0]);
+                    if (tabIcon) {
+                        wxString tabIconPath = LanguagesPreferences::Get().GetLanguageIconPath(newPath);
+                        if (!tabIconPath.IsEmpty()) {
+                            wxBitmap tabIconBitmap(tabIconPath, wxBITMAP_TYPE_PNG);
+                            if (tabIconBitmap.IsOk())
+                                tabIcon->SetBitmap(tabIconBitmap);
+                        }
+                    }
+                }
+            } else
+                CreateWithPosition();
+        }
+    }
+    AdjustContainerSize(parentComponent);
 }
 
 void FilesTree::ChangeFileBackground(const wxString &componentIdentifier, wxColour color)
 {
-	auto target = FindWindowByLabel(componentIdentifier + "_file_container");
-	if (!target)
-	{
-		target = FindWindowByLabel(componentIdentifier + "_dir_container");
-		if (target)
-			target = target->GetChildren()[0];
-	}
-
-	if (!target)
-		return;
-
-	if (m_currentSelectedFile)
-	{
-		if (m_currentSelectedFile->GetName() == target->GetName())
-			return;
-	}
-
-	target->SetBackgroundColour(color);
-	target->Refresh();
+    auto target = FindWindowByLabel(componentIdentifier + "_file_container");
+    if (!target) {
+        target = FindWindowByLabel(componentIdentifier + "_dir_container");
+        if (target)
+            target = target->GetChildren()[0];
+    }
+    if (!target) return;
+    if (m_currentSelectedFile && m_currentSelectedFile->GetName() == target->GetName())
+        return;
+    target->SetBackgroundColour(color);
+    target->Refresh();
 }
 
 void FilesTree::OnComponentMouseEnter(wxMouseEvent &event)
 {
-	auto target = ((wxWindow *)event.GetEventObject());
-	if (!target)
-		return;
-
-	auto highLigthFileColor = ThemesManager::Get().GetColor("selectedFile");
-	wxString path = target->GetName();
-	if (path == "dir_name")
-		target = target->GetGrandParent();
-	ChangeFileBackground(target->GetName(), highLigthFileColor);
+    auto target = ((wxWindow *)event.GetEventObject());
+    if (!target) return;
+    auto color = ThemesManager::Get().GetColor("selectedFile");
+    wxString path = target->GetName();
+    if (path == "dir_name")
+        target = target->GetGrandParent();
+    ChangeFileBackground(target->GetName(), color);
 }
 
 void FilesTree::OnComponentMouseExit(wxMouseEvent &event)
 {
-	auto target = ((wxWindow *)event.GetEventObject());
-	if (!target)
-		return;
-
-	auto defaultFileColor = ThemesManager::Get().GetColor("main");
-	wxString path = target->GetName();
-	if (path == "dir_name")
-		target = target->GetGrandParent();
-	ChangeFileBackground(target->GetName(), defaultFileColor);
+    auto target = ((wxWindow *)event.GetEventObject());
+    if (!target) return;
+    auto color = ThemesManager::Get().GetColor("main");
+    wxString path = target->GetName();
+    if (path == "dir_name")
+        target = target->GetGrandParent();
+    ChangeFileBackground(target->GetName(), color);
 }
 
 void FilesTree::SetFileHighlight(const wxString &componentIdentifier)
 {
-	auto target = wxFindWindowByLabel(componentIdentifier + "_file_container");
+    auto target = wxFindWindowByLabel(componentIdentifier + "_file_container");
+    auto defaultColor = ThemesManager::Get().GetColor("main");
+    auto selectedColor = ThemesManager::Get().GetColor("selectedFile");
 
-	auto defaultFileColor = ThemesManager::Get().GetColor("main");
-	auto selectedFileColor = ThemesManager::Get().GetColor("selectedFile");
-
-	if (target)
-	{
-		if (m_currentSelectedFile)
-		{
-			m_currentSelectedFile->SetBackgroundColour(defaultFileColor);
-			m_currentSelectedFile->Refresh();
-
-			m_currentSelectedFile = target;
-			m_currentSelectedFile->SetBackgroundColour(selectedFileColor);
-			m_currentSelectedFile->Refresh();
-		}
-		else
-		{
-			m_currentSelectedFile = target;
-			m_currentSelectedFile->SetBackgroundColour(selectedFileColor);
-			m_currentSelectedFile->Refresh();
-		}
-	}
-	else
-	{
-		if (m_currentSelectedFile)
-		{
-			m_currentSelectedFile->SetBackgroundColour(defaultFileColor);
-			m_currentSelectedFile->Refresh();
-		}
-		m_currentSelectedFile = nullptr;
-	}
+    if (target) {
+        if (m_currentSelectedFile) {
+            m_currentSelectedFile->SetBackgroundColour(defaultColor);
+            m_currentSelectedFile->Refresh();
+            m_currentSelectedFile = target;
+            m_currentSelectedFile->SetBackgroundColour(selectedColor);
+            m_currentSelectedFile->Refresh();
+        } else {
+            m_currentSelectedFile = target;
+            m_currentSelectedFile->SetBackgroundColour(selectedColor);
+            m_currentSelectedFile->Refresh();
+        }
+    } else {
+        if (m_currentSelectedFile) {
+            m_currentSelectedFile->SetBackgroundColour(defaultColor);
+            m_currentSelectedFile->Refresh();
+        }
+        m_currentSelectedFile = nullptr;
+    }
 }
