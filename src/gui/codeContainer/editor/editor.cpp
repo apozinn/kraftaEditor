@@ -83,7 +83,11 @@ void Editor::OnChange(wxStyledTextEvent &event)
             auto icon = ((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[2]);
             if (icon)
             {
+                if(icon->GetLabel() == "unsaved_icon")
+                    return;
                 icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(iconsDir + "white_circle.png", wxBITMAP_TYPE_PNG)));
+                icon->SetLabel("unsaved_icon");
+                tab->Layout();
             }
         }
 

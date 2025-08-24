@@ -269,23 +269,27 @@ void Tabs::OnMenu(wxMouseEvent &WXUNUSED(event))
 void Tabs::OnEnterComp(wxMouseEvent &event)
 {
 	auto target = ((wxWindow *)event.GetEventObject());
-	auto codeContainer = ((wxStyledTextCtrl *)FindWindowByName(target->GetParent()->GetName() + "_codeContainer"));
-	if (target && codeContainer)
+	if (target)
 	{
+		auto editor = ((wxStyledTextCtrl *)FindWindowByName(target->GetParent()->GetName() + "_codeEditor"));
+		if (!editor)
+			return;
+
 		auto icon = ((wxStaticBitmap *)target->GetChildren()[2]);
-		if (icon)
-		{
-			icon = ((wxStaticBitmap *)target->GetChildren()[2]);
-			if (icon)
-			{
-				auto codeEditor = ((wxStyledTextCtrl *)codeContainer->GetChildren()[0]);
-				if (codeEditor->GetModify())
-				{
-					icon->Show();
-					icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(iconsDir + "close.png", wxBITMAP_TYPE_PNG)));
-				}
-			}
-		}
+		if (!icon)
+			return;
+
+		if (icon->GetLabel() == "saved_icon")
+			return;
+
+		auto closeIcon = wxBitmap(iconsDir + "close.png", wxBITMAP_TYPE_PNG);
+		if (!closeIcon.IsOk())
+			return;
+
+		icon->SetBitmap(closeIcon);
+		icon->SetLabel("saved_icon");
+
+		Layout();
 	}
 }
 
@@ -294,20 +298,37 @@ void Tabs::OnLeaveComp(wxMouseEvent &event)
 	auto target = ((wxWindow *)event.GetEventObject());
 	if (target)
 	{
-		auto codeContainer = ((wxWindow *)FindWindowByName(target->GetParent()->GetName() + "_codeContainer"));
-		wxStaticBitmap *icon = ((wxStaticBitmap *)target->GetChildren()[2]);
-		if (codeContainer)
+		auto editor = ((wxStyledTextCtrl *)FindWindowByName(target->GetParent()->GetName() + "_codeEditor"));
+		if (!editor)
+			return;
+
+		auto icon = ((wxStaticBitmap *)target->GetChildren()[2]);
+		if (!icon)
+			return;
+
+		if (editor->GetModify())
 		{
-			auto codeEditor = ((wxStyledTextCtrl *)codeContainer->GetChildren()[0]);
-			if (codeEditor->GetModify())
-			{
-				icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(iconsDir + "white_circle.png", wxBITMAP_TYPE_PNG)));
-			}
-			else
-			{
-				icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(iconsDir + "close.png", wxBITMAP_TYPE_PNG)));
-			}
+			if (icon->GetLabel() == "unsaved_icon")
+				return;
+
+			auto unsavedIcon = wxBitmap(iconsDir + "white_circle.png", wxBITMAP_TYPE_PNG);
+			if (!unsavedIcon.IsOk())
+				return;
+			icon->SetBitmap(unsavedIcon);
+			icon->SetLabel("unsaved_icon");
 		}
+		else
+		{
+			if (icon->GetLabel() == "saved_icon")
+				return;
+
+			auto closeIcon = wxBitmap(iconsDir + "close.png", wxBITMAP_TYPE_PNG);
+			if (!closeIcon.IsOk())
+				return;
+			icon->SetBitmap(closeIcon);
+			icon->SetLabel("saved_icon");
+		}
+		Layout();
 	}
 }
 

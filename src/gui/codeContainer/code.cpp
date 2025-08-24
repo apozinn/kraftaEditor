@@ -87,8 +87,12 @@ bool CodeContainer::Save(wxString path)
         {
             if (auto tab = FindWindowByLabel(path + "_tab"))
             {
-                ((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[2])
-                    ->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(ApplicationPaths::AssetsPath("icons") + "close.png", wxBITMAP_TYPE_PNG)));
+                auto icon = ((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[2]);
+                if(icon) {
+                    icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(ApplicationPaths::AssetsPath("icons") + "close.png", wxBITMAP_TYPE_PNG)));
+                    icon->SetLabel("saved_icon");
+                    tab->Layout();
+                }
             }
             return true;
         }
