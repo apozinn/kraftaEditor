@@ -77,7 +77,6 @@ void Editor::OnChange(wxStyledTextEvent &event)
         return;
     if (GetModify())
     {
-        wxLogMessage("File modified");
         auto tab = FindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_tab");
         if (tab)
         {
