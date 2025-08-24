@@ -5,6 +5,8 @@
 #include "gui/widgets/statusBar/statusBar.hpp"
 #include "languagesPreferences/languagesPreferences.hpp"
 #include "gui/widgets/saveChangesDialog/saveChangesDialog.hpp"
+#include "menus/tabsContainerMenu.hpp"
+#include "errorMessages/errorMessages.hpp"
 
 #include <wx/graphics.h>
 
@@ -269,12 +271,14 @@ void Tabs::OnCloseTab(wxMouseEvent &event)
 
 void Tabs::OnMenu(wxMouseEvent &WXUNUSED(event))
 {
-	wxMenu *tabsMenu = new wxMenu;
-	tabsMenu->Append(+Event::File::CloseAll, _("&Close All"));
-	tabsMenu->Append(wxID_ANY, _("&First Tab"));
-	tabsMenu->Append(wxID_ANY, _("&Last Tab"));
-	tabsMenu->Append(wxID_ANY, _("&Close Saved"));
-	PopupMenu(tabsMenu);
+	auto tabsContainerMenu = TabsContainerMenu::Get();
+	if (!tabsContainerMenu)
+	{
+		wxMessageBox(ErrorMessages::CreateMenuContextError, "Error", wxOK | wxICON_ERROR);
+		return;
+	}
+
+	PopupMenu(tabsContainerMenu);
 }
 
 void Tabs::OnEnterComp(wxMouseEvent &event)

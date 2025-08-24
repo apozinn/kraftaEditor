@@ -44,6 +44,10 @@ void StatusBar::UpdateComponents(const wxString& path)
 
 	wxString languageName = LanguagesPreferences::Get().GetLanguagePreferences(path).name;
 
+	if (!languageName.empty()) {
+		languageName[0] = wxToupper(languageName[0]);
+	}
+
 	if (fileImage.CanRead(path))
 	{
 		wxImage *image = new wxImage(path);

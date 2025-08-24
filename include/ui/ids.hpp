@@ -22,6 +22,7 @@ constexpr wxWindowID ID_BASE_CONTROL = 15000;  ///< Base ID for control panel
 constexpr wxWindowID ID_BASE_SEARCH = 16000;   ///< Base ID for search operations
 constexpr wxWindowID ID_BASE_SETTINGS = 17000; ///< Base ID for user settings
 constexpr wxWindowID ID_BASE_EDIT = 18000;     ///< Base ID for code edit
+constexpr wxWindowID ID_TABS_CONTAINER = 19000;     ///< Base ID for tabs container
 
 namespace GUI
 {
@@ -198,6 +199,17 @@ namespace Event
     {
         Open = ID_BASE_SEARCH + 1, ///< Open code search panel
         Close = ID_BASE_SEARCH + 2 ///< Close code search panel
+    };
+    
+    /**
+     * @enum Tabs Container
+     * @brief Tabs Container emulator events
+     */
+    enum class TabsContainer : wxWindowID
+    {
+        OpenFirstTab = ID_TABS_CONTAINER + 1, ///< Open first tab
+        OpenLastTab = ID_TABS_CONTAINER + 2,  ///< Open last tab
+        CloseAllSavedTabs = ID_TABS_CONTAINER + 3,  ///< Close all saved tabs
     };
 
 } // namespace Event
