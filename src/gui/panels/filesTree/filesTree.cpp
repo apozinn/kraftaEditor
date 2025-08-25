@@ -613,10 +613,8 @@ void FilesTree::OnCreateDirRequested(wxCommandEvent &)
     {
         wxString dirName = wxGetTextFromUser("Enter directory name: ", "Create Directory", "");
         if (dirName.IsEmpty())
-        {
-            wxMessageBox(ErrorMessages::DirNameIsNotValid, "Error", wxOK | wxICON_ERROR);
             return;
-        }
+
         if (!wxDirExists(ProjectSettings::Get().GetCurrentlyMenuDir()))
         {
             wxMessageBox(ErrorMessages::CannotFindDirectoryParent, "Error", wxOK | wxICON_ERROR);
@@ -703,10 +701,8 @@ void FilesTree::OnRenameDirRequested(wxCommandEvent &)
 
         wxString newDirName = wxGetTextFromUser("Enter directory name: ", "Rename directory", wxFileNameFromPath(ProjectSettings::Get().GetCurrentlyMenuDir().RemoveLast()));
         if (newDirName.IsEmpty())
-        {
-            wxMessageBox(ErrorMessages::DirNameIsNotValid, "Error", wxOK | wxICON_ERROR);
             return;
-        }
+
         wxFileName dirPath(ProjectSettings::Get().GetCurrentlyMenuDir());
         dirPath.RemoveLastDir();
         wxString newPath = dirPath.GetFullPath() + newDirName;
@@ -731,10 +727,8 @@ void FilesTree::OnCreateFileRequested(wxCommandEvent &)
     {
         wxString fileName = wxGetTextFromUser("Enter file name: ", "Create file", "");
         if (fileName.IsEmpty())
-        {
-            wxMessageBox(ErrorMessages::FileNameIsNotValid, "Error", wxOK | wxICON_ERROR);
             return;
-        }
+
         if (!wxDirExists(ProjectSettings::Get().GetCurrentlyMenuDir()))
         {
             wxMessageBox(ErrorMessages::CannotFindDirectoryParent, "Error", wxOK | wxICON_ERROR);
@@ -819,10 +813,8 @@ void FilesTree::OnRenameFileRequested(wxCommandEvent &)
         }
         wxString newFileName = wxGetTextFromUser("Enter file name: ", "Rename File", wxFileNameFromPath(ProjectSettings::Get().GetCurrentlyMenuFile()));
         if (newFileName.IsEmpty())
-        {
-            wxMessageBox(ErrorMessages::FileNameIsNotValid, "Error", wxOK | wxICON_ERROR);
             return;
-        }
+
         wxString parentPath = ProjectSettings::Get().GetCurrentlyMenuFile().substr(0, ProjectSettings::Get().GetCurrentlyMenuFile().find_last_of(PlatformInfos::OsPathSepareator()) + 1);
         wxString newPath = parentPath + newFileName;
         wxRename(wxString(ProjectSettings::Get().GetCurrentlyMenuFile()), newPath);
