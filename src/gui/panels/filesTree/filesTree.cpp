@@ -364,6 +364,16 @@ bool FilesTree::OpenFile(const wxString &componentIdentifier)
         return false;
     }
 
+    auto hideOtherPanelsOfMainCode = [&](wxWindow *except)
+    {
+        for (auto &&other : mainCode->GetChildren())
+        {
+            if (other->GetId() != +GUI::ControlID::Tabs && other != except)
+                other->Hide();
+        }
+        mainCode->Layout();
+    };
+
     tabsContainer->Add(wxFileNameFromPath(componentIdentifier), componentIdentifier);
 
     auto LoadCodeEditor = [&]()
@@ -378,13 +388,7 @@ bool FilesTree::OpenFile(const wxString &componentIdentifier)
         else
             codeEditor->Show();
 
-        for (auto &&other : mainCode->GetChildren())
-        {
-            if (other->GetId() != +GUI::ControlID::Tabs && other != codeEditor)
-                other->Hide();
-        }
-
-        mainCode->Layout();
+        hideOtherPanelsOfMainCode(codeEditor);
     };
 
     wxImage fileImage;
@@ -397,6 +401,9 @@ bool FilesTree::OpenFile(const wxString &componentIdentifier)
             fileImage.Rescale(fileImage.GetWidth() / 2, fileImage.GetHeight() / 2);
 
         auto imageContainer = new wxStaticBitmap(mainCode, wxID_ANY, fileImage);
+
+        hideOtherPanelsOfMainCode(imageContainer);
+
         imageContainer->SetLabel(componentIdentifier + "_imageContainer");
         mainCode->GetSizer()->Add(imageContainer, 1, wxALIGN_CENTER);
         statusBar->UpdateComponents(componentIdentifier);
