@@ -700,7 +700,8 @@ void FilesTree::OnRenameDirRequested(wxCommandEvent &)
             wxMessageBox(ErrorMessages::DirNotFound, "Error", wxOK | wxICON_ERROR);
             return;
         }
-        wxString newDirName = wxGetTextFromUser("Enter directory name: ", "Rename directory", wxFileNameFromPath(ProjectSettings::Get().GetCurrentlyMenuDir()));
+
+        wxString newDirName = wxGetTextFromUser("Enter directory name: ", "Rename directory", wxFileNameFromPath(ProjectSettings::Get().GetCurrentlyMenuDir().RemoveLast()));
         if (newDirName.IsEmpty())
         {
             wxMessageBox(ErrorMessages::DirNameIsNotValid, "Error", wxOK | wxICON_ERROR);
