@@ -6,6 +6,7 @@
 using json = nlohmann::json;
 
 #include <wx/wx.h>
+#include <wx/process.h>
 
 class Terminal : public wxPanel
 {
@@ -14,6 +15,7 @@ public:
     void OnCommand(wxCommandEvent &WXUNUSED(event));
     void OnCommandInputClick(wxMouseEvent &WXUNUSED(event));
 private:
+    wxProcess *m_process = new wxProcess(this);
     wxTextCtrl *m_commandInput;
-	json Theme = ThemesManager::Get().currentTheme;
+    json Theme = ThemesManager::Get().currentTheme;
 };

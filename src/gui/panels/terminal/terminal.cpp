@@ -1,6 +1,6 @@
 #include "terminal.hpp"
 #include <wx/txtstrm.h>
-#include <wx/process.h>
+#include <wx/event.h>
 
 #include "projectSettings/projectSettings.hpp"
 #include "ui/ids.hpp"
@@ -28,11 +28,22 @@ Terminal::Terminal(wxWindow *parent, wxWindowID ID) : wxPanel(parent, ID)
     sizer->Add(m_commandInput, 1, wxEXPAND);
     SetSizer(sizer);
 
-    Bind(wxEVT_SHOW, [this](wxShowEvent &WXUNUSED(event))
+    Bind(wxEVT_SHOW,
+         [this](wxShowEvent &(event))
          {
-        if(m_commandInput->GetValue().IsEmpty() && !ProjectSettings::Get().GetProjectPath().IsEmpty()) {
-            m_commandInput->AppendText(ProjectSettings::Get().GetProjectPath()+">");
-        } });
+            if(!event.IsShown())
+                return;
+
+            if(!m_commandInput)
+                return;
+
+            m_commandInput->SetFocus();
+
+             if (m_commandInput->GetValue().IsEmpty() && !ProjectSettings::Get().GetProjectPath().IsEmpty())
+             {
+                 m_commandInput->AppendText(ProjectSettings::Get().GetProjectPath() + ">");
+             }
+         });
 }
 
 void Terminal::OnCommand(wxCommandEvent &WXUNUSED(event))
@@ -41,13 +52,13 @@ void Terminal::OnCommand(wxCommandEvent &WXUNUSED(event))
         m_commandInput->GetValue().find_last_of(ProjectSettings::Get().GetProjectPath() + ">") - 1,
         m_commandInput->GetValue().Len());
 
-    wxProcess *process = new wxProcess(this);
-    process->Redirect();
+    m_process = new wxProcess(this);
+    m_process->Redirect();
 
 #ifdef __WINDOWS__
-    long pid = wxExecute("cmd /C " + command, wxEXEC_ASYNC, process);
+    long pid = wxExecute("cmd /C " + command, wxEXEC_ASYNC, m_process);
 #else
-    long pid = wxExecute(command, wxEXEC_ASYNC, process);
+    long pid = wxExecute(command, wxEXEC_ASYNC, m_process);
 #endif
 
     if (!pid)
@@ -56,7 +67,7 @@ void Terminal::OnCommand(wxCommandEvent &WXUNUSED(event))
         return;
     }
 
-    wxInputStream *inputStream = process->GetInputStream();
+    wxInputStream *inputStream = m_process->GetInputStream();
     if (inputStream)
     {
         wxTextInputStream textStream(*inputStream);
@@ -67,7 +78,7 @@ void Terminal::OnCommand(wxCommandEvent &WXUNUSED(event))
         }
     }
 
-    wxInputStream *errorStream = process->GetErrorStream();
+    wxInputStream *errorStream = m_process->GetErrorStream();
     if (errorStream)
     {
         wxTextInputStream textStream(*errorStream);

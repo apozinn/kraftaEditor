@@ -201,7 +201,10 @@ void MainFrame::WindowResizeFunctions()
     Bind(wxEVT_MAXIMIZE, &MainFrame::OnFrameMaximized, this);
 }
 
-MainFrame::~MainFrame() { delete m_watcher; }
+MainFrame::~MainFrame()
+{
+    delete m_watcher;
+}
 
 void MainFrame::OnFrameResized(wxSizeEvent &event)
 {
@@ -365,7 +368,7 @@ void MainFrame::OnOpenFile(wxCommandEvent &WXUNUSED(event))
     dlg->ShowModal();
     wxString path = dlg->GetPath();
     if (path.size())
-    {  
+    {
         m_filesTree->OpenFile(path);
         AddEntry(wxFSWPath_File, path);
     }
