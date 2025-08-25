@@ -364,12 +364,6 @@ bool FilesTree::OpenFile(const wxString &componentIdentifier)
         return false;
     }
 
-    for (auto &&other : mainCode->GetChildren())
-    {
-        if (other->GetId() != +GUI::ControlID::Tabs)
-            other->Hide();
-    }
-
     tabsContainer->Add(wxFileNameFromPath(componentIdentifier), componentIdentifier);
 
     auto LoadCodeEditor = [&]()
@@ -379,9 +373,18 @@ bool FilesTree::OpenFile(const wxString &componentIdentifier)
         {
             codeEditor = new CodeContainer(mainCode, componentIdentifier);
             mainCode->GetSizer()->Add(codeEditor, 1, wxEXPAND);
+            codeEditor->Show();
         }
         else
             codeEditor->Show();
+
+        for (auto &&other : mainCode->GetChildren())
+        {
+            if (other->GetId() != +GUI::ControlID::Tabs && other != codeEditor)
+                other->Hide();
+        }
+
+        mainCode->Layout();
     };
 
     wxImage fileImage;

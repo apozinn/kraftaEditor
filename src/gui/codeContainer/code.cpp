@@ -5,19 +5,23 @@
 #include "./code.hpp"
 #include <wx/filename.h>
 
-CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxScrolled<wxPanel>(parent)
+CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxScrolled<wxPanel>(parent, wxID_ANY, wxDefaultPosition)
 {
+    Hide();
+
     // initialize sizer
     sizer = new wxBoxSizer(wxHORIZONTAL);
 
     // setting components
     editor = new Editor(this);
+    editor->SetMinSize(wxSize(parent->GetSize().x - 100, parent->GetSize().y));
     minimap = new MiniMap(this);
 
     sizer->Add(editor, 1, wxEXPAND);
     sizer->Add(minimap, 0, wxEXPAND);
 
     SetSizerAndFit(sizer);
+    Layout();
     LoadPath(path);
 
     if (UserSettings["show_minimap"] == false)
@@ -88,7 +92,8 @@ bool CodeContainer::Save(wxString path)
             if (auto tab = FindWindowByLabel(path + "_tab"))
             {
                 auto icon = ((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[2]);
-                if(icon) {
+                if (icon)
+                {
                     icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(ApplicationPaths::AssetsPath("icons") + "close.png", wxBITMAP_TYPE_PNG)));
                     icon->SetLabel("saved_icon");
                     tab->Layout();

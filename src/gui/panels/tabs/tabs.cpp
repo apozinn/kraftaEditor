@@ -58,6 +58,7 @@ void Tabs::Add(wxString tab_name, wxString path)
 		return;
 
 	wxPanel *new_tab = new wxPanel(tabsContainer);
+	new_tab->Hide();
 
 	new_tab->SetName(path);
 	new_tab->SetLabel(path + "_tab");
@@ -106,7 +107,7 @@ void Tabs::Add(wxString tab_name, wxString path)
 
 	sizer->Layout();
 	tabsContainerSizer->Layout();
-	;
+	new_tab->Show();
 }
 
 void Tabs::Close(wxWindow *tab, wxString tab_path)
