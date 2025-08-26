@@ -1005,6 +1005,9 @@ void FilesTree::SetFileHighlight(const wxString &componentIdentifier)
     auto defaultColor = ThemesManager::Get().GetColor("main");
     auto selectedColor = ThemesManager::Get().GetColor("selectedFile");
 
+    if (m_projectFilesContainer->GetChildren().empty())
+        return;
+
     if (target)
     {
         if (m_currentSelectedFile)
@@ -1024,6 +1027,7 @@ void FilesTree::SetFileHighlight(const wxString &componentIdentifier)
     }
     else
     {
+
         if (m_currentSelectedFile)
         {
             m_currentSelectedFile->SetBackgroundColour(defaultColor);

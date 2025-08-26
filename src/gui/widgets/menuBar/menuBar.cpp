@@ -4,7 +4,7 @@ MenuBar::MenuBar() {
 	wxMenu* menuFile = new wxMenu;
 		menuFile->Append(+Event::File::CreateFileEvent, _("&New File\tCtrl-N"));
 		menuFile->Append(+Event::File::CreateDir, _("&New Dir"));
-		menuFile->Append(+Event::Frame::NewWindow, _("&New Window\tCtrl+Shift+N"));
+		// menuFile->Append(+Event::Frame::NewWindow, _("&New Window\tCtrl+Shift+N"));
 		menuFile->AppendSeparator();
 		menuFile->Append(+Event::Project::OpenFolder, _("&Open Folder...\tCtrl+Shift+K"));
 		menuFile->Append(+Event::File::OpenFile, _("&Open File...\tCtrl+O"));

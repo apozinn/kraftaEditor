@@ -47,7 +47,7 @@ using json = nlohmann::json;
 class MainFrame : public wxFrame
 {
 public:
-    MainFrame(const wxString &title);
+    MainFrame(const wxString &title="Krafta Editor");
     virtual ~MainFrame();
 
     void AddEntry(wxFSWPathType type, wxString filename = wxString());
@@ -85,8 +85,6 @@ private:
     wxPanel *m_applicationRightMainContainer;
     wxSplitterWindow *m_mainContainerSplitter;
     wxPanel *m_mainContainer;
-    wxPanel *m_mainCode;
-    wxPanel *m_applicationContent;
     wxPanel *m_centeredContent;
     wxBoxSizer *sizer = new wxBoxSizer(wxVERTICAL);
     wxFileSystemWatcher *m_watcher = nullptr;

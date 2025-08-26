@@ -216,6 +216,8 @@ void Tabs::CloseAll()
 	Hide();
 	if (auto emptyWindow = FindWindowById(+GUI::ControlID::EmptyWindow))
 		emptyWindow->Show();
+
+	GetParent()->Layout();
 }
 
 void Tabs::Select()

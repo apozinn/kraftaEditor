@@ -1,8 +1,7 @@
 #pragma once 
 #include <wx/wx.h>
 
-class OpenFolderButton : public wxPanel {
+class OpenFolderButton {
 public:
-	wxBoxSizer* sizer;
-	OpenFolderButton(wxWindow* parent, wxWindowID ID);
+	OpenFolderButton();	
 };

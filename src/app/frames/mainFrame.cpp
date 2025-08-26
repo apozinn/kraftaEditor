@@ -1,4 +1,4 @@
-#include "./mainFrame.hpp"
+#include "mainFrame.hpp"
 
 MainFrame::MainFrame(const wxString &title)
     : wxFrame(nullptr, wxID_ANY, title), m_watcher(nullptr), m_followLinks(false)
@@ -226,8 +226,13 @@ void MainFrame::OnFrameMaximized(wxMaximizeEvent &WXUNUSED(event))
 
 void MainFrame::OnNewWindow(wxCommandEvent &WXUNUSED(event))
 {
-    // auto newApp = new KraftaEditor();
-    // newApp->CreateMainWindow();
+    auto newWindow = new MainFrame();
+    if (!newWindow)
+    {
+        wxLogError("Failed to create a new window - memory allocation error");
+        return;
+    }
+    newWindow->Show();
 }
 
 bool MainFrame::CreateWatcherIfNecessary()
@@ -426,29 +431,21 @@ void MainFrame::CloseAllFiles(wxCommandEvent &WXUNUSED(event))
 
 void MainFrame::LoadPath(wxString path)
 {
-    if (path == ProjectSettings::Get().GetProjectPath())
-        return;
     wxDir dir(path);
-
-    // verify if dir exists
-    if (!dir.Exists(path))
+    if (path.IsEmpty() || !dir.Exists(path))
     {
         m_tabs->CloseAll();
 
-        // dir dont finded
         wxConfig *config = new wxConfig("krafta-editor");
         config->Write("workspace", "");
         delete config;
 
-        // creating a button to open a folder
-        if (auto projectContainer = FindWindowById(+GUI::ControlID::ProjectFilesContainer))
-            m_openFolderButton = new OpenFolderButton(projectContainer, +GUI::ControlID::OpenFolderButton);
-
-        m_openFolderButton->Bind(wxEVT_LEFT_UP, &MainFrame::OnOpenFolderClick, this);
-        for (auto &&children : m_openFolderButton->GetChildren())
-            children->Bind(wxEVT_LEFT_UP, &MainFrame::OnOpenFolderClick, this);
+        new OpenFolderButton();
         return;
     }
+
+    if (path == ProjectSettings::Get().GetProjectPath())
+        return;
 
     projectSettings.SetProjectName(wxFileNameFromPath(path.substr(0, path.size() - 1)));
     projectSettings.SetProjectPath(path);
@@ -474,21 +471,37 @@ void MainFrame::OnOpenTerminal(wxCommandEvent &WXUNUSED(event))
 
 void MainFrame::OnCloseFolder(wxCommandEvent &WXUNUSED(event))
 {
+    if (!m_filesTree)
+    {
+        wxLogError("Files tree not initialized");
+        return;
+    }
+
+    if (!m_mainContainer)
+    {
+        wxLogError("Main container not initialized");
+        return;
+    }
+
     m_filesTree->CloseProject();
 
-    for (auto &&mainCodeChildren : m_mainCode->GetChildren())
+    std::vector<wxWindow *> childrenToRemove;
+
+    for (auto &&mainCodeChildren : m_mainContainer->GetChildren())
     {
-        std::string childrenName = mainCodeChildren->GetLabel().ToStdString();
-        if (childrenName.find("_codeContainer") != std::string::npos)
-        {
-            mainCodeChildren->Destroy();
-        }
+        if (mainCodeChildren->GetLabel().Find("_codeContainer") != wxNOT_FOUND)
+            childrenToRemove.push_back(mainCodeChildren);
         else
             mainCodeChildren->Hide();
     }
 
-    m_emptyWindow->Show();
-    m_tabs->CloseAll();
+    for (auto &&child : childrenToRemove)
+    {
+        child->Destroy();
+    }
+
+    if (m_tabs)
+        m_tabs->CloseAll();
 
     wxConfig *config = new wxConfig("krafta-editor");
     config->Write("workspace", "");
@@ -496,16 +509,7 @@ void MainFrame::OnCloseFolder(wxCommandEvent &WXUNUSED(event))
 
     projectSettings.ClearProject();
 
-    // creating a button to open a folder
-    if (auto projectContainer = FindWindowById(+GUI::ControlID::ProjectFilesContainer))
-    {
-        m_openFolderButton = new OpenFolderButton(projectContainer, +GUI::ControlID::OpenFolderButton);
-
-        m_openFolderButton->Bind(wxEVT_LEFT_UP, &MainFrame::OnOpenFolderClick, this);
-        for (auto &&children : m_openFolderButton->GetChildren())
-            children->Bind(wxEVT_LEFT_UP, &MainFrame::OnOpenFolderClick, this);
-        projectContainer->GetSizer()->Layout();
-    }
+    new OpenFolderButton();
 }
 
 // toggle view events
@@ -520,9 +524,7 @@ void MainFrame::OnToggleSearch(wxCommandEvent &WXUNUSED(event))
         wxString defaultLabel = "Search a text";
         auto currentEditor = ((wxStyledTextCtrl *)wxFindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_codeEditor"));
         if (currentEditor)
-        {
             defaultLabel = currentEditor->GetSelectedText();
-        }
 
         new Search(this, defaultLabel, currentEditor);
     }
@@ -531,25 +533,23 @@ void MainFrame::OnToggleSearch(wxCommandEvent &WXUNUSED(event))
 void MainFrame::OnToggleControlPanel(wxCommandEvent &WXUNUSED(event))
 {
     if (FindWindowById(+GUI::ControlID::ControlPanel))
-    {
         m_controlPanel->Destroy();
-    }
     else
-    {
         m_controlPanel = new ControlPanel(this, +GUI::ControlID::ControlPanel);
-    }
 }
 
 void MainFrame::OnToggleFileTreeView(wxCommandEvent &WXUNUSED(event))
 {
+    if (!m_mainSplitter || !m_applicationLeftMainContainer || !m_applicationRightMainContainer)
+    {
+        wxLogError("Main splitter or containers not initialized");
+        return;
+    }
+
     if (m_mainSplitter->IsSplit())
-    {
         m_mainSplitter->Unsplit(m_applicationLeftMainContainer);
-    }
     else
-    {
-        m_mainSplitter->SplitVertically(m_applicationLeftMainContainer, m_applicationContent, 1);
-    }
+        m_mainSplitter->SplitVertically(m_applicationLeftMainContainer, m_applicationRightMainContainer, 1);
 }
 
 void MainFrame::OnToggleMenuBarView(wxCommandEvent &WXUNUSED(event))
@@ -570,39 +570,51 @@ void MainFrame::OnToggleMenuBarView(wxCommandEvent &WXUNUSED(event))
 
 void MainFrame::OnToggleStatusBarView(wxCommandEvent &WXUNUSED(event))
 {
-    if (m_statusBar)
+    if (!m_applicationRightMainContainer || !m_statusBar)
     {
-        if (m_statusBar->IsShown())
-        {
-            m_statusBar->Hide();
-            UserSettings["show_statusBar"] = false;
-        }
-        else
-        {
-            m_statusBar->Show();
-            UserSettings["show_statusBar"] = true;
-        }
-        m_applicationContent->GetSizer()->Layout();
+        wxLogError("Status bar or right main container not initialized");
+        return;
     }
+
+    if (m_statusBar->IsShown())
+    {
+        m_statusBar->Hide();
+        UserSettings["show_statusBar"] = false;
+    }
+    else
+    {
+        m_statusBar->Show();
+        UserSettings["show_statusBar"] = true;
+    }
+    m_applicationRightMainContainer->GetSizer()->Layout();
+
     UserSettingsManager::Get().Update(UserSettings);
 }
 
 void MainFrame::OnToggleTabBarView(wxCommandEvent &WXUNUSED(event))
 {
-    if (m_tabs)
+    if (!m_tabs || !m_mainContainer)
     {
-        if (m_tabs->IsShown())
-        {
-            m_tabs->Hide();
-        }
-        else
-            m_tabs->Show();
-        m_mainContainer->GetSizer()->Layout();
+        wxLogError("Tabs or main container not initialized");
+        return;
     }
+
+    if (m_tabs->IsShown())
+        m_tabs->Hide();
+    else
+        m_tabs->Show();
+
+    m_mainContainer->GetSizer()->Layout();
 }
 
 void MainFrame::OnEditSettings(wxCommandEvent &WXUNUSED(event))
 {
+    if (!m_filesTree)
+    {
+        wxLogError("Files tree not initialized");
+        return;
+    }
+
     wxString path = ApplicationPaths::ApplicationPath() + "user_settings.json";
     if (wxFileExists(path))
     {
@@ -620,7 +632,6 @@ void MainFrame::OnClose(wxCloseEvent &event)
 {
     static bool isClosing = false;
 
-    // Prevent reentrant calls
     if (isClosing)
     {
         event.Skip();
@@ -628,24 +639,21 @@ void MainFrame::OnClose(wxCloseEvent &event)
     }
     isClosing = true;
 
-    // Close all tabs
     if (m_tabs)
     {
         m_tabs->CloseAll();
     }
 
-    // Clean up file watcher
     if (m_watcher)
     {
         wxLogDebug("Cleaning up file system watcher");
-        m_watcher->RemoveAll();                                       // Stop all watches
-        Unbind(wxEVT_FSWATCHER, &MainFrame::OnFileSystemEvent, this); // Remove event handler
-        wxDELETE(m_watcher);                                          // Safe deletion (sets pointer to nullptr)
+        m_watcher->RemoveAll();
+        Unbind(wxEVT_FSWATCHER, &MainFrame::OnFileSystemEvent, this);
+        wxDELETE(m_watcher);
     }
 
-    // Initiate controlled shutdown
-    Destroy();         // This will automatically exit main loop when done
-    event.Skip(false); // We've handled the event completely
+    Destroy();
+    event.Skip(false);
 }
 
 void MainFrame::OnOpenFolderMenu(wxCommandEvent &WXUNUSED(event)) { OpenFolderDialog(); }

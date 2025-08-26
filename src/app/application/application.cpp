@@ -1,5 +1,4 @@
 #include "./application.hpp"
-#include "application.hpp"
 #include "platformInfos/platformInfos.hpp"
 #include "appConstants/appConstants.hpp"
 #include "themesManager/themesManager.hpp"
