@@ -6,25 +6,47 @@
 
 /**
  * @namespace PlatformInfos
- * @brief Provides platform-specific information and utilities
+ * @brief Provides platform-specific information and utilities.
  *
- * This namespace contains functions to retrieve information about the current
- * operating system and platform-specific path handling utilities.
- * All functions are thread-safe and noexcept guaranteed.
+ * The PlatformInfos namespace contains helper functions for:
+ *   - Querying the current operating system family
+ *   - Performing platform checks (e.g., Windows-specific logic)
+ *   - Retrieving platform-specific path separators
+ *
+ * All functions are:
+ *   - **Thread-safe**
+ *   - **Noexcept guaranteed**
+ *   - Optimized with caching for repeated calls
+ *
+ * ### Example:
+ * @code
+ * #include "PlatformInfos.h"
+ *
+ * if (PlatformInfos::IsWindows()) {
+ *     wxLogMessage("Running on Windows, path separator: %s", 
+ *                  PlatformInfos::OsPathSeparator());
+ * } else {
+ *     wxLogMessage("Running on %s", PlatformInfos::OsNameView());
+ * }
+ * @endcode
  */
 namespace PlatformInfos
 {
 
     /**
-     * @brief Gets the name of the current operating system family
-     * @return std::string containing the OS family name (e.g., "Windows", "Macintosh", "Unix")
+     * @brief Gets the name of the current operating system family.
+     * @return std::string_view containing the OS family name
+     *         (e.g., `"Windows"`, `"Macintosh"`, `"Unix"`).
      *
-     * @note The result is cached after first call for better performance
-     * @example
-     * std::string os = PlatformInfos::OsName();
-     * // On Windows: "Windows"
-     * // On macOS: "Macintosh"
-     * // On Linux: "Unix"
+     * The value is cached after the first call for better performance.
+     *
+     * ### Example:
+     * @code
+     * std::string_view os = PlatformInfos::OsNameView();
+     * if (os == "Windows") {
+     *     wxLogMessage("Special behavior for Windows");
+     * }
+     * @endcode
      */
     inline std::string_view OsNameView() noexcept
     {
@@ -34,8 +56,15 @@ namespace PlatformInfos
     }
 
     /**
-     * @brief Checks if the current platform is Windows
-     * @return true if running on Windows, false otherwise
+     * @brief Checks if the current platform is Windows.
+     * @return True if running on Windows, false otherwise.
+     *
+     * ### Example:
+     * @code
+     * if (PlatformInfos::IsWindows()) {
+     *     wxLogMessage("Windows-specific path handling enabled.");
+     * }
+     * @endcode
      */
     inline bool IsWindows() noexcept
     {
@@ -43,17 +72,20 @@ namespace PlatformInfos
     }
 
     /**
-     * @brief Gets the path separator for the current platform
-     * @return std::string containing the platform-specific path separator
+     * @brief Gets the path separator for the current platform.
+     * @return wxString containing the platform-specific path separator.
      *
-     * @note The result is cached after first call for better performance
-     * @note On Windows returns "\\", on Unix-like systems returns "/"
-     * @example
-     * std::string sep = PlatformInfos::OsPathSepareator();
-     * // On Windows: "\\"
-     * // On Unix-like: "/"
+     * The result is cached after the first call.
+     * - On Windows returns `"\\\\"`
+     * - On Unix-like systems returns `"/"`
+     *
+     * ### Example:
+     * @code
+     * wxString sep = PlatformInfos::OsPathSeparator();
+     * wxString filePath = "folder" + sep + "file.txt";
+     * @endcode
      */
-    inline std::string OsPathSepareator() noexcept
+    inline wxString OsPathSeparator() noexcept
     {
         static const wxFileName file;
         static const std::string separator(1, file.GetPathSeparator());

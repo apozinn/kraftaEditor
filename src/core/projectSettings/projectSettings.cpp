@@ -1,16 +1,27 @@
 #include "projectSettings/projectSettings.hpp"
 #include "gui/panels/filesTree/filesTree.hpp"
+#include "fileOperations/fileOperations.hpp"
+#include "platformInfos/platformInfos.hpp"
 #include "ui/ids.hpp"
 #include <wx/window.h>
 
-ProjectSettings &ProjectSettings::Get()
+ProjectSettings& ProjectSettings::Get()
 {
     static ProjectSettings instance;
     return instance;
 }
 
-wxString ProjectSettings::GetProjectPath() const
+wxString ProjectSettings::GetProjectPath(bool withoutPathSeparator) const
 {
+    if (!m_projectPath.empty() && withoutPathSeparator)
+    {
+        wxString path = m_projectPath;
+        if (path.Last() == PlatformInfos::OsPathSeparator())
+        {
+            path.RemoveLast();
+        }
+        return path;
+    }
     return m_projectPath;
 }
 
@@ -24,8 +35,17 @@ wxString ProjectSettings::GetCurrentlyFileOpen() const
     return m_currentlyFileOpen;
 }
 
-wxString ProjectSettings::GetCurrentlyMenuDir() const
+wxString ProjectSettings::GetCurrentlyMenuDir(bool withoutPathSeparator) const
 {
+    if (!m_menuDirPath.empty() && withoutPathSeparator)
+    {
+        wxString path = m_menuDirPath;
+        if (path.Last() == PlatformInfos::OsPathSeparator())
+        {
+            path.RemoveLast();
+        }
+        return path;
+    }
     return m_menuDirPath;
 }
 
@@ -34,35 +54,43 @@ wxString ProjectSettings::GetCurrentlyMenuFile() const
     return m_menuFilePath;
 }
 
-wxString ProjectSettings::GetFullProjectIdentifier() const
+wxString ProjectSettings::GetFullProjectIdentifier(bool withoutPathSeparator) const
 {
     if (m_projectPath.empty() || m_projectName.empty())
     {
         return wxEmptyString;
     }
-    return wxFileName(m_projectPath, m_projectName).GetFullPath();
+
+    wxString basePath = m_projectPath;
+    if (!basePath.empty() && withoutPathSeparator && basePath.Last() == PlatformInfos::OsPathSeparator())
+    {
+        basePath.RemoveLast();
+    }
+
+    return wxFileName(basePath, m_projectName).GetFullPath();
 }
 
-void ProjectSettings::SetProjectPath(const wxString &path)
+void ProjectSettings::SetProjectPath(const wxString& path)
 {
     m_projectPath = path;
 }
 
-void ProjectSettings::SetProjectName(const wxString &name)
+void ProjectSettings::SetProjectName(const wxString& name)
 {
     m_projectName = name;
 }
 
-void ProjectSettings::SetCurrentlyFileOpen(const wxString &filePath)
+void ProjectSettings::SetCurrentlyFileOpen(const wxString& filePath)
 {
     m_currentlyFileOpen = filePath;
 
-    auto fileContainer = ((FilesTree *)wxWindow::FindWindowById(+GUI::ControlID::FilesTree));
-    if (fileContainer)
+    if (auto* fileContainer = dynamic_cast<FilesTree*>(wxWindow::FindWindowById(+GUI::ControlID::FilesTree)))
+    {
         fileContainer->SetFileHighlight(filePath);
+    }
 }
 
-void ProjectSettings::SetCurrentlyMenuDir(const wxString &dirPath)
+void ProjectSettings::SetCurrentlyMenuDir(const wxString& dirPath)
 {
     if (wxDirExists(dirPath))
     {
@@ -70,7 +98,7 @@ void ProjectSettings::SetCurrentlyMenuDir(const wxString &dirPath)
     }
 }
 
-void ProjectSettings::SetCurrentlyMenuFile(const wxString &filePath)
+void ProjectSettings::SetCurrentlyMenuFile(const wxString& filePath)
 {
     m_menuFilePath = filePath;
 }

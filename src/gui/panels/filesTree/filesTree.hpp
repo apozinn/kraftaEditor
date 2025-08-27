@@ -24,7 +24,7 @@ public:
      * @param parent The parent window.
      * @param path The path to the project root directory.
      */
-    void LoadProject(wxWindow *parent, const wxString &path);
+    void LoadProject(wxWindow *parent, wxString path);
 
     /**
      * @brief Closes the currently loaded project and clears the file explorer view.

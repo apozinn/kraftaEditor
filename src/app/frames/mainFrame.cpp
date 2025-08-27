@@ -273,8 +273,8 @@ void MainFrame::CreateWatcher()
 
     // Configure watcher
     m_watcher->SetOwner(this);
-    wxLogDebug("File system watcher created successfully");
 }
+
 void MainFrame::OnAbout(wxCommandEvent &WXUNUSED(event))
 {
     wxMessageBox("A simple code editor for multiple languages",
@@ -350,7 +350,9 @@ void MainFrame::OpenFolderDialog()
     if (path.size())
     {
         projectSettings.SetProjectName(wxFileNameFromPath(path));
-        path.Append(wxString(PlatformInfos::OsPathSepareator()));
+        if (path.Last() != PlatformInfos::OsPathSeparator())
+            path.Append(PlatformInfos::OsPathSeparator());
+
         projectSettings.SetProjectPath(path);
 
         if (m_tabs)
@@ -453,7 +455,12 @@ void MainFrame::LoadPath(wxString path)
     if (path == ProjectSettings::Get().GetProjectPath())
         return;
 
-    projectSettings.SetProjectName(wxFileNameFromPath(path.RemoveLast()));
+    if (path.Last() != PlatformInfos::OsPathSeparator())
+        path.Append(PlatformInfos::OsPathSeparator());
+
+    wxString pathWithoutPathSeparator = path.Clone().RemoveLast();
+
+    projectSettings.SetProjectName(wxFileNameFromPath(pathWithoutPathSeparator));
     projectSettings.SetProjectPath(path);
 
     config->Write("workspace", path);
@@ -642,7 +649,6 @@ void MainFrame::OnClose(wxCloseEvent &event)
 
     if (m_watcher)
     {
-        wxLogDebug("Cleaning up file system watcher");
         m_watcher->RemoveAll();
         Unbind(wxEVT_FSWATCHER, &MainFrame::OnFileSystemEvent, this);
         wxDELETE(m_watcher);

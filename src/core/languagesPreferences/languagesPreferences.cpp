@@ -36,7 +36,7 @@ void LanguagesPreferences::LoadExtensionsList()
 {
     try
     {
-        wxString extensionsListPath = ApplicationPaths::DevelopmentEnvironmentPath() + "languages" + PlatformInfos::OsPathSepareator() + "extensionsList.json";
+        wxString extensionsListPath = ApplicationPaths::DevelopmentEnvironmentPath() + "languages" + PlatformInfos::OsPathSeparator() + "extensionsList.json";
         if (!wxFileExists(extensionsListPath))
             throw EXTENSIONS_LIS_NOT_FOUND;
 
@@ -97,7 +97,7 @@ languagePreferencesStruct LanguagesPreferences::GetLanguagePreferences(const wxS
         auto GetLanguagesObjects = [this](wxString &languageDir) -> languagePreferencesStruct
         {
             if (!wxDirExists(languageDir))
-                languageDir = ApplicationPaths::DevelopmentEnvironmentPath() + "languages" + PlatformInfos::OsPathSepareator() + "default" + PlatformInfos::OsPathSepareator();
+                languageDir = ApplicationPaths::DevelopmentEnvironmentPath() + "languages" + PlatformInfos::OsPathSeparator() + "default" + PlatformInfos::OsPathSeparator();
 
             wxDir dir(languageDir);
 
@@ -108,7 +108,7 @@ languagePreferencesStruct LanguagesPreferences::GetLanguagePreferences(const wxS
             }
 
             wxString languagePreferencesJson = languageDir + "preferences.json";
-            wxString languageStyles = languageDir + "styles" + PlatformInfos::OsPathSepareator() + (wxSystemSettings::GetAppearance().IsSystemDark() ? "dark.json" : "light.json");
+            wxString languageStyles = languageDir + "styles" + PlatformInfos::OsPathSeparator() + (wxSystemSettings::GetAppearance().IsSystemDark() ? "dark.json" : "light.json");
 
             std::ifstream preferencesFile(languagePreferencesJson.ToStdString());
             std::ifstream stylesFile(languageStyles.ToStdString());
@@ -148,7 +148,7 @@ languagePreferencesStruct LanguagesPreferences::GetLanguagePreferences(const wxS
                 languageNameLocation = it->second;
         }
 
-        wxString defaultLanguage = ApplicationPaths::DevelopmentEnvironmentPath() + "languages" + PlatformInfos::OsPathSepareator() + languageNameLocation + PlatformInfos::OsPathSepareator();
+        wxString defaultLanguage = ApplicationPaths::DevelopmentEnvironmentPath() + "languages" + PlatformInfos::OsPathSeparator() + languageNameLocation + PlatformInfos::OsPathSeparator();
         languagePreferencesStruct languagePrerencesAndStyles = GetLanguagesObjects(defaultLanguage);
         return languagePrerencesAndStyles;
     }
@@ -168,7 +168,7 @@ void LanguagesPreferences::SetupFold(const languagePreferencesStruct &currentLan
         if (!currentLanguagePreferences.preferences["fold"]["enabled"])
             return;
 
-    wxString foldSettingsPath = ApplicationPaths::DevelopmentEnvironmentPath() + "config" + PlatformInfos::OsPathSepareator() + "foldSettings" + PlatformInfos::OsPathSepareator() + "foldSettings.json";
+    wxString foldSettingsPath = ApplicationPaths::DevelopmentEnvironmentPath() + "config" + PlatformInfos::OsPathSeparator() + "foldSettings" + PlatformInfos::OsPathSeparator() + "foldSettings.json";
     if (!wxFileExists(foldSettingsPath))
     {
         wxLogError("Não foi possível acessar as configurações do fold:");

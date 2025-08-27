@@ -102,15 +102,19 @@ void FilesTree::ProjectInformationsLeftClick(wxMouseEvent &)
     m_projectInformationsNameArrow->SetBitmap(wxBitmapBundle::FromBitmaps(bitmaps));
 }
 
-void FilesTree::LoadProject(wxWindow *parent, const wxString &path)
+void FilesTree::LoadProject(wxWindow *parent, wxString path)
 {
     if (!parent)
         return;
+
     if (!wxDirExists(path))
     {
         wxMessageBox(ErrorMessages::InvalidProjectPath, "Error", wxOK | wxICON_ERROR);
         return;
     }
+
+    if (path.Last() != PlatformInfos::OsPathSeparator())
+        path.Append(PlatformInfos::OsPathSeparator());
 
     m_projectFilesContainer->DestroyChildren();
 
@@ -231,8 +235,8 @@ wxWindow *FilesTree::CreateFileContainer(wxWindow *parent, const wxString &path)
 
 wxWindow *FilesTree::CreateDirContainer(wxWindow *parent, wxString path, bool withPosition, int pos)
 {
-    if (wxString(path.Last()) != PlatformInfos::OsPathSepareator())
-        path.Append(PlatformInfos::OsPathSepareator());
+    if (wxString(path.Last()) != PlatformInfos::OsPathSeparator())
+        path.Append(PlatformInfos::OsPathSeparator());
 
     if (!parent)
         return nullptr;
@@ -278,9 +282,7 @@ wxWindow *FilesTree::CreateDirContainer(wxWindow *parent, wxString path, bool wi
         }
     }
 
-    wxString name = path;
-    name.RemoveLast();
-    auto *dirName = new wxStaticText(propsPanel, wxID_ANY, wxFileNameFromPath(name));
+    auto *dirName = new wxStaticText(propsPanel, wxID_ANY, wxFileNameFromPath(path.Clone().RemoveLast()));
     dirName->SetName("dir_name");
     dirName->Bind(wxEVT_LEFT_UP, &FilesTree::OnDirLeftClick, this);
     dirName->Bind(wxEVT_RIGHT_UP, &FilesTree::OnDirRightClick, this);
@@ -501,12 +503,11 @@ void FilesTree::OnDirRightClick(wxMouseEvent &event)
 
 void FilesTree::ToggleDirVisibility(const wxString &componentIdentifier, bool defaultShow)
 {
-    auto dirContainer = wxFindWindowByLabel(componentIdentifier + "_dir_container");
+    auto dirContainer = FindWindowByLabel(componentIdentifier + "_dir_container");
+    
     if (!dirContainer)
-    {
-        wxMessageBox(ErrorMessages::CannotOpenDir, "Error", wxOK | wxICON_ERROR);
         return;
-    }
+
     if (!wxDirExists(componentIdentifier))
     {
         auto parent = dirContainer->GetParent();
@@ -626,7 +627,7 @@ void FilesTree::OnCreateDirRequested(wxCommandEvent &)
         bool created = FileOperations::CreateDir(ProjectSettings::Get().GetCurrentlyMenuDir() + dirName);
         if (created)
         {
-            ProjectSettings::Get().SetCurrentlyMenuDir(ProjectSettings::Get().GetCurrentlyMenuDir() + dirName + PlatformInfos::OsPathSepareator());
+            ProjectSettings::Get().SetCurrentlyMenuDir(ProjectSettings::Get().GetCurrentlyMenuDir() + dirName + PlatformInfos::OsPathSeparator());
         }
         else
         {
@@ -692,7 +693,7 @@ void FilesTree::OnDeleteDirRequested(wxCommandEvent &)
     }
 }
 
-void FilesTree::OnRenameDirRequested(wxCommandEvent &)
+void FilesTree::OnRenameDirRequested(wxCommandEvent &event)
 {
     try
     {
@@ -702,12 +703,11 @@ void FilesTree::OnRenameDirRequested(wxCommandEvent &)
             return;
         }
 
-        wxString newDirName = wxGetTextFromUser("Enter directory name: ", "Rename directory", wxFileNameFromPath(ProjectSettings::Get().GetCurrentlyMenuDir().RemoveLast()));
+        wxString newDirName = wxGetTextFromUser("Enter directory name: ", "Rename directory", wxFileNameFromPath(ProjectSettings::Get().GetCurrentlyMenuDir(true)));
         if (newDirName.IsEmpty())
             return;
 
-        wxFileName dirPath(ProjectSettings::Get().GetCurrentlyMenuDir());
-        dirPath.RemoveLastDir();
+        wxFileName dirPath(ProjectSettings::Get().GetCurrentlyMenuDir(true));
         wxString newPath = dirPath.GetFullPath() + newDirName;
         wxRename(wxString(ProjectSettings::Get().GetCurrentlyMenuDir()), newPath);
         if (!wxDirExists(newPath))
@@ -745,8 +745,8 @@ void FilesTree::OnCreateFileRequested(wxCommandEvent &)
             {
                 wxFileName fullPath(filePath);
                 wxString parentPath = fullPath.GetPath(wxPATH_GET_VOLUME | wxPATH_GET_SEPARATOR);
-                ToggleDirVisibility(parentPath, true);
                 ProjectSettings::Get().SetCurrentlyMenuFile(filePath);
+                ToggleDirVisibility(parentPath, true);
             }
         }
         else
@@ -818,7 +818,7 @@ void FilesTree::OnRenameFileRequested(wxCommandEvent &)
         if (newFileName.IsEmpty())
             return;
 
-        wxString parentPath = ProjectSettings::Get().GetCurrentlyMenuFile().substr(0, ProjectSettings::Get().GetCurrentlyMenuFile().find_last_of(PlatformInfos::OsPathSepareator()) + 1);
+        wxString parentPath = ProjectSettings::Get().GetCurrentlyMenuFile().substr(0, ProjectSettings::Get().GetCurrentlyMenuFile().find_last_of(PlatformInfos::OsPathSeparator()) + 1);
         wxString newPath = parentPath + newFileName;
         wxRename(wxString(ProjectSettings::Get().GetCurrentlyMenuFile()), newPath);
         if (!wxFileExists(newPath))
@@ -878,7 +878,7 @@ void FilesTree::OnFileSystemEvent(int type, const wxString &oldPath, wxString ne
         auto component = wxFindWindowByLabel(oldPath + "_file_container");
         if (!component)
         {
-            if (auto dirComp = wxFindWindowByLabel(oldPath + PlatformInfos::OsPathSepareator() + "_dir_container"))
+            if (auto dirComp = wxFindWindowByLabel(oldPath + PlatformInfos::OsPathSeparator() + "_dir_container"))
                 component = dirComp;
             else
                 return;
@@ -901,7 +901,7 @@ void FilesTree::OnFileSystemEvent(int type, const wxString &oldPath, wxString ne
         if (isFile)
             targetComp = wxFindWindowByLabel(oldPath + "_file_container");
         else
-            targetComp = wxFindWindowByLabel(oldPath + PlatformInfos::OsPathSepareator() + "_dir_container");
+            targetComp = wxFindWindowByLabel(oldPath + PlatformInfos::OsPathSeparator() + "_dir_container");
         if (!targetComp)
             return;
 
@@ -1010,8 +1010,8 @@ void FilesTree::SetFileHighlight(const wxString &componentIdentifier)
 
     if (m_currentSelectedFile)
     {
-        wxWindow* oldWin = m_currentSelectedFile.get();
-        if (oldWin) 
+        wxWindow *oldWin = m_currentSelectedFile.get();
+        if (oldWin)
         {
             oldWin->SetBackgroundColour(defaultColor);
             oldWin->Refresh();
