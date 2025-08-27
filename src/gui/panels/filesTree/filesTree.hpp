@@ -227,7 +227,7 @@ private:
     wxScrolled<wxPanel> *m_projectFilesContainer = nullptr;
     wxStaticText *m_projectInformationsName = nullptr;
     wxStaticBitmap *m_projectInformationsNameArrow = nullptr;
-    wxWindow *m_currentSelectedFile = nullptr;
+    wxWeakRef<wxWindow> m_currentSelectedFile;
 
     wxDECLARE_NO_COPY_CLASS(FilesTree);
     wxDECLARE_EVENT_TABLE();

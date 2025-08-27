@@ -38,7 +38,7 @@ namespace ApplicationPaths
 
             for (const auto &pattern : devPatterns)
             {
-                if (fullPath.Contains(pattern))
+                if (fullPath.Find(pattern) != wxNOT_FOUND)
                 {
                     return true;
                 }
@@ -46,12 +46,12 @@ namespace ApplicationPaths
 
 // Check standard installation locations
 #ifdef __WXMSW__
-            return !fullPath.Contains("program files");
+            return !fullPath.find("program files") && !fullPath.find("program files (x86)");
 #elif defined(__WXGTK__)
             return !(fullPath.StartsWith("/usr/bin/") ||
                      fullPath.StartsWith("/usr/local/bin/"));
 #elif defined(__WXOSX__)
-            return !fullPath.Contains(".app/contents/macos");
+            return !fullPath.Find(".app/contents/macos");
 #endif
 
             return false;

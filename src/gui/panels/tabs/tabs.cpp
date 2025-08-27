@@ -181,7 +181,7 @@ void Tabs::Close(wxWindow *tab, wxString tab_path)
 	else
 	{
 		// If you don't have another tab, close the tabContainer and show the empty window
-		fileContainer->SetFileHighlight("");
+		fileContainer->SetFileHighlight(wxEmptyString);
 
 		Hide();
 		auto emptyWindow = FindWindowById(+GUI::ControlID::EmptyWindow);
@@ -204,18 +204,30 @@ void Tabs::Close(wxWindow *tab, wxString tab_path)
 	mainCode->GetSizer()->Layout();
 }
 
-void Tabs::CloseAll()
+void Tabs::CloseAllFiles()
 {
-	auto fileContainer = ((FilesTree *)FindWindowById(+GUI::ControlID::FilesTree));
-	if (fileContainer)
+	std::vector<wxWindow *> childrenToRemove;
+
+	for (auto &&mainCodeChildren : GetParent()->GetChildren())
 	{
-		fileContainer->SetFileHighlight("");
+		if (mainCodeChildren->GetLabel().Find("_codeContainer") != wxNOT_FOUND)
+			childrenToRemove.push_back(mainCodeChildren);
+		else
+			mainCodeChildren->Hide();
+	}
+
+	for (auto &&child : childrenToRemove)
+	{
+		child->Destroy();
 	}
 
 	tabsContainer->DestroyChildren();
 	Hide();
+
 	if (auto emptyWindow = FindWindowById(+GUI::ControlID::EmptyWindow))
 		emptyWindow->Show();
+
+	ProjectSettings::Get().SetCurrentlyFileOpen(wxEmptyString);
 
 	GetParent()->Layout();
 }

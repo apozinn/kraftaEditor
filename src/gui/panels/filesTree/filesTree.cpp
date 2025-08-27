@@ -138,6 +138,8 @@ void FilesTree::CloseProject()
         m_projectFilesContainer->DestroyChildren();
     if (m_projectInformations)
         m_projectInformations->Hide();
+
+    SetFileHighlight(wxEmptyString);
 }
 
 void FilesTree::CreateDirectoryComponents(wxWindow *parent, const wxString &path)
@@ -343,8 +345,7 @@ void FilesTree::OnFileLeftClick(wxMouseEvent &event)
         return;
     }
 
-    if (OpenFile(path))
-        SetFileHighlight(path);
+    OpenFile(path);
 }
 
 bool FilesTree::OpenFile(const wxString &componentIdentifier)
@@ -418,6 +419,8 @@ bool FilesTree::OpenFile(const wxString &componentIdentifier)
 
     wxFileName fullPath(componentIdentifier);
     wxString parentPath = fullPath.GetPath(wxPATH_GET_VOLUME | wxPATH_GET_SEPARATOR);
+
+    ProjectSettings::Get().SetCurrentlyFileOpen(componentIdentifier);
     ProjectSettings::Get().SetCurrentlyMenuDir(parentPath);
     ProjectSettings::Get().SetCurrentlyMenuFile(componentIdentifier);
 
@@ -1005,34 +1008,22 @@ void FilesTree::SetFileHighlight(const wxString &componentIdentifier)
     auto defaultColor = ThemesManager::Get().GetColor("main");
     auto selectedColor = ThemesManager::Get().GetColor("selectedFile");
 
-    if (m_projectFilesContainer->GetChildren().empty())
-        return;
-
-    if (target)
+    if (m_currentSelectedFile)
     {
-        if (m_currentSelectedFile)
+        wxWindow* oldWin = m_currentSelectedFile.get();
+        if (oldWin) 
         {
-            m_currentSelectedFile->SetBackgroundColour(defaultColor);
-            m_currentSelectedFile->Refresh();
-            m_currentSelectedFile = target;
-            m_currentSelectedFile->SetBackgroundColour(selectedColor);
-            m_currentSelectedFile->Refresh();
-        }
-        else
-        {
-            m_currentSelectedFile = target;
-            m_currentSelectedFile->SetBackgroundColour(selectedColor);
-            m_currentSelectedFile->Refresh();
-        }
-    }
-    else
-    {
-
-        if (m_currentSelectedFile)
-        {
-            m_currentSelectedFile->SetBackgroundColour(defaultColor);
-            m_currentSelectedFile->Refresh();
+            oldWin->SetBackgroundColour(defaultColor);
+            oldWin->Refresh();
         }
         m_currentSelectedFile = nullptr;
     }
+
+    if (!target || componentIdentifier.IsEmpty())
+        return;
+
+    target->SetBackgroundColour(selectedColor);
+    target->Refresh();
+
+    m_currentSelectedFile = target;
 }

@@ -25,7 +25,7 @@ public:
 	Tabs(wxPanel *parent, wxWindowID ID);
 	void Add(wxString tab_name, wxString path);
 	void Close(wxWindow *tab, wxString tab_path);
-	void CloseAll();
+	void CloseAllFiles();
 	void Select();
 	void OnTabClick(wxMouseEvent &event);
 	void OnCloseTab(wxMouseEvent &event);

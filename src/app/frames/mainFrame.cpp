@@ -354,7 +354,7 @@ void MainFrame::OpenFolderDialog()
         projectSettings.SetProjectPath(path);
 
         if (m_tabs)
-            m_tabs->CloseAll();
+            m_tabs->CloseAllFiles();
 
         m_filesTree->LoadProject(m_filesTree->GetProjectFilesContainer(), path);
 
@@ -426,17 +426,23 @@ void MainFrame::OnSashPosChange(wxSplitterEvent &event)
 
 void MainFrame::CloseAllFiles(wxCommandEvent &WXUNUSED(event))
 {
-    m_tabs->CloseAll();
+    m_tabs->CloseAllFiles();
 }
 
 void MainFrame::LoadPath(wxString path)
 {
+    if (!m_tabs || !m_filesTree)
+    {
+        wxLogError("Tabs or files tree not initialized");
+        return;
+    }
+
     wxDir dir(path);
+    wxConfig *config = new wxConfig("krafta-editor");
+
     if (path.IsEmpty() || !dir.Exists(path))
     {
-        m_tabs->CloseAll();
-
-        wxConfig *config = new wxConfig("krafta-editor");
+        m_tabs->CloseAllFiles();
         config->Write("workspace", "");
         delete config;
 
@@ -447,15 +453,16 @@ void MainFrame::LoadPath(wxString path)
     if (path == ProjectSettings::Get().GetProjectPath())
         return;
 
-    projectSettings.SetProjectName(wxFileNameFromPath(path.substr(0, path.size() - 1)));
+    projectSettings.SetProjectName(wxFileNameFromPath(path.RemoveLast()));
     projectSettings.SetProjectPath(path);
 
-    wxConfig *config = new wxConfig("krafta-editor");
     config->Write("workspace", path);
     delete config;
 
-    m_tabs->CloseAll();
+    m_tabs->CloseAllFiles();
+
     m_filesTree->LoadProject(m_filesTree->GetProjectFilesContainer(), path);
+
     SetTitle("Krafta Editor - " + projectSettings.GetProjectName());
 
     AddEntry(wxFSWPath_Tree, path);
@@ -483,25 +490,14 @@ void MainFrame::OnCloseFolder(wxCommandEvent &WXUNUSED(event))
         return;
     }
 
+    if (!m_tabs)
+    {
+        wxLogError("Tabs not initialized");
+        return;
+    }
+
     m_filesTree->CloseProject();
-
-    std::vector<wxWindow *> childrenToRemove;
-
-    for (auto &&mainCodeChildren : m_mainContainer->GetChildren())
-    {
-        if (mainCodeChildren->GetLabel().Find("_codeContainer") != wxNOT_FOUND)
-            childrenToRemove.push_back(mainCodeChildren);
-        else
-            mainCodeChildren->Hide();
-    }
-
-    for (auto &&child : childrenToRemove)
-    {
-        child->Destroy();
-    }
-
-    if (m_tabs)
-        m_tabs->CloseAll();
+    m_tabs->CloseAllFiles();
 
     wxConfig *config = new wxConfig("krafta-editor");
     config->Write("workspace", "");
@@ -641,7 +637,7 @@ void MainFrame::OnClose(wxCloseEvent &event)
 
     if (m_tabs)
     {
-        m_tabs->CloseAll();
+        m_tabs->CloseAllFiles();
     }
 
     if (m_watcher)
