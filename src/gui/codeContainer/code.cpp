@@ -292,53 +292,78 @@ void CodeContainer::ToggleCommentLine(wxCommandEvent &WXUNUSED(event))
 
 void CodeContainer::ToggleCommentBlock(wxCommandEvent &WXUNUSED(event))
 {
-    wxWindow *currentCodeEditor = wxFindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_codeContainer");
-    if (currentCodeEditor)
+    wxWindow *currentCodeEditor =
+        wxFindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_codeContainer");
+    if (!currentCodeEditor)
+        return;
+
+    if (currentCodeEditor->GetChildren().GetCount() < 2)
+        return;
+    auto *currentEditor = dynamic_cast<wxStyledTextCtrl *>(currentCodeEditor->GetChildren()[0]);
+    auto *currentMinimap = dynamic_cast<wxStyledTextCtrl *>(currentCodeEditor->GetChildren()[1]);
+    if (!currentEditor || !currentMinimap)
+        return;
+
+    int selStart = currentEditor->GetSelectionStart();
+    int selEnd = currentEditor->GetSelectionEnd();
+    if (selStart > selEnd)
+        std::swap(selStart, selEnd);
+
+    if (selStart == selEnd)
     {
-        auto currentEditor = ((wxStyledTextCtrl *)currentCodeEditor->GetChildren()[0]);
-        auto currentMinimap = ((wxStyledTextCtrl *)currentCodeEditor->GetChildren()[1]);
+        const int line = currentEditor->GetCurrentLine();
+        selStart = currentEditor->PositionFromLine(line);
+        selEnd = currentEditor->GetLineEndPosition(line);
+    }
 
-        if (currentEditor && currentMinimap)
-        {
+    auto isSpace = [&](int ch)
+    {
+        return ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n';
+    };
 
-            int lineStart = 0;
-            int lineEnd = 0;
-            if (currentEditor->GetSelectionEnd() - currentEditor->GetSelectionStart() <= 0)
-            {
-                lineStart = currentEditor->PositionFromLine(currentEditor->GetCurrentLine());
-                lineEnd = currentEditor->GetLineEndPosition(currentEditor->GetCurrentLine()) + 2;
-            }
-            else
-            {
-                lineStart = currentEditor->GetSelectionStart();
-                lineEnd = currentEditor->GetSelectionEnd() + 2;
-            }
+    int s = selStart;
+    int e = selEnd;
+    while (s < e && isSpace(currentEditor->GetCharAt(s)))
+        s++;
+    while (e > s && isSpace(currentEditor->GetCharAt(e - 1)))
+        e--;
 
-            char chr = (char)currentEditor->GetCharAt(lineStart);
+    const bool hasOpen = (e - s >= 2) &&
+                         currentEditor->GetCharAt(s) == '/' &&
+                         currentEditor->GetCharAt(s + 1) == '*';
+    const bool hasClose = (e - s >= 4) &&
+                          currentEditor->GetCharAt(e - 2) == '*' &&
+                          currentEditor->GetCharAt(e - 1) == '/';
 
-            if (chr == ' ')
-            {
-                while (chr == ' ')
-                {
-                    lineStart++;
-                    chr = (char)currentEditor->GetCharAt(lineStart);
-                }
-            }
+    auto unwrap = [&](wxStyledTextCtrl *ctrl)
+    {
+        ctrl->BeginUndoAction();
+        ctrl->DeleteRange(e - 2, 2);
+        ctrl->DeleteRange(s, 2);
+        ctrl->EndUndoAction();
+    };
 
-            if (chr == '/' && (char)currentEditor->GetCharAt(lineStart + 1) == '*')
-            {
-                currentEditor->DeleteRange(lineStart, 2);
-                currentMinimap->DeleteRange(lineStart, 2);
-            }
-            else
-            {
-                currentEditor->InsertText(lineStart, "/*");
-                currentEditor->InsertText(lineEnd, "*/");
+    auto wrap = [&](wxStyledTextCtrl *ctrl)
+    {
+        ctrl->BeginUndoAction();
+        ctrl->InsertText(e, "*/");
+        ctrl->InsertText(s, "/*");
+        ctrl->EndUndoAction();
+    };
 
-                currentMinimap->InsertText(lineStart, "/*");
-                currentMinimap->InsertText(lineEnd, "*/");
-            }
-        }
+    if (hasOpen && hasClose)
+    {
+        unwrap(currentEditor);
+        unwrap(currentMinimap);
+        currentEditor->SetSelection(selStart, wxMax(selStart, selEnd - 4));
+        currentMinimap->SetSelection(selStart, wxMax(selStart, selEnd - 4));
+    }
+    else
+    {
+        wrap(currentEditor);
+        wrap(currentMinimap);
+        currentEditor->SetSelection(selStart, selEnd + 4);
+        currentMinimap->SetSelection(selStart, selEnd + 4);
     }
 }
 
