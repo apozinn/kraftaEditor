@@ -59,6 +59,7 @@ MainFrame::MainFrame(const wxString &title)
 
     // Apply the main sizer and fit the window to its contents
     SetSizerAndFit(sizer);
+    SetMinSize(wxSize(800, 600));
 }
 
 bool MainFrame::SetAppIcon()
@@ -211,6 +212,13 @@ void MainFrame::OnFrameResized(wxSizeEvent &event)
     if (!IsMaximized())
     {
         UserSettings["windowMaximized"] = false;
+        if( event.GetSize().x < 800 || event.GetSize().y < 600)
+        {
+            event.SetSize(wxSize(
+                std::max(event.GetSize().x, 800),
+                std::max(event.GetSize().y, 600)));
+            SetSize(event.GetSize());
+        }
         UserSettings["windowSizeX"] = event.GetSize().x;
         UserSettings["windowSizeY"] = event.GetSize().y;
         UserSettingsManager::Get().Update(UserSettings);
