@@ -38,7 +38,6 @@ public:
 private:
     std::vector<ControlMenu> menus{
         {"Open Terminal", "Ctrl+Shift+T", 1},
-        {"Open sla", "Ctrl+Shift+T", 2},
     };
     wxDECLARE_NO_COPY_CLASS(ControlPanel);
     wxDECLARE_EVENT_TABLE();

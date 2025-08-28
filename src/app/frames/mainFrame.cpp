@@ -277,7 +277,7 @@ void MainFrame::CreateWatcher()
 
 void MainFrame::OnAbout(wxCommandEvent &WXUNUSED(event))
 {
-    wxMessageBox("A simple code editor for multiple languages",
+    wxMessageBox("A fast, lightweight, and cross-platform code editor built with C++ and wxWidgets",
                  "About Krafta Editor",
                  wxOK | wxICON_INFORMATION, this);
 }
