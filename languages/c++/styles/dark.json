@@ -14,7 +14,7 @@
     "7":  { "name": "CHARACTER",                     "foreground": "#D7BA7D" },
     "8":  { "name": "UUID",                          "foreground": "#B8D7A3" },
     "9":  { "name": "PREPROCESSOR",                  "foreground": "#C586C0" },
-    "10": { "name": "OPERATOR",                      "foreground": "#D4D4D4" },
+    "10": { "name": "OPERATOR",                      "foreground": "#9711d1" },
     "11": { "name": "IDENTIFIER",                    "foreground": "#D4D4D4" },
     "12": { "name": "STRINGEOL",                     "foreground": "#CE9178", "background": "#F4474720" },
     "13": { "name": "VERBATIM",                      "foreground": "#CE9178" },

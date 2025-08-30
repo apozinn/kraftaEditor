@@ -226,6 +226,7 @@ void LanguagesPreferences::SetupFold(const languagePreferencesStruct &currentLan
             int markerSymbol = marker["symbol_id"];
 
             component->MarkerDefine(markerId, markerSymbol);
+            component->MarkerSetBackgroundSelected(markerId, wxColour(foldSettingsObject["default_selection_background"].template get<std::string>()));
 
             if (marker.contains("foreground"))
                 component->MarkerSetForeground(markerId, wxColour(marker["foreground"].template get<std::string>()));

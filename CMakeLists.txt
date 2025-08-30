@@ -54,39 +54,32 @@ set(wxWidgets_MIN_VERSION "3.3.0")
 if(USE_SYSTEM_WXWIDGETS)
     find_package(wxWidgets ${wxWidgets_MIN_VERSION} REQUIRED COMPONENTS core base stc)
     if(NOT wxWidgets_FOUND)
-        message(FATAL_ERROR "wxWidgets not found, please install it or set USE_SYSTEM_WXWIDGETS to OFF")
+        message(FATAL_ERROR "wxWidgets not found, please install it or set USE_SYSTEM_WXWIDGETS=OFF")
     endif()
     include(${wxWidgets_USE_FILE})
     message(STATUS "Using system wxWidgets v${wxWidgets_VERSION}")
 else()
     message(STATUS "Downloading wxWidgets v${wxWidgets_MIN_VERSION} from source")
-    
-    # --- CRITICAL static build settings ---
-    # 1. Force wxWidgets to build as static libraries (even if BUILD_SHARED_LIBS=ON in your project)
+
+    # Force static build
     set(wxBUILD_SHARED OFF CACHE BOOL "Build wxWidgets as static libraries" FORCE)
-    
-    # 2. Size optimizations
-    set(wxBUILD_MONOLITHIC OFF CACHE BOOL "Build as separate libraries (reduces unused code)" FORCE)
+    set(wxBUILD_MONOLITHIC OFF CACHE BOOL "Build as separate libraries" FORCE)
     set(wxUSE_WEBVIEW OFF CACHE BOOL "" FORCE)
     set(wxUSE_MEDIACTRL OFF CACHE BOOL "" FORCE)
-    
-    # 3. Compatibility and feature flags
     set(wxBUILD_COMPATIBILITY "3.2" CACHE STRING "" FORCE)
-    set(wxBUILD_OPTIONS "std,no_aui,no_help,no_qa,no_ribbon" CACHE STRING "Disable unused features" FORCE)
-    
-    # 4. Download and build wxWidgets
+
     FetchContent_Declare(
         wxWidgets
         GIT_REPOSITORY https://github.com/wxWidgets/wxWidgets.git
         GIT_TAG v3.3.0
         GIT_SHALLOW ON
-        CMAKE_ARGS 
-            -DwxBUILD_SHARED=OFF  # Ensure static linking
+        CMAKE_ARGS
+            -DwxBUILD_SHARED=OFF
             -DwxBUILD_MONOLITHIC=OFF
             -DwxUSE_WEBVIEW=OFF
             -DwxBUILD_COMPATIBILITY=3.2
     )
-    
+
     FetchContent_MakeAvailable(wxWidgets)
 endif()
 
@@ -117,38 +110,35 @@ endif()
 #-------------------------------------------------------------------------------
 # Target Definition
 #-------------------------------------------------------------------------------
-# List source files explicitly or use CONFIGURE_DEPENDS
-file(GLOB_RECURSE APP_SOURCES CONFIGURE_DEPENDS
-    "src/*.cpp"
-) 
-
-file(GLOB_RECURSE APP_HEADERS CONFIGURE_DEPENDS
-    "include/*.hpp"
-)
+file(GLOB_RECURSE APP_SOURCES CONFIGURE_DEPENDS "src/*.cpp")
+file(GLOB_RECURSE APP_HEADERS CONFIGURE_DEPENDS "include/*.hpp")
 
 add_executable(KraftaEditor 
     ${APP_SOURCES}
     ${APP_HEADERS}
+    resources/app.rc
 )
 
-# Platform-agnostic compiler flags
+#-------------------------------------------------------------------------------
+# Compiler Warnings & Options
+#-------------------------------------------------------------------------------
 target_compile_options(KraftaEditor PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>:
         /W4
         /WX
         /permissive-
-        /MP  # Enable parallel builds
+        /MP
     >
     $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:
         -Wall
         -Wextra
         -Wpedantic
         -Werror
-        -fdiagnostics-color=always  # Colorful diagnostics
+        -fdiagnostics-color=always
     >
 )
 
-# Code coverage support
+# Code coverage
 if(ENABLE_COVERAGE)
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         target_compile_options(KraftaEditor PRIVATE --coverage -fprofile-arcs -ftest-coverage)
@@ -158,21 +148,21 @@ if(ENABLE_COVERAGE)
     endif()
 endif()
 
-# Target properties
+#-------------------------------------------------------------------------------
+# Target Properties
+#-------------------------------------------------------------------------------
 set_target_properties(KraftaEditor PROPERTIES
     CXX_VISIBILITY_PRESET "hidden"
     VISIBILITY_INLINES_HIDDEN ON
     POSITION_INDEPENDENT_CODE ON
 )
 
-# Include directories
 target_include_directories(KraftaEditor PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
     "${CMAKE_CURRENT_BINARY_DIR}/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
 
-# Link libraries
 target_link_libraries(KraftaEditor PRIVATE
     wx::core
     wx::stc
@@ -183,7 +173,6 @@ target_link_libraries(KraftaEditor PRIVATE
 # Platform-Specific Configuration
 #-------------------------------------------------------------------------------
 if(APPLE)
-    # macOS Bundle Settings
     set_target_properties(KraftaEditor PROPERTIES
         MACOSX_BUNDLE TRUE
         MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist"
@@ -193,8 +182,7 @@ if(APPLE)
         MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
         MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}"
     )
-    
-    # Bundle Resources
+
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/assets")
         set_source_files_properties(
             "${CMAKE_CURRENT_SOURCE_DIR}/assets/AppIcon.icns"
@@ -203,24 +191,20 @@ if(APPLE)
         )
         target_sources(KraftaEditor PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/assets/AppIcon.icns")
     endif()
-    
+
 elseif(WIN32)
-    # Windows Configuration
+    target_compile_definitions(KraftaEditor PRIVATE
+        wxUSE_NO_MANIFEST=0
+    )
+
     set_target_properties(KraftaEditor PROPERTIES
         WIN32_EXECUTABLE TRUE
-        LINK_FLAGS "/MANIFEST:EMBED"
     )
-    
-    # Windows Manifest and Resources
-    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/KraftaEditor.manifest")
-        target_sources(KraftaEditor PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/KraftaEditor.manifest")
+
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/resources/app.rc")
+        target_sources(KraftaEditor PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/resources/app.rc")
     endif()
-    
-    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/resources.rc")
-        target_sources(KraftaEditor PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/resources.rc")
-    endif()
-    
-    # Copy DLLs for shared builds
+
     if(BUILD_SHARED_LIBS)
         add_custom_command(TARGET KraftaEditor POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy

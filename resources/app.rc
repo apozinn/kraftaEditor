@@ -1,10 +1,12 @@
+#ifndef wxUSE_RC_MANIFEST
+#include "wx/msw/wx.rc"
+#endif
+
 #include <windows.h>
 #include <commctrl.h>
 
-// Ícone principal da aplicação (substitua pelo caminho real)
-IDI_MAIN ICON "assets/images/kraftaEditor.ico"
+IDI_MAIN ICON "../assets/images/kraftaEditor.ico"
 
-// Versão do aplicativo
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION 1,0,0,0
  PRODUCTVERSION 1,0,0,0

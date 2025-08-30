@@ -3,48 +3,49 @@
     {
       "marker_id": 31,
       "symbol_id": 6,
-      "foreground": "#FFFFFF",
+      "foreground": "#808080",
       "background": "#808080"
     },
     {
       "marker_id": 30,
       "symbol_id": 2,
-      "foreground": "#FFFFFF",
+      "foreground": "#808080",
       "background": "#808080"
     },
     {
       "marker_id": 29,
       "symbol_id": 9,
-      "foreground": "#FFFFFF",
+      "foreground": "#808080",
       "background": "#808080"
     },
     {
       "marker_id": 28,
       "symbol_id": 10,
-      "foreground": "#FFFFFF",
+      "foreground": "#808080",
       "background": "#808080"
     },
     {
       "marker_id": 27,
       "symbol_id": 11,
-      "foreground": "#FFFFFF",
+      "foreground": "#808080",
       "background": "#808080"
     },
     {
       "marker_id": 26,
       "symbol_id": 6,
-      "foreground": "#FFFFFF",
+      "foreground": "#808080",
       "background": "#808080"
     },
     {
       "marker_id": 25,
       "symbol_id": 2,
-      "foreground": "#FFFFFF",
+      "foreground": "#808080",
       "background": "#808080"
     }
   ],
   "default_fold_flags": [
     "line_before",
     "line_after"
-  ]
+  ],
+  "default_selection_background": "#ababab"
 }
