@@ -1,4 +1,4 @@
-# **Krafta Editor**  
+# **Krafta Editor**
 
 <div align="center">
   <img width="200" src="https://raw.githubusercontent.com/apozinn/kraftaEditor/refs/heads/main/assets/images/kraftaEditor.png" alt="Krafta Editor Logo">
@@ -16,18 +16,22 @@
   </div>
 </div>
 
-## ✨ **Features**  
+---
 
-- **Blazing fast performance** with native C++ core  
-- **Cross-platform** (Windows, Linux, macOS)  
-- **Modern and customizable interface** with wxWidgets  
-- **Syntax highlighting** for multiple programming languages  
-- **Lightweight** compared to Electron-based editors  
-- **Intuitive interface** focused on productivity  
+## ✨ **Features**
 
-![Krafta Editor Screenshot](https://i.imgur.com/cj3d00m.png)  
+- **Blazing fast performance** powered by native C++
+- **Cross-platform support**: Windows, Linux, macOS
+- **Modern, customizable interface** using wxWidgets
+- **Syntax highlighting** for multiple programming languages
+- **Lightweight** compared to Electron-based editors
+- **Intuitive UI** focused on productivity
 
-## 🚀 **Getting Started**  
+[![Krafta Editor Screenshot](https://i.postimg.cc/C122qcM4/image.png)](https://postimg.cc/Vrj4yBCS)
+
+---
+
+## 🚀 **Getting Started**
 
 ### Prerequisites
 
@@ -38,27 +42,30 @@
 | **macOS**     | Xcode Command Line Tools |
 | **Windows**   | Visual Studio 2022+ | 
 
-### **Note**
-Alternatively, you can leverage CMake's FetchContent module to automatically download and integrate **wxWidgets**. While this simplifies the initial setup, be aware that it will download the complete **wxWidgets** source code, resulting in a much larger build directory.
+> **Tip:** You can use CMake's `FetchContent` to automatically download wxWidgets. This simplifies setup but increases build directory size.
 
-### **Installation**  
+---
 
-#### **Linux (Debian/Ubuntu)**  
+### **Installation**
+
+#### Linux (Debian/Ubuntu)
 ```bash
 sudo apt install build-essential cmake libgtk-3-dev libwxgtk3.0-gtk3-dev
-```  
+```
 
-#### **macOS (Homebrew)**  
+#### macOS (Homebrew)
 ```bash
 brew install cmake wxwidgets
-```  
+```
 
-#### **Windows**  
-- Install [CMake](https://cmake.org/download/)  
-- Install [wxWidgets](https://www.wxwidgets.org/downloads/)  
-- Install **Visual Studio** with C++ support  
+#### Windows
+- Install [CMake](https://cmake.org/download/)
+- Install [wxWidgets](https://www.wxwidgets.org/downloads/)
+- Install **Visual Studio 2022+** with C++ support
 
-### **Building from Source**  
+---
+
+### **Building from Source**
 
 ```bash
 # Clone the repository
@@ -73,41 +80,60 @@ cmake --build build --parallel
 
 # Run
 ./build/bin/DEBUG/KraftaEditor
-```  
+```
 
-### Build Options:
+### Build Options
 
-``` 
--DUSE_SYSTEM_WXWIDGETS=ON - Use system wxWidgets
+```bash
+-DUSE_SYSTEM_WXWIDGETS=ON   # Use system wxWidgets
+-DENABLE_TESTS=ON            # Build test suite
+-DCMAKE_BUILD_TYPE=Release   # Optimized release build
+```
 
--DENABLE_TESTS=ON - Build test suite
+---
 
--DCMAKE_BUILD_TYPE=Release - Optimized release build
-```  
+## 🛠️ **Development**
 
-## 🛠️ **Development**  
+Contributions are welcome! Follow these steps:
 
-Contributions are welcome! Follow these steps:  
+1. **Fork** the repository
+2. Create a **branch**: `git checkout -b feature/new-feature`
+3. **Commit** your changes: `git commit -am 'Add new feature'`
+4. **Push** to your branch: `git push origin feature/new-feature`
+5. Open a **Pull Request**
 
-1. **Fork** the repository  
-2. Create a **branch** (`git checkout -b feature/new-feature`)  
-3. **Commit** your changes (`git commit -am 'Add new feature'`)  
-4. **Push** to the branch (`git push origin feature/new-feature`)  
-5. Open a **Pull Request**  
+### **Code Style**
+- Follow the existing style (4-space indentation)
+- Keep commits **clear and concise**
+- Update documentation when necessary
 
-### **Code Style**  
-- Follow the current style (4-space indentation)  
-- Keep commits **clear and concise**  
-- Update documentation when needed  
+---
 
-## 📜 **License**  
+## 📝 **Changelog (Highlights)**
 
-Krafta Editor is licensed under the [GNU LGPLv3](https://github.com/apozinn/kraftaEditor/blob/main/LICENSE).  
+### v0.7.0
+- New **LanguagesPreferences** system added
+- Files and directories now created in the folder of the currently opened file
+- Dialog to prevent closing unsaved files
+- “Don’t ask me again” options for file/directory deletion
+- Reorganized source code and optimized resources (`applicationPath`, `themesManager`, `userSettingsManager`)
+- CMake system reworked for robustness
+- Fixes for `FilesTree`, `CodeContainer`, tabs, terminal, and Linux builds
+- Improved projectSettings documentation
 
-Copyright © 2023 Okarin Softwares. All rights reserved.  
+*(Full changelog available in the [commits](https://github.com/apozinn/kraftaEditor/commits/main) page)*
 
-## 🤝 **Support**  
+---
 
-Questions, suggestions, or bug reports?  
-- [Open an **Issue**](https://github.com/apozinn/kraftaEditor/issues)  
-- Join our [**Discord**](https://discord.gg/yWzdJbu2KP)
+## 📜 **License**
+
+Krafta Editor is licensed under the [GNU LGPLv3](https://github.com/apozinn/kraftaEditor/blob/main/LICENSE).
+
+© 2023 Okarin Softwares. All rights reserved.
+
+---
+
+## 🤝 **Support**
+
+Questions, suggestions, or bug reports?
+- [Open an **Issue**](https://github.com/apozinn/kraftaEditor/issues)
