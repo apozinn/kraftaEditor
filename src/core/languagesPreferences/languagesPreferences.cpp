@@ -75,6 +75,7 @@ languagePreferencesStruct LanguagesPreferences::SetupLanguagesPreferences(wxWind
 
         ApplyLexerStyles(currentLanguagePreferences, editor, minimap);
         SetupReservedWords(currentLanguagePreferences, editor, minimap);
+        SetupAutoCompleteWords(currentLanguagePreferences, editor);
         SetupFold(currentLanguagePreferences, editor, minimap);
         UpdateStatusBar(currentLanguagePreferences);
 
@@ -262,6 +263,64 @@ void LanguagesPreferences::SetupReservedWords(const languagePreferencesStruct &c
         setupPreferences(editor);
         setupPreferences(minimap);
     }
+}
+
+void LanguagesPreferences::SetupAutoCompleteWords(
+    const languagePreferencesStruct &currentLanguagePreferences,
+    wxStyledTextCtrl *editor)
+{
+    if (!currentLanguagePreferences.preferences.contains("syntax"))
+        return;
+
+    auto syntaxPreferences = currentLanguagePreferences.preferences["syntax"];
+    if (!syntaxPreferences.contains("keyword_lists"))
+        return;
+
+    std::vector<wxString> allKeywords;
+    for (auto &[listId, listWords] : syntaxPreferences["keyword_lists"].items())
+    {
+        wxString words = wxString::FromUTF8(listWords.get<std::string>());
+        wxArrayString split = wxSplit(words, ' ');
+        for (auto &w : split)
+            if (!w.IsEmpty())
+                allKeywords.push_back(w);
+    }
+
+    editor->AutoCompSetIgnoreCase(true);
+    editor->AutoCompSetAutoHide(false);
+    editor->AutoCompSetChooseSingle(true);
+    editor->AutoCompSetFillUps("()[]{}.,:;+-*/%&|^~=<>!?\\\"'");
+    editor->AutoCompSetDropRestOfWord(true);
+    editor->AutoCompSetSeparator(' ');
+    editor->AutoCompSetMaxHeight(10);
+    editor->AutoCompSetMaxWidth(400);
+
+    editor->Bind(wxEVT_STC_CHARADDED,
+        [allKeywords, editor](wxStyledTextEvent &event)
+        {
+            char ch = static_cast<char>(event.GetKey());
+            if (std::isalnum(static_cast<unsigned char>(ch)) || ch == '_')
+            {
+                int currentPos = editor->GetCurrentPos();
+                int startPos   = editor->WordStartPosition(currentPos, true);
+                int lenEntered = currentPos - startPos;
+
+                if (lenEntered > 0)
+                {
+                    wxString currentWord = editor->GetTextRange(startPos, currentPos);
+                    wxString filtered;
+                    for (const auto &kw : allKeywords)
+                        if (kw.StartsWith(currentWord))
+                            filtered += kw + " ";
+
+                    if (!filtered.IsEmpty())
+                        editor->AutoCompShow(lenEntered, filtered);
+                    else if (editor->AutoCompActive())
+                        editor->AutoCompCancel();
+                }
+            }
+        }
+    );
 }
 
 void LanguagesPreferences::UpdateStatusBar(const languagePreferencesStruct &currentLanguagePreferences)
