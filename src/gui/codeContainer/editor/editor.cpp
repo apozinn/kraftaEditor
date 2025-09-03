@@ -42,10 +42,6 @@ void Editor::InitializePrefs()
 
     StyleSetBackground(wxSTC_STYLE_INDENTGUIDE, wxColor(backgroundColor));
     StyleSetForeground(wxSTC_STYLE_INDENTGUIDE, wxColor(secondaryTextColor));
-
-    // linking autocomp icons
-    RegisterImage(0, wxBitmap(iconsDir + "thunder.png", wxBITMAP_TYPE_PNG));
-    RegisterImage(1, wxBitmap(iconsDir + "question.png", wxBITMAP_TYPE_PNG));
 }
 
 void Editor::SetFoldPreferences()
@@ -237,19 +233,6 @@ void Editor::CharAdd(wxStyledTextEvent &event)
             SetLineIndentation(currentLine, previousLineInd);
             LineEnd();
         }
-    }
-
-    if (chr == '#')
-    {
-        wxString s = "define?0 elif?1 else?0 endif?01 error?0 if?0 ifdef?0 "
-                     "ifndef?1 include?0 line?0 pragma?1 undef?0";
-        AutoCompShow(0, s);
-    }
-
-    if (chr == 'i')
-    {
-        wxString s = "import?1 if?0";
-        AutoCompShow(0, s);
     }
 
     if (chr == '(')
