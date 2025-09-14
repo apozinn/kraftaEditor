@@ -1,17 +1,17 @@
 #include "./editor.hpp"
 #include "appConstants/appConstants.hpp"
 #include <unordered_map>
-
-#define MY_FOLDMARGIN 2
+#include <vector>
 
 Editor::Editor(wxWindow *parent) : wxStyledTextCtrl(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE)
 {
     currentPath = parent->GetLabel();
-    InitializePrefs();
-    SetFoldPreferences();
+    InitializePreferences();
+    ConfigureFoldMargin();
+    BindEvents();
 }
 
-void Editor::InitializePrefs()
+void Editor::InitializePreferences()
 {
     auto backgroundColor = Theme["secondary"].template get<std::string>();
     auto textColor = Theme["text"].template get<std::string>();
@@ -23,20 +23,13 @@ void Editor::InitializePrefs()
     SetIndentationGuides(true);
     SetScrollWidth(1);
 
-    // setting  the default color
     StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(backgroundColor));
     StyleSetForeground(wxSTC_STYLE_DEFAULT, wxColor(textColor));
-
-    // clearing all preset styles
     StyleClearAll();
-
-    // setting the caret color
     SetCaretForeground(wxColour(textColor));
 
-    // margin settings
     SetMarginWidth(0, TextWidth(wxSTC_STYLE_LINENUMBER, wxT("_99999")));
     SetMarginType(0, wxSTC_MARGIN_NUMBER);
-
     StyleSetForeground(wxSTC_STYLE_LINENUMBER, wxColor(secondaryTextColor));
     StyleSetBackground(wxSTC_STYLE_LINENUMBER, wxColor(backgroundColor));
 
@@ -44,17 +37,21 @@ void Editor::InitializePrefs()
     StyleSetForeground(wxSTC_STYLE_INDENTGUIDE, wxColor(secondaryTextColor));
 }
 
-void Editor::SetFoldPreferences()
+void Editor::ConfigureFoldMargin()
 {
     auto backgroundColor = Theme["secondary"].template get<std::string>();
-    auto secondaryTextColor = Theme["secondaryText"].template get<std::string>();
-
-    MarkerEnableHighlight(true);
+    SetMarginWidth(2, 20);
+    SetMarginType(2, wxSTC_MARGIN_SYMBOL);
+    SetMarginMask(2, wxSTC_MASK_FOLDERS);
     SetMarginSensitive(2, true);
 
     SetFoldMarginColour(true, wxColor(backgroundColor));
     SetFoldMarginHiColour(true, wxColor(backgroundColor));
+    SetFoldFlags(wxSTC_FOLDFLAG_LINEAFTER_CONTRACTED | wxSTC_FOLDFLAG_LINEBEFORE_EXPANDED);
+}
 
+void Editor::BindEvents()
+{
     Bind(wxEVT_STC_STYLENEEDED, &Editor::OnStyleNeeded, this);
     Bind(wxEVT_STC_MODIFIED, &Editor::OnChange, this);
     Bind(wxEVT_STC_MARGINCLICK, &Editor::OnMarginClick, this);
@@ -65,44 +62,40 @@ void Editor::SetFoldPreferences()
     Bind(wxEVT_STC_CLIPBOARD_PASTE, &Editor::OnClipBoardPaste, this);
     Bind(wxEVT_MOUSEWHEEL, &Editor::OnScroll, this);
     Bind(wxEVT_KEY_DOWN, &Editor::OnBackspace, this);
+    Bind(wxEVT_STC_UPDATEUI, &Editor::OnUpdateUI, this);
+}
+
+void Editor::OnUpdateUI(wxStyledTextEvent &event)
+{
+    HighlightSelectionOccurrences();
 }
 
 void Editor::OnChange(wxStyledTextEvent &event)
 {
-    if (event.GetString() == wxEmptyString || GetText() == event.GetString())
+    if (event.GetString().IsEmpty() || GetText() == event.GetString())
         return;
+
     if (GetModify())
     {
-        auto tab = FindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_tab");
-        if (tab)
-        {
-            auto icon = ((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[2]);
-            if (icon)
-            {
-                if(icon->GetLabel() == "unsaved_icon")
-                    return;
-                icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(iconsDir + "white_circle.png", wxBITMAP_TYPE_PNG)));
-                icon->SetLabel("unsaved_icon");
-                tab->Layout();
-            }
-        }
-
+        UpdateUnsavedIndicator();
         changedFile = true;
     }
 
     if (MiniMap)
         MiniMap->SetText(GetText());
-    statusBar->UpdateCodeLocale(this);
+
+    if (statusBar)
+        statusBar->UpdateCodeLocale(this);
 }
 
 void Editor::OnMarginClick(wxStyledTextEvent &event)
 {
     int margin = event.GetMargin();
-    int position = event.GetPosition();
-    int line = LineFromPosition(position);
+    int line = LineFromPosition(event.GetPosition());
     int foldLevel = GetFoldLevel(line);
-    bool headerFlag = (foldLevel & wxSTC_FOLDLEVELHEADERFLAG) != 0;
-    if (margin == MY_FOLDMARGIN && headerFlag)
+    bool isHeader = (foldLevel & wxSTC_FOLDLEVELHEADERFLAG) != 0;
+
+    if (margin == 2 && isHeader)
     {
         ToggleFold(line);
     }
@@ -119,26 +112,15 @@ void Editor::OnBackspace(wxKeyEvent &event)
 
     long startPos = GetSelectionStart();
     long endPos = GetSelectionEnd();
-    bool hasSelection = startPos != endPos;
-
-    static const std::unordered_map<wxString, wxString> pairs = {
-        {"\"", "\""},
-        {"\'", "\'"},
-        {"]", "["},
-        {"}", "{"},
-        {")", "("},
-    };
+    bool hasSelection = (startPos != endPos);
 
     if (hasSelection)
     {
         wxString selectedText = GetTextRange(startPos, endPos);
         if (selectedText.Length() == 2)
         {
-            wxString first = selectedText.Mid(0, 1);
-            wxString second = selectedText.Mid(1, 1);
-
-            auto it = pairs.find(second);
-            if (it != pairs.end() && it->second == first)
+            auto it = kPairMap.find(selectedText.Mid(1, 1));
+            if (it != kPairMap.end() && it->second == selectedText.Mid(0, 1))
             {
                 Remove(startPos, endPos);
                 return;
@@ -147,114 +129,73 @@ void Editor::OnBackspace(wxKeyEvent &event)
         Remove(startPos, endPos);
         return;
     }
-    else
+
+    long pos = GetCurrentPos();
+    wxString prevChar, nextChar;
+
+    if (pos > 0)
+        prevChar = GetTextRange(pos - 1, pos);
+
+    if (pos < GetLength())
+        nextChar = GetTextRange(pos, pos + 1);
+
+    if (key == WXK_BACK)
     {
-        long pos = GetCurrentPos();
-        wxString prevChar, nextChar;
-
-        if (pos > 0)
-            prevChar = GetTextRange(pos - 1, pos);
-
-        if (pos < GetLength())
-            nextChar = GetTextRange(pos, pos + 1);
-
-        if (key == WXK_BACK)
+        auto it = kPairMap.find(nextChar);
+        if (it != kPairMap.end() && it->second == prevChar)
         {
-            auto it = pairs.find(nextChar);
-            if (it != pairs.end() && it->second == prevChar)
-            {
-                Remove(pos - 1, pos + 1);
-                return;
-            }
-        }
-        else if (key == WXK_DELETE)
-        {
-            auto it = pairs.find(prevChar);
-            if (it != pairs.end() && it->second == nextChar)
-            {
-                Remove(pos - 1, pos + 1);
-                return;
-            }
+            Remove(pos - 1, pos + 1);
+            return;
         }
     }
+    else if (key == WXK_DELETE)
+    {
+        auto it = kPairMap.find(prevChar);
+        if (it != kPairMap.end() && it->second == nextChar)
+        {
+            Remove(pos - 1, pos + 1);
+            return;
+        }
+    }
+
     event.Skip();
 }
 
 void Editor::OnArrowsPress(wxKeyEvent &event)
 {
-    if (event.GetKeyCode() == 50)
+    ClearIndicators();
+    if (event.GetKeyCode() == '2')
     {
         InsertText(GetCurrentPos(), "2");
         GotoPos(GetCurrentPos() + 1);
     }
-
-    if (event.GetKeyCode() == 8)
-    {
-        OnBackspace(event);
-    }
-
     statusBar->UpdateCodeLocale(this);
 }
 
 void Editor::CharAdd(wxStyledTextEvent &event)
 {
-    // adding same char to the minimap
-    ((wxStyledTextCtrl *)GetParent()->GetChildren()[1])->SetText(GetText());
+    ClearIndicators();
+    UpdateMiniMapText();
 
-    char chr = (char)event.GetKey();
-    char previous_char = (char)GetCharAt(GetCurrentPos() - 1);
-    char next_char = (char)GetCharAt(GetCurrentPos());
-
-    int previousLine = GetCurrentLine() - 1;
-    int currentLine = GetCurrentLine();
-
-    int previousLineInd = GetLineIndentation(previousLine);
-    int currentLineInd = GetLineIndentation(currentLine);
-    int nextLineInd = GetLineIndentation(currentLine + 1);
+    const char chr = static_cast<char>(event.GetKey());
+    const char prevChar = GetCharAt(GetCurrentPos() - 1);
+    const char nextChar = GetCharAt(GetCurrentPos());
 
     if (chr == '\n')
     {
-        if ((previous_char == '\n' && next_char == '}') || (previous_char == '\n' && next_char == ']'))
-        {
-            SetLineIndentation(currentLine, currentLineInd + GetIndent());
-            GotoPos(GetLineEndPosition(currentLine) - 1);
-            SetCurrentPos(GetLineEndPosition(currentLine) - 1);
-            InsertText(GetCurrentPos(), "\n");
-            return;
-        }
-
-        if (currentLineInd < nextLineInd)
-        {
-            SetLineIndentation(currentLine, nextLineInd);
-            LineEnd();
-        }
-        else
-        {
-            SetLineIndentation(currentLine, previousLineInd);
-            LineEnd();
-        }
+        HandleNewLineIndentation(prevChar, nextChar);
     }
 
-    if (chr == '(')
-        InsertText(GetCurrentPos(), ")");
-    if (chr == '{')
-        InsertText(GetCurrentPos(), "}");
-    if (chr == '"')
-        InsertText(GetCurrentPos(), "\"");
-    if (chr == '`')
-        InsertText(GetCurrentPos(), "`");
-    if (chr == '[')
-        InsertText(GetCurrentPos(), "]");
-    if (event.GetKey() == 39)
-        InsertText(GetCurrentPos(), "'");
-
+    HandleAutoPairing(chr);
     SetMiniMapLine();
 }
 
 void Editor::OnClick(wxMouseEvent &event)
 {
-    statusBar->UpdateCodeLocale(this);
     event.Skip();
+    ClearIndicators();
+    if (statusBar)
+        statusBar->UpdateCodeLocale(this);
 }
 
 void Editor::OnAutoCompCompleted(wxStyledTextEvent &event)
@@ -265,22 +206,8 @@ void Editor::OnAutoCompCompleted(wxStyledTextEvent &event)
 
 void Editor::OnClipBoardPaste(wxStyledTextEvent &event)
 {
-    if (auto getMinimap = ((wxStyledTextCtrl *)GetNextSibling()))
-    {
-        MiniMap = getMinimap;
+    if (MiniMap)
         MiniMap->InsertText(event.GetPosition(), event.GetString());
-    }
-}
-
-void Editor::SetMiniMapLine()
-{
-    if (auto getMinimap = ((wxStyledTextCtrl *)GetNextSibling()))
-    {
-        MiniMap = getMinimap;
-        MiniMap->SetFirstVisibleLine(GetFirstVisibleLine());
-        MiniMap->GotoPos(GetFirstVisibleLine());
-        MiniMap->Refresh();
-    }
 }
 
 void Editor::OnScroll(wxMouseEvent &event)
@@ -291,14 +218,13 @@ void Editor::OnScroll(wxMouseEvent &event)
 
 bool Editor::Modified()
 {
-    return (GetModify() && !GetReadOnly());
+    return GetModify() && !GetReadOnly();
 }
 
 void Editor::OnStyleNeeded(wxStyledTextEvent &WXUNUSED(event))
 {
     const int currentLine = LineFromPosition(GetCurrentPos());
     const int styledLine = LineFromPosition(GetEndStyled());
-
     int startLine = std::max(0, styledLine - 2);
     int endLine = currentLine;
 
@@ -334,11 +260,10 @@ void Editor::HighlightSyntax(size_t fromPos, size_t toPos, const wxString &text)
     for (size_t pos = 0; pos < text.length(); ++pos)
     {
         const char currentChar = text[pos];
-
         if (currentChar == 'G' && isWordBoundary)
         {
-            const size_t start = pos;
-            pos++; // Skip 'G'
+            size_t start = pos;
+            pos++;
 
             while (pos < text.length() && isdigit(text[pos]))
             {
@@ -349,10 +274,8 @@ void Editor::HighlightSyntax(size_t fromPos, size_t toPos, const wxString &text)
             {
                 codeBlocks.emplace_back(start + fromPos, pos + fromPos);
             }
-
             isWordBoundary = false;
         }
-
         isWordBoundary = IsWordBoundary(text, pos);
     }
 
@@ -367,12 +290,10 @@ bool Editor::IsWordBoundary(const wxString &text, size_t pos) const
     return c == ' ' || c == '\n' || c == '\r' || c == '\t';
 }
 
-void Editor::ApplySyntaxHighlighting(size_t fromPos, size_t toPos,
-                                     const std::vector<std::pair<size_t, size_t>> &blocks)
+void Editor::ApplySyntaxHighlighting(size_t fromPos, size_t toPos, const std::vector<std::pair<size_t, size_t>> &blocks)
 {
     StartStyling(fromPos);
     SetStyling(toPos - fromPos, STYLE_DEFAULT);
-
     for (const auto &block : blocks)
     {
         StartStyling(block.first);
@@ -390,17 +311,14 @@ void Editor::UpdateFoldLevels(size_t fromPos, int initialFoldLevel, const wxStri
     {
         const size_t line = LineFromPosition(pos + fromPos);
         const bool isEndIf = (pos >= 3) && (text.substr(pos - 3, 5)) == "ENDIF";
-
         currentLevel += isEndIf ? -1 : 1;
         foldChanges.emplace_back(line, currentLevel);
         pos += 2;
     }
-
     ApplyFoldLevels(fromPos, initialFoldLevel, text.length(), foldChanges);
 }
 
-void Editor::ApplyFoldLevels(size_t startPos, int initialLevel, size_t textLength,
-                             const std::vector<std::pair<size_t, int>> &changes)
+void Editor::ApplyFoldLevels(size_t startPos, int initialLevel, size_t textLength, const std::vector<std::pair<size_t, int>> &changes)
 {
     const size_t startLine = LineFromPosition(startPos);
     const size_t endLine = LineFromPosition(startPos + textLength);
@@ -427,5 +345,148 @@ void Editor::ApplyFoldLevels(size_t startPos, int initialLevel, size_t textLengt
         }
 
         SetFoldLevel(line, levelFlags);
+    }
+}
+
+void Editor::HighlightSelectionOccurrences()
+{
+    ClearIndicators();
+
+    int selStart = GetSelectionStart();
+    int selEnd = GetSelectionEnd();
+
+    if (selEnd <= selStart)
+        return;
+
+    wxString selectedText = GetTextRange(selStart, selEnd);
+    int selectedLength = selectedText.Length();
+
+    if (selectedLength < 2 || !wxIsalnum(selectedText[0]))
+        return;
+
+    SetIndicatorCurrent(0);
+    IndicatorSetStyle(0, wxSTC_INDIC_ROUNDBOX);
+    IndicatorSetForeground(0, wxColour(255, 255, 0));
+
+    int pos = 0;
+    while (pos < GetTextLength())
+    {
+        int foundPos = FindText(pos, GetTextLength(), selectedText, wxSTC_FIND_MATCHCASE | wxSTC_FIND_WHOLEWORD);
+        if (foundPos == -1)
+            break;
+
+        IndicatorFillRange(foundPos, selectedLength);
+        pos = foundPos + selectedLength;
+    }
+}
+
+void Editor::ClearIndicators()
+{
+    int textLength = GetTextLength();
+    for (int indicator = 0; indicator <= 7; indicator++)
+    {
+        SetIndicatorCurrent(indicator);
+        IndicatorClearRange(0, textLength);
+    }
+    Refresh();
+    Update();
+}
+
+void Editor::UpdateUnsavedIndicator()
+{
+    wxWindow *tab = FindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_tab");
+    if (!tab)
+        return;
+
+    auto children = tab->GetChildren();
+    wxStaticBitmap *icon = nullptr;
+
+    for (auto *child : children)
+    {
+        if (auto *bmp = wxDynamicCast(child, wxStaticBitmap))
+        {
+            icon = bmp;
+            break;
+        }
+        for (auto *sub : child->GetChildren())
+        {
+            if (auto *bmp = wxDynamicCast(sub, wxStaticBitmap))
+            {
+                icon = bmp;
+                break;
+            }
+        }
+    }
+
+    if (icon && icon->GetLabel() != "unsaved_icon")
+    {
+        icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(iconsDir + "white_circle.png", wxBITMAP_TYPE_PNG)));
+        icon->SetLabel("unsaved_icon");
+        tab->Layout();
+    }
+}
+
+void Editor::UpdateMiniMapText()
+{
+    if (MiniMap)
+        MiniMap->SetText(GetText());
+}
+
+void Editor::HandleNewLineIndentation(char prevChar, char nextChar)
+{
+    int currentLine = GetCurrentLine();
+    int prevLine = currentLine - 1;
+    int prevLineInd = GetLineIndentation(prevLine);
+    int currentLineInd = GetLineIndentation(currentLine);
+    int nextLineInd = GetLineIndentation(currentLine + 1);
+
+    if ((prevChar == '\n' && (nextChar == '}' || nextChar == ']')))
+    {
+        SetLineIndentation(currentLine, currentLineInd + GetIndent());
+        GotoPos(GetLineEndPosition(currentLine) - 1);
+        InsertText(GetCurrentPos(), "\n");
+    }
+    else if (currentLineInd < nextLineInd)
+    {
+        SetLineIndentation(currentLine, nextLineInd);
+    }
+    else
+    {
+        SetLineIndentation(currentLine, prevLineInd);
+    }
+}
+
+void Editor::HandleAutoPairing(char chr)
+{
+    switch (chr)
+    {
+    case '(':
+        InsertText(GetCurrentPos(), ")");
+        break;
+    case '{':
+        InsertText(GetCurrentPos(), "}");
+        break;
+    case '[':
+        InsertText(GetCurrentPos(), "]");
+        break;
+    case '"':
+        InsertText(GetCurrentPos(), "\"");
+        break;
+    case '\'':
+        InsertText(GetCurrentPos(), "'");
+        break;
+    case '`':
+        InsertText(GetCurrentPos(), "`");
+        break;
+    }
+}
+
+void Editor::SetMiniMapLine()
+{
+    if (MiniMap)
+    {
+        MiniMap->SetFirstVisibleLine(GetFirstVisibleLine());
+        MiniMap->GotoPos(GetFirstVisibleLine());
+        MiniMap->Refresh();
     }
 }

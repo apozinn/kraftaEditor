@@ -75,6 +75,8 @@ void CodeContainer::LoadPath(wxString path)
     {
         wxLogError("There was an error opening the file");
     }
+
+    Layout();
 }
 
 void CodeContainer::OnSave(wxCommandEvent &WXUNUSED(event))

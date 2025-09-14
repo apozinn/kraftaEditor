@@ -296,31 +296,30 @@ void LanguagesPreferences::SetupAutoCompleteWords(
     editor->AutoCompSetMaxWidth(400);
 
     editor->Bind(wxEVT_STC_CHARADDED,
-        [allKeywords, editor](wxStyledTextEvent &event)
-        {
-            char ch = static_cast<char>(event.GetKey());
-            if (std::isalnum(static_cast<unsigned char>(ch)) || ch == '_')
-            {
-                int currentPos = editor->GetCurrentPos();
-                int startPos   = editor->WordStartPosition(currentPos, true);
-                int lenEntered = currentPos - startPos;
+                 [allKeywords, editor](wxStyledTextEvent &event)
+                 {
+                     char ch = static_cast<char>(event.GetKey());
+                     if (std::isalnum(static_cast<unsigned char>(ch)) || ch == '_')
+                     {
+                         int currentPos = editor->GetCurrentPos();
+                         int startPos = editor->WordStartPosition(currentPos, true);
+                         int lenEntered = currentPos - startPos;
 
-                if (lenEntered > 0)
-                {
-                    wxString currentWord = editor->GetTextRange(startPos, currentPos);
-                    wxString filtered;
-                    for (const auto &kw : allKeywords)
-                        if (kw.StartsWith(currentWord))
-                            filtered += kw + " ";
+                         if (lenEntered > 0)
+                         {
+                             wxString currentWord = editor->GetTextRange(startPos, currentPos);
+                             wxString filtered;
+                             for (const auto &kw : allKeywords)
+                                 if (kw.StartsWith(currentWord))
+                                     filtered += kw + " ";
 
-                    if (!filtered.IsEmpty())
-                        editor->AutoCompShow(lenEntered, filtered);
-                    else if (editor->AutoCompActive())
-                        editor->AutoCompCancel();
-                }
-            }
-        }
-    );
+                             if (!filtered.IsEmpty())
+                                 editor->AutoCompShow(lenEntered, filtered);
+                             else if (editor->AutoCompActive())
+                                 editor->AutoCompCancel();
+                         }
+                     }
+                 });
 }
 
 void LanguagesPreferences::UpdateStatusBar(const languagePreferencesStruct &currentLanguagePreferences)
@@ -373,6 +372,10 @@ void LanguagesPreferences::ApplyLexerStyles(const languagePreferencesStruct &cur
                 if (styleConfig.contains("underline") && styleConfig["underline"])
                     component->StyleSetUnderline(styleId, true);
             }
+
+            // component->IndicatorSetStyle(0, wxSTC_INDIC_ROUNDBOX);
+            // component->IndicatorSetForeground(0, wxColour(255, 255, 0));
+            // component->IndicatorSetAlpha(0, 100);                        
         };
 
         setStyles(editor);
