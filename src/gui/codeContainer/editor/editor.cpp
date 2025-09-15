@@ -365,8 +365,6 @@ void Editor::HighlightSelectionOccurrences()
         return;
 
     SetIndicatorCurrent(0);
-    IndicatorSetStyle(0, wxSTC_INDIC_ROUNDBOX);
-    IndicatorSetForeground(0, wxColour(255, 255, 0));
 
     int pos = 0;
     while (pos < GetTextLength())

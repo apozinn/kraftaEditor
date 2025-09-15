@@ -372,11 +372,16 @@ void LanguagesPreferences::ApplyLexerStyles(const languagePreferencesStruct &cur
                 if (styleConfig.contains("underline") && styleConfig["underline"])
                     component->StyleSetUnderline(styleId, true);
             }
-
-            // component->IndicatorSetStyle(0, wxSTC_INDIC_ROUNDBOX);
-            // component->IndicatorSetForeground(0, wxColour(255, 255, 0));
-            // component->IndicatorSetAlpha(0, 100);                        
         };
+
+        auto Theme = ThemesManager::Get().currentTheme;
+        if(Theme.contains("indicator")) {
+            if(Theme["indicator"].contains("foreground")) {
+                editor->IndicatorSetStyle(0, wxSTC_INDIC_ROUNDBOX);
+                editor->IndicatorSetForeground(0, wxColour(Theme["indicator"]["foreground"].template get<std::string>()));
+                editor->IndicatorSetAlpha(0, 100);
+            }
+        }
 
         setStyles(editor);
         setStyles(minimap);

@@ -7,7 +7,10 @@
     "tint": "#00b5cc",
     "selectedFile": "#3c3c3c",
     "text": "#e7e7e7",
-    "secondaryText": "#797979"
+    "secondaryText": "#797979",
+    "indicator": {
+      "foreground": "#89cde8"
+    }
   },
   "light": {
     "main": "#fff",
@@ -17,6 +20,9 @@
     "tint": "#00b5cc",
     "selectedFile": "#d1d1d1",
     "text": "#e7e7e7",
-    "secondaryText": "#797979"
+    "secondaryText": "#797979",
+    "indicator": {
+      "foreground": "#89cde8"
+    }
   }
 }
