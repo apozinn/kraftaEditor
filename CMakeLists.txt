@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.27.7)
 
 #-------------------------------------------------------------------------------
 # Project Metadata
@@ -84,12 +84,14 @@ else()
 endif()
 
 # JSON Library Configuration
-find_package(nlohmann_json 3.11.2 QUIET)
+find_package(nlohmann_json 3.11.3 QUIET) # Atualizado para uma versão compatível
 if(NOT nlohmann_json_FOUND)
-    message(STATUS "Downloading nlohmann_json v3.11.2 from source")
+    message(STATUS "Downloading nlohmann_json v3.11.3 from source")
     FetchContent_Declare(
         json
-        URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz
+        GIT_REPOSITORY https://github.com/nlohmann/json.git
+        GIT_TAG v3.11.3 # Melhor usar o repositório GIT
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE # Resolve o warning do CMake
     )
     FetchContent_MakeAvailable(json)
 endif()

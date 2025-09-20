@@ -1,10 +1,9 @@
 {
-    "name": "javaScript",
-    "icon_file_name": "javascript",
+    "name": "javaScript XML",
+    "icon_file_name": "react",
     "file_patterns": [
-        "js",
         "jsx",
-        "mjs"
+        "tsx"
     ],
     "lexer_id": 3,
     "lexer_settings": {

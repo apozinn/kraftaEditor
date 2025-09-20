@@ -35,6 +35,9 @@ void Editor::InitializePreferences()
 
     StyleSetBackground(wxSTC_STYLE_INDENTGUIDE, wxColor(backgroundColor));
     StyleSetForeground(wxSTC_STYLE_INDENTGUIDE, wxColor(secondaryTextColor));
+
+    SetCaretForeground(ThemesManager::Get().GetColor("editorCaret"));
+    SetCaretWidth(3);
 }
 
 void Editor::ConfigureFoldMargin()

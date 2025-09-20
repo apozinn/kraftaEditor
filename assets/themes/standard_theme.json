@@ -10,7 +10,8 @@
     "secondaryText": "#797979",
     "indicator": {
       "foreground": "#89cde8"
-    }
+    },
+    "editorCaret": "#dedede"
   },
   "light": {
     "main": "#fff",
@@ -23,6 +24,7 @@
     "secondaryText": "#797979",
     "indicator": {
       "foreground": "#89cde8"
-    }
+    },
+    "editorCaret": "#757575"
   }
 }

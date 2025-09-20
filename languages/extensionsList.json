@@ -21,9 +21,10 @@
   ".java": "java",
 
   ".js": "javascript",
-  ".jsx": "javascript",
   ".mjs": "javascript",
   ".cjs": "javascript",
+
+  ".jsx": "jsx",
 
   ".json": "json",
 
@@ -51,5 +52,5 @@
   ".swift": "swift",
 
   ".ts": "typescript",
-  ".tsx": "typescript"
+  ".tsx": "jsx"
 }
