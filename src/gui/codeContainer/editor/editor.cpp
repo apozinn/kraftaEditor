@@ -71,6 +71,7 @@ void Editor::BindEvents()
 void Editor::OnUpdateUI(wxStyledTextEvent &event)
 {
     HighlightSelectionOccurrences();
+    event.Skip();
 }
 
 void Editor::OnChange(wxStyledTextEvent &event)
@@ -89,6 +90,7 @@ void Editor::OnChange(wxStyledTextEvent &event)
 
     if (statusBar)
         statusBar->UpdateCodeLocale(this);
+    event.Skip();
 }
 
 void Editor::OnMarginClick(wxStyledTextEvent &event)
@@ -102,6 +104,7 @@ void Editor::OnMarginClick(wxStyledTextEvent &event)
     {
         ToggleFold(line);
     }
+    event.Skip();
 }
 
 void Editor::OnBackspace(wxKeyEvent &event)
@@ -173,6 +176,7 @@ void Editor::OnArrowsPress(wxKeyEvent &event)
         GotoPos(GetCurrentPos() + 1);
     }
     statusBar->UpdateCodeLocale(this);
+    event.Skip();
 }
 
 void Editor::CharAdd(wxStyledTextEvent &event)
@@ -191,6 +195,7 @@ void Editor::CharAdd(wxStyledTextEvent &event)
 
     HandleAutoPairing(chr);
     SetMiniMapLine();
+    event.Skip();
 }
 
 void Editor::OnClick(wxMouseEvent &event)
@@ -205,12 +210,14 @@ void Editor::OnAutoCompCompleted(wxStyledTextEvent &event)
 {
     int pos = event.GetPosition();
     Remove(pos - 1, pos);
+    event.Skip();
 }
 
 void Editor::OnClipBoardPaste(wxStyledTextEvent &event)
 {
     if (MiniMap)
         MiniMap->InsertText(event.GetPosition(), event.GetString());
+    event.Skip();
 }
 
 void Editor::OnScroll(wxMouseEvent &event)

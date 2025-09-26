@@ -319,6 +319,7 @@ void LanguagesPreferences::SetupAutoCompleteWords(
                                  editor->AutoCompCancel();
                          }
                      }
+                     event.Skip();
                  });
 }
 
@@ -375,8 +376,10 @@ void LanguagesPreferences::ApplyLexerStyles(const languagePreferencesStruct &cur
         };
 
         auto Theme = ThemesManager::Get().currentTheme;
-        if(Theme.contains("indicator")) {
-            if(Theme["indicator"].contains("foreground")) {
+        if (Theme.contains("indicator"))
+        {
+            if (Theme["indicator"].contains("foreground"))
+            {
                 editor->IndicatorSetStyle(0, wxSTC_INDIC_ROUNDBOX);
                 editor->IndicatorSetForeground(0, wxColour(Theme["indicator"]["foreground"].template get<std::string>()));
                 editor->IndicatorSetAlpha(0, 100);
