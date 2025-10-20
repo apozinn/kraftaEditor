@@ -71,6 +71,7 @@ void Tabs::Add(wxString tab_name, wxString path)
 	wxVector<wxBitmap> bitmaps_;
 	bitmaps_.push_back(wxBitmap(LanguagesPreferences::Get().GetLanguageIconPath(path), wxBITMAP_TYPE_PNG));
 	wxStaticBitmap *ico = new wxStaticBitmap(tab_infos, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps_));
+	ico->SetName("tab_language_icon");
 	tab_infos_sizer->Add(ico, 0, wxALIGN_CENTER | wxLEFT, 10);
 
 	wxStaticText *name = new wxStaticText(tab_infos, wxID_ANY, tab_name);
@@ -82,6 +83,7 @@ void Tabs::Add(wxString tab_name, wxString path)
 	wxVector<wxBitmap> bitmaps;
 	bitmaps.push_back(wxBitmap(wxBitmap(iconsDir + "close.png", wxBITMAP_TYPE_PNG)));
 	wxStaticBitmap *close_icon = new wxStaticBitmap(tab_infos, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps));
+	close_icon->SetName("tab_close_icon");
 	close_icon->Bind(wxEVT_LEFT_UP, &Tabs::OnCloseTab, this);
 	tab_infos_sizer->Add(close_icon, 0, wxALIGN_CENTER | wxRIGHT, 10);
 

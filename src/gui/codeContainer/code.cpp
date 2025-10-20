@@ -96,6 +96,7 @@ bool CodeContainer::Save(wxString path)
                 auto icon = ((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[2]);
                 if (icon)
                 {
+                    std::cerr << "saved icon" << std::endl;
                     icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(ApplicationPaths::AssetsPath("icons") + "close.png", wxBITMAP_TYPE_PNG)));
                     icon->SetLabel("saved_icon");
                     tab->Layout();

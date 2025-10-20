@@ -413,15 +413,21 @@ void Editor::UpdateUnsavedIndicator()
     {
         if (auto *bmp = wxDynamicCast(child, wxStaticBitmap))
         {
-            icon = bmp;
-            break;
+            if (child->GetName() != "tab_language_icon")
+            {
+                icon = bmp;
+                break;
+            }
         }
         for (auto *sub : child->GetChildren())
         {
             if (auto *bmp = wxDynamicCast(sub, wxStaticBitmap))
             {
-                icon = bmp;
-                break;
+                if (sub->GetName() != "tab_language_icon")
+                {
+                    icon = bmp;
+                    break;
+                }
             }
         }
     }
