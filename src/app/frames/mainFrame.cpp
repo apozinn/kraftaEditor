@@ -212,7 +212,7 @@ void MainFrame::OnFrameResized(wxSizeEvent &event)
     if (!IsMaximized())
     {
         UserSettings["windowMaximized"] = false;
-        if( event.GetSize().x < 800 || event.GetSize().y < 600)
+        if (event.GetSize().x < 800 || event.GetSize().y < 600)
         {
             event.SetSize(wxSize(
                 std::max(event.GetSize().x, 800),
