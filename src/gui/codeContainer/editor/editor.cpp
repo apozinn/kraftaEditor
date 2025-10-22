@@ -8,7 +8,6 @@ Editor::Editor(wxWindow *parent) : wxStyledTextCtrl(parent, wxID_ANY, wxDefaultP
     currentPath = parent->GetLabel();
     InitializePreferences();
     ConfigureFoldMargin();
-    BindEvents();
 }
 
 void Editor::InitializePreferences()
@@ -39,15 +38,14 @@ void Editor::InitializePreferences()
     SetCaretForeground(ThemesManager::Get().GetColor("editorCaret"));
     SetCaretWidth(3);
 
-    wxAcceleratorEntry entries[2];
+    wxAcceleratorEntry entries[4];
     entries[0].Set(wxACCEL_CTRL, WXK_RETURN, static_cast<int>(Event::Edit::MoveCursorDown));
     entries[1].Set(wxACCEL_CTRL | wxACCEL_SHIFT, WXK_RETURN, static_cast<int>(Event::Edit::MoveCursorUp));
+    entries[2].Set(wxACCEL_CTRL, (int)'D', static_cast<int>(Event::Edit::DuplicateLineDown));
+    entries[3].Set(wxACCEL_CTRL | wxACCEL_SHIFT, (int)'D', static_cast<int>(Event::Edit::DuplicateLineUp));
 
-    wxAcceleratorTable accel(2, entries);
+    wxAcceleratorTable accel(4, entries);
     SetAcceleratorTable(accel);
-
-    Bind(wxEVT_MENU, &Editor::OnMoveCursorDown, this, static_cast<int>(Event::Edit::MoveCursorDown));
-    Bind(wxEVT_MENU, &Editor::OnMoveCursorUp, this, static_cast<int>(Event::Edit::MoveCursorUp));
 }
 
 void Editor::ConfigureFoldMargin()
@@ -61,21 +59,6 @@ void Editor::ConfigureFoldMargin()
     SetFoldMarginColour(true, wxColor(backgroundColor));
     SetFoldMarginHiColour(true, wxColor(backgroundColor));
     SetFoldFlags(wxSTC_FOLDFLAG_LINEAFTER_CONTRACTED | wxSTC_FOLDFLAG_LINEBEFORE_EXPANDED);
-}
-
-void Editor::BindEvents()
-{
-    Bind(wxEVT_STC_STYLENEEDED, &Editor::OnStyleNeeded, this);
-    Bind(wxEVT_STC_MODIFIED, &Editor::OnChange, this);
-    Bind(wxEVT_STC_MARGINCLICK, &Editor::OnMarginClick, this);
-    Bind(wxEVT_KEY_UP, &Editor::OnArrowsPress, this);
-    Bind(wxEVT_STC_CHARADDED, &Editor::CharAdd, this);
-    Bind(wxEVT_LEFT_UP, &Editor::OnClick, this);
-    Bind(wxEVT_STC_AUTOCOMP_COMPLETED, &Editor::OnAutoCompCompleted, this);
-    Bind(wxEVT_STC_CLIPBOARD_PASTE, &Editor::OnClipBoardPaste, this);
-    Bind(wxEVT_MOUSEWHEEL, &Editor::OnScroll, this);
-    Bind(wxEVT_KEY_DOWN, &Editor::OnBackspace, this);
-    Bind(wxEVT_STC_UPDATEUI, &Editor::OnUpdateUI, this);
 }
 
 void Editor::OnUpdateUI(wxStyledTextEvent &event)
@@ -541,4 +524,27 @@ void Editor::OnMoveCursorUp(wxCommandEvent &event)
 
     EnsureCaretVisible();
     SetEmptySelection(GetCurrentPos());
+}
+
+void Editor::OnDuplicateLineDown(wxCommandEvent &event)
+{
+    int line = GetCurrentLine();
+    wxString text = GetLine(line);
+    int insertPos = GetLineEndPosition(line);
+    InsertText(insertPos, "\n" + text);
+    GotoLine(line + 1);
+    EnsureCaretVisible();
+}
+
+void Editor::OnDuplicateLineUp(wxCommandEvent &event)
+{
+    int line = GetCurrentLine();
+    wxString text = GetLine(line);
+    int insertPos = PositionFromLine(line);
+    InsertText(insertPos, text + "\n");
+    if (line > 0)
+        GotoLine(line);
+    else
+        GotoLine(0);
+    EnsureCaretVisible();
 }

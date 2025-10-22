@@ -119,6 +119,8 @@ namespace Event
         Paste = wxID_PASTE,                     ///< Standard paste operation
         MoveCursorDown = ID_BASE_EDIT + 5,     ///< Move cursor down one line
         MoveCursorUp = ID_BASE_EDIT + 6,       ///< Move cursor up one line
+        DuplicateLineDown = ID_BASE_EDIT + 7,  ///< Duplicate current line below
+        DuplicateLineUp = ID_BASE_EDIT + 8,    ///< Duplicate current line above
     };
 
     /**

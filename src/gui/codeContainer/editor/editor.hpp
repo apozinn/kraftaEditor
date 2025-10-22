@@ -149,6 +149,16 @@ private:
     void OnMoveCursorUp(wxCommandEvent& event);
 
     /**
+     * @brief Duplicate the current line one line down.
+     */
+    void OnDuplicateLineDown(wxCommandEvent& event);
+
+    /**
+     * @brief Duplicate the current line one line up.
+     */
+    void OnDuplicateLineUp(wxCommandEvent& event);
+
+    /**
      * @brief Path of the currently opened file (if any).
      *
      * Empty string when the editor does not currently correspond to a saved file.
@@ -373,4 +383,7 @@ private:
      * Called when the editor scrolls or the caret moves to keep the minimap indicator in sync.
      */
     void SetMiniMapLine();
+
+    wxDECLARE_NO_COPY_CLASS(Editor);
+    wxDECLARE_EVENT_TABLE();
 };
