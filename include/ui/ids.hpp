@@ -116,7 +116,9 @@ namespace Event
         SelectLine = ID_BASE_EDIT + 4,         ///< Select current line
         Cut = wxID_CUT,                        ///< Standard cut operation
         Copy = wxID_COPY,                      ///< Standard copy operation
-        Paste = wxID_PASTE                     ///< Standard paste operation
+        Paste = wxID_PASTE,                     ///< Standard paste operation
+        MoveCursorDown = ID_BASE_EDIT + 5,     ///< Move cursor down one line
+        MoveCursorUp = ID_BASE_EDIT + 6,       ///< Move cursor up one line
     };
 
     /**

@@ -135,6 +135,20 @@ private:
     wxStyledTextCtrl *MiniMap = nullptr;
 
     /**
+     * @brief Move the cursor one line down.
+     *
+     * If the cursor is already at the top of the document, do nothing.
+     */
+    void OnMoveCursorDown(wxCommandEvent& event);
+
+    /**
+     * @brief Move the cursor one line up.
+     *
+     * If the cursor is already at the bottom of the document, do nothing.
+     */
+    void OnMoveCursorUp(wxCommandEvent& event);
+
+    /**
      * @brief Path of the currently opened file (if any).
      *
      * Empty string when the editor does not currently correspond to a saved file.

@@ -38,6 +38,16 @@ void Editor::InitializePreferences()
 
     SetCaretForeground(ThemesManager::Get().GetColor("editorCaret"));
     SetCaretWidth(3);
+
+    wxAcceleratorEntry entries[2];
+    entries[0].Set(wxACCEL_CTRL, WXK_RETURN, static_cast<int>(Event::Edit::MoveCursorDown));
+    entries[1].Set(wxACCEL_CTRL | wxACCEL_SHIFT, WXK_RETURN, static_cast<int>(Event::Edit::MoveCursorUp));
+
+    wxAcceleratorTable accel(2, entries);
+    SetAcceleratorTable(accel);
+
+    Bind(wxEVT_MENU, &Editor::OnMoveCursorDown, this, static_cast<int>(Event::Edit::MoveCursorDown));
+    Bind(wxEVT_MENU, &Editor::OnMoveCursorUp, this, static_cast<int>(Event::Edit::MoveCursorUp));
 }
 
 void Editor::ConfigureFoldMargin()
@@ -503,4 +513,32 @@ void Editor::SetMiniMapLine()
         MiniMap->GotoPos(GetFirstVisibleLine());
         MiniMap->Refresh();
     }
+}
+
+void Editor::OnMoveCursorDown(wxCommandEvent &event)
+{
+    int currentLine = GetCurrentLine();
+    int lineEndPos = GetLineEndPosition(currentLine);
+
+    GotoPos(lineEndPos);
+    AddText("\n");
+    EnsureCaretVisible();
+    SetEmptySelection(GetCurrentPos());
+}
+
+void Editor::OnMoveCursorUp(wxCommandEvent &event)
+{
+    int currentLine = GetCurrentLine();
+    int lineStartPos = PositionFromLine(currentLine);
+
+    GotoPos(lineStartPos);
+    InsertText(lineStartPos, "\n");
+
+    if (currentLine > 0)
+        GotoPos(PositionFromLine(currentLine));
+    else
+        GotoPos(0);
+
+    EnsureCaretVisible();
+    SetEmptySelection(GetCurrentPos());
 }
