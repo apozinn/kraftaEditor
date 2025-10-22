@@ -38,13 +38,14 @@ void Editor::InitializePreferences()
     SetCaretForeground(ThemesManager::Get().GetColor("editorCaret"));
     SetCaretWidth(3);
 
-    wxAcceleratorEntry entries[4];
+    wxAcceleratorEntry entries[5];
     entries[0].Set(wxACCEL_CTRL, WXK_RETURN, static_cast<int>(Event::Edit::MoveCursorDown));
     entries[1].Set(wxACCEL_CTRL | wxACCEL_SHIFT, WXK_RETURN, static_cast<int>(Event::Edit::MoveCursorUp));
-    entries[2].Set(wxACCEL_CTRL, (int)'D', static_cast<int>(Event::Edit::DuplicateLineDown));
-    entries[3].Set(wxACCEL_CTRL | wxACCEL_SHIFT, (int)'D', static_cast<int>(Event::Edit::DuplicateLineUp));
+    entries[2].Set(wxACCEL_CTRL | wxACCEL_ALT, WXK_DOWN, static_cast<int>(Event::Edit::DuplicateLineDown));
+    entries[3].Set(wxACCEL_CTRL | wxACCEL_ALT, WXK_UP, static_cast<int>(Event::Edit::DuplicateLineUp));
+    entries[4].Set(wxACCEL_CTRL, (int)'D', static_cast<int>(Event::Edit::SelectNextOccurrence));
 
-    wxAcceleratorTable accel(4, entries);
+    wxAcceleratorTable accel(5, entries);
     SetAcceleratorTable(accel);
 }
 
@@ -547,4 +548,32 @@ void Editor::OnDuplicateLineUp(wxCommandEvent &event)
     else
         GotoLine(0);
     EnsureCaretVisible();
+}
+
+void Editor::SelectNextOccurrence(wxCommandEvent &event)
+{
+    if (GetSelections() == 0)
+        return;
+
+    int mainSel = GetMainSelection();
+    int selStart = GetSelectionNStart(mainSel);
+    int selEnd = GetSelectionNEnd(mainSel);
+
+    if (selStart == selEnd)
+        return;
+
+    wxString text = GetTextRange(selStart, selEnd);
+    int nextPos = SearchInTarget(text);
+
+    SetTargetStart(selEnd);
+    SetTargetEnd(GetLength());
+
+    if (SearchInTarget(text) != -1)
+    {
+        int foundStart = GetTargetStart();
+        int foundEnd = GetTargetEnd();
+
+        AddSelection(foundStart, foundEnd);
+        SetMainSelection(GetSelections() - 1);
+    }
 }

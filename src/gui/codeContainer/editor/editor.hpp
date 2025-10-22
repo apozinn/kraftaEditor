@@ -159,6 +159,11 @@ private:
     void OnDuplicateLineUp(wxCommandEvent& event);
 
     /**
+     * @brief Select the next occurrence of the currently selected text.
+     */
+    void SelectNextOccurrence(wxCommandEvent& event);
+
+    /**
      * @brief Path of the currently opened file (if any).
      *
      * Empty string when the editor does not currently correspond to a saved file.

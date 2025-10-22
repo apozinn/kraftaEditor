@@ -19,4 +19,6 @@ wxBEGIN_EVENT_TABLE(Editor, wxStyledTextCtrl)
     EVT_MENU(+Event::Edit::MoveCursorUp,   Editor::OnMoveCursorUp)
     EVT_MENU(+Event::Edit::DuplicateLineDown, Editor::OnDuplicateLineDown)
     EVT_MENU(+Event::Edit::DuplicateLineUp,   Editor::OnDuplicateLineUp)
+    EVT_MENU(+Event::Edit::SelectNextOccurrence,   Editor::SelectNextOccurrence)
+
 wxEND_EVENT_TABLE()
