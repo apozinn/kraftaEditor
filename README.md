@@ -28,7 +28,7 @@
 - 🧰 **Productivity-first design** with intuitive workflows
 
 <p align="center">
-  <img width="750" src="https://i.postimg.cc/C122qcM4/image.png" alt="Krafta Editor Screenshot">
+  <img src="https://i.postimg.cc/C122qcM4/image.png" alt="Krafta Editor Screenshot">
   <br><em>Clean and fast interface designed for developers.</em>
 </p>
 
