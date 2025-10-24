@@ -27,7 +27,7 @@
 - 🪶 **Lightweight** — no Electron or heavy dependencies
 - 🧰 **Productivity-first design** with intuitive workflows
 
-[![Krafta Editor Screenshot](https://i.postimg.cc/C122qcM4/image.png)](https://postimg.cc/Vrj4yBCS)
+[![Krafta Editor Screenshot]([https://i.postimg.cc/C122qcM4/image.png](https://i.postimg.cc/C122qcM4/image.png))](https://postimg.cc/Vrj4yBCS)
 
 ---
 
