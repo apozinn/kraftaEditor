@@ -121,7 +121,8 @@ namespace Event
         MoveCursorUp = ID_BASE_EDIT + 6,       ///< Move cursor up one line
         DuplicateLineDown = ID_BASE_EDIT + 7,  ///< Duplicate current line below
         DuplicateLineUp = ID_BASE_EDIT + 8,    ///< Duplicate current line above
-        SelectNextOccurrence = ID_BASE_EDIT + 9 ///< Select next occurrence of selected text
+        SelectNextOccurrence = ID_BASE_EDIT + 9, ///< Select next occurrence of selected text
+        AutoComplete = ID_BASE_EDIT + 10        ///< Trigger autocomplete
     };
 
     /**

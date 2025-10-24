@@ -9,10 +9,8 @@ CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxScrolled<wxPan
 {
     Hide();
 
-    // initialize sizer
     sizer = new wxBoxSizer(wxHORIZONTAL);
 
-    // setting components
     editor = new Editor(this);
     editor->SetMinSize(wxSize(parent->GetSize().x - 100, parent->GetSize().y));
     minimap = new MiniMap(this);
@@ -36,7 +34,6 @@ CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxScrolled<wxPan
         font = wxFont(wxFontInfo(10).FaceName("Monospace"));
     }
 
-    // keyboard shortcuts
     wxAcceleratorEntry entries[2];
     entries[0].Set(wxACCEL_CTRL, WXK_CONTROL_S, +Event::File::Save);
     entries[0].FromString("Ctrl+S");
@@ -55,7 +52,6 @@ void CodeContainer::LoadPath(wxString path)
         SetLabel(path + "_codeContainer");
         currentPath = path;
 
-        // editor setup
         editor->SetLabel(path + "_codeEditor");
         editor->SetName(path);
         editor->LoadFile(path);
@@ -63,13 +59,14 @@ void CodeContainer::LoadPath(wxString path)
         editor->HighlightSyntax(0, editor->GetTextLength(), text);
         editor->UpdateFoldLevels(0, 0, text);
 
-        // minimap setup
         minimap->SetLabel(path + "_codeMap");
         minimap->SetName(path);
         minimap->LoadFile(path);
         statusBar->UpdateComponents(path);
 
         languagePreferences = LanguagesPreferences::Get().SetupLanguagesPreferences(this);
+        editor->SetAutoCompleteWordsList(LanguagesPreferences::Get().GetAutoCompleteWordsList(languagePreferences));
+        editor->SetLanguagesPreferences(languagePreferences);
     }
     else
     {
@@ -182,10 +179,8 @@ void CodeContainer::OnToggleMinimapView(wxCommandEvent &WXUNUSED(event))
             else
                 currentMinimap->Show();
 
-            // updating gui components
             mainCodeComponent->GetSizer()->Layout();
 
-            // updating user settings
             UserSettings["show_minimap"] = currentMinimap->IsShown();
             UserSettings.update(UserSettings);
         }

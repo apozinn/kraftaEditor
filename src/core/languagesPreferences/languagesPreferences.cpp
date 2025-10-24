@@ -265,6 +265,21 @@ void LanguagesPreferences::SetupReservedWords(const languagePreferencesStruct &c
     }
 }
 
+std::vector<wxString> LanguagesPreferences::GetAutoCompleteWordsList(const languagePreferencesStruct &currentLanguagePreferences)
+{
+    std::vector<wxString> autoCompleteWordsList;
+    if (currentLanguagePreferences.preferences.contains("syntax"))
+    {
+        auto syntaxPreferences = currentLanguagePreferences.preferences["syntax"];
+        if (syntaxPreferences.contains("keyword_lists"))
+        {
+            for (auto &[listId, listWords] : syntaxPreferences["keyword_lists"].items())
+                autoCompleteWordsList.push_back(listWords.template get<std::string>());
+        }
+    }
+    return autoCompleteWordsList;
+}
+
 void LanguagesPreferences::SetupAutoCompleteWords(
     const languagePreferencesStruct &currentLanguagePreferences,
     wxStyledTextCtrl *editor)
@@ -294,33 +309,6 @@ void LanguagesPreferences::SetupAutoCompleteWords(
     editor->AutoCompSetSeparator(' ');
     editor->AutoCompSetMaxHeight(10);
     editor->AutoCompSetMaxWidth(400);
-
-    editor->Bind(wxEVT_STC_CHARADDED,
-                 [allKeywords, editor](wxStyledTextEvent &event)
-                 {
-                     char ch = static_cast<char>(event.GetKey());
-                     if (std::isalnum(static_cast<unsigned char>(ch)) || ch == '_')
-                     {
-                         int currentPos = editor->GetCurrentPos();
-                         int startPos = editor->WordStartPosition(currentPos, true);
-                         int lenEntered = currentPos - startPos;
-
-                         if (lenEntered > 0)
-                         {
-                             wxString currentWord = editor->GetTextRange(startPos, currentPos);
-                             wxString filtered;
-                             for (const auto &kw : allKeywords)
-                                 if (kw.StartsWith(currentWord))
-                                     filtered += kw + " ";
-
-                             if (!filtered.IsEmpty())
-                                 editor->AutoCompShow(lenEntered, filtered);
-                             else if (editor->AutoCompActive())
-                                 editor->AutoCompCancel();
-                         }
-                     }
-                     event.Skip();
-                 });
 }
 
 void LanguagesPreferences::UpdateStatusBar(const languagePreferencesStruct &currentLanguagePreferences)

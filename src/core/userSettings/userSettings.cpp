@@ -26,7 +26,6 @@ UserSettingsManager::UserSettingsManager()
     {
         SettingsPath = ApplicationPaths::ApplicationPath() + "user_settings.json";
 
-        // Ensure the directory exists
         wxFileName fn(SettingsPath);
         if (!fn.DirExists() && !fn.Mkdir(wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL))
         {
@@ -44,7 +43,6 @@ UserSettingsManager::UserSettingsManager()
         {"dontAskMeAgainFileDelete", false},
         {"dontAskMeAgainDirDelete", false}};
 
-    // Load settings during initialization
     try
     {
         currentSettings = LoadSettingsFromFile();
@@ -62,10 +60,8 @@ bool UserSettingsManager::Update(const json &data)
 
     try
     {
-        // 1. Create temporary file
         wxString tempPath = SettingsPath + ".tmp";
 
-        // 2. Write to temporary file
         {
             std::ofstream config_file(tempPath.ToStdString());
             if (!config_file)
@@ -75,13 +71,11 @@ bool UserSettingsManager::Update(const json &data)
             config_file << std::setw(4) << data << std::endl;
         }
 
-        // 3. Replace original file
         if (!wxRenameFile(tempPath, SettingsPath, true))
         {
             throw std::runtime_error("Failed to replace settings file");
         }
 
-        // 4. Update in-memory copy
         currentSettings = data;
         return true;
     }
@@ -114,7 +108,6 @@ json UserSettingsManager::LoadSettingsFromFile()
     catch (const json::exception &e)
     {
         wxLogError("JSON parsing error: %s", e.what());
-        // Try to create new file if original is corrupted
         CreateDefaultSettingsFile();
         return DefaultSettings;
     }
@@ -124,7 +117,6 @@ void UserSettingsManager::CreateDefaultSettingsFile()
 {
     try
     {
-        // Atomic write using temporary file
         wxString tempPath = SettingsPath + ".tmp";
 
         {

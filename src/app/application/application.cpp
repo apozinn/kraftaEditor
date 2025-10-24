@@ -57,7 +57,7 @@ void KraftaEditor::VerifyIfSytemIsDarkMode()
     auto systemInfo = wxSystemSettings::GetAppearance();
     if (systemInfo.IsSystemDark())
     {
-        SetAppearance(Appearance::Dark);
+        SetAppearance(wxApp::Appearance::Dark);
 #if __WXMSW__
         MSWEnableDarkMode(DarkMode_Always);
 #endif
@@ -76,6 +76,11 @@ void KraftaEditor::SetupUserSettings()
 
 bool KraftaEditor::SetupApplicationDirectories()
 {
+    struct AppPathWithErrorMessage {
+        wxString path;
+        const char* errorMessage;
+    };
+    
     std::vector<AppPathWithErrorMessage> appPathsWithErrorMessage = {
         {ApplicationPaths::ApplicationPath(),
          "Failed to locate the application executable path."},
@@ -110,13 +115,24 @@ bool KraftaEditor::CreateMainWindow()
     frame = new MainFrame("Krafta Editor");
     frame->Show();
     wxApp::SetTopWindow(frame);
-    return frame ? true : false;
+
+    return frame != nullptr;
 }
 
 void KraftaEditor::OnEventLoopEnter(wxEventLoopBase *WXUNUSED(loop))
 {
-    if (!frame || !frame->CreateWatcherIfNecessary())
+    static bool s_watcherInitialized = false;
+    if (s_watcherInitialized) {
         return;
+    }
+
+    if (!frame || frame->IsBeingDeleted())
+        return;
+
+    if (!frame->CreateWatcherIfNecessary())
+        return;
+    
+    s_watcherInitialized = true;
 
     wxConfig config("krafta-editor");
     wxString str;

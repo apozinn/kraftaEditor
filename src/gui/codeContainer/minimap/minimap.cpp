@@ -52,7 +52,6 @@ void MiniMap::OnClick(wxMouseEvent &event)
     wxClientDC dc(this);
     clickPoint = event.GetLogicalPosition(dc).y;
 
-    // defining the first visible line of the Editor
     Editor->SetFirstVisibleLine(GetCurrentLine());
     Editor->Refresh();
 
@@ -73,7 +72,6 @@ void MiniMap::OnPainted(wxStyledTextEvent &WXUNUSED(event))
 
     if (gc)
     {
-        // draw a rectangle indicating where the mouse is
         wxColour color(128, 128, 128, 20);
         gc->SetBrush(color);
         gc->SetPen(color);

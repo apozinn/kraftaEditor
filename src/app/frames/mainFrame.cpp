@@ -3,63 +3,31 @@
 MainFrame::MainFrame(const wxString &title)
     : wxFrame(nullptr, wxID_ANY, title), m_watcher(nullptr), m_followLinks(false)
 {
-    // Set the window title
     SetTitle(title);
-
-    // Enable theme support for the window
+    WindowResizeFunctions();
     SetThemeEnabled(true);
-
-    // Set the application icon
     SetAppIcon();
-
-    // Initialize and configure the menu bar
     SetupMenuBar();
 
-    // Initialize main UI components
-    // ----------------------------
-
-    // Create the main splitter window (divides main areas)
     SetupMainSplitter();
-
-    // Setup left container panel
     SetupApplicationLeftMainContainer();
-
-    // Initialize the file tree view
     SetupFilesTree();
-
-    // Setup right container panel
     SetupApplicationRightMainContainer();
-
-    // Configure the splitter between main containers
     SetupMainContainerSplitter();
-
-    // Setup the centered content area
     SetupCenteredContent();
-
-    // Configure the main container layout
     SetupMainContainer();
-
-    // Initialize tab interface
     SetupTabs();
-
-    // Setup empty content window
     SetupEmptyWindow();
-
-    // Initialize m_terminal/console component
     SetupTerminal();
-
-    // Create and configure the status bar
     SetupStatusBar();
-
-    // Configure keyboard shortcuts
     SetupAccelerators();
 
-    // Set up window resize handlers
-    WindowResizeFunctions();
+    SetSizer(sizer);
+}
 
-    // Apply the main sizer and fit the window to its contents
-    SetSizerAndFit(sizer);
-    SetMinSize(wxSize(800, 600));
+MainFrame::~MainFrame()
+{
+    delete m_watcher;
 }
 
 bool MainFrame::SetAppIcon()
@@ -185,26 +153,25 @@ void MainFrame::SetupAccelerators()
 
 void MainFrame::WindowResizeFunctions()
 {
+    SetMinSize(wxSize(800, 600));
+
     if (UserSettings["windowMaximized"] == true)
     {
         Maximize();
     }
     else
     {
-        SetSize(wxSize(
+        auto userPredefinedSize = wxSize(
             UserSettings["windowSizeX"].template get<int>(),
-            UserSettings["windowSizeY"].template get<int>()));
+            UserSettings["windowSizeY"].template get<int>());
+
+        SetSize(userPredefinedSize);
+
         Centre();
     }
 
-    // resized events
     Bind(wxEVT_SIZE, &MainFrame::OnFrameResized, this);
     Bind(wxEVT_MAXIMIZE, &MainFrame::OnFrameMaximized, this);
-}
-
-MainFrame::~MainFrame()
-{
-    delete m_watcher;
 }
 
 void MainFrame::OnFrameResized(wxSizeEvent &event)
@@ -212,17 +179,12 @@ void MainFrame::OnFrameResized(wxSizeEvent &event)
     if (!IsMaximized())
     {
         UserSettings["windowMaximized"] = false;
-        if (event.GetSize().x < 800 || event.GetSize().y < 600)
-        {
-            event.SetSize(wxSize(
-                std::max(event.GetSize().x, 800),
-                std::max(event.GetSize().y, 600)));
-            SetSize(event.GetSize());
-        }
         UserSettings["windowSizeX"] = event.GetSize().x;
         UserSettings["windowSizeY"] = event.GetSize().y;
+
         UserSettingsManager::Get().Update(UserSettings);
     }
+
     event.Skip();
 }
 
@@ -245,33 +207,40 @@ void MainFrame::OnNewWindow(wxCommandEvent &WXUNUSED(event))
 
 bool MainFrame::CreateWatcherIfNecessary()
 {
-    if (m_watcher)
+    try
     {
-        return false; // Watcher already exists
-    }
+        if (m_watcher)
+        {
+            return false;
+        }
 
-    CreateWatcher();
-    Bind(wxEVT_FSWATCHER, &MainFrame::OnFileSystemEvent, this);
+        CreateWatcher();
+        if (wxTheApp->IsActive())
+        {
+            Bind(wxEVT_FSWATCHER, &MainFrame::OnFileSystemEvent, this);
+        }
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << e.what() << std::endl;
+    }
     return true;
 }
 
 void MainFrame::CreateWatcher()
 {
-    // Check if application is in valid state for watcher creation
     if (!wxTheApp || !wxTheApp->IsActive() || IsBeingDeleted())
     {
         wxLogWarning("Cannot create watcher - application not active or being destroyed");
         return;
     }
 
-    // Prevent duplicate initialization
     if (m_watcher)
     {
         wxLogError("File watcher already initialized");
         return;
     }
 
-    // Create watcher instance
     m_watcher = new wxFileSystemWatcher();
     if (!m_watcher)
     {
@@ -279,7 +248,6 @@ void MainFrame::CreateWatcher()
         return;
     }
 
-    // Configure watcher
     m_watcher->SetOwner(this);
 }
 
@@ -493,21 +461,9 @@ void MainFrame::OnOpenTerminal(wxCommandEvent &WXUNUSED(event))
 
 void MainFrame::OnCloseFolder(wxCommandEvent &WXUNUSED(event))
 {
-    if (!m_filesTree)
+    if (!m_filesTree || !m_mainContainer || !m_tabs)
     {
-        wxLogError("Files tree not initialized");
-        return;
-    }
-
-    if (!m_mainContainer)
-    {
-        wxLogError("Main container not initialized");
-        return;
-    }
-
-    if (!m_tabs)
-    {
-        wxLogError("Tabs not initialized");
+        wxLogError("Required UI components not initialized");
         return;
     }
 
@@ -523,7 +479,6 @@ void MainFrame::OnCloseFolder(wxCommandEvent &WXUNUSED(event))
     new OpenFolderButton();
 }
 
-// toggle view events
 void MainFrame::OnToggleSearch(wxCommandEvent &WXUNUSED(event))
 {
     if (FindWindowById(+GUI::ControlID::CodeSearchPanel))

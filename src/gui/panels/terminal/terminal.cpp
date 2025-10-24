@@ -31,13 +31,13 @@ Terminal::Terminal(wxWindow *parent, wxWindowID ID) : wxPanel(parent, ID)
     Bind(wxEVT_SHOW,
          [this](wxShowEvent &(event))
          {
-            if(!event.IsShown())
-                return;
+             if (!event.IsShown())
+                 return;
 
-            if(!m_commandInput)
-                return;
+             if (!m_commandInput)
+                 return;
 
-            m_commandInput->SetFocus();
+             m_commandInput->SetFocus();
 
              if (m_commandInput->GetValue().IsEmpty() && !ProjectSettings::Get().GetProjectPath().IsEmpty())
              {
@@ -46,11 +46,23 @@ Terminal::Terminal(wxWindow *parent, wxWindowID ID) : wxPanel(parent, ID)
          });
 }
 
-void Terminal::OnCommand(wxCommandEvent &WXUNUSED(event))
+void Terminal::OnCommand(wxCommandEvent & WXUNUSED(event))
 {
-    wxString command = m_commandInput->GetValue().substr(
-        m_commandInput->GetValue().find_last_of(ProjectSettings::Get().GetProjectPath() + ">") - 1,
-        m_commandInput->GetValue().Len());
+    wxString prompt = ProjectSettings::Get().GetProjectPath() + ">";
+
+    int lastPromptPos = m_commandInput->GetValue().find_last_of(prompt);
+    if (static_cast<size_t>(lastPromptPos) == wxString::npos)
+    {
+        lastPromptPos = 0;
+    }
+    else
+    {
+        lastPromptPos += prompt.Length();
+    }
+
+    wxString fullText = m_commandInput->GetValue();
+    wxString command = fullText.Mid(lastPromptPos);
+    command.Trim(true).Trim(false);
 
     m_process = new wxProcess(this);
     m_process->Redirect();
@@ -63,7 +75,8 @@ void Terminal::OnCommand(wxCommandEvent &WXUNUSED(event))
 
     if (!pid)
     {
-        m_commandInput->AppendText("Erro ao executar comando\n");
+        m_commandInput->AppendText("\nErro ao executar comando\n");
+        m_commandInput->AppendText(prompt);
         return;
     }
 
@@ -71,6 +84,7 @@ void Terminal::OnCommand(wxCommandEvent &WXUNUSED(event))
     if (inputStream)
     {
         wxTextInputStream textStream(*inputStream);
+        m_commandInput->AppendText("\n");
         while (!inputStream->Eof())
         {
             wxString line = textStream.ReadLine();
@@ -82,6 +96,7 @@ void Terminal::OnCommand(wxCommandEvent &WXUNUSED(event))
     if (errorStream)
     {
         wxTextInputStream textStream(*errorStream);
+        m_commandInput->AppendText("\n");
         while (!errorStream->Eof())
         {
             wxString line = textStream.ReadLine();
@@ -89,10 +104,10 @@ void Terminal::OnCommand(wxCommandEvent &WXUNUSED(event))
         }
     }
 
-    m_commandInput->AppendText(ProjectSettings::Get().GetProjectPath() + ">");
+    m_commandInput->AppendText(prompt);
 }
 
-void Terminal::OnCommandInputClick(wxMouseEvent &WXUNUSED(event))
+void Terminal::OnCommandInputClick(wxMouseEvent & WXUNUSED(event))
 {
     m_commandInput->SetInsertionPoint(m_commandInput->GetValue().Len());
 }

@@ -4,12 +4,12 @@
 
 wxBEGIN_EVENT_TABLE(ControlPanel, wxPanel)
     EVT_MENU(+Event::ControlPanel::Exit, ControlPanel::Close)
-    EVT_MENU(+Event::ControlPanel::Up, ControlPanel::UpSelection)
-    EVT_MENU(+Event::ControlPanel::Down, ControlPanel::DownSelection)
-    EVT_MENU(+Event::ControlPanel::Select, ControlPanel::OnKeyBoardSelect)
-wxEND_EVENT_TABLE()
+        EVT_MENU(+Event::ControlPanel::Up, ControlPanel::UpSelection)
+            EVT_MENU(+Event::ControlPanel::Down, ControlPanel::DownSelection)
+                EVT_MENU(+Event::ControlPanel::Select, ControlPanel::OnKeyBoardSelect)
+                    wxEND_EVENT_TABLE()
 
-ControlPanel::ControlPanel(wxFrame *parent, wxWindowID ID) : wxPanel(parent, ID, wxPoint(parent->GetSize().GetWidth() / 2 - 225, 50), wxSize(450, 200))
+                        ControlPanel::ControlPanel(wxFrame *parent, wxWindowID ID) : wxPanel(parent, ID, wxPoint(parent->GetSize().GetWidth() / 2 - 225, 50), wxSize(450, 200))
 {
     SetBackgroundColour(wxColor(Theme["main"].template get<std::string>()));
     SetFocus();
@@ -100,7 +100,7 @@ void ControlPanel::UpSelection(wxCommandEvent &WXUNUSED(event))
             auto nextMenu = menu->GetPrevSibling();
             if (!nextMenu)
             {
-                nextMenu = menusContainer->GetChildren()[0];
+                nextMenu = menusContainer->GetChildren()[menusContainer->GetChildren().GetCount() - 1];
             }
 
             if (nextMenu != menu)

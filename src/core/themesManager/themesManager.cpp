@@ -24,7 +24,7 @@ wxColor ThemesManager::GetColor(const std::string &key) const
     catch (...)
     {
         wxLogWarning("Color '%s' not found - using default", key);
-        return wxColor(0, 0, 0); // Default fallback
+        return wxColor(0, 0, 0);
     }
 }
 
@@ -38,13 +38,13 @@ wxFont ThemesManager::GetFont(const std::string &key) const
             wxFONTFAMILY_DEFAULT,
             font.value("italic", false) ? wxFONTSTYLE_ITALIC : wxFONTSTYLE_NORMAL,
             font.value("bold", false) ? wxFONTWEIGHT_BOLD : wxFONTWEIGHT_NORMAL,
-            false, // underlined
+            false,
             font.value("family", "Arial"));
     }
     catch (...)
     {
         wxLogWarning("Font '%s' not found - using default", key);
-        return wxFont(12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL); // Default fallback
+        return wxFont(12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
     }
 }
 

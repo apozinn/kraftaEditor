@@ -90,6 +90,8 @@ public:
      */
     wxString GetLanguageIconPath(const wxString &path);
 
+    std::vector<wxString> GetAutoCompleteWordsList(const languagePreferencesStruct &currentLanguagePreferences);
+
 private:
     // Error message constants
     static constexpr const char *ERROR_LANGUAGES_PREFERENCES_FILE_NOT_FOUND =
