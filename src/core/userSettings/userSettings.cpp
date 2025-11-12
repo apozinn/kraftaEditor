@@ -11,6 +11,8 @@
 #include <mutex>
 #include <wx/file.h>
 #include <wx/filename.h>
+#include "platformInfos/platformInfos.hpp"
+#include <wx/stdpaths.h>
 
 using json = nlohmann::json;
 
@@ -24,7 +26,12 @@ UserSettingsManager::UserSettingsManager()
 {
     if (SettingsPath.empty())
     {
-        SettingsPath = ApplicationPaths::ApplicationPath() + "user_settings.json";
+        SettingsPath = 
+            wxStandardPaths::Get().GetUserConfigDir() + 
+            PlatformInfos::OsPathSeparator() + 
+            ".kraftaEditor" + 
+            PlatformInfos::OsPathSeparator() + 
+            "user_settings.json";
 
         wxFileName fn(SettingsPath);
         if (!fn.DirExists() && !fn.Mkdir(wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL))

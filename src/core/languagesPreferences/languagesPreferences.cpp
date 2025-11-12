@@ -36,9 +36,11 @@ void LanguagesPreferences::LoadExtensionsList()
 {
     try
     {
-        wxString extensionsListPath = ApplicationPaths::DevelopmentEnvironmentPath() + "languages" + PlatformInfos::OsPathSeparator() + "extensionsList.json";
+        wxString extensionsListPath = ApplicationPaths::GetLanguagePreferencesPath("") + "extensionsList.json";
         if (!wxFileExists(extensionsListPath))
+        {
             throw EXTENSIONS_LIS_NOT_FOUND;
+        }
 
         std::ifstream extensionsIo(extensionsListPath.ToStdString());
         json extensionsObject = json::parse(extensionsIo);
@@ -48,7 +50,7 @@ void LanguagesPreferences::LoadExtensionsList()
     }
     catch (const std::exception &e)
     {
-        wxLogError(e.what());
+        wxMessageBox(e.what());
         throw std::runtime_error(e.what());
     }
 }
@@ -98,7 +100,7 @@ languagePreferencesStruct LanguagesPreferences::GetLanguagePreferences(const wxS
         auto GetLanguagesObjects = [this](wxString &languageDir) -> languagePreferencesStruct
         {
             if (!wxDirExists(languageDir))
-                languageDir = ApplicationPaths::DevelopmentEnvironmentPath() + "languages" + PlatformInfos::OsPathSeparator() + "default" + PlatformInfos::OsPathSeparator();
+                languageDir = ApplicationPaths::GetLanguagePreferencesPath("default");
 
             wxDir dir(languageDir);
 
@@ -149,7 +151,7 @@ languagePreferencesStruct LanguagesPreferences::GetLanguagePreferences(const wxS
                 languageNameLocation = it->second;
         }
 
-        wxString defaultLanguage = ApplicationPaths::DevelopmentEnvironmentPath() + "languages" + PlatformInfos::OsPathSeparator() + languageNameLocation + PlatformInfos::OsPathSeparator();
+        wxString defaultLanguage = ApplicationPaths::GetLanguagePreferencesPath(languageNameLocation);
         languagePreferencesStruct languagePrerencesAndStyles = GetLanguagesObjects(defaultLanguage);
         return languagePrerencesAndStyles;
     }
@@ -169,10 +171,10 @@ void LanguagesPreferences::SetupFold(const languagePreferencesStruct &currentLan
         if (!currentLanguagePreferences.preferences["fold"]["enabled"])
             return;
 
-    wxString foldSettingsPath = ApplicationPaths::DevelopmentEnvironmentPath() + "config" + PlatformInfos::OsPathSeparator() + "foldSettings" + PlatformInfos::OsPathSeparator() + "foldSettings.json";
+    wxString foldSettingsPath = ApplicationPaths::GetConfigPath("foldSettings") + "foldSettings.json";
     if (!wxFileExists(foldSettingsPath))
     {
-        wxLogError("Não foi possível acessar as configurações do fold:");
+        wxMessageBox("Não foi possível acessar as configurações do fold:", "Fold Error");
         return;
     }
 

@@ -1,189 +1,172 @@
 #include "appPaths/appPaths.hpp"
+#include "platformInfos/platformInfos.hpp"
 
 #include <wx/filename.h>
 #include <wx/stdpaths.h>
 #include <wx/dir.h>
-#include <string>
-#include <stdexcept>
-#include <wx/arrstr.h>
-#include "platformInfos/platformInfos.hpp"
 #include <wx/log.h>
 #include <wx/app.h>
+#include <wx/arrstr.h>
+#include <wx/msgdlg.h>
+
+#include <string>
+#include <stdexcept>
 
 namespace ApplicationPaths
 {
     const wxString &ApplicationPath()
     {
-        static const wxString path = []()
-        {
+        static const wxString path = [] {
             wxFileName file(wxStandardPaths::Get().GetExecutablePath());
             if (!file.IsOk())
-                throw std::runtime_error("Invalid executable path");
-            return file.GetPathWithSep(); // Retorna wxString
+            {
+                wxLogError("ApplicationPath: failed to resolve executable path");
+                return wxString();
+            }
+            return file.GetPathWithSep();
         }();
         return path;
     }
 
     bool IsRunningInDevelopmentEnvironment()
     {
-        static const bool isDev = []()
-        {
-            wxFileName exePath(ApplicationPath());
-            const wxString fullPath = exePath.GetFullPath().Lower();
+        static const bool isDev = [] {
+            const wxString path = ApplicationPath().Lower();
+            const wxArrayString patterns = {"debug", "release", "build", "cmake-build", "x64", "x86"};
 
-            // Common development directory patterns
-            const wxArrayString devPatterns = {
-                "debug", "release", "cmake-build",
-                "build", "bin", "x64", "x86"};
-
-            for (const auto &pattern : devPatterns)
-            {
-                if (fullPath.Find(pattern) != wxNOT_FOUND)
-                {
+            for (const auto &p : patterns)
+                if (path.Contains(p))
                     return true;
-                }
-            }
 
-// Check standard installation locations
 #ifdef __WXMSW__
-            return !fullPath.find("program files") && !fullPath.find("program files (x86)");
+            return !(path.Contains("program files") || path.Contains("program files (x86)"));
 #elif defined(__WXGTK__)
-            return !(fullPath.StartsWith("/usr/bin/") ||
-                     fullPath.StartsWith("/usr/local/bin/"));
+            return !(path.StartsWith("/usr/") || path.StartsWith("/opt/") || path.Contains("/snap/") || path.Contains("/local/"));
 #elif defined(__WXOSX__)
-            return !fullPath.Find(".app/contents/macos");
+            return !path.Contains(".app/contents/macos");
+#else
+            return true;
 #endif
-
-            return false;
         }();
         return isDev;
     }
 
-    wxString FindDevelopmentRoot(const wxString &startPath, const wxArrayString &markerFiles, int maxLevels = 5)
+    wxString FindDevelopmentRoot(const wxString &startPath, const wxArrayString &markerFiles, int maxLevels)
     {
-        wxFileName currentDir(startPath);
-        int levelsUp = 0;
-
-        while (levelsUp++ < maxLevels && currentDir.GetDirCount() > 0)
+        wxFileName dir(startPath);
+        for (int i = 0; i < maxLevels && dir.GetDirCount() > 0; ++i)
         {
-            wxDir dir(currentDir.GetFullPath());
-            if (!dir.IsOpened())
+            wxDir d(dir.GetPath());
+            if (d.IsOpened())
             {
-                wxLogError("Failed to open directory: %s", currentDir.GetFullPath().c_str());
-                return wxEmptyString;
-                break;
-            }
-
-            wxString filename;
-            bool cont = dir.GetFirst(&filename);
-            while (cont)
-            {
-                if (markerFiles.Index(filename) != wxNOT_FOUND)
+                wxString name;
+                bool cont = d.GetFirst(&name);
+                while (cont)
                 {
-                    return currentDir.GetPathWithSep();
+                    if (markerFiles.Index(name) != wxNOT_FOUND)
+                        return dir.GetPathWithSep();
+                    cont = d.GetNext(&name);
                 }
-                cont = dir.GetNext(&filename);
             }
-
-            currentDir.RemoveLastDir();
+            dir.RemoveLastDir();
         }
         return wxEmptyString;
     }
 
     const wxString DevelopmentEnvironmentPath()
     {
-        static const wxString path = []()
-        {
+        static const wxString path = [] {
             if (!IsRunningInDevelopmentEnvironment())
-            {
                 return ApplicationPath();
-            }
-
-            wxString devRoot = FindDevelopmentRoot(ApplicationPath(), DEV_MARKER_FILES, 5);
-
+            wxString devRoot = FindDevelopmentRoot(ApplicationPath(), DEV_MARKER_FILES, 6);
             if (devRoot.IsEmpty())
-            {
-                wxLogWarning("None of the development marker files (%s) found within 5 levels up from executable path.", wxJoin(DEV_MARKER_FILES, ','));
-            }
-
-            return devRoot;
+                wxLogWarning("DevelopmentEnvironmentPath: no marker files (%s) found.", wxJoin(DEV_MARKER_FILES, ','));
+            return devRoot.IsEmpty() ? ApplicationPath() : devRoot;
         }();
         return path;
     }
 
+    wxString InstalledBasePath(const wxString &subdir)
+    {
+#ifdef __WXGTK__
+        return "/usr/share/kraftaEditor/" + subdir + "/";
+#elif defined(__WXMSW__)
+        wxString progFiles = wxGetenv("PROGRAMFILES");
+        if (progFiles.IsEmpty())
+            progFiles = "C:\\Program Files";
+        return progFiles + "\\Krafta Editor\\" + subdir + "\\";
+#elif defined(__WXOSX__)
+        return "/Applications/Krafta Editor.app/Contents/Resources/" + subdir + "/";
+#else
+        return ApplicationPath();
+#endif
+    }
+
     wxString AssetsPath(const wxString &target)
     {
-        wxString devPath = DevelopmentEnvironmentPath();
-
-        wxString path = devPath;
-        path << ASSETS_DIR_NAME << wxFileName::GetPathSeparator();
-
-        if (!target.empty())
+        static bool warned = false;
+        wxString base = (IsRunningInDevelopmentEnvironment() ? DevelopmentEnvironmentPath() + "assets" + PlatformInfos::OsPathSeparator() : InstalledBasePath("assets"));
+        if (!target.IsEmpty())
+            base += target + wxFileName::GetPathSeparator();
+        if (!wxDirExists(base) && !warned)
         {
-            path << target << wxFileName::GetPathSeparator();
+            wxLogWarning("AssetsPath: directory not found: %s", base);
+            warned = true;
         }
-
-        if (!wxFileName::DirExists(path))
-        {
-            wxLogWarning("Assets directory not found: %s", path);
-            return wxEmptyString;
-        }
-        return path;
+        return wxDirExists(base) ? base : "";
     }
 
-    wxString GetIconPath(const wxString& iconName) {
-        wxString iconPath = AssetsPath("icons")+iconName;
-        if(wxFileExists(iconPath)) {
-            return iconPath;
-        } else {
-            return wxEmptyString;
-        }
-    }
-
-    wxString GetLanguageIcon(const wxString &languageName)
+    wxString GetIconPath(const wxString &name)
     {
-        const wxString extDir = AssetsPath(FILE_EXT_DIR_NAME);
-        if (extDir.IsEmpty())
-        {
-            wxLogWarning("Missing assets directory: %s", extDir);
+        wxString path = AssetsPath("icons") + name;
+        return wxFileExists(path) ? path : "";
+    }
+
+    wxString GetLanguageIcon(const wxString &lang)
+    {
+        wxString dir = AssetsPath(FILE_EXT_DIR_NAME);
+        if (dir.IsEmpty())
             return wxEmptyString;
-        }
 
-        wxFileName iconFile(extDir, languageName + ".png");
-
-        if (!iconFile.Exists())
+        wxFileName icon(dir, lang + ".png");
+        if (!icon.Exists())
         {
-            iconFile.SetName("unknown_ext");
-            if (!iconFile.Exists())
-            {
-                wxLogWarning("Missing fallback icon: %s", iconFile.GetFullPath());
+            icon.SetName("unknown_ext");
+            if (!icon.Exists())
                 return wxEmptyString;
-            }
         }
-        return iconFile.GetFullPath();
+        return icon.GetFullPath();
     }
 
-    wxString GetLanguagePreferencesPath(const wxString &languageName)
+    wxString GetLanguagePreferencesPath(const wxString &lang)
     {
-        wxString path = DevelopmentEnvironmentPath() + "languages" + languageName;
+        wxString base = (IsRunningInDevelopmentEnvironment() ? DevelopmentEnvironmentPath() + "languages" + PlatformInfos::OsPathSeparator() : InstalledBasePath("languages"));
+        if (lang.IsEmpty())
+            return base;
+
+        wxString path = base + lang + PlatformInfos::OsPathSeparator();
         if (wxDirExists(path))
-        {
             return path;
-        }
-        else
-        {
-            wxLogWarning("Missing %s preferences, trying to find  the default preferences", languageName);
-            wxString defaultPreferences = DevelopmentEnvironmentPath() + "languages" + "default";
-            if (wxDirExists(path))
-            {
-                return defaultPreferences;
-            }
-            else
-            {
-                wxLogWarning("Missing default language preferences, closing the app");
-                wxApp().Exit();
-                return "nullPath";
-            }
-        }
+
+        wxString fallback = base + "default";
+        return wxDirExists(fallback) ? fallback : "";
+    }
+
+    wxString GetConfigPath(const wxString &name)
+    {
+        wxString base = (IsRunningInDevelopmentEnvironment() ? DevelopmentEnvironmentPath() + "config" + PlatformInfos::OsPathSeparator() : InstalledBasePath("config"));
+        if (name.IsEmpty())
+            return base;
+        wxString path = base + name + PlatformInfos::OsPathSeparator(); 
+        return wxDirExists(path) ? path : "";
+    }
+
+    wxString GetI18nLanguagePath()
+    {
+        wxString base = (IsRunningInDevelopmentEnvironment() ? DevelopmentEnvironmentPath() + "i18n" + PlatformInfos::OsPathSeparator() : InstalledBasePath("i18n"));
+        if (wxDirExists(base))
+            return base;
+        wxLogError("GetI18nLanguagePath: directory not found: %s", base);
+        return wxEmptyString;
     }
 }

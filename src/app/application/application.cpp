@@ -11,6 +11,9 @@
 #endif
 
 #include <wx/log.h>
+#include <wx/intl.h>
+#include <wx/string.h>
+#include <wx/translation.h>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -25,6 +28,7 @@ bool KraftaEditor::OnInit()
             return false;
 
         wxInitAllImageHandlers();
+        LoadTranslations();
 
         VerifyIfSytemIsDarkMode();
         SetupThemeManager();
@@ -54,13 +58,21 @@ bool KraftaEditor::OnInit()
 
 void KraftaEditor::VerifyIfSytemIsDarkMode()
 {
-    auto systemInfo = wxSystemSettings::GetAppearance();
-    if (systemInfo.IsSystemDark())
+    try
     {
-        SetAppearance(wxApp::Appearance::Dark);
+        auto systemInfo = wxSystemSettings::GetAppearance();
+        if (systemInfo.IsSystemDark())
+        {
+            SetAppearance(wxApp::Appearance::Dark);
 #if __WXMSW__
-        MSWEnableDarkMode(DarkMode_Always);
+            MSWEnableDarkMode(DarkMode_Always);
 #endif
+        }
+    }
+    catch (const std::exception &e)
+    {
+        wxMessageBox(e.what());
+        std::cerr << "Standard Exception: " << e.what() << std::endl;
     }
 }
 
@@ -76,11 +88,12 @@ void KraftaEditor::SetupUserSettings()
 
 bool KraftaEditor::SetupApplicationDirectories()
 {
-    struct AppPathWithErrorMessage {
+    struct AppPathWithErrorMessage
+    {
         wxString path;
-        const char* errorMessage;
+        const char *errorMessage;
     };
-    
+
     std::vector<AppPathWithErrorMessage> appPathsWithErrorMessage = {
         {ApplicationPaths::ApplicationPath(),
          "Failed to locate the application executable path."},
@@ -122,7 +135,8 @@ bool KraftaEditor::CreateMainWindow()
 void KraftaEditor::OnEventLoopEnter(wxEventLoopBase *WXUNUSED(loop))
 {
     static bool s_watcherInitialized = false;
-    if (s_watcherInitialized) {
+    if (s_watcherInitialized)
+    {
         return;
     }
 
@@ -131,7 +145,7 @@ void KraftaEditor::OnEventLoopEnter(wxEventLoopBase *WXUNUSED(loop))
 
     if (!frame->CreateWatcherIfNecessary())
         return;
-    
+
     s_watcherInitialized = true;
 
     wxConfig config("krafta-editor");
@@ -146,7 +160,7 @@ void KraftaEditor::OnEventLoopEnter(wxEventLoopBase *WXUNUSED(loop))
         frame->LoadPath(str);
     }
 }
- 
+
 void KraftaEditor::OnInitCmdLine(wxCmdLineParser &parser)
 {
     wxApp::OnInitCmdLine(parser);
@@ -165,4 +179,28 @@ bool KraftaEditor::OnCmdLineParsed(wxCmdLineParser &parser)
 void KraftaEditor::LoadLanguagesPreferences()
 {
     LanguagesPreferences::Get();
+}
+
+void KraftaEditor::LoadTranslations()
+{
+    wxTranslations *trans = new wxTranslations();
+    wxTranslations::Set(trans);
+
+    wxFileTranslationsLoader::AddCatalogLookupPathPrefix(ApplicationPaths::GetI18nLanguagePath());
+
+    trans->AddStdCatalog();
+
+    auto sysLang = wxLocale::GetSystemLanguage();
+
+    wxLocale locale;
+
+    if (!locale.Init(sysLang))
+    {
+        wxLogWarning("The system language (%s) is not fully supported. Using the default language.", wxLocale::GetLanguageName(sysLang));
+    }
+
+    if (!trans->AddCatalog("kraftaeditor"))
+    {
+        wxLogWarning("Failed to load translation catalog '%s'. Check the .mo file.", "kraftaeditor");
+    }
 }

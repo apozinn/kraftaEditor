@@ -154,7 +154,6 @@ void MainFrame::SetupAccelerators()
 void MainFrame::WindowResizeFunctions()
 {
     SetMinSize(wxSize(800, 600));
-
     if (UserSettings["windowMaximized"] == true)
     {
         Maximize();

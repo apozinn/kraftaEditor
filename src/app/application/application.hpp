@@ -84,6 +84,8 @@ public:
      */
     bool OnCmdLineParsed(wxCmdLineParser &parser);
 
+    void LoadTranslations();
+
 private:
     MainFrame *frame; /**< Pointer to the main application window. */
     wxString m_dirToWatch; /**< Directory path received from command line to be loaded. */

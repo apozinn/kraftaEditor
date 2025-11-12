@@ -1,7 +1,7 @@
 #include "mainFrame.hpp"
 
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
-    // File Operations
+    // // File Operations
     EVT_MENU(+Event::File::CreateFileEvent, FilesTree::OnCreateFileRequested)
     EVT_MENU(+Event::File::CreateDir,       FilesTree::OnCreateDirRequested)
     EVT_MENU(+Event::File::Save,            CodeContainer::OnSave)
