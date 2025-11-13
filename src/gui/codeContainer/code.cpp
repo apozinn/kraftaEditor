@@ -67,6 +67,8 @@ void CodeContainer::LoadPath(wxString path)
         languagePreferences = LanguagesPreferences::Get().SetupLanguagesPreferences(this);
         editor->SetAutoCompleteWordsList(LanguagesPreferences::Get().GetAutoCompleteWordsList(languagePreferences));
         editor->SetLanguagesPreferences(languagePreferences);
+
+		Save(path);
     }
     else
     {

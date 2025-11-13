@@ -1,4 +1,5 @@
 {
+	".txt":  "txt",	
   ".cmake": "cmake",
 
   ".cpp": "c++",

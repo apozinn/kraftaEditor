@@ -75,7 +75,7 @@ void Editor::OnUpdateUI(wxStyledTextEvent &event)
 
 void Editor::OnChange(wxStyledTextEvent &event)
 {
-    if (event.GetString().IsEmpty() && GetModify() == false)
+    if (event.GetString().IsEmpty() || GetModify() == false)
         return;
 
     if (GetModify()) {
@@ -429,10 +429,11 @@ void Editor::UpdateUnsavedIndicator()
         }
     }
 
-    if (icon && icon->GetLabel() != unsavedIconLabel)
+    if (icon && icon->GetLabel() != unsavedIconLabel && Modified())
     {
         icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(iconsDir + "white_circle.png", wxBITMAP_TYPE_PNG)));
         icon->SetLabel(unsavedIconLabel);
+		icon->Refresh();
         tab->Layout();
     }
 }
