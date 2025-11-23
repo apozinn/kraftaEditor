@@ -387,6 +387,8 @@ bool FilesTree::OpenFile(const wxString &componentIdentifier)
             codeEditor = new CodeContainer(mainCode, componentIdentifier);
             mainCode->GetSizer()->Add(codeEditor, 1, wxEXPAND);
             codeEditor->Show();
+			mainCode->GetSizer()->Layout();
+			mainCode->Update();
         }
         else
             codeEditor->Show();

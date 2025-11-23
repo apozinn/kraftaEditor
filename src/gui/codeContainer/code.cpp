@@ -19,8 +19,8 @@ CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxScrolled<wxPan
     sizer->Add(minimap, 0, wxEXPAND);
 
     SetSizerAndFit(sizer);
-    Layout();
     LoadPath(path);
+	Layout();	
 
     if (UserSettings["show_minimap"] == false)
         minimap->Hide();
@@ -69,6 +69,9 @@ void CodeContainer::LoadPath(wxString path)
         editor->SetLanguagesPreferences(languagePreferences);
 
 		Save(path);
+
+		GetParent()->Layout();
+		Layout();
     }
     else
     {

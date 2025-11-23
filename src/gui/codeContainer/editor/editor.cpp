@@ -23,6 +23,7 @@ void Editor::InitializePreferences()
     SetBackSpaceUnIndents(true);
     SetIndentationGuides(true);
     SetScrollWidth(1);
+	SetEndAtLastLine (true);
 
     StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(backgroundColor));
     StyleSetForeground(wxSTC_STYLE_DEFAULT, wxColor(textColor));
@@ -208,7 +209,7 @@ void Editor::OnScroll(wxMouseEvent &event)
 
 bool Editor::Modified() const
 {
-    return GetModify() && !GetReadOnly();
+    return GetModify() && !GetReadOnly() && IsModified();
 }
 
 void Editor::OnStyleNeeded(wxStyledTextEvent &WXUNUSED(event))
