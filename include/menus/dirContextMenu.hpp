@@ -22,5 +22,5 @@ namespace DirContextMenu
      *
      * @return A pointer to a new wxMenu instance containing directory-related actions.
      */
-    wxMenu* Get();
+    wxMenu* Get(bool targetIsProjectInformations);
 }

@@ -34,7 +34,10 @@ FilesTree::FilesTree(wxWindow *parent, wxWindowID ID)
     SetBackgroundColour(ThemesManager::Get().GetColor("main"));
 
     m_projectInformations = new wxPanel(this, +GUI::ControlID::ProjectToggler);
+    m_projectInformations->SetName(ProjectSettings::Get().GetProjectPath());
     auto *projectInfoSizer = new wxBoxSizer(wxHORIZONTAL);
+
+    m_projectInformations->Bind(wxEVT_RIGHT_UP, &FilesTree::OnDirRightClick, this);
 
     wxString arrowPath = ApplicationPaths::GetIconPath("dir_arrow.png");
     if (!arrowPath.IsEmpty())
@@ -47,6 +50,7 @@ FilesTree::FilesTree(wxWindow *parent, wxWindowID ID)
                 +GUI::ControlID::ProjectToolsArrow,
                 arrowBitmap);
             projectInfoSizer->Add(m_projectInformationsNameArrow, 0, wxEXPAND);
+            m_projectInformationsNameArrow->Bind(wxEVT_RIGHT_UP, &FilesTree::OnDirRightClick, this);
         }
     }
 
@@ -54,14 +58,20 @@ FilesTree::FilesTree(wxWindow *parent, wxWindowID ID)
         m_projectInformations,
         +GUI::ControlID::ProjectToolsName,
         ProjectSettings::Get().GetProjectName());
+
+    m_projectInformationsName->Bind(wxEVT_RIGHT_UP, &FilesTree::OnDirRightClick, this);
+
     auto font = m_projectInformationsName->GetFont();
     font.SetWeight(wxFONTWEIGHT_MEDIUM);
+
     m_projectInformationsName->SetFont(font);
     m_projectInformationsName->Refresh();
+
     projectInfoSizer->Add(m_projectInformationsName, 1, wxEXPAND | wxLEFT, 4);
 
     m_projectInformations->SetSizerAndFit(projectInfoSizer);
-    m_projectInformations->SetMinSize(wxSize(GetSize().x, 15));
+    m_projectInformations->SetMinSize(wxSize(GetSize().x, 20));
+
     mainSizer->Add(m_projectInformations, 0, wxEXPAND | wxTOP | wxBOTTOM, 5);
 
     if (!ProjectSettings::Get().IsProjectSet())
@@ -69,6 +79,7 @@ FilesTree::FilesTree(wxWindow *parent, wxWindowID ID)
 
     m_projectFilesContainer = new wxScrolled<wxPanel>(this, +GUI::ControlID::ProjectFilesContainer);
     m_projectFilesContainer->SetScrollbars(20, 20, 50, 50);
+
     auto *filesContainerSizer = new wxBoxSizer(wxVERTICAL);
     m_projectFilesContainer->SetSizerAndFit(filesContainerSizer);
     mainSizer->Add(m_projectFilesContainer, 1, wxEXPAND);
@@ -387,8 +398,8 @@ bool FilesTree::OpenFile(const wxString &componentIdentifier)
             codeEditor = new CodeContainer(mainCode, componentIdentifier);
             mainCode->GetSizer()->Add(codeEditor, 1, wxEXPAND);
             codeEditor->Show();
-			mainCode->GetSizer()->Layout();
-			mainCode->Update();
+            mainCode->GetSizer()->Layout();
+            mainCode->Update();
         }
         else
             codeEditor->Show();
@@ -485,15 +496,23 @@ void FilesTree::OnDirRightClick(wxMouseEvent &event)
     else if (target->GetName() == "dir_name")
         target = target->GetGrandParent();
 
-    if (!wxDirExists(target->GetName()))
+    bool targetIsprojectInformations =
+        target->GetId() == +GUI::ControlID::ProjectToggler ||
+        target->GetId() == +GUI::ControlID::ProjectToolsName ||
+        target->GetId() == +GUI::ControlID::ProjectToolsArrow;
+
+    if (!wxDirExists(target->GetName()) && !targetIsprojectInformations)
     {
         wxMessageBox(ErrorMessages::CannotOpenDir, "Error", wxOK | wxICON_ERROR);
         return;
     }
 
-    ProjectSettings::Get().SetCurrentlyMenuDir(target->GetName());
+    if (targetIsprojectInformations)
+        ProjectSettings::Get().SetCurrentlyMenuDir(ProjectSettings::Get().GetProjectPath());
+    else
+        ProjectSettings::Get().SetCurrentlyMenuDir(target->GetName());
 
-    auto menuDir = DirContextMenu::Get();
+    auto menuDir = DirContextMenu::Get(targetIsprojectInformations);
     if (!menuDir)
     {
         wxMessageBox(ErrorMessages::CreateMenuContextError, "Error", wxOK | wxICON_ERROR);
@@ -506,7 +525,7 @@ void FilesTree::OnDirRightClick(wxMouseEvent &event)
 void FilesTree::ToggleDirVisibility(const wxString &componentIdentifier, bool defaultShow)
 {
     auto dirContainer = FindWindowByLabel(componentIdentifier + "_dir_container");
-    
+
     if (!dirContainer)
         return;
 
@@ -582,7 +601,7 @@ void FilesTree::AdjustContainerSize(wxWindow *target, bool reduceSize)
             }
             parent->Layout();
 
-            wxSize size(parent->GetSize().x, 17);
+            wxSize size(parent->GetSize().x, 20);
             for (auto &&child : parent->GetChildren())
             {
                 if (child->IsShownOnScreen())
@@ -843,7 +862,18 @@ void FilesTree::OnFileSystemEvent(int type, const wxString &oldPath, wxString ne
         return;
 
     wxFileName fullPath(newPath);
-    wxString parentPath = fullPath.GetPath(wxPATH_GET_VOLUME | wxPATH_GET_SEPARATOR);
+    wxString parentPath;
+
+    if (fullPath.IsDir())
+    {
+        fullPath.RemoveLastDir();
+        parentPath = fullPath.GetPath() + PlatformInfos::OsPathSeparator();
+    }
+    else
+    {
+        parentPath = fullPath.GetPath(wxPATH_GET_VOLUME | wxPATH_GET_SEPARATOR);
+    }
+
     auto parentComponent = wxFindWindowByLabel(parentPath + "_dir_childrens");
     if (parentPath == ProjectSettings::Get().GetProjectPath())
         parentComponent = m_projectFilesContainer;
@@ -852,21 +882,25 @@ void FilesTree::OnFileSystemEvent(int type, const wxString &oldPath, wxString ne
 
     auto linkedEditor = ((CodeContainer *)FindWindowByName(oldPath + "_codeContainer"));
     auto linkedTab = wxFindWindowByLabel(oldPath + "_tab");
-
     bool isFile = !std::filesystem::is_directory(newPath.ToStdString());
 
-    auto CreateWithPosition = [this, newPath, isFile, parentComponent]()
+    auto CreateWithPosition = [this, newPath, isFile, parentComponent, parentPath]()
     {
         int position = 0;
-        const std::filesystem::path pd{wxFileName(newPath).GetPath().ToStdString()};
+        const std::filesystem::path pd{wxFileName(parentPath).GetPath().ToStdString()};
         for (auto const &entry : std::filesystem::directory_iterator{pd})
         {
-            if (entry.path() == newPath.ToStdString())
+            if (entry.is_directory())
             {
-                if (isFile)
-                    CreateFileContainer(parentComponent, newPath);
-                else
+                std::string dir_path = std::string(entry.path()) + PlatformInfos::OsPathSeparator().ToStdString();
+                if (dir_path == newPath.ToStdString())
                     CreateDirContainer(parentComponent, newPath, true, position);
+            }
+            else
+            {
+                std::string file_path = std::string(entry.path());
+                if (file_path == newPath.ToStdString())
+                    CreateFileContainer(parentComponent, newPath);
             }
             position++;
         }
