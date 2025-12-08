@@ -11,7 +11,9 @@
     "indicator": {
       "foreground": "#89cde8"
     },
-    "editorCaret": "#dedede"
+    "editorCaret": "#dedede",
+    "minimapViewport": "#e8e8e8",
+    "minimapCaretPosition": "#c3dde0"
   },
   "light": {
     "main": "#fff",
@@ -25,6 +27,8 @@
     "indicator": {
       "foreground": "#89cde8"
     },
-    "editorCaret": "#757575"
+    "editorCaret": "#757575",
+    "minimapViewport": "#8f8f8f",
+    "minimapCaretPosition": "#beebe8"
   }
 }

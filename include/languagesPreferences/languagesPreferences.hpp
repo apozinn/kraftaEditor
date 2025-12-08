@@ -55,7 +55,7 @@ public:
 
     /**
      * @brief Configures editor components for a specific language
-     * @param codeContainer Parent window containing editor/minimap
+     * @param codeContainer Parent window containing editor
      * @return Complete language configuration that was applied
      *
      * Performs full setup including:
@@ -118,28 +118,24 @@ private:
      * @brief Configures code folding for editor components
      * @param currentLanguagePreferences Active language config
      * @param editor Main editor control
-     * @param minimap Minimap editor control
      *
      * Applies settings from:
      * 1. Language-specific fold preferences
      * 2. Global fold configuration (foldSettings.json)
      */
     void SetupFold(const languagePreferencesStruct &currentLanguagePreferences,
-                   wxStyledTextCtrl *editor,
-                   wxStyledTextCtrl *minimap);
+                   wxStyledTextCtrl *editor);
 
     /**
      * @brief Configures syntax highlighting keywords
      * @param currentLanguagePreferences Active language config
      * @param editor Main editor control
-     * @param minimap Minimap editor control
      *
      * Processes all keyword lists defined in the language's
      * "syntax.keyword_lists" JSON section
      */
     void SetupReservedWords(const languagePreferencesStruct &currentLanguagePreferences,
-                            wxStyledTextCtrl *editor,
-                            wxStyledTextCtrl *minimap);
+                            wxStyledTextCtrl *editor);
 
     /**
      * @brief Configures autocomplete word suggestions
@@ -157,7 +153,6 @@ private:
      * @brief Applies visual styles to editor components
      * @param currentLanguagePreferences Active language config
      * @param editor Main editor control
-     * @param minimap Minimap editor control
      *
      * Handles:
      * - Color schemes (foreground/background)
@@ -165,8 +160,7 @@ private:
      * - Font family and sizing
      */
     void ApplyLexerStyles(const languagePreferencesStruct &currentLanguagePreferences,
-                          wxStyledTextCtrl *editor,
-                          wxStyledTextCtrl *minimap);
+                          wxStyledTextCtrl *editor);
 
     /**
      * @brief Updates status bar with language info

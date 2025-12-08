@@ -5,6 +5,8 @@
 #include "./code.hpp"
 #include <wx/filename.h>
 
+#include <wx/stc/stc.h>
+
 CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxScrolled<wxPanel>(parent, wxID_ANY, wxDefaultPosition)
 {
     Hide();
@@ -13,26 +15,24 @@ CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxScrolled<wxPan
 
     editor = new Editor(this);
     editor->SetMinSize(wxSize(parent->GetSize().x - 100, parent->GetSize().y));
-    minimap = new MiniMap(this);
+    minimap = new MiniMap(this, editor);
+
+    editor->m_linked_minimap = minimap;
 
     sizer->Add(editor, 1, wxEXPAND);
     sizer->Add(minimap, 0, wxEXPAND);
 
     SetSizerAndFit(sizer);
     LoadPath(path);
-	Layout();	
+    Layout();
 
     if (UserSettings["show_minimap"] == false)
         minimap->Hide();
 
     if (PlatformInfos::IsWindows())
-    {
         font = wxFont(wxFontInfo(10).FaceName("Cascadia Code"));
-    }
     else
-    {
         font = wxFont(wxFontInfo(10).FaceName("Monospace"));
-    }
 
     wxAcceleratorEntry entries[2];
     entries[0].Set(wxACCEL_CTRL, WXK_CONTROL_S, +Event::File::Save);
@@ -46,7 +46,7 @@ CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxScrolled<wxPan
 void CodeContainer::LoadPath(wxString path)
 {
     wxFileName file_props(path);
-    if (file_props.IsOk() && file_props.FileExists() && editor && minimap)
+    if (file_props.IsOk() && file_props.FileExists() && editor)
     {
         SetName(path);
         SetLabel(path + "_codeContainer");
@@ -55,29 +55,33 @@ void CodeContainer::LoadPath(wxString path)
         editor->SetLabel(path + "_codeEditor");
         editor->SetName(path);
         editor->LoadFile(path);
+
         wxString text = editor->GetText().Upper();
         editor->HighlightSyntax(0, editor->GetTextLength(), text);
         editor->UpdateFoldLevels(0, 0, text);
 
         minimap->SetLabel(path + "_codeMap");
         minimap->SetName(path);
-        minimap->LoadFile(path);
         statusBar->UpdateComponents(path);
 
         languagePreferences = LanguagesPreferences::Get().SetupLanguagesPreferences(this);
+
         editor->SetAutoCompleteWordsList(LanguagesPreferences::Get().GetAutoCompleteWordsList(languagePreferences));
         editor->SetLanguagesPreferences(languagePreferences);
 
-		Save(path);
+        Save(path);
 
-		GetParent()->Layout();
-		Layout();
+        editor->SendMsg(4003, 0, -1);
+
+        minimap->languagePreferences = languagePreferences;
+        minimap->ExtractStyledText();
     }
     else
     {
         wxLogError("There was an error opening the file");
     }
 
+    GetParent()->Layout();
     Layout();
 }
 

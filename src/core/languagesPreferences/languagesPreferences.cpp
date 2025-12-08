@@ -61,12 +61,10 @@ languagePreferencesStruct LanguagesPreferences::SetupLanguagesPreferences(wxWind
     {
         wxString path = codeContainer->GetName();
         wxStyledTextCtrl *editor = ((wxStyledTextCtrl *)codeContainer->GetChildren()[0]);
-        wxStyledTextCtrl *minimap = ((wxStyledTextCtrl *)codeContainer->GetChildren()[1]);
 
         languagePreferencesStruct currentLanguagePreferences = GetLanguagePreferences(path);
 
         editor->SetLexer(currentLanguagePreferences.lexer);
-        minimap->SetLexer(currentLanguagePreferences.lexer);
 
         if (currentLanguagePreferences.preferences.contains("lexer_settings"))
         {
@@ -75,10 +73,10 @@ languagePreferencesStruct LanguagesPreferences::SetupLanguagesPreferences(wxWind
             editor->SetIndent(tabWidth);
         }
 
-        ApplyLexerStyles(currentLanguagePreferences, editor, minimap);
-        SetupReservedWords(currentLanguagePreferences, editor, minimap);
+        ApplyLexerStyles(currentLanguagePreferences, editor);
+        SetupReservedWords(currentLanguagePreferences, editor);
         SetupAutoCompleteWords(currentLanguagePreferences, editor);
-        SetupFold(currentLanguagePreferences, editor, minimap);
+        SetupFold(currentLanguagePreferences, editor);
         UpdateStatusBar(currentLanguagePreferences);
 
         return currentLanguagePreferences;
@@ -162,7 +160,7 @@ languagePreferencesStruct LanguagesPreferences::GetLanguagePreferences(const wxS
     }
 }
 
-void LanguagesPreferences::SetupFold(const languagePreferencesStruct &currentLanguagePreferences, wxStyledTextCtrl *editor, wxStyledTextCtrl *minimap)
+void LanguagesPreferences::SetupFold(const languagePreferencesStruct &currentLanguagePreferences, wxStyledTextCtrl *editor)
 {
     if (!currentLanguagePreferences.preferences.contains("fold"))
         return;
@@ -245,10 +243,9 @@ void LanguagesPreferences::SetupFold(const languagePreferencesStruct &currentLan
     editor->SetMarginSensitive(2, true);
 
     setPreferences(editor);
-    setPreferences(minimap);
 }
 
-void LanguagesPreferences::SetupReservedWords(const languagePreferencesStruct &currentLanguagePreferences, wxStyledTextCtrl *editor, wxStyledTextCtrl *minimap)
+void LanguagesPreferences::SetupReservedWords(const languagePreferencesStruct &currentLanguagePreferences, wxStyledTextCtrl *editor)
 {
     if (currentLanguagePreferences.preferences.contains("syntax"))
     {
@@ -263,7 +260,6 @@ void LanguagesPreferences::SetupReservedWords(const languagePreferencesStruct &c
         };
 
         setupPreferences(editor);
-        setupPreferences(minimap);
     }
 }
 
@@ -330,7 +326,7 @@ wxString LanguagesPreferences::GetLanguageIconPath(const wxString &path)
         return ApplicationPaths::GetLanguageIcon("unknown");
 }
 
-void LanguagesPreferences::ApplyLexerStyles(const languagePreferencesStruct &currentLanguagePreferences, wxStyledTextCtrl *editor, wxStyledTextCtrl *minimap)
+void LanguagesPreferences::ApplyLexerStyles(const languagePreferencesStruct &currentLanguagePreferences, wxStyledTextCtrl *editor)
 {
     try
     {
@@ -377,9 +373,6 @@ void LanguagesPreferences::ApplyLexerStyles(const languagePreferencesStruct &cur
         }
 
         setStyles(editor);
-        setStyles(minimap);
-
-        minimap->Update();
     }
     catch (const json::exception &e)
     {

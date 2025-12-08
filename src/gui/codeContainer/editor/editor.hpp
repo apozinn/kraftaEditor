@@ -20,6 +20,7 @@
 #include "appPaths/appPaths.hpp"
 #include "gui/widgets/statusBar/statusBar.hpp"
 #include "languagesPreferences/languagesPreferences.hpp"
+#include "gui/codeContainer/minimap/minimap.hpp"
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -155,14 +156,14 @@ public:
      */
     void SetLanguagesPreferences(languagePreferencesStruct languagePreferences) { this->m_LanguagePreferences = languagePreferences; }
 
-private:
     /**
      * @brief Pointer to an optional synchronized minimap view of the document.
      *
      * Used to display a small-scale, mirrored overview of the code. May be **nullptr**
      * if the minimap feature is disabled or not attached.
      */
-    wxStyledTextCtrl *MiniMap = nullptr;
+    MiniMap *m_linked_minimap = nullptr;
+private:
 
     /**
      * @brief Path of the currently opened file.
@@ -402,7 +403,7 @@ private:
     /**
      * @brief Updates the content of the minimap to match the editor's buffer.
      */
-    void UpdateMiniMapText();
+    void UpdateMiniMapText(int pos, const wxString &text);
 
     /**
      * @brief Implements smart indentation logic upon inserting a newline.
@@ -424,7 +425,7 @@ private:
     /**
      * @brief Synchronizes the minimap's visible range with the editor's first visible line.
      */
-    void SetMiniMapLine();
+    void SetMiniMapLine(int line);
 
     wxDECLARE_NO_COPY_CLASS(Editor);
     wxDECLARE_EVENT_TABLE();
