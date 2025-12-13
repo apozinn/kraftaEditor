@@ -56,7 +56,25 @@ void QuickOpen::OnSearchBarChange(wxCommandEvent &WXUNUSED(event))
 {
     wxString search = m_searchBar->GetValue();
     if (search.IsEmpty())
-        return;
+    {
+        for (auto const &entry : m_files)
+        {
+            entry.panel->Show();
+        }
+    }
+    else
+    {
+        for (auto const &entry : m_files)
+        {
+            if (entry.path.Contains(search))
+                entry.panel->Show();
+            else
+                entry.panel->Hide();
+        }
+    }
+
+    scrolledContainer->FitInside();
+    ChangeCurrentSelectedFile("up");
 }
 
 void QuickOpen::CreateScrolledContainer()
@@ -64,15 +82,46 @@ void QuickOpen::CreateScrolledContainer()
     scrolledContainer = new wxScrolled<wxPanel>(this);
     scrolledContainer->SetName("QuickOpenScrolledContainer");
 
+    namespace fs = std::filesystem;
+
     int i = 0;
-    for (auto const &entry : std::filesystem::directory_iterator{ProjectSettings::Get().GetProjectPath().ToStdString()})
+
+    fs::path root(ProjectSettings::Get().GetProjectPath().ToStdWstring());
+
+    fs::recursive_directory_iterator it(root), end;
+
+    for (; it != end; ++it)
     {
-        if (i == 0)
-            m_selectedFilePath = entry.path();
+        const fs::directory_entry &entry = *it;
+        const fs::path &path = entry.path();
+
         if (entry.is_directory())
+        {
+            std::string dirName = path.filename().string();
+
+            if (kIgnoredDirs.contains(dirName))
+            {
+                it.disable_recursion_pending();
+            }
             continue;
-        CreateFileContainer(QuickOpenFileStruct(entry.path().filename().string(), entry.path()));
-        i++;
+        }
+
+        if (!entry.is_regular_file())
+            continue;
+
+        wxString fullPath = wxString::FromUTF8(path.string());
+        wxString fileName = wxString::FromUTF8(path.filename().string());
+
+        if (i == 0)
+            m_selectedFilePath = fullPath;
+
+        CreateFileContainer(
+            QuickOpenFileStruct(
+                fileName.ToStdString(),
+                fullPath.ToStdString(),
+                nullptr));
+
+        ++i;
     }
 
     scrolledContainer->FitInside();
@@ -84,6 +133,8 @@ void QuickOpen::CreateFileContainer(QuickOpenFileStruct file)
     wxPanel *fileContainer = new wxPanel(scrolledContainer);
     fileContainer->SetName("QuickOpenFileContainer_" + file.path);
     fileContainer->SetLabel(file.path);
+
+    m_files.push_back({file.name, file.path, fileContainer});
 
     wxBoxSizer *fileContainerSizer = new wxBoxSizer(wxHORIZONTAL);
 

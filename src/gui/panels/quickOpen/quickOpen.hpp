@@ -2,41 +2,71 @@
 
 #include <wx/wx.h>
 #include <wx/scrolwin.h>
+#include <unordered_set>
 
 #include "ui/ids.hpp"
 #include "themesManager/themesManager.hpp"
 
 /**
  * @struct QuickOpenFileStruct
- * @brief Represents a file entry displayed in the Quick Open panel.
+ * @brief Represents a file entry indexed and displayed by the Quick Open panel.
  *
- * This structure stores basic metadata about a file that can be selected
- * through the Quick Open interface.
+ * This structure stores metadata required both for rendering the UI entry
+ * and for opening the corresponding file when selected.
  */
 struct QuickOpenFileStruct
 {
-    /** Display name of the file */
-    std::string name;
+    /** File display name (usually filename only) */
+    wxString name;
 
-    /** Absolute or relative filesystem path to the file */
-    std::string path;
+    /** Full filesystem path to the file */
+    wxString path;
+
+    /** Panel associated with this file entry in the UI list */
+    wxPanel *panel;
 };
 
 /**
+ * @brief Set of directory names ignored during project file indexing.
+ *
+ * These directories are skipped entirely during recursive filesystem traversal
+ * in order to avoid unnecessary IO, improve performance, and prevent indexing
+ * of generated or external dependency files.
+ *
+ * This list mirrors common editor exclusions (e.g. VS Code).
+ */
+static const std::unordered_set<std::string> kIgnoredDirs = {
+    ".git",
+    ".svn",
+    ".hg",
+    "build",
+    "dist",
+    "out",
+    "node_modules",
+    ".vscode",
+    ".idea",
+    "__pycache__",
+    "cmake-build-debug",
+    "cmake-build-release"};
+
+/**
  * @class QuickOpen
- * @brief Quick Open panel similar to VS Code's "Quick Open" feature.
+ * @brief Keyboard-driven file navigation panel (Ctrl+P).
  *
- * This panel provides a searchable list of files within the current project,
- * allowing fast keyboard-driven navigation and selection.
+ * QuickOpen provides a fast, searchable interface for locating and opening
+ * files within the current project, inspired by Visual Studio Code's
+ * "Quick Open" feature.
  *
- * Features:
- * - Text-based filtering using a search input
- * - Keyboard navigation (Up / Down / Enter)
- * - Mouse interaction support
- * - Fully themed via ThemesManager
- * - Non-copyable wxWidgets component
+ * Core responsibilities:
+ * - Display a searchable list of project files
+ * - Handle keyboard navigation and selection
+ * - Integrate with the editor theming system
+ * - Manage focus and lifecycle independently
  *
- * The panel is intended to be created dynamically and destroyed when closed.
+ * Design notes:
+ * - Files are indexed once and filtered in-memory
+ * - Navigation is optimized for keyboard-first usage
+ * - The panel is ephemeral and destroyed on close
  */
 class QuickOpen : public wxPanel
 {
@@ -44,16 +74,16 @@ public:
     /**
      * @brief Constructs the Quick Open panel.
      *
-     * Creates all internal UI elements but does not assume focus handling.
-     * Final initialization (focus, accelerators) should occur after the panel
-     * is shown.
+     * Initializes all UI elements and internal state.
+     * Focus handling and accelerator setup are performed explicitly
+     * after creation.
      *
-     * @param parent Pointer to the parent wxFrame (usually the main window).
+     * @param parent Pointer to the parent wxFrame (typically the main window).
      */
     explicit QuickOpen(wxFrame *parent);
 
     /**
-     * @brief Handles keyboard "Up" navigation.
+     * @brief Handles keyboard navigation upwards.
      *
      * Moves the current selection to the previous file entry.
      *
@@ -62,7 +92,7 @@ public:
     void OnKeyboardUp(wxCommandEvent &event);
 
     /**
-     * @brief Handles keyboard "Down" navigation.
+     * @brief Handles keyboard navigation downwards.
      *
      * Moves the current selection to the next file entry.
      *
@@ -71,18 +101,18 @@ public:
     void OnKeyboardDown(wxCommandEvent &event);
 
     /**
-     * @brief Handles keyboard "Enter" action.
+     * @brief Handles keyboard confirmation (Enter key).
      *
-     * Opens the currently selected file.
+     * Opens the currently selected file and closes the panel.
      *
      * @param event Keyboard command event.
      */
     void OnKeyboardEnter(wxCommandEvent &event);
 
     /**
-     * @brief Handles mouse left-click selection.
+     * @brief Handles mouse left-click on a file entry.
      *
-     * Selects the file entry under the mouse cursor.
+     * Updates the current selection and optionally triggers file opening.
      *
      * @param event Mouse event.
      */
@@ -91,7 +121,7 @@ public:
     /**
      * @brief Handles mouse hover over a file entry.
      *
-     * Updates visual feedback when the cursor enters a file entry.
+     * Updates visual highlighting to reflect hover state.
      *
      * @param event Mouse event.
      */
@@ -100,7 +130,7 @@ public:
     /**
      * @brief Handles mouse leaving a file entry.
      *
-     * Restores visual state when the cursor leaves a file entry.
+     * Restores the normal visual state of the entry.
      *
      * @param event Mouse event.
      */
@@ -109,48 +139,51 @@ public:
     /**
      * @brief Closes and destroys the Quick Open panel.
      *
-     * Typically triggered by ESC or selection completion.
+     * Typically triggered by ESC key or after a successful file selection.
      *
      * @param event Command event (unused).
      */
     void Close(wxCommandEvent &WXUNUSED(event));
 
 private:
-    /** Main vertical layout sizer */
+    /** Root vertical layout sizer */
     wxBoxSizer *m_sizer = new wxBoxSizer(wxVERTICAL);
 
-    /** Layout sizer for the scrollable file list */
+    /** Layout sizer for the scrollable list of file entries */
     wxBoxSizer *scrolledContainerSizer = new wxBoxSizer(wxVERTICAL);
 
     /** Layout sizer for the top search bar container */
     wxBoxSizer *topContainerSizer = new wxBoxSizer(wxVERTICAL);
 
-    /** Container holding the search bar */
+    /** Panel containing the search input */
     wxPanel *m_topContainer = nullptr;
 
-    /** Scrollable container for file entries */
+    /** Scrollable container holding file entry panels */
     wxScrolled<wxPanel> *scrolledContainer = nullptr;
 
-    /** Text input used to filter files */
+    /** Text input used to filter indexed files */
     wxTextCtrl *m_searchBar = nullptr;
 
-    /** Theme manager instance */
+    /** Centralized theme manager instance */
     ThemesManager Theme = ThemesManager::Get();
 
-    /** Path of the currently selected file */
+    /** Full path of the currently selected file */
     std::string m_selectedFilePath;
 
+    /** Cached list of indexed project files */
+    std::vector<QuickOpenFileStruct> m_files;
+
     /**
-     * @brief Configures keyboard accelerators for the panel.
+     * @brief Configures keyboard accelerators and shortcuts.
      *
-     * Handles ESC, navigation keys and selection actions.
+     * Handles ESC, Enter, Up, and Down keys regardless of focus.
      */
     void SetAccelerators();
 
     /**
-     * @brief Creates and initializes the search bar.
+     * @brief Creates and configures the search bar control.
      *
-     * The search bar is used to filter visible file entries.
+     * The search bar drives real-time filtering of file entries.
      */
     void CreateSearchBar();
 
@@ -160,36 +193,35 @@ private:
     void CreateScrolledContainer();
 
     /**
-     * @brief Handles changes in the search input.
+     * @brief Handles text changes in the search bar.
      *
-     * Filters file entries based on the current search text.
+     * Filters the displayed file list based on the current input.
      *
      * @param event Text change event.
      */
     void OnSearchBarChange(wxCommandEvent &event);
 
     /**
-     * @brief Intercepts keyboard input before child controls.
+     * @brief Intercepts key events before child controls.
      *
-     * Used to capture global keys such as ESC regardless of focus.
+     * Used to capture global keys such as ESC even when the search
+     * bar has focus.
      *
      * @param event Key event.
      */
     void OnTextCharHook(wxKeyEvent &event);
 
     /**
-     * @brief Creates a visual entry for a file in the list.
+     * @brief Creates a visual UI entry for a file.
      *
-     * @param file File metadata structure.
+     * @param file Metadata describing the file to display.
      */
     void CreateFileContainer(QuickOpenFileStruct file);
 
     /**
-     * @brief Changes the currently selected file entry.
+     * @brief Updates the currently selected file entry.
      *
-     * Direction is typically "up" or "down".
-     *
-     * @param direction Navigation direction.
+     * @param direction Navigation direction ("up" or "down").
      */
     void ChangeCurrentSelectedFile(const std::string &direction);
 
