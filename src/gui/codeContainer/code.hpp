@@ -26,7 +26,7 @@
  *
  * It manages file loading, saving, and keyboard shortcuts related to code editing and file operations.
  */
-class CodeContainer : public wxScrolled<wxPanel>
+class CodeContainer : public wxPanel
 {
 public:
     /**

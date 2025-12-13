@@ -56,6 +56,7 @@ MenuBar::MenuBar() {
 
 		wxMenu* menuTools = new wxMenu;
 		menuTools->Append(+Event::View::ToggleControlPanel, _("&Command Palette\tCtrl+Shift+P"));
+		menuTools->Append(+Event::View::ToggleQuickOpen, _("&Quick Open\tCtrl+P"));
 		menuTools->Append(+Event::Terminal::Open, _("&Open Terminal\tCtrl+J"));
 
 		wxMenu* menuPreference = new wxMenu;

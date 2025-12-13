@@ -53,6 +53,7 @@ using json = nlohmann::json;
 #include "gui/widgets/statusBar/statusBar.hpp"
 #include "gui/widgets/openFolderButton/openFolderButton.hpp"
 #include "gui/panels/controlPanel/controlPanel.hpp"
+#include "gui/panels/quickOpen/quickOpen.hpp"
 
 /**
  * @class MainFrame
@@ -164,6 +165,12 @@ public:
     void OnToggleControlPanel(wxCommandEvent &WXUNUSED(event));
 
     /**
+     * @brief Toggles the visibility of the Quick Open panel.
+     * @param WXUNUSED(event) The command event.
+     */
+    void OnToggleQuickOpen(wxCommandEvent &WXUNUSED(event));
+
+    /**
      * @brief Toggles the visibility of the file tree view panel.
      * @param WXUNUSED(event) The command event.
      */
@@ -220,6 +227,7 @@ private:
     StatusBar *m_statusBar; /**< The application status bar. */
     OpenFolderButton *m_openFolderButton; /**< Button shown in the empty workspace view. */
     ControlPanel *m_controlPanel; /**< Panel for controls like source control or project settings. */
+    QuickOpen *m_quickOpen; /**< Panel for quick file opening. */
     wxSplitterWindow *m_mainSplitter; /**< The primary splitter dividing the file tree and editor area. */
     wxPanel *m_applicationLeftMainContainer; /**< Container for the file tree and related side content. */
     wxPanel *m_applicationRightMainContainer; /**< Container for the tabs and editor area. */

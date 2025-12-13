@@ -7,7 +7,7 @@
 
 #include <wx/stc/stc.h>
 
-CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxScrolled<wxPanel>(parent, wxID_ANY, wxDefaultPosition)
+CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxPanel(parent, wxID_ANY, wxDefaultPosition)
 {
     Hide();
 

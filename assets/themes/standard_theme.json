@@ -2,6 +2,7 @@
   "dark": {
     "main": "#1C1C1C",
     "secondary": "#292929",
+    "colorThree": "#d1d1d1",
     "highlight": "#008ff5",
     "border": "#5F5F5F",
     "tint": "#00b5cc",
@@ -18,6 +19,7 @@
   "light": {
     "main": "#fff",
     "secondary": "#ededed",
+    "colorThree": "#d1d1d1",
     "highlight": "#008ff5",
     "border": "#d1d1d1",
     "tint": "#00b5cc",

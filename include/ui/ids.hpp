@@ -19,6 +19,7 @@ constexpr wxWindowID ID_BASE_PROJECT = 12000;  ///< Base ID for project operatio
 constexpr wxWindowID ID_BASE_VIEW = 13000;     ///< Base ID for view operations
 constexpr wxWindowID ID_BASE_TERMINAL = 14000; ///< Base ID for terminal operations
 constexpr wxWindowID ID_BASE_CONTROL = 15000;  ///< Base ID for control panel
+constexpr wxWindowID ID_BASE_QUICK_OPEN = 15500;  ///< Base ID for control panel
 constexpr wxWindowID ID_BASE_SEARCH = 16000;   ///< Base ID for search operations
 constexpr wxWindowID ID_BASE_SETTINGS = 17000; ///< Base ID for user settings
 constexpr wxWindowID ID_BASE_EDIT = 18000;     ///< Base ID for code edit
@@ -68,7 +69,9 @@ namespace GUI
         NotifyPanel,                   ///< Notification/alert panel
         ProjectToolsName,              ///< Label showing project name in tools panel
         ProjectToolsArrow,             ///< Arrow control in project tools panel
+        QuickOpenSearchBar,            ///< Search bar for quick file opening
         OpenFolderButton,              ///< Button to open folder dialog
+        QuickOpen,                     ///< Quick file opening panel
     };
 
 } // namespace GUI
@@ -150,7 +153,8 @@ namespace Event
         ToggleControlPanel = ID_BASE_VIEW + 5, ///< Show/hide control panel
         ToggleTabBar = ID_BASE_VIEW + 6,       ///< Show/hide tab bar
         ToggleCodeSearch = ID_BASE_VIEW + 7,   ///< Show/hide code search panel
-        FocusMode = ID_BASE_VIEW + 8           ///< Toggle distraction-free focus mode
+        FocusMode = ID_BASE_VIEW + 8,           ///< Toggle distraction-free focus mode
+        ToggleQuickOpen = ID_BASE_VIEW + 9,     ///< Show/hide quick open panel
     };
 
     /**
@@ -195,6 +199,18 @@ namespace Event
         Up = ID_BASE_CONTROL + 2,    ///< Navigate up in control panel
         Down = ID_BASE_CONTROL + 3,  ///< Navigate down in control panel
         Select = ID_BASE_CONTROL + 4 ///< Select item in control panel
+    };
+    
+    /**
+     * @enum Quick Open
+     * @brief Quick Open emulator events
+     */
+    enum class QuickOpen : wxWindowID
+    {
+        Exit = ID_BASE_QUICK_OPEN + 1,  ///< Exit quick open mode
+        Up = ID_BASE_QUICK_OPEN + 2,    ///< Navigate up in quick open
+        Down = ID_BASE_QUICK_OPEN + 3,  ///< Navigate down in quick open
+        Select = ID_BASE_QUICK_OPEN + 4 ///< Select item in quick open
     };
 
     /**

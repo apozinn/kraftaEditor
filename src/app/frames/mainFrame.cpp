@@ -142,11 +142,18 @@ void MainFrame::SetupStatusBar()
 void MainFrame::SetupAccelerators()
 {
     wxAcceleratorEntry entries[4];
+
     entries[0].Set(wxACCEL_ALT, WXK_ALT, +Event::View::ToggleMenuBar);
+
     entries[1].Set(wxACCEL_CTRL, WXK_SHIFT, +Event::View::ToggleControlPanel);
     entries[1].FromString("Ctrl+Shift+P");
-    entries[2].Set(wxACCEL_CTRL, WXK_CONTROL_F, +Event::View::ToggleCodeSearch);
-    entries[2].FromString("Ctrl+F");
+    
+    entries[2].Set(wxACCEL_CTRL, int('P'), +Event::View::ToggleQuickOpen);
+    entries[2].FromString("Ctrl+P");
+
+    entries[3].Set(wxACCEL_CTRL, WXK_CONTROL_F, +Event::View::ToggleCodeSearch);
+    entries[3].FromString("Ctrl+F");
+
     wxAcceleratorTable accel(4, entries);
     SetAcceleratorTable(accel);
 }
@@ -501,6 +508,14 @@ void MainFrame::OnToggleControlPanel(wxCommandEvent &WXUNUSED(event))
         m_controlPanel->Destroy();
     else
         m_controlPanel = new ControlPanel(this, +GUI::ControlID::ControlPanel);
+}
+
+void MainFrame::OnToggleQuickOpen(wxCommandEvent &WXUNUSED(event)) 
+{
+    if (FindWindowById(+GUI::ControlID::QuickOpen))
+        m_quickOpen->Destroy();
+    else
+        m_quickOpen = new QuickOpen(this);
 }
 
 void MainFrame::OnToggleFileTreeView(wxCommandEvent &WXUNUSED(event))
