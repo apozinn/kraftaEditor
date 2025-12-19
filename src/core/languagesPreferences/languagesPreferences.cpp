@@ -104,7 +104,7 @@ languagePreferencesStruct LanguagesPreferences::GetLanguagePreferences(const wxS
 
             if (!dir.IsOpened())
             {
-                wxLogError("Não foi possível abrir a pasta: %s", languageDir);
+                wxLogError("Could not open folder: %s", languageDir);
                 throw std::runtime_error(ERROR_LANGUAGES_PREFERENCES_FILE_NOT_FOUND);
             }
 
@@ -172,7 +172,7 @@ void LanguagesPreferences::SetupFold(const languagePreferencesStruct &currentLan
     wxString foldSettingsPath = ApplicationPaths::GetConfigPath("foldSettings") + "foldSettings.json";
     if (!wxFileExists(foldSettingsPath))
     {
-        wxMessageBox("Não foi possível acessar as configurações do fold:", "Fold Error");
+        wxMessageBox("Unable to access fold settings:", "Fold Error");
         return;
     }
 
