@@ -56,10 +56,6 @@ void CodeContainer::LoadPath(wxString path)
         editor->SetName(path);
         editor->LoadFile(path);
 
-        wxString text = editor->GetText().Upper();
-        editor->HighlightSyntax(0, editor->GetTextLength(), text);
-        editor->UpdateFoldLevels(0, 0, text);
-
         minimap->SetLabel(path + "_codeMap");
         minimap->SetName(path);
         statusBar->UpdateComponents(path);
@@ -70,7 +66,6 @@ void CodeContainer::LoadPath(wxString path)
         editor->SetLanguagesPreferences(languagePreferences);
 
         Save(path);
-
         editor->SendMsg(4003, 0, -1);
 
         minimap->languagePreferences = languagePreferences;

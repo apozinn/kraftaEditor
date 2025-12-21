@@ -5,9 +5,10 @@
 #include <algorithm>
 #include <cctype>
 
-Editor::Editor(wxWindow *parent) : wxStyledTextCtrl(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE)
+Editor::Editor(wxWindow *parent)
+    : wxStyledTextCtrl(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE)
 {
-    currentPath = parent->GetLabel();
+    currentPath = parent ? parent->GetLabel() : wxString{};
     InitializePreferences();
     ConfigureFoldMargin();
 }
@@ -32,8 +33,10 @@ void Editor::InitializePreferences()
     SetCaretForeground(ThemesManager::Get().GetColor("editorCaret"));
     SetCaretWidth(3);
 
-    SetMarginWidth(EditorConstants::LINE_NUMBER_MARGIN, TextWidth(wxSTC_STYLE_LINENUMBER, wxT("_99999")));
+    SetMarginWidth(EditorConstants::LINE_NUMBER_MARGIN,
+                   TextWidth(wxSTC_STYLE_LINENUMBER, wxT("_99999")));
     SetMarginType(EditorConstants::LINE_NUMBER_MARGIN, wxSTC_MARGIN_NUMBER);
+
     StyleSetForeground(wxSTC_STYLE_LINENUMBER, wxColor(secondaryTextColor));
     StyleSetBackground(wxSTC_STYLE_LINENUMBER, wxColor(backgroundColor));
 
@@ -47,10 +50,10 @@ void Editor::InitializePreferences()
         {wxACCEL_CTRL | wxACCEL_ALT | wxACCEL_SHIFT, (int)'D', static_cast<int>(Event::Edit::DuplicateLineUp)},
         {wxACCEL_CTRL, (int)'D', static_cast<int>(Event::Edit::SelectNextOccurrence)}};
 
-    wxAcceleratorTable accel(sizeof(entries) / sizeof(entries[0]), entries);
-    SetAcceleratorTable(accel);
+    SetAcceleratorTable(wxAcceleratorTable(WXSIZEOF(entries), entries));
 
-    m_AutoCompleteWordsList = LanguagesPreferences::Get().GetAutoCompleteWordsList(m_LanguagePreferences);
+    m_AutoCompleteWordsList =
+        LanguagesPreferences::Get().GetAutoCompleteWordsList(m_LanguagePreferences);
 }
 
 void Editor::ConfigureFoldMargin()
@@ -64,26 +67,30 @@ void Editor::ConfigureFoldMargin()
 
     SetFoldMarginColour(true, wxColor(backgroundColor));
     SetFoldMarginHiColour(true, wxColor(backgroundColor));
-    SetFoldFlags(wxSTC_FOLDFLAG_LINEAFTER_CONTRACTED | wxSTC_FOLDFLAG_LINEBEFORE_EXPANDED);
+    SetFoldFlags(wxSTC_FOLDFLAG_LINEAFTER_CONTRACTED |
+                 wxSTC_FOLDFLAG_LINEBEFORE_EXPANDED);
 }
 
 void Editor::OnUpdateUI(wxStyledTextEvent &event)
 {
     HighlightSelectionOccurrences();
-    m_linked_minimap->ExtractStyledText();
+
+    if (m_linked_minimap)
+        m_linked_minimap->ExtractStyledText();
+
     event.Skip();
 }
 
 void Editor::OnChange(wxStyledTextEvent &event)
 {
-    if (event.GetString().IsEmpty() || GetModify() == false)
-    return;
-
-    if (GetModify())
+    if (!GetModify())
     {
-        UpdateUnsavedIndicator();
-        changedFile = true;
+        event.Skip();
+        return;
     }
+
+    changedFile = true;
+    UpdateUnsavedIndicator();
 
     if (statusBar)
         statusBar->UpdateCodeLocale(this);
@@ -100,10 +107,9 @@ void Editor::OnMarginClick(wxStyledTextEvent &event)
     }
 
     const int line = LineFromPosition(event.GetPosition());
-    const int foldLevel = GetFoldLevel(line);
-    const bool isHeader = (foldLevel & wxSTC_FOLDLEVELHEADERFLAG) != 0;
+    const int level = GetFoldLevel(line);
 
-    if (isHeader)
+    if (level & wxSTC_FOLDLEVELHEADERFLAG)
         ToggleFold(line);
 
     event.Skip();
@@ -112,44 +118,32 @@ void Editor::OnMarginClick(wxStyledTextEvent &event)
 void Editor::OnBackspace(wxKeyEvent &event)
 {
     const int key = event.GetKeyCode();
+
     if (key != WXK_BACK && key != WXK_DELETE)
     {
         event.Skip();
         return;
     }
 
-    const long startPos = GetSelectionStart();
-    const long endPos = GetSelectionEnd();
-    const bool hasSelection = (startPos != endPos);
+    const long start = GetSelectionStart();
+    const long end = GetSelectionEnd();
 
-    if (hasSelection)
+    if (start != end)
     {
-        wxString selectedText = GetTextRange(startPos, endPos);
-        if (selectedText.Length() == EditorConstants::MIN_SELECTION_LENGTH)
-        {
-            auto it = kPairMap.find(selectedText.Mid(1, 1));
-            if (it != kPairMap.end() && it->second == selectedText.Mid(0, 1))
-            {
-                Remove(startPos, endPos);
-                return;
-            }
-        }
-        Remove(startPos, endPos);
+        Remove(start, end);
         return;
     }
 
     const long pos = GetCurrentPos();
-    if (pos == 0 && key == WXK_BACK)
+
+    if (pos <= 0 && key == WXK_BACK)
     {
         event.Skip();
         return;
     }
 
-    wxString prevChar, nextChar;
-    if (pos > 0)
-        prevChar = GetTextRange(pos - 1, pos);
-    if (pos < GetLength())
-        nextChar = GetTextRange(pos, pos + 1);
+    const wxString prevChar = pos > 0 ? GetTextRange(pos - 1, pos) : "";
+    const wxString nextChar = pos < GetLength() ? GetTextRange(pos, pos + 1) : "";
 
     if (key == WXK_BACK)
     {
@@ -160,7 +154,8 @@ void Editor::OnBackspace(wxKeyEvent &event)
             return;
         }
     }
-    else if (key == WXK_DELETE)
+
+    if (key == WXK_DELETE)
     {
         auto it = kPairMap.find(prevChar);
         if (it != kPairMap.end() && it->second == nextChar)
@@ -176,386 +171,281 @@ void Editor::OnBackspace(wxKeyEvent &event)
 void Editor::OnArrowsPress(wxKeyEvent &event)
 {
     ClearIndicators();
-    if (event.GetKeyCode() == '2')
-    {
-        InsertText(GetCurrentPos(), "2");
-        GotoPos(GetCurrentPos() + 1);
-    }
+
     if (statusBar)
         statusBar->UpdateCodeLocale(this);
+
     event.Skip();
 }
 
 void Editor::OnClick(wxMouseEvent &event)
 {
-    event.Skip();
     ClearIndicators();
+
     if (statusBar)
         statusBar->UpdateCodeLocale(this);
-}
 
-void Editor::OnClipBoardPaste(wxStyledTextEvent &event)
-{
     event.Skip();
 }
 
 void Editor::OnScroll(wxMouseEvent &event)
 {
-    SetMiniMapLine(GetFirstVisibleLine());
     event.Skip();
 }
 
 bool Editor::Modified() const
 {
-    return GetModify() && !GetReadOnly() && IsModified();
-}
-
-void Editor::OnStyleNeeded(wxStyledTextEvent &WXUNUSED(event))
-{
-    const int currentLine = GetCurrentLine();
-    const int styledLine = LineFromPosition(GetEndStyled());
-    int startLine = std::max(0, styledLine - 2);
-    int endLine = currentLine;
-
-    if (GetLineCount() <= LinesOnScreen())
-    {
-        startLine = 0;
-        endLine = GetLineCount() - 1;
-    }
-    else if (endLine < startLine)
-    {
-        std::swap(startLine, endLine);
-    }
-
-    if (endLine < GetLineCount() - 1)
-    {
-        endLine++;
-    }
-
-    const size_t startPos = PositionFromLine(startLine);
-    const size_t endPos = GetLineEndPosition(endLine);
-    const int foldLevel = GetFoldLevel(startLine) & wxSTC_FOLDFLAG_LEVELNUMBERS;
-
-    const wxString text = GetTextRange(startPos, endPos).Upper();
-
-    HighlightSyntax(startPos, endPos, text);
-    UpdateFoldLevels(startPos, foldLevel, text);
-    m_linked_minimap->ExtractStyledText();
-}
-
-void Editor::HighlightSyntax(size_t fromPos, size_t toPos, const wxString &text)
-{
-    std::vector<std::pair<size_t, size_t>> codeBlocks;
-    bool isWordBoundary = true;
-
-    for (size_t pos = 0; pos < text.length(); ++pos)
-    {
-        const char currentChar = text[pos];
-        if (currentChar == 'G' && isWordBoundary)
-        {
-            size_t start = pos;
-            pos++;
-
-            while (pos < text.length() && std::isdigit(text[pos]))
-            {
-                pos++;
-            }
-
-            if (pos - start > 1 && IsWordBoundary(text, pos))
-            {
-                codeBlocks.emplace_back(start + fromPos, pos + fromPos);
-            }
-            isWordBoundary = false;
-        }
-        isWordBoundary = IsWordBoundary(text, pos);
-    }
-
-    ApplySyntaxHighlighting(fromPos, toPos, codeBlocks);
-
-}
-
-bool Editor::IsWordBoundary(const wxString &text, size_t pos) const
-{
-    if (pos >= text.length())
-        return true;
-    const char c = text[pos];
-    return std::isspace(static_cast<unsigned char>(c)) != 0;
-}
-
-void Editor::ApplySyntaxHighlighting(size_t fromPos, size_t toPos, const std::vector<std::pair<size_t, size_t>> &blocks)
-{
-    StartStyling(fromPos);
-    SetStyling(toPos - fromPos, STYLE_DEFAULT);
-    for (const auto &block : blocks)
-    {
-        if (block.first >= fromPos && block.second <= toPos)
-        {
-            StartStyling(block.first);
-            SetStyling(block.second - block.first, STYLE_KEYWORD);
-        }
-    }
-}
-
-void Editor::UpdateFoldLevels(size_t fromPos, int initialFoldLevel, const wxString &text)
-{
-    std::vector<std::pair<size_t, int>> foldChanges;
-    int currentLevel = initialFoldLevel;
-    size_t pos = 0;
-
-    while ((pos = text.find("IF", pos)) != wxString::npos)
-    {
-        const size_t line = LineFromPosition(pos + fromPos);
-
-        bool isEndIf = false;
-        if (pos >= 3)
-        {
-            const wxString segment = text.Mid(pos - 3, 5);
-            if (segment.Cmp("ENDIF") == 0)
-            {
-                isEndIf = true;
-            }
-        }
-
-        currentLevel += isEndIf ? -1 : 1;
-        foldChanges.emplace_back(line, currentLevel);
-        pos += 2;
-    }
-
-    ApplyFoldLevels(fromPos, initialFoldLevel, text.length(), foldChanges);
-}
-
-void Editor::ApplyFoldLevels(size_t startPos, int initialLevel, size_t textLength, const std::vector<std::pair<size_t, int>> &changes)
-{
-    const size_t startLine = LineFromPosition(startPos);
-    const size_t endLine = LineFromPosition(startPos + textLength);
-    int currentLevel = initialLevel;
-    size_t changeIndex = 0;
-
-    for (size_t line = startLine; line <= endLine; ++line)
-    {
-        int levelFlags = currentLevel | wxSTC_FOLDLEVELBASE;
-
-        if (changeIndex < changes.size() && line == changes[changeIndex].first)
-        {
-            currentLevel = changes[changeIndex].second;
-            if (currentLevel > (levelFlags & wxSTC_FOLDLEVELNUMBERMASK))
-            {
-                levelFlags |= wxSTC_FOLDLEVELHEADERFLAG;
-            }
-            changeIndex++;
-        }
-
-        if (GetLineLength(line) == 0)
-        {
-            levelFlags |= wxSTC_FOLDLEVELWHITEFLAG;
-        }
-
-        SetFoldLevel(line, levelFlags);
-    }
+    return GetModify() && !GetReadOnly();
 }
 
 void Editor::HighlightSelectionOccurrences()
 {
     ClearIndicators();
 
-    const int selStart = GetSelectionStart();
-    const int selEnd = GetSelectionEnd();
+    const int start = GetSelectionStart();
+    const int end = GetSelectionEnd();
 
-    if (selEnd <= selStart)
+    if (end <= start)
         return;
 
-    const wxString selectedText = GetTextRange(selStart, selEnd);
-    const int selectedLength = selectedText.Length();
+    const wxString text = GetTextRange(start, end);
 
-    if (selectedLength < EditorConstants::MIN_SELECTION_LENGTH || !std::isalnum(selectedText[0]))
+    if (text.Length() < EditorConstants::MIN_SELECTION_LENGTH ||
+        !std::isalnum(static_cast<unsigned char>(text[0])))
         return;
 
     SetIndicatorCurrent(EditorConstants::INDICATOR_DEFAULT);
 
     int pos = 0;
-    const int maxPos = GetTextLength();
-    const int findFlags = wxSTC_FIND_MATCHCASE | wxSTC_FIND_WHOLEWORD;
+    const int max = GetTextLength();
 
-    while (pos < maxPos)
+    while (pos < max)
     {
-        int foundPos = FindText(pos, maxPos, selectedText, findFlags);
-        if (foundPos == -1)
+        int found = FindText(pos, max, text,
+                             wxSTC_FIND_MATCHCASE | wxSTC_FIND_WHOLEWORD);
+        if (found == -1)
             break;
 
-        if (foundPos == selStart && foundPos + selectedLength == selEnd)
-        {
-            pos = foundPos + selectedLength;
-            continue;
-        }
+        if (found != start)
+            IndicatorFillRange(found, text.Length());
 
-        IndicatorFillRange(foundPos, selectedLength);
-        pos = foundPos + selectedLength;
+        pos = found + text.Length();
     }
 }
 
 void Editor::ClearIndicators()
 {
-    const int textLength = GetTextLength();
-    for (int indicator = 0; indicator <= EditorConstants::MAX_INDICATOR; indicator++)
+    const int len = GetTextLength();
+
+    for (int i = 0; i <= EditorConstants::MAX_INDICATOR; ++i)
     {
-        SetIndicatorCurrent(indicator);
-        IndicatorClearRange(0, textLength);
+        SetIndicatorCurrent(i);
+        IndicatorClearRange(0, len);
     }
-    Refresh();
-    Update();
+
+    Refresh(false);
 }
 
 void Editor::UpdateUnsavedIndicator()
 {
-    wxWindow *tab = FindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_tab");
-    if (!tab)
+    wxWindow *tab =
+        FindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_tab");
+
+    if (!tab || !Modified())
         return;
 
     wxStaticBitmap *icon = nullptr;
-    const wxString languageIconName = "tab_language_icon";
-    const wxString unsavedIconLabel = "unsaved_icon";
 
-    auto findIcon = [&](wxWindow *parent) -> wxStaticBitmap *
+    for (wxWindow *child : tab->GetChildren())
     {
-        for (wxWindow *child : parent->GetChildren())
-        {
-            if (auto *bmp = wxDynamicCast(child, wxStaticBitmap))
-            {
-                if (bmp->GetName() != languageIconName)
-                {
-                    return bmp;
-                }
-            }
-        }
-        return nullptr;
-    };
+        icon = wxDynamicCast(child, wxStaticBitmap);
+        if (icon)
+            break;
+    }
 
-    icon = findIcon(tab);
     if (!icon)
-    {
-        for (wxWindow *child : tab->GetChildren())
-        {
-            icon = findIcon(child);
-            if (icon)
-                break;
-        }
-    }
+        return;
 
-    if (icon && icon->GetLabel() != unsavedIconLabel && Modified())
-    {
-        icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(iconsDir + "white_circle.png", wxBITMAP_TYPE_PNG)));
-        icon->SetLabel(unsavedIconLabel);
-        icon->Refresh();
-        tab->Layout();
-    }
-}
+    icon->SetBitmap(
+        wxBitmapBundle::FromBitmap(
+            wxBitmap(iconsDir + "white_circle.png", wxBITMAP_TYPE_PNG)));
 
-void Editor::HandleNewLineIndentation(char prevChar, char nextChar)
-{
-    const int currentLine = GetCurrentLine();
-    const int prevLine = currentLine - 1;
-    const int prevLineInd = GetLineIndentation(prevLine);
-    const int currentLineInd = GetLineIndentation(currentLine);
-    const int nextLineInd = GetLineIndentation(currentLine + 1);
-    const int indentSize = GetIndent();
-
-    if (prevChar == '\n' && (nextChar == '}' || nextChar == ']'))
-    {
-        SetLineIndentation(currentLine, currentLineInd + indentSize);
-        GotoPos(GetLineEndPosition(currentLine) - 1);
-        InsertText(GetCurrentPos(), "\n");
-    }
-    else if (currentLineInd < nextLineInd)
-    {
-        SetLineIndentation(currentLine, nextLineInd);
-    }
-    else
-    {
-        SetLineIndentation(currentLine, prevLineInd);
-    }
+    tab->Layout();
 }
 
 void Editor::HandleAutoPairing(char chr)
 {
-    switch (chr)
-    {
-    case '(':
-        InsertText(GetCurrentPos(), ")");
-        break;
-    case '{':
-        InsertText(GetCurrentPos(), "}");
-        break;
-    case '[':
-        InsertText(GetCurrentPos(), "]");
-        break;
-    case '"':
-        InsertText(GetCurrentPos(), "\"");
-        break;
-    case '\'':
-        InsertText(GetCurrentPos(), "'");
-        break;
-    case '`':
-        InsertText(GetCurrentPos(), "`");
-        break;
-    }
+    if (GetSelectionStart() != GetSelectionEnd())
+        return;
+
+    wxString pair;
+
+    if (chr == '(')
+        pair = ")";
+    else if (chr == '{')
+        pair = "}";
+    else if (chr == '[')
+        pair = "]";
+    else if (chr == '"')
+        pair = "\"";
+    else if (chr == '\'')
+        pair = "'";
+    else if (chr == '`')
+        pair = "`";
+
+    if (!pair.empty())
+        InsertText(GetCurrentPos(), pair);
 }
 
-void Editor::SetMiniMapLine(int line)
+static int FindLastCharBeforePos(wxStyledTextCtrl *ctrl, int ch, int pos)
 {
-    if (m_linked_minimap) {}
+    for (int i = pos; i >= 0; --i)
+        if (ctrl->GetCharAt(i) == ch)
+            return i;
+
+    return -1;
+}
+
+static wxString ExtractTagName(wxStyledTextCtrl *ctrl, int openPos, int closePos)
+{
+    wxString tag;
+
+    for (int i = openPos + 1; i < closePos; ++i)
+    {
+        const char c = static_cast<char>(ctrl->GetCharAt(i));
+        if (c == '/' || std::isspace(static_cast<unsigned char>(c)) || c == '>')
+            break;
+        tag += c;
+    }
+
+    return tag;
+}
+
+void Editor::CharAdd(wxStyledTextEvent &event)
+{
+    ClearIndicators();
+
+    const char chr = static_cast<char>(event.GetKey());
+    const int pos = GetCurrentPos();
+
+    if (std::isalnum(static_cast<unsigned char>(chr)) || chr == '_')
+    {
+        const int start = WordStartPosition(pos, true);
+        const int len = pos - start;
+
+        if (len > 0)
+        {
+            const wxString word = GetTextRange(start, pos);
+            wxString list;
+            list.reserve(256);
+
+            for (const auto &kw : m_AutoCompleteWordsList)
+                if (kw.StartsWith(word))
+                    list << kw << ' ';
+
+            if (!list.empty())
+                AutoCompShow(len, list);
+            else
+                AutoCompCancel();
+        }
+    }
+
+    if (chr == '>' && pos > 1)
+    {
+        const auto &prefs = m_LanguagePreferences.preferences;
+
+        if (prefs.contains("syntax") &&
+            prefs["syntax"].value("auto_close_tags", false))
+        {
+            const int openPos = FindLastCharBeforePos(this, '<', pos - 1);
+
+            if (openPos != -1 && GetCharAt(pos - 2) != '/')
+            {
+                const wxString tag = ExtractTagName(this, openPos, pos - 1);
+
+                if (!tag.empty())
+                {
+                    InsertText(pos, "\n\n</" + tag + ">");
+                    GotoPos(pos + 1);
+                }
+            }
+        }
+    }
+
+    HandleAutoPairing(chr);
+    event.Skip();
 }
 
 void Editor::OnMoveCursorDown(wxCommandEvent &WXUNUSED(event))
 {
-    const int currentLine = GetCurrentLine();
-    const int lineEndPos = GetLineEndPosition(currentLine);
+    const int line = GetCurrentLine();
+    const int lineEnd = GetLineEndPosition(line);
 
-    GotoPos(lineEndPos);
-    AddText("\n");
-    EnsureCaretVisible();
+    BeginUndoAction();
+
+    GotoPos(lineEnd);
+    InsertText(lineEnd, "\n");
+
+    EndUndoAction();
+
+    GotoLine(line + 1);
     SetEmptySelection(GetCurrentPos());
+    EnsureCaretVisible();
 }
 
 void Editor::OnMoveCursorUp(wxCommandEvent &WXUNUSED(event))
 {
-    const int currentLine = GetCurrentLine();
-    const int lineStartPos = PositionFromLine(currentLine);
+    const int line = GetCurrentLine();
+    const int lineStart = PositionFromLine(line);
 
-    GotoPos(lineStartPos);
-    InsertText(lineStartPos, "\n");
+    BeginUndoAction();
 
-    if (currentLine > 0)
-        GotoPos(PositionFromLine(currentLine));
+    InsertText(lineStart, "\n");
+
+    EndUndoAction();
+
+    if (line > 0)
+        GotoLine(line);
     else
         GotoPos(0);
 
-    EnsureCaretVisible();
     SetEmptySelection(GetCurrentPos());
+    EnsureCaretVisible();
 }
 
 void Editor::OnDuplicateLineDown(wxCommandEvent &WXUNUSED(event))
 {
     const int line = GetCurrentLine();
-    const wxString text = GetLine(line);
-    const int insertPos = GetLineEndPosition(line);
+    const int lineStart = PositionFromLine(line);
+    const int lineEnd = GetLineEndPosition(line);
+    const wxString text = GetTextRange(lineStart, lineEnd);
 
-    InsertText(insertPos, "\n" + text);
+    BeginUndoAction();
+
+    InsertText(lineEnd, "\n" + text);
+
+    EndUndoAction();
+
     GotoLine(line + 1);
+    SetEmptySelection(GetCurrentPos());
     EnsureCaretVisible();
 }
 
 void Editor::OnDuplicateLineUp(wxCommandEvent &WXUNUSED(event))
 {
     const int line = GetCurrentLine();
-    const wxString text = GetLine(line);
-    const int insertPos = PositionFromLine(line);
+    const int lineStart = PositionFromLine(line);
+    const int lineEnd = GetLineEndPosition(line);
+    const wxString text = GetTextRange(lineStart, lineEnd);
 
-    InsertText(insertPos, text + "\n");
-    if (line > 0)
-        GotoLine(line);
-    else
-        GotoLine(0);
+    BeginUndoAction();
 
+    InsertText(lineStart, text + "\n");
+
+    EndUndoAction();
+
+    GotoLine(line);
+    SetEmptySelection(GetCurrentPos());
     EnsureCaretVisible();
 }
 
@@ -575,112 +465,15 @@ void Editor::SelectNextOccurrence(wxCommandEvent &WXUNUSED(event))
 
     SetTargetStart(selEnd);
     SetTargetEnd(GetLength());
+    SetSearchFlags(wxSTC_FIND_MATCHCASE | wxSTC_FIND_WHOLEWORD);
 
-    SetSearchFlags(wxSTC_FIND_WHOLEWORD | wxSTC_FIND_MATCHCASE);
+    if (SearchInTarget(text) == -1)
+        return;
 
-    if (SearchInTarget(text) != -1)
-    {
-        const int foundStart = GetTargetStart();
-        const int foundEnd = GetTargetEnd();
+    const int foundStart = GetTargetStart();
+    const int foundEnd = GetTargetEnd();
 
-        AddSelection(foundStart, foundEnd);
-        SetMainSelection(GetSelections() - 1);
-        ScrollToLine(LineFromPosition(foundStart));
-    }
+    AddSelection(foundStart, foundEnd);
+    SetMainSelection(GetSelections() - 1);
+    EnsureCaretVisible();
 }
-
-static int FindLastCharBeforePos(wxStyledTextCtrl *ctrl, int ch, int pos)
-{
-    for (int i = pos; i >= 0; --i)
-    {
-        if (ctrl->GetCharAt(i) == ch)
-            return i;
-    }
-    return -1;
-}
-
-static wxString ExtractTagName(wxStyledTextCtrl *ctrl, int openPos, int closePos)
-{
-    wxString tag;
-    for (int i = openPos + 1; i < closePos; ++i)
-    {
-        const char c = static_cast<char>(ctrl->GetCharAt(i));
-        if (c == '/' || std::isspace(static_cast<unsigned char>(c)) || c == '>')
-            break;
-        tag += c;
-    }
-    return tag;
-}
-
-void Editor::CharAdd(wxStyledTextEvent &event)
-{
-    ClearIndicators();
-
-    const char chr = static_cast<char>(event.GetKey());
-    const int currentPos = GetCurrentPos();
-
-    const char prevChar = (currentPos > 0) ? GetCharAt(currentPos - 1) : '\0';
-    const char nextChar = GetCharAt(currentPos);
-
-    if (std::isalnum(static_cast<unsigned char>(chr)) || chr == '_')
-    {
-        const int startPos = WordStartPosition(currentPos, true);
-        const int lenEntered = currentPos - startPos;
-
-        if (lenEntered > 0)
-        {
-            const wxString currentWord = GetTextRange(startPos, currentPos);
-            wxString filtered;
-
-            for (const auto &kw : m_AutoCompleteWordsList)
-            {
-                if (kw.StartsWith(currentWord))
-                {
-                    filtered += kw + " ";
-                }
-            }
-
-            if (!filtered.IsEmpty())
-                AutoCompShow(lenEntered, filtered);
-            else if (AutoCompActive())
-                AutoCompCancel();
-        }
-    }
-
-    if (chr == '\n')
-    {
-        HandleNewLineIndentation(prevChar, nextChar);
-    }
-
-    if (chr == '>')
-    {
-        if (m_LanguagePreferences.preferences.contains("syntax") &&
-            m_LanguagePreferences.preferences["syntax"].contains("auto_close_tags") &&
-            m_LanguagePreferences.preferences["syntax"]["auto_close_tags"].get<bool>())
-        {
-            const int searchPos = currentPos - 1;
-            const int openPos = FindLastCharBeforePos(this, '<', searchPos);
-
-            if (openPos != -1 && GetCharAt(searchPos - 1) != '/')
-            {
-                const wxString tag = ExtractTagName(this, openPos, searchPos);
-
-                if (!tag.IsEmpty() && !tag.StartsWith("/"))
-                {
-                    const wxString closing = "\n\n</" + tag + ">";
-                    InsertText(currentPos, closing);
-
-                    GotoPos(currentPos + 1);
-                    EnsureCaretVisible();
-                    SetEmptySelection(GetCurrentPos());
-                }
-            }
-        }
-    }
-
-    HandleAutoPairing(chr);
-    SetMiniMapLine(GetFirstVisibleLine());
-    event.Skip();
-}
-
-void Editor::OnAutoCompCompleted(wxStyledTextEvent &WXUNUSED(event)) {}

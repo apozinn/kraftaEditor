@@ -67,6 +67,8 @@ void KraftaEditor::VerifyIfSytemIsDarkMode()
 #if __WXMSW__
             MSWEnableDarkMode(DarkMode_Always);
 #endif
+        } else {
+            SetAppearance(wxApp::Appearance::Light);
         }
     }
     catch (const std::exception &e)
