@@ -72,6 +72,7 @@ namespace GUI
         QuickOpenSearchBar,            ///< Search bar for quick file opening
         OpenFolderButton,              ///< Button to open folder dialog
         QuickOpen,                     ///< Quick file opening panel
+        ProjectInfosTools,             ///< Project tools panel
     };
 
 } // namespace GUI

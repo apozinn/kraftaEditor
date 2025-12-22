@@ -38,6 +38,7 @@ FilesTree::FilesTree(wxWindow *parent, wxWindowID ID)
     auto *projectInfoSizer = new wxBoxSizer(wxHORIZONTAL);
 
     m_projectInformations->Bind(wxEVT_RIGHT_UP, &FilesTree::OnDirRightClick, this);
+    m_projectInformations->Bind(wxEVT_ENTER_WINDOW, &FilesTree::OnProjectInformationsHoverEnter, this);
 
     wxString arrowPath = ApplicationPaths::GetIconPath("dir_arrow.png");
     if (!arrowPath.IsEmpty())
@@ -67,7 +68,10 @@ FilesTree::FilesTree(wxWindow *parent, wxWindowID ID)
     m_projectInformationsName->SetFont(font);
     m_projectInformationsName->Refresh();
 
-    projectInfoSizer->Add(m_projectInformationsName, 1, wxEXPAND | wxLEFT, 4);
+    projectInfoSizer->Add(m_projectInformationsName, 0, wxLEFT, 4);
+
+    m_projectInfosTools = new ProjectInfosTools(m_projectInformations, +GUI::ControlID::ProjectInfosTools);
+    projectInfoSizer->Add(m_projectInfosTools, 1, wxALIGN_CENTER_VERTICAL);
 
     m_projectInformations->SetSizerAndFit(projectInfoSizer);
     m_projectInformations->SetMinSize(wxSize(GetSize().x, 20));
@@ -90,8 +94,10 @@ FilesTree::FilesTree(wxWindow *parent, wxWindowID ID)
 
 void FilesTree::LinkClickEventToProjectInformationsComponents()
 {
-    m_projectInformations->CallForEachChild([this](wxWindow *child)
-                                            { child->Bind(wxEVT_LEFT_DOWN, &FilesTree::ProjectInformationsLeftClick, this); });
+    m_projectInformations->Bind(wxEVT_LEFT_DOWN, &FilesTree::ProjectInformationsLeftClick, this);
+    m_projectInfosTools->Bind(wxEVT_LEFT_DOWN, &FilesTree::ProjectInformationsLeftClick, this);
+    m_projectInformationsName->Bind(wxEVT_LEFT_DOWN, &FilesTree::ProjectInformationsLeftClick, this);
+    m_projectInformationsNameArrow->Bind(wxEVT_LEFT_DOWN, &FilesTree::ProjectInformationsLeftClick, this);
 }
 
 void FilesTree::ProjectInformationsLeftClick(wxMouseEvent &)
@@ -145,6 +151,8 @@ void FilesTree::LoadProject(wxWindow *parent, wxString path)
 
     m_projectFilesContainer->Layout();
     Layout();
+
+    m_projectInfosTools->Hide();
 }
 
 void FilesTree::CloseProject()
@@ -1062,4 +1070,21 @@ void FilesTree::SetFileHighlight(const wxString &componentIdentifier)
     target->Refresh();
 
     m_currentSelectedFile = target;
+}
+
+void FilesTree::OnProjectInformationsHoverEnter(wxMouseEvent &event)
+{
+    if (!m_projectInfosTools)
+        return;
+
+    if (m_projectInfosTools->IsShown())
+    {
+        m_projectInfosTools->Hide();
+        return;
+    }
+    else
+    {
+        m_projectInfosTools->Show();
+        return;
+    }
 }

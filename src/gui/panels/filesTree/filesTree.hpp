@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wx/wx.h>
+#include "projectInfosTools/projectInfosTools.hpp"
 
 /**
  * @class FilesTree
@@ -98,6 +99,13 @@ public:
      */
     void SetFileHighlight(const wxString &componentIdentifier);
 
+    /**
+     * @brief Toggles the visibility of a directory container.
+     * @param componentIdentifier The unique identifier (path) of the directory.
+     * @param defaultSho Optional default visibility state.
+     */
+    void ToggleDirVisibility(const wxString &componentIdentifier, bool defaultSho = false);
+
 private:
     /**
      * @brief Creates and initializes the UI components required to represent a directory.
@@ -126,7 +134,7 @@ private:
      * @param pos Optional index position within the parent sizer.
      * @return A pointer to the created directory container widget.
      */
-    wxWindow *CreateDirContainer(wxWindow *parent, wxString path, bool withPosition=false, int pos = 0);
+    wxWindow *CreateDirContainer(wxWindow *parent, wxString path, bool withPosition = false, int pos = 0);
 
     /**
      * @brief Links mouse click events to the project information components.
@@ -174,13 +182,6 @@ private:
     void OnDirRightClick(wxMouseEvent &event);
 
     /**
-     * @brief Toggles the visibility of a directory container.
-     * @param componentIdentifier The unique identifier (path) of the directory.
-     * @param defaultSho Optional default visibility state.
-     */
-    void ToggleDirVisibility(const wxString &componentIdentifier, bool defaultSho = false);
-
-    /**
      * @brief Handles the paint event for custom rendering.
      * @param event The paint event.
      */
@@ -190,7 +191,7 @@ private:
      * @brief Adjusts the size of a specific container to fit its contents.
      * @param componentIdentifier The unique identifier (path) of the component.
      */
-    void AdjustContainerSize(wxWindow* target, bool reduceSize=false);
+    void AdjustContainerSize(wxWindow *target, bool reduceSize = false);
 
     /**
      * @brief Handles a user request to rename a directory.
@@ -223,11 +224,46 @@ private:
      */
     void OnComponentMouseExit(wxMouseEvent &event);
 
+    /**
+     * @brief Handles mouse hover enter events over the project information area.
+     *
+     * This event is triggered when the mouse cursor enters the project
+     * information section of the file tree. It is typically used to
+     * show auxiliary UI elements such as the ProjectInfosTools panel.
+     *
+     * @param event Mouse enter event.
+     */
+    void OnProjectInformationsHoverEnter(wxMouseEvent &event);
+
+    /**
+     * @brief Panel that displays project information.
+     */
     wxPanel *m_projectInformations = nullptr;
+
+    /**
+     * @brief Scrollable container holding project files and directories.
+     */
     wxScrolled<wxPanel> *m_projectFilesContainer = nullptr;
+
+    /**
+     * @brief Text label showing the project name.
+     */
     wxStaticText *m_projectInformationsName = nullptr;
+
+    /**
+     * @brief Arrow icon displayed next to the project name.
+     */
     wxStaticBitmap *m_projectInformationsNameArrow = nullptr;
+
+    /**
+     * @brief Weak reference to the currently selected file window.
+     */
     wxWeakRef<wxWindow> m_currentSelectedFile;
+
+    /**
+     * @brief Auxiliary tools panel associated with the file tree.
+     */
+    ProjectInfosTools *m_projectInfosTools = nullptr;
 
     wxDECLARE_NO_COPY_CLASS(FilesTree);
     wxDECLARE_EVENT_TABLE();
