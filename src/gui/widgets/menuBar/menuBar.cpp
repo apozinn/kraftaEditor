@@ -31,6 +31,7 @@ MenuBar::MenuBar()
 	menuEdit->AppendSeparator();
 	menuEdit->Append(+Event::Edit::MoveLineUp, _("&Move Line Up\tAlt+Up"));
 	menuEdit->Append(+Event::Edit::MoveLineDown, _("&Move Line Down\tAlt+Down"));
+	menuEdit->Append(+Event::Edit::RemoveCurrentLine, _("&Remove Current Line\tctrl+del"));
 
 	wxMenu *menuSelection = new wxMenu;
 	menuSelection->Append(+Event::Edit::SelectAll, _("&Select All"));

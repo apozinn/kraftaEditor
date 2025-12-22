@@ -383,3 +383,12 @@ void CodeContainer::OnMoveLineDown(wxCommandEvent &WXUNUSED(event))
         currentEditor->MoveSelectedLinesDown();
     }
 }
+
+void CodeContainer::OnRemoveCurrentLine(wxCommandEvent &WXUNUSED(event))
+{
+    auto currentEditor = ((Editor *)wxFindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_codeEditor"));
+    if (currentEditor)
+    {
+        currentEditor->RemoveCurrentLine();
+    }
+}

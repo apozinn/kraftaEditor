@@ -23,6 +23,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(+Event::Edit::SelectAll,          CodeContainer::OnSelectAll)
     EVT_MENU(+Event::Edit::MoveLineUp,          CodeContainer::OnMoveLineUp)
     EVT_MENU(+Event::Edit::MoveLineDown,       CodeContainer::OnMoveLineDown)
+    EVT_MENU(+Event::Edit::RemoveCurrentLine,       CodeContainer::OnRemoveCurrentLine)
     
     // View Operations
     EVT_MENU(+Event::View::ToggleMiniMap,       MainFrame::OnToggleMinimapView)

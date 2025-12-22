@@ -129,6 +129,7 @@ namespace Event
         AutoComplete = ID_BASE_EDIT + 10,        ///< Trigger autocomplete
         MoveLineUp = ID_BASE_EDIT + 11,         ///< Move line up
         MoveLineDown = ID_BASE_EDIT + 12,       ///< Move line down
+        RemoveCurrentLine = ID_BASE_EDIT + 13,  ///< Remove current line
     };
 
     /**

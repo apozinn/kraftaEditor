@@ -126,17 +126,32 @@ public:
     /** @brief Moves the current or selected lines down. */
     void OnMoveLineDown(wxCommandEvent &WXUNUSED(event));
 
+    /**
+     * @brief Removes the current line or the active selection.
+     *
+     * If there is an active text selection, this function removes only the selected
+     * text. Otherwise, it removes the entire line where the caret is currently placed,
+     * regardless of the caret position within the line.
+     *
+     * The operation is wrapped in a single undo action, ensuring that Undo/Redo
+     * behaves correctly.
+     *
+     * This function is intended to be bound to the keyboard shortcut:
+     * **Ctrl + Delete**.
+     */
+    void OnRemoveCurrentLine(wxCommandEvent &WXUNUSED(event));
+
     wxString currentPath; /**< Currently opened file path. */
     Editor *editor;       /**< Main code editor instance. */
 private:
-    wxString iconsDir = ApplicationPaths::AssetsPath("icons"); /**< Directory containing editor icons. */
-    wxFont font; /**< Editor font. */
-    MiniMap *minimap; /**< Minimap instance. */
-    bool codeMapMouseOver = false; /**< Indicates if the mouse is over the minimap. */
-    languagePreferencesStruct languagePreferences; /**< Language-specific editor preferences. */
-    wxPoint codeMapClickPoint = wxPoint(0, 0); /**< Last minimap click position. */
+    wxString iconsDir = ApplicationPaths::AssetsPath("icons");                        /**< Directory containing editor icons. */
+    wxFont font;                                                                      /**< Editor font. */
+    MiniMap *minimap;                                                                 /**< Minimap instance. */
+    bool codeMapMouseOver = false;                                                    /**< Indicates if the mouse is over the minimap. */
+    languagePreferencesStruct languagePreferences;                                    /**< Language-specific editor preferences. */
+    wxPoint codeMapClickPoint = wxPoint(0, 0);                                        /**< Last minimap click position. */
     StatusBar *statusBar = ((StatusBar *)FindWindowById(+GUI::ControlID::StatusBar)); /**< Pointer to the global status bar. */
-    json UserSettings = UserSettingsManager::Get().currentSettings; /**< Cached user settings snapshot. */
-    ProjectSettings &projectSettings = ProjectSettings::Get(); /**< Reference to global project settings. */
-    wxBoxSizer *sizer = new wxBoxSizer(wxHORIZONTAL); /**< Layout sizer for editor and minimap. */
+    json UserSettings = UserSettingsManager::Get().currentSettings;                   /**< Cached user settings snapshot. */
+    ProjectSettings &projectSettings = ProjectSettings::Get();                        /**< Reference to global project settings. */
+    wxBoxSizer *sizer = new wxBoxSizer(wxHORIZONTAL);                                 /**< Layout sizer for editor and minimap. */
 };

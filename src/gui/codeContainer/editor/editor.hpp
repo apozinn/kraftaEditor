@@ -174,6 +174,21 @@ public:
     void MoveSelectedLinesDown();
 
     /**
+     * @brief Removes the current line or the active selection.
+     *
+     * If there is an active text selection, this function removes only the selected
+     * text. Otherwise, it removes the entire line where the caret is currently placed,
+     * regardless of the caret position within the line.
+     *
+     * The operation is wrapped in a single undo action, ensuring that Undo/Redo
+     * behaves correctly.
+     *
+     * This function is intended to be bound to the keyboard shortcut:
+     * **Ctrl + Delete**.
+     */
+    void RemoveCurrentLine();
+
+    /**
      * @brief Pointer to an optional synchronized minimap view of the document.
      *
      * Used to display a small-scale, mirrored overview of the code. May be **nullptr**

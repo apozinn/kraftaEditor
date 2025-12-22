@@ -481,7 +481,7 @@ void Editor::SelectNextOccurrence(wxCommandEvent &WXUNUSED(event))
 void Editor::MoveSelectedLinesUp()
 {
     int selStart = GetSelectionStart();
-    int selEnd   = GetSelectionEnd();
+    int selEnd = GetSelectionEnd();
 
     bool hasSelection = (selStart != selEnd);
 
@@ -496,7 +496,7 @@ void Editor::MoveSelectedLinesUp()
     else
     {
         startLine = LineFromPosition(selStart);
-        endLine   = LineFromPosition(selEnd);
+        endLine = LineFromPosition(selEnd);
 
         // Adjust when selection ends exactly at line start
         if (selEnd == PositionFromLine(endLine))
@@ -515,7 +515,7 @@ void Editor::MoveSelectedLinesUp()
         blockText += GetLine(i);
 
     int removeStart = PositionFromLine(startLine - 1);
-    int removeEnd   = PositionFromLine(endLine + 1);
+    int removeEnd = PositionFromLine(endLine + 1);
 
     SetTargetStart(removeStart);
     SetTargetEnd(removeEnd);
@@ -523,7 +523,7 @@ void Editor::MoveSelectedLinesUp()
 
     // Restore selection
     int newStartPos = PositionFromLine(startLine - 1);
-    int newEndPos   = newStartPos + blockText.Length();
+    int newEndPos = newStartPos + blockText.Length();
 
     if (hasSelection)
         SetSelection(newStartPos, newEndPos);
@@ -536,7 +536,7 @@ void Editor::MoveSelectedLinesUp()
 void Editor::MoveSelectedLinesDown()
 {
     int selStart = GetSelectionStart();
-    int selEnd   = GetSelectionEnd();
+    int selEnd = GetSelectionEnd();
 
     bool hasSelection = (selStart != selEnd);
 
@@ -551,7 +551,7 @@ void Editor::MoveSelectedLinesDown()
     else
     {
         startLine = LineFromPosition(selStart);
-        endLine   = LineFromPosition(selEnd);
+        endLine = LineFromPosition(selEnd);
 
         if (selEnd == PositionFromLine(endLine))
             endLine--;
@@ -569,7 +569,7 @@ void Editor::MoveSelectedLinesDown()
         blockText += GetLine(i);
 
     int removeStart = PositionFromLine(startLine);
-    int removeEnd   = PositionFromLine(endLine + 2);
+    int removeEnd = PositionFromLine(endLine + 2);
 
     SetTargetStart(removeStart);
     SetTargetEnd(removeEnd);
@@ -577,12 +577,37 @@ void Editor::MoveSelectedLinesDown()
 
     // Restore selection
     int newStartPos = PositionFromLine(startLine + 1);
-    int newEndPos   = newStartPos + blockText.Length();
+    int newEndPos = newStartPos + blockText.Length();
 
     if (hasSelection)
         SetSelection(newStartPos, newEndPos);
     else
         GotoPos(newStartPos);
 
+    EndUndoAction();
+}
+
+void Editor::RemoveCurrentLine()
+{
+    if (GetSelectionStart() != GetSelectionEnd())
+    {
+        ReplaceSelection("");
+        return;
+    }
+
+    const int currentLine = GetCurrentLine();
+    const int lineStart = PositionFromLine(currentLine);
+    int lineEnd = GetLineEndPosition(currentLine);
+
+    const int lastLine = GetLineCount() - 1;
+    if (currentLine < lastLine)
+    {
+        lineEnd++;
+    }
+
+    BeginUndoAction();
+    SetTargetStart(lineStart);
+    SetTargetEnd(lineEnd);
+    ReplaceTarget("");
     EndUndoAction();
 }
