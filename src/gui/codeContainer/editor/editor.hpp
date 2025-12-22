@@ -124,28 +124,6 @@ public:
     bool Modified() const;
 
     /**
-     * @brief Updates code folding levels based on document structure in a text region.
-     * @param fromPos Document position where re-computation of fold levels should start.
-     * @param initialFoldLevel The fold level at **fromPos** before processing.
-     * @param text The text content of the region to analyze for folding markers.
-     *
-     * Scans the text for language-specific block delimiters (e.g., **if/endif**, braces)
-     * to determine the correct folding level for each line.
-     */
-    void UpdateFoldLevels(size_t fromPos, int initialFoldLevel, const wxString &text);
-
-    /**
-     * @brief Performs syntax highlighting on a specified text range.
-     * @param fromPos The starting position (byte/char index) for styling (inclusive).
-     * @param toPos The ending position for styling (exclusive).
-     * @param text The content of the region to be tokenized and styled.
-     *
-     * This function calls the internal logic to tokenize the **text** and uses
-     * the **wxStyledTextCtrl** API to apply the determined styles within the range.
-     */
-    void HighlightSyntax(size_t fromPos, size_t toPos, const wxString &text);
-
-    /**
      * @brief Sets the list of words used for auto-completion suggestions.
      * @param words A vector of strings containing all valid auto-completion words.
      */
@@ -353,36 +331,12 @@ private:
     void OnClick(wxMouseEvent &event);
 
     /**
-     * @brief Handler called when an auto-completion item is accepted.
-     * @param event The styled text event (**wxEVT_STC_AUTOCCOMPLETED**).
-     *
-     * Placeholder for any necessary post-completion cleanup or state adjustment.
-     */
-    void OnAutoCompCompleted(wxStyledTextEvent &event);
-
-    /**
-     * @brief Handler for text pasted from the clipboard.
-     * @param event The styled text event (**wxEVT_STC_DO_PASTE**).
-     *
-     * Updates the minimap to reflect the newly pasted content.
-     */
-    void OnClipBoardPaste(wxStyledTextEvent &event);
-
-    /**
      * @brief Handler for scroll events (mouse wheel or scrollbar interaction).
      * @param event The mouse event (**wxEVT_MOUSEWHEEL** or scrollbar events).
      *
      * Synchronizes the visible line in the minimap with the editor's scroll position.
      */
     void OnScroll(wxMouseEvent &event);
-
-    /**
-     * @brief Handler invoked when the editor needs new styling for a region.
-     * @param event The styled text event (**wxEVT_STC_STYLENEEDED**).
-     *
-     * Determines the unstyled range and calls **HighlightSyntax** and **UpdateFoldLevels**.
-     */
-    void OnStyleNeeded(wxStyledTextEvent &event);
 
     // --- Utility Methods ---
 
@@ -401,50 +355,11 @@ private:
     void ClearIndicators();
 
     /**
-     * @brief Determines if the character at a given position is a word boundary.
-     * @param text The string to check.
-     * @param pos The index within the string.
-     * @return **true** if the character is whitespace or the end of the string.
-     */
-    bool IsWordBoundary(const wxString &text, size_t pos) const;
-
-    /**
-     * @brief Applies computed style ranges to the document using the wxStyledTextCtrl API.
-     * @param fromPos Start position for styling.
-     * @param toPos End position for styling.
-     * @param blocks Vector of pairs where each pair is **(start position, length)** of a token to be styled.
-     */
-    void ApplySyntaxHighlighting(size_t fromPos, size_t toPos, const std::vector<std::pair<size_t, size_t>> &blocks);
-
-    /**
-     * @brief Applies previously calculated fold level changes to the text control.
-     * @param startPos The document start position for applying levels.
-     * @param initialLevel The initial fold level at the start of the range.
-     * @param textLength Length of the region updated.
-     * @param changes Vector of pairs **(line number, new fold level)** representing level updates.
-     */
-    void ApplyFoldLevels(size_t startPos, int initialLevel, size_t textLength, const std::vector<std::pair<size_t, int>> &changes);
-
-    /**
      * @brief Updates any UI element (e.g., tab icon) that shows the file's unsaved status.
      *
      * Looks up the corresponding tab widget and sets a visual indicator (e.g., a small dot).
      */
     void UpdateUnsavedIndicator();
-
-    /**
-     * @brief Updates the content of the minimap to match the editor's buffer.
-     */
-    void UpdateMiniMapText(int pos, const wxString &text);
-
-    /**
-     * @brief Implements smart indentation logic upon inserting a newline.
-     * @param prevChar The character before the insertion point.
-     * @param nextChar The character after the insertion point.
-     *
-     * Adjusts the new line's indentation based on characters like '{', '}', or the previous line's indent.
-     */
-    void HandleNewLineIndentation(char prevChar, char nextChar);
 
     /**
      * @brief Inserts the corresponding closing character when an opening character is typed.
@@ -455,9 +370,14 @@ private:
     void HandleAutoPairing(char chr);
 
     /**
-     * @brief Synchronizes the minimap's visible range with the editor's first visible line.
+     * @brief Enables horizontal scrolling using Shift + mouse wheel.
+     *
+     * When the Shift key is pressed, the mouse wheel scrolls the view horizontally.
+     * Without Shift, the default vertical scrolling behavior is preserved.
+     *
+     * @param event Mouse wheel event.
      */
-    void SetMiniMapLine(int line);
+    void OnHorizontalScroll(wxMouseEvent &event);
 
     wxDECLARE_NO_COPY_CLASS(Editor);
     wxDECLARE_EVENT_TABLE();

@@ -190,7 +190,14 @@ void Editor::OnClick(wxMouseEvent &event)
 
 void Editor::OnScroll(wxMouseEvent &event)
 {
-    event.Skip();
+    if (event.ShiftDown())
+    {
+        OnHorizontalScroll(event);
+    }
+    else
+    {
+        event.Skip();
+    }
 }
 
 bool Editor::Modified() const
@@ -610,4 +617,27 @@ void Editor::RemoveCurrentLine()
     SetTargetEnd(lineEnd);
     ReplaceTarget("");
     EndUndoAction();
+}
+
+void Editor::OnHorizontalScroll(wxMouseEvent &event)
+{
+    int rotation = event.GetWheelRotation();
+    int delta = event.GetWheelDelta();
+
+    if (delta == 0)
+        return;
+
+    int steps = rotation / delta;
+
+    constexpr int SCROLL_SPEED = 40;
+
+    int currentOffset = GetXOffset();
+    int newOffset = currentOffset - (steps * SCROLL_SPEED);
+
+    if (newOffset < 0)
+        newOffset = 0;
+
+    Freeze();
+    SetXOffset(newOffset);
+    Thaw();
 }
