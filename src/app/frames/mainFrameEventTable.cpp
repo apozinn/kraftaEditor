@@ -25,7 +25,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(+Event::Edit::MoveLineDown,       CodeContainer::OnMoveLineDown)
     
     // View Operations
-    EVT_MENU(+Event::View::ToggleMiniMap,       CodeContainer::OnToggleMinimapView)
+    EVT_MENU(+Event::View::ToggleMiniMap,       MainFrame::OnToggleMinimapView)
     EVT_MENU(+Event::View::ToggleCodeSearch,    MainFrame::OnToggleSearch)
     EVT_MENU(+Event::View::ToggleControlPanel,  MainFrame::OnToggleControlPanel)
     EVT_MENU(+Event::View::ToggleQuickOpen,     MainFrame::OnToggleQuickOpen)

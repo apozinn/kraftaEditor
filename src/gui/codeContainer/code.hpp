@@ -120,13 +120,6 @@ public:
     /** @brief Selects the current line. */
     void OnSelectLine(wxCommandEvent &WXUNUSED(event));
 
-    // -------------------------------------------------------------------------
-    // View operations
-    // -------------------------------------------------------------------------
-
-    /** @brief Toggles the visibility of the minimap. */
-    void OnToggleMinimapView(wxCommandEvent &WXUNUSED(event));
-
     /** @brief Moves the current or selected lines up. */
     void OnMoveLineUp(wxCommandEvent &WXUNUSED(event));
 

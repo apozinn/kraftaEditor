@@ -71,7 +71,7 @@ public:
      * @brief Constructs the MainFrame.
      * @param title The title displayed in the frame's title bar.
      */
-    MainFrame(const wxString &title="Krafta Editor");
+    MainFrame(const wxString &title = "Krafta Editor");
 
     /**
      * @brief Destructor.
@@ -143,7 +143,7 @@ public:
      * @param WXUNUSED(event) The command event.
      */
     void OnNewWindow(wxCommandEvent &WXUNUSED(event));
-    
+
     /**
      * @brief Handler for the "Edit Settings" command, typically opening a settings file.
      * @param WXUNUSED(event) The command event.
@@ -217,35 +217,37 @@ public:
      */
     void OnPaintedComponent(wxPaintEvent &event);
 
+    void OnToggleMinimapView(wxCommandEvent &WXUNUSED(event));
+
 private:
     // --- UI Component Pointers ---
-    MenuBar *m_menuBar; /**< The main menu bar control. */
-    FilesTree *m_filesTree; /**< The file explorer/tree view panel. */
-    Tabs *m_tabs; /**< The tab control managing open editor buffers. */
-    EmptyWindow *m_emptyWindow; /**< Placeholder window shown when no project is open. */
-    Terminal *m_terminal; /**< The integrated terminal panel. */
-    StatusBar *m_statusBar; /**< The application status bar. */
-    OpenFolderButton *m_openFolderButton; /**< Button shown in the empty workspace view. */
-    ControlPanel *m_controlPanel; /**< Panel for controls like source control or project settings. */
-    QuickOpen *m_quickOpen; /**< Panel for quick file opening. */
-    wxSplitterWindow *m_mainSplitter; /**< The primary splitter dividing the file tree and editor area. */
-    wxPanel *m_applicationLeftMainContainer; /**< Container for the file tree and related side content. */
-    wxPanel *m_applicationRightMainContainer; /**< Container for the tabs and editor area. */
-    wxSplitterWindow *m_mainContainerSplitter; /**< Splitter dividing the editor area from the terminal/output panel. */
-    wxPanel *m_mainContainer; /**< The panel holding the editor/tabs area. */
-    wxPanel *m_centeredContent; /**< Panel for content centered in the editor area (e.g., when empty). */
+    MenuBar *m_menuBar;                             /**< The main menu bar control. */
+    FilesTree *m_filesTree;                         /**< The file explorer/tree view panel. */
+    Tabs *m_tabs;                                   /**< The tab control managing open editor buffers. */
+    EmptyWindow *m_emptyWindow;                     /**< Placeholder window shown when no project is open. */
+    Terminal *m_terminal;                           /**< The integrated terminal panel. */
+    StatusBar *m_statusBar;                         /**< The application status bar. */
+    OpenFolderButton *m_openFolderButton;           /**< Button shown in the empty workspace view. */
+    ControlPanel *m_controlPanel;                   /**< Panel for controls like source control or project settings. */
+    QuickOpen *m_quickOpen;                         /**< Panel for quick file opening. */
+    wxSplitterWindow *m_mainSplitter;               /**< The primary splitter dividing the file tree and editor area. */
+    wxPanel *m_applicationLeftMainContainer;        /**< Container for the file tree and related side content. */
+    wxPanel *m_applicationRightMainContainer;       /**< Container for the tabs and editor area. */
+    wxSplitterWindow *m_mainContainerSplitter;      /**< Splitter dividing the editor area from the terminal/output panel. */
+    wxPanel *m_mainContainer;                       /**< The panel holding the editor/tabs area. */
+    wxPanel *m_centeredContent;                     /**< Panel for content centered in the editor area (e.g., when empty). */
     wxBoxSizer *sizer = new wxBoxSizer(wxVERTICAL); /**< The main sizer managing the frame layout. */
-    
+
     // --- File System Watcher ---
     wxFileSystemWatcher *m_watcher = nullptr; /**< The file system watcher instance for monitoring project changes. */
-    bool m_followLinks; /**< Flag indicating whether the watcher should follow symbolic links. */
+    bool m_followLinks;                       /**< Flag indicating whether the watcher should follow symbolic links. */
 
     // --- Configuration and State ---
-    ProjectSettings& projectSettings = ProjectSettings::Get(); /**< Reference to global project settings manager. */
-    json UserSettings = UserSettingsManager::Get().currentSettings; /**< Current user settings (window state, theme, etc.). */
-    json Theme = ThemesManager::Get().currentTheme; /**< Current visual theme configuration. */
+    ProjectSettings &projectSettings = ProjectSettings::Get();         /**< Reference to global project settings manager. */
+    json UserSettings = UserSettingsManager::Get().currentSettings;    /**< Current user settings (window state, theme, etc.). */
+    json Theme = ThemesManager::Get().currentTheme;                    /**< Current visual theme configuration. */
     wxString assetsImagePath = ApplicationPaths::AssetsPath("images"); /**< Path to the application's image assets. */
-    wxString appPath = ApplicationPaths::ApplicationPath(); /**< The base application execution path. */
+    wxString appPath = ApplicationPaths::ApplicationPath();            /**< The base application execution path. */
 
     // --- Private Setup and Utility Methods ---
 
@@ -253,7 +255,7 @@ private:
      * @brief Initializes the wxFileSystemWatcher object.
      */
     void CreateWatcher();
-    
+
     /**
      * @brief Sets the application icon based on available assets.
      * @return **true** if the icon was set successfully; **false** otherwise.
@@ -330,7 +332,6 @@ private:
      */
     void WindowResizeFunctions();
 
-
     // --- Private Event Handlers ---
 
     /**
@@ -339,13 +340,13 @@ private:
      * Used for confirmation checks (unsaved files) and final cleanup.
      * @param event The close event.
      */
-    void OnClose(wxCloseEvent& event);
+    void OnClose(wxCloseEvent &event);
 
     /**
      * @brief Handler for the "Exit" command (**wxID_EXIT**).
      * @param WXUNUSED(event) The command event.
      */
-    void OnExit(wxCommandEvent& WXUNUSED(event));
+    void OnExit(wxCommandEvent &WXUNUSED(event));
 
     /**
      * @brief Handler for the "Watch" command, related to file system monitoring settings.

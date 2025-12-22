@@ -169,28 +169,6 @@ void CodeContainer::OnCloseFile(wxCommandEvent &WXUNUSED(event))
     }
 }
 
-void CodeContainer::OnToggleMinimapView(wxCommandEvent &WXUNUSED(event))
-{
-    auto mainCodeComponent = FindWindowById(+GUI::ControlID::MainCode);
-    wxWindow *currentCodeEditor = wxFindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_codeContainer");
-    if (currentCodeEditor)
-    {
-        auto currentMinimap = ((wxStyledTextCtrl *)currentCodeEditor->GetChildren()[1]);
-        if (currentMinimap)
-        {
-            if (currentMinimap->IsShown())
-                currentMinimap->Hide();
-            else
-                currentMinimap->Show();
-
-            mainCodeComponent->GetSizer()->Layout();
-
-            UserSettings["show_minimap"] = currentMinimap->IsShown();
-            UserSettings.update(UserSettings);
-        }
-    }
-}
-
 void CodeContainer::OnRedo(wxCommandEvent &WXUNUSED(event))
 {
     auto currentEditor = ((Editor *)wxFindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_codeEditor"));

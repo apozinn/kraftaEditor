@@ -13,6 +13,7 @@
 #include <wx/filename.h>
 #include "platformInfos/platformInfos.hpp"
 #include <wx/stdpaths.h>
+#include <wx/msgdlg.h>
 
 using json = nlohmann::json;
 
@@ -26,11 +27,11 @@ UserSettingsManager::UserSettingsManager()
 {
     if (SettingsPath.empty())
     {
-        SettingsPath = 
-            wxStandardPaths::Get().GetUserConfigDir() + 
-            PlatformInfos::OsPathSeparator() + 
-            ".kraftaEditor" + 
-            PlatformInfos::OsPathSeparator() + 
+        SettingsPath =
+            wxStandardPaths::Get().GetUserConfigDir() +
+            PlatformInfos::OsPathSeparator() +
+            ".kraftaEditor" +
+            PlatformInfos::OsPathSeparator() +
             "user_settings.json";
 
         wxFileName fn(SettingsPath);
@@ -41,22 +42,25 @@ UserSettingsManager::UserSettingsManager()
     }
 
     DefaultSettings = {
+        // viewers settings
+        {"show_files_tree", true},
+        {"show_menu_bar", true},
+        {"show_status_bar", true},
+        {"show_tab_bar", true},
         {"show_minimap", true},
-        {"show_menu", true},
-        {"show_statusBar", true},
+
         {"windowMaximized", true},
         {"windowSizeX", 1000},
         {"windowSizeY", 700},
         {"dontAskMeAgainFileDelete", false},
         {"dontAskMeAgainDirDelete", false}};
-
     try
     {
         currentSettings = LoadSettingsFromFile();
     }
     catch (const std::exception &e)
     {
-        wxLogError("Initial settings load failed: %s", e.what());
+        wxMessageBox("Initial settings load failed: %s", e.what());
         currentSettings = DefaultSettings;
     }
 }
@@ -88,7 +92,7 @@ bool UserSettingsManager::Update(const json &data)
     }
     catch (const std::exception &e)
     {
-        wxLogError("Settings update failed: %s", e.what());
+        wxMessageBox("Settings update failed: %s", e.what());
         return false;
     }
 }
@@ -114,7 +118,7 @@ json UserSettingsManager::LoadSettingsFromFile()
     }
     catch (const json::exception &e)
     {
-        wxLogError("JSON parsing error: %s", e.what());
+        wxMessageBox("JSON parsing error: %s", e.what());
         CreateDefaultSettingsFile();
         return DefaultSettings;
     }
@@ -142,7 +146,7 @@ void UserSettingsManager::CreateDefaultSettingsFile()
     }
     catch (const std::exception &e)
     {
-        wxLogError("Failed to create default settings: %s", e.what());
+        wxMessageBox("Failed to create default settings: %s", e.what());
         throw;
     }
 }
@@ -168,8 +172,8 @@ json UserSettingsManager::MergeWithDefaults(json &data)
     return data;
 }
 
-template<typename T>
-RequestedSetting<T> UserSettingsManager::GetSetting(const std::string& settingName)
+template <typename T>
+RequestedSetting<T> UserSettingsManager::GetSetting(const std::string &settingName)
 {
     std::lock_guard<std::mutex> lock(settingsMutex);
     RequestedSetting<T> result{};
@@ -181,7 +185,7 @@ RequestedSetting<T> UserSettingsManager::GetSetting(const std::string& settingNa
             result.value = it->get<T>();
             result.found = true;
         }
-        catch (nlohmann::json::type_error&)
+        catch (nlohmann::json::type_error &)
         {
             result.found = false;
         }
@@ -193,6 +197,6 @@ RequestedSetting<T> UserSettingsManager::GetSetting(const std::string& settingNa
     return result;
 }
 
-template RequestedSetting<bool> UserSettingsManager::GetSetting<bool>(const std::string& settingName);
-template RequestedSetting<int> UserSettingsManager::GetSetting<int>(const std::string& settingName);
-template RequestedSetting<std::string> UserSettingsManager::GetSetting<std::string>(const std::string& settingName);
+template RequestedSetting<bool> UserSettingsManager::GetSetting<bool>(const std::string &settingName);
+template RequestedSetting<int> UserSettingsManager::GetSetting<int>(const std::string &settingName);
+template RequestedSetting<std::string> UserSettingsManager::GetSetting<std::string>(const std::string &settingName);

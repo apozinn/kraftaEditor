@@ -47,7 +47,7 @@ bool MainFrame::SetAppIcon()
 void MainFrame::SetupMenuBar()
 {
     m_menuBar = new MenuBar();
-    if (UserSettings["show_menu"] == true)
+    if (UserSettings["show_menu_bar"] == true)
         SetMenuBar(m_menuBar);
 }
 
@@ -147,7 +147,7 @@ void MainFrame::SetupAccelerators()
 
     entries[1].Set(wxACCEL_CTRL, WXK_SHIFT, +Event::View::ToggleControlPanel);
     entries[1].FromString("Ctrl+Shift+P");
-    
+
     entries[2].Set(wxACCEL_CTRL, int('P'), +Event::View::ToggleQuickOpen);
     entries[2].FromString("Ctrl+P");
 
@@ -510,7 +510,7 @@ void MainFrame::OnToggleControlPanel(wxCommandEvent &WXUNUSED(event))
         m_controlPanel = new ControlPanel(this, +GUI::ControlID::ControlPanel);
 }
 
-void MainFrame::OnToggleQuickOpen(wxCommandEvent &WXUNUSED(event)) 
+void MainFrame::OnToggleQuickOpen(wxCommandEvent &WXUNUSED(event))
 {
     if (FindWindowById(+GUI::ControlID::QuickOpen))
         m_quickOpen->Destroy();
@@ -537,12 +537,12 @@ void MainFrame::OnToggleMenuBarView(wxCommandEvent &WXUNUSED(event))
     if (GetMenuBar())
     {
         SetMenuBar(nullptr);
-        UserSettings["show_menu"] = false;
+        UserSettings["show_menu_bar"] = false;
     }
     else
     {
         SetMenuBar(m_menuBar);
-        UserSettings["show_menu"] = true;
+        UserSettings["show_menu_bar"] = true;
     }
 
     UserSettingsManager::Get().Update(UserSettings);
@@ -559,12 +559,12 @@ void MainFrame::OnToggleStatusBarView(wxCommandEvent &WXUNUSED(event))
     if (m_statusBar->IsShown())
     {
         m_statusBar->Hide();
-        UserSettings["show_statusBar"] = false;
+        UserSettings["show_status_bar"] = false;
     }
     else
     {
         m_statusBar->Show();
-        UserSettings["show_statusBar"] = true;
+        UserSettings["show_status_bar"] = true;
     }
     m_applicationRightMainContainer->GetSizer()->Layout();
 
@@ -587,19 +587,42 @@ void MainFrame::OnToggleTabBarView(wxCommandEvent &WXUNUSED(event))
     m_mainContainer->GetSizer()->Layout();
 }
 
+void MainFrame::OnToggleMinimapView(wxCommandEvent &WXUNUSED(event))
+{
+    UserSettings["show_minimap"] = !UserSettings["show_minimap"];
+    UserSettingsManager::Get().Update(UserSettings);
+
+    if (!m_tabs)
+        return;
+
+    for (auto &tab : m_tabs->tabsContainer->GetChildren())
+    {
+        auto minimap = FindWindowByLabel(tab->GetName() + "_codeMap");
+        if (minimap)
+        {
+            minimap->Show(UserSettings["show_minimap"]);
+            minimap->GetParent()->GetSizer()->Layout();
+        }
+    }
+}
+
 void MainFrame::OnEditSettings(wxCommandEvent &WXUNUSED(event))
 {
     if (!m_filesTree)
     {
-        wxLogError("Files tree not initialized");
+        wxMessageBox("Files tree not initialized");
         return;
     }
 
-    wxString path = ApplicationPaths::ApplicationPath() + "user_settings.json";
+    wxString path = UserSettingsManager::Get().SettingsPath;
     if (wxFileExists(path))
     {
         m_filesTree->OpenFile(path);
         AddEntry(wxFSWPath_File, path);
+    }
+    else
+    {
+        wxMessageBox("Settings file not found");
     }
 }
 

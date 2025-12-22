@@ -13,7 +13,6 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
-#include <vector>
 #include <wx/wx.h>
 #include <wx/scrolwin.h>
 
@@ -75,8 +74,8 @@ public:
      */
     void OnMenu(wxMouseEvent &WXUNUSED(event));
 
-public:
-    wxString selected_tab; /**< The file path of the currently selected tab. */
+    wxString selected_tab;              /**< The file path of the currently selected tab. */
+    wxScrolled<wxPanel> *tabsContainer; /**< The container for all individual tabs, enabling horizontal scrolling. */
 
 private:
     /**
@@ -113,14 +112,12 @@ private:
      */
     void OnNextTab();
 
-private:
-    wxSizer *sizer; /**< Main sizer for the Tabs panel. */
-    wxStaticBitmap *menu; /**< Icon/button for the tabs menu. */
-    wxScrolled<wxPanel> *tabsContainer; /**< The container for all individual tabs, enabling horizontal scrolling. */
-    wxBoxSizer *tabsContainerSizer; /**< Sizer for the tabs inside tabsContainer. */
-    json Theme = ThemesManager::Get().currentTheme; /**< Cached theme settings. */
+    wxSizer *sizer;                                            /**< Main sizer for the Tabs panel. */
+    wxStaticBitmap *menu;                                      /**< Icon/button for the tabs menu. */
+    wxBoxSizer *tabsContainerSizer;                            /**< Sizer for the tabs inside tabsContainer. */
+    json Theme = ThemesManager::Get().currentTheme;            /**< Cached theme settings. */
     wxString iconsDir = ApplicationPaths::AssetsPath("icons"); /**< Path to the icons directory. */
-    ProjectSettings& projectSettings = ProjectSettings::Get(); /**< Reference to global project settings. */
+    ProjectSettings &projectSettings = ProjectSettings::Get(); /**< Reference to global project settings. */
 
     wxDECLARE_NO_COPY_CLASS(Tabs);
 };

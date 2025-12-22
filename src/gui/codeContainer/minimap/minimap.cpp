@@ -102,7 +102,7 @@ MiniMap::MiniMap(wxWindow *parent, wxStyledTextCtrl *editor)
     int ph = parent->GetSize().y;
     SetMinSize(wxSize(100, ph));
     SetSize(wxSize(100, ph));
-
+    
     SetBackgroundStyle(wxBG_STYLE_PAINT);
 
     Bind(wxEVT_PAINT, &MiniMap::OnPaint, this);

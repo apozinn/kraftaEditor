@@ -13,10 +13,11 @@ using json = nlohmann::json;
  *
  * @tparam T Type of the setting (int, bool, std::string, etc.)
  */
-template<typename T>
-struct RequestedSetting {
-    T value;     ///< Value of the setting
-    bool found;  ///< True if the setting exists and is valid
+template <typename T>
+struct RequestedSetting
+{
+    T value;    ///< Value of the setting
+    bool found; ///< True if the setting exists and is valid
 };
 
 /**
@@ -36,7 +37,7 @@ public:
      * @return Reference to the singleton instance
      * @note Thread-safe in C++11 and later
      */
-    static UserSettingsManager& Get();
+    static UserSettingsManager &Get();
 
     /**
      * @brief Updates settings with new data and persists to file
@@ -45,7 +46,7 @@ public:
      * @note This will overwrite both the in-memory settings and the settings file
      * @warning Will not update if file write fails (maintains consistency)
      */
-    bool Update(const json& data);
+    bool Update(const json &data);
 
     /**
      * @brief Gets a typed setting from user settings
@@ -56,12 +57,12 @@ public:
      * @param settingName Name of the setting
      * @return RequestedSetting<T> Struct containing value and found flag
      */
-    template<typename T>
-    RequestedSetting<T> GetSetting(const std::string& settingName);
+    template <typename T>
+    RequestedSetting<T> GetSetting(const std::string &settingName);
 
+    wxString SettingsPath; ///< Path to settings JSON file
 private:
-    json DefaultSettings; 
-    wxString SettingsPath;    ///< Path to settings JSON file
+    json DefaultSettings;
     std::mutex settingsMutex; ///< Mutex for thread safety
 
     /**
