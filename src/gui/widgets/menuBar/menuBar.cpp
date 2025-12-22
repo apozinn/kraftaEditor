@@ -27,7 +27,10 @@ MenuBar::MenuBar() {
 		menuEdit->AppendSeparator();
 		menuEdit->Append(+Event::Edit::ToggleComment, _("&Toggle Comment\tCtrl+;"));
 		menuEdit->Append(+Event::Edit::ToggleBlockComment, _("&Toggle Block Comment\tShift+alt+A"));
-  
+		menuEdit->AppendSeparator();
+		menuEdit->Append(+Event::Edit::MoveLineUp, _("&Move Line Up\tAlt+Up"));
+		menuEdit->Append(+Event::Edit::MoveLineDown, _("&Move Line Down\tAlt+Down"));
+
 		wxMenu* menuSelection = new wxMenu;
 		menuSelection->Append(+Event::Edit::SelectAll, _("&Select All") );
 		menuSelection->Append(+Event::Edit::SelectLine, _("&Select line"));

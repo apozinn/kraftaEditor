@@ -2,7 +2,10 @@
 
 /**
  * @file code.hpp
- * @brief Declaration of the CodeContainer class, which hosts the main editor and minimap.
+ * @brief Declaration of the CodeContainer class.
+ *
+ * The CodeContainer is responsible for hosting the main code editor and
+ * its auxiliary UI components such as the minimap and status bar integration.
  */
 
 #include "ui/ids.hpp"
@@ -22,69 +25,125 @@
 
 /**
  * @class CodeContainer
- * @brief A scrollable panel designed to hold a code editor (Editor) and its corresponding minimap (MiniMap).
+ * @brief Main container panel for code editing.
  *
- * It manages file loading, saving, and keyboard shortcuts related to code editing and file operations.
+ * This class encapsulates the core editing experience by combining:
+ * - The main code editor
+ * - The minimap view
+ * - File I/O operations
+ * - Editing commands and shortcuts
+ *
+ * It acts as the primary bridge between UI actions and editor behavior.
  */
 class CodeContainer : public wxPanel
 {
 public:
     /**
-     * @brief Constructs the CodeContainer.
-     * @param parent The parent window.
-     * @param path The file path to load into the editor.
+     * @brief Constructs a new CodeContainer.
+     *
+     * @param parent Parent window.
+     * @param path Initial file path to load into the editor.
      */
     CodeContainer(wxWindow *parent, wxString path);
 
     /**
-     * @brief Loads the content of the specified file path into the editor and minimap.
-     * @param path The file path.
+     * @brief Loads a file into the editor and minimap.
+     *
+     * This replaces the current editor content with the contents of the file
+     * located at the given path.
+     *
+     * @param path File path to load.
      */
     void LoadPath(wxString path);
 
-    // file
+    // -------------------------------------------------------------------------
+    // File operations
+    // -------------------------------------------------------------------------
+
     /**
-     * @brief Saves the content of the editor to the specified path.
-     * @param path The file path to save to.
-     * @return **true** if the save operation was successful; **false** otherwise.
+     * @brief Saves the current editor content to a file.
+     *
+     * @param path Destination file path.
+     * @return true if the file was saved successfully.
+     * @return false if the save operation failed.
      */
     bool Save(wxString path);
+
+    /** @brief Handles the "Save" action. */
     void OnSave(wxCommandEvent &WXUNUSED(event));
+
+    /** @brief Handles the "Save As" action. */
     void OnSaveAs(wxCommandEvent &WXUNUSED(event));
+
+    /** @brief Handles the "Save All" action. */
     void OnSaveAll(wxCommandEvent &WXUNUSED(event));
+
+    /** @brief Handles the "Close File" action. */
     void OnCloseFile(wxCommandEvent &WXUNUSED(event));
 
-    // edit
+    // -------------------------------------------------------------------------
+    // Edit operations
+    // -------------------------------------------------------------------------
+
+    /** @brief Redoes the last undone action. */
     void OnRedo(wxCommandEvent &WXUNUSED(event));
+
+    /** @brief Undoes the last editor action. */
     void OnUndo(wxCommandEvent &WXUNUSED(event));
+
+    /** @brief Cuts the current selection to the clipboard. */
     void OnCut(wxCommandEvent &WXUNUSED(event));
+
+    /** @brief Copies the current selection to the clipboard. */
     void OnCopy(wxCommandEvent &WXUNUSED(event));
+
+    /** @brief Pastes clipboard content into the editor. */
     void OnPaste(wxCommandEvent &WXUNUSED(event));
 
-    // comment
+    // -------------------------------------------------------------------------
+    // Comment operations
+    // -------------------------------------------------------------------------
+
+    /** @brief Toggles line comments on the current selection or line. */
     void ToggleCommentLine(wxCommandEvent &WXUNUSED(event));
+
+    /** @brief Toggles block comments on the current selection. */
     void ToggleCommentBlock(wxCommandEvent &WXUNUSED(event));
 
-    // select
+    // -------------------------------------------------------------------------
+    // Selection operations
+    // -------------------------------------------------------------------------
+
+    /** @brief Selects all text in the editor. */
     void OnSelectAll(wxCommandEvent &WXUNUSED(event));
+
+    /** @brief Selects the current line. */
     void OnSelectLine(wxCommandEvent &WXUNUSED(event));
 
-    // view
+    // -------------------------------------------------------------------------
+    // View operations
+    // -------------------------------------------------------------------------
+
+    /** @brief Toggles the visibility of the minimap. */
     void OnToggleMinimapView(wxCommandEvent &WXUNUSED(event));
 
-public:
-    wxString iconsDir = ApplicationPaths::AssetsPath("icons"); /**< Path to the icon directory. */
-    wxFont font; /**< Font used for the editor. */
-    Editor *editor; /**< The main code editor component. */
-    MiniMap *minimap; /**< The code minimap component. */
-    wxString currentPath; /**< The file path currently loaded. */
-    bool codeMapMouseOver = false; /**< Tracks mouse state over the minimap (unused). */
-    languagePreferencesStruct languagePreferences; /**< Structure holding language-specific preferences. */
-    wxPoint codeMapClickPoint = wxPoint(0, 0); /**< Last minimap click point (unused). */
-    StatusBar *statusBar = ((StatusBar *)FindWindowById(+GUI::ControlID::StatusBar)); /**< Pointer to the status bar. */
-    json UserSettings = UserSettingsManager::Get().currentSettings; /**< Cached user settings. */
-    ProjectSettings &projectSettings = ProjectSettings::Get(); /**< Reference to global project settings. */
+    /** @brief Moves the current or selected lines up. */
+    void OnMoveLineUp(wxCommandEvent &WXUNUSED(event));
 
+    /** @brief Moves the current or selected lines down. */
+    void OnMoveLineDown(wxCommandEvent &WXUNUSED(event));
+
+    wxString currentPath; /**< Currently opened file path. */
+    Editor *editor;       /**< Main code editor instance. */
 private:
-    wxBoxSizer *sizer = new wxBoxSizer(wxHORIZONTAL); /**< Sizer to manage editor and minimap layout. */
+    wxString iconsDir = ApplicationPaths::AssetsPath("icons"); /**< Directory containing editor icons. */
+    wxFont font; /**< Editor font. */
+    MiniMap *minimap; /**< Minimap instance. */
+    bool codeMapMouseOver = false; /**< Indicates if the mouse is over the minimap. */
+    languagePreferencesStruct languagePreferences; /**< Language-specific editor preferences. */
+    wxPoint codeMapClickPoint = wxPoint(0, 0); /**< Last minimap click position. */
+    StatusBar *statusBar = ((StatusBar *)FindWindowById(+GUI::ControlID::StatusBar)); /**< Pointer to the global status bar. */
+    json UserSettings = UserSettingsManager::Get().currentSettings; /**< Cached user settings snapshot. */
+    ProjectSettings &projectSettings = ProjectSettings::Get(); /**< Reference to global project settings. */
+    wxBoxSizer *sizer = new wxBoxSizer(wxHORIZONTAL); /**< Layout sizer for editor and minimap. */
 };

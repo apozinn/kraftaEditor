@@ -21,7 +21,9 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(+Event::Edit::ToggleBlockComment, CodeContainer::ToggleCommentBlock)
     EVT_MENU(+Event::Edit::SelectLine,         CodeContainer::OnSelectLine)
     EVT_MENU(+Event::Edit::SelectAll,          CodeContainer::OnSelectAll)
-
+    EVT_MENU(+Event::Edit::MoveLineUp,          CodeContainer::OnMoveLineUp)
+    EVT_MENU(+Event::Edit::MoveLineDown,       CodeContainer::OnMoveLineDown)
+    
     // View Operations
     EVT_MENU(+Event::View::ToggleMiniMap,       CodeContainer::OnToggleMinimapView)
     EVT_MENU(+Event::View::ToggleCodeSearch,    MainFrame::OnToggleSearch)

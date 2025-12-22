@@ -41,7 +41,8 @@ namespace
         {"\"", "\""}, {"'", "'"}, {"]", "["}, {"}", "{"}, {")", "("}};
 }
 
-namespace EditorConstants {
+namespace EditorConstants
+{
     /** @brief Margin index reserved for line numbers. */
     constexpr int LINE_NUMBER_MARGIN = 0;
     /** @brief Margin index reserved for code folding symbols. */
@@ -120,7 +121,7 @@ public:
      * @brief Checks if the document has unsaved modifications.
      * @return **true** if the document has unsaved changes (**GetModify()** is true) and is not read-only.
      */
-    bool Modified() const; 
+    bool Modified() const;
 
     /**
      * @brief Updates code folding levels based on document structure in a text region.
@@ -157,14 +158,30 @@ public:
     void SetLanguagesPreferences(languagePreferencesStruct languagePreferences) { this->m_LanguagePreferences = languagePreferences; }
 
     /**
+     * @brief Moves the selected lines one position up.
+     *
+     * If no full line selection exists, the line where the caret is currently
+     * positioned will be moved instead.
+     */
+    void MoveSelectedLinesUp();
+
+    /**
+     * @brief Moves the selected lines one position down.
+     *
+     * If no full line selection exists, the line where the caret is currently
+     * positioned will be moved instead.
+     */
+    void MoveSelectedLinesDown();
+
+    /**
      * @brief Pointer to an optional synchronized minimap view of the document.
      *
      * Used to display a small-scale, mirrored overview of the code. May be **nullptr**
      * if the minimap feature is disabled or not attached.
      */
     MiniMap *m_linked_minimap = nullptr;
-private:
 
+private:
     /**
      * @brief Path of the currently opened file.
      *
@@ -209,31 +226,31 @@ private:
      *
      * Typically triggered by an accelerator (e.g., Ctrl+Shift+Down).
      */
-    void OnMoveCursorDown(wxCommandEvent& event);
+    void OnMoveCursorDown(wxCommandEvent &event);
 
     /**
      * @brief Handler to move the current line/selection one line up.
      *
      * Typically triggered by an accelerator (e.g., Ctrl+Shift+Up).
      */
-    void OnMoveCursorUp(wxCommandEvent& event);
+    void OnMoveCursorUp(wxCommandEvent &event);
 
     /**
      * @brief Handler to duplicate the current line one line below it.
      */
-    void OnDuplicateLineDown(wxCommandEvent& event);
+    void OnDuplicateLineDown(wxCommandEvent &event);
 
     /**
      * @brief Handler to duplicate the current line one line above it.
      */
-    void OnDuplicateLineUp(wxCommandEvent& event);
+    void OnDuplicateLineUp(wxCommandEvent &event);
 
     /**
      * @brief Searches for and selects the next occurrence of the currently selected text.
      *
      * Useful for multi-cursor editing, allowing the user to select the next match.
      */
-    void SelectNextOccurrence(wxCommandEvent& event);
+    void SelectNextOccurrence(wxCommandEvent &event);
 
     // --- Core Editor Configuration ---
 

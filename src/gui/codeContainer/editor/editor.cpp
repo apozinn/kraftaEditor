@@ -477,3 +477,112 @@ void Editor::SelectNextOccurrence(wxCommandEvent &WXUNUSED(event))
     SetMainSelection(GetSelections() - 1);
     EnsureCaretVisible();
 }
+
+void Editor::MoveSelectedLinesUp()
+{
+    int selStart = GetSelectionStart();
+    int selEnd   = GetSelectionEnd();
+
+    bool hasSelection = (selStart != selEnd);
+
+    int startLine;
+    int endLine;
+
+    if (!hasSelection)
+    {
+        // Caret only → move current line
+        startLine = endLine = LineFromPosition(GetCurrentPos());
+    }
+    else
+    {
+        startLine = LineFromPosition(selStart);
+        endLine   = LineFromPosition(selEnd);
+
+        // Adjust when selection ends exactly at line start
+        if (selEnd == PositionFromLine(endLine))
+            endLine--;
+    }
+
+    if (startLine <= 0)
+        return; // Already at top
+
+    BeginUndoAction();
+
+    wxString textAbove = GetLine(startLine - 1);
+    wxString blockText;
+
+    for (int i = startLine; i <= endLine; ++i)
+        blockText += GetLine(i);
+
+    int removeStart = PositionFromLine(startLine - 1);
+    int removeEnd   = PositionFromLine(endLine + 1);
+
+    SetTargetStart(removeStart);
+    SetTargetEnd(removeEnd);
+    ReplaceTarget(blockText + textAbove);
+
+    // Restore selection
+    int newStartPos = PositionFromLine(startLine - 1);
+    int newEndPos   = newStartPos + blockText.Length();
+
+    if (hasSelection)
+        SetSelection(newStartPos, newEndPos);
+    else
+        GotoPos(newStartPos);
+
+    EndUndoAction();
+}
+
+void Editor::MoveSelectedLinesDown()
+{
+    int selStart = GetSelectionStart();
+    int selEnd   = GetSelectionEnd();
+
+    bool hasSelection = (selStart != selEnd);
+
+    int startLine;
+    int endLine;
+
+    if (!hasSelection)
+    {
+        // Caret only → move current line
+        startLine = endLine = LineFromPosition(GetCurrentPos());
+    }
+    else
+    {
+        startLine = LineFromPosition(selStart);
+        endLine   = LineFromPosition(selEnd);
+
+        if (selEnd == PositionFromLine(endLine))
+            endLine--;
+    }
+
+    if (endLine >= GetLineCount() - 1)
+        return; // Already at bottom
+
+    BeginUndoAction();
+
+    wxString textBelow = GetLine(endLine + 1);
+    wxString blockText;
+
+    for (int i = startLine; i <= endLine; ++i)
+        blockText += GetLine(i);
+
+    int removeStart = PositionFromLine(startLine);
+    int removeEnd   = PositionFromLine(endLine + 2);
+
+    SetTargetStart(removeStart);
+    SetTargetEnd(removeEnd);
+    ReplaceTarget(textBelow + blockText);
+
+    // Restore selection
+    int newStartPos = PositionFromLine(startLine + 1);
+    int newEndPos   = newStartPos + blockText.Length();
+
+    if (hasSelection)
+        SetSelection(newStartPos, newEndPos);
+    else
+        GotoPos(newStartPos);
+
+    EndUndoAction();
+}

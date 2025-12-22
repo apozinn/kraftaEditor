@@ -387,3 +387,21 @@ void CodeContainer::OnSelectLine(wxCommandEvent &WXUNUSED(event))
         currentEditor->SetSelection(lineStart, lineEnd);
     }
 }
+
+void CodeContainer::OnMoveLineUp(wxCommandEvent &WXUNUSED(event))
+{
+    auto currentEditor = ((Editor *)wxFindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_codeEditor"));
+    if (currentEditor)
+    {
+        currentEditor->MoveSelectedLinesUp();
+    }
+}
+
+void CodeContainer::OnMoveLineDown(wxCommandEvent &WXUNUSED(event))
+{
+    auto currentEditor = ((Editor *)wxFindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_codeEditor"));
+    if (currentEditor)
+    {
+        currentEditor->MoveSelectedLinesDown();
+    }
+}

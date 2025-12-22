@@ -126,7 +126,9 @@ namespace Event
         DuplicateLineDown = ID_BASE_EDIT + 7,  ///< Duplicate current line below
         DuplicateLineUp = ID_BASE_EDIT + 8,    ///< Duplicate current line above
         SelectNextOccurrence = ID_BASE_EDIT + 9, ///< Select next occurrence of selected text
-        AutoComplete = ID_BASE_EDIT + 10        ///< Trigger autocomplete
+        AutoComplete = ID_BASE_EDIT + 10,        ///< Trigger autocomplete
+        MoveLineUp = ID_BASE_EDIT + 11,         ///< Move line up
+        MoveLineDown = ID_BASE_EDIT + 12,       ///< Move line down
     };
 
     /**
