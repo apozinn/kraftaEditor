@@ -7,6 +7,8 @@
 
 #include <wx/stc/stc.h>
 
+#include "FrameFileDropTarget/FrameFileDropTarget.hpp"
+
 CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxPanel(parent, wxID_ANY, wxDefaultPosition)
 {
     Hide();
@@ -18,7 +20,7 @@ CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxPanel(parent, 
     minimap = new MiniMap(this, editor);
 
     editor->m_linked_minimap = minimap;
-
+    
     sizer->Add(editor, 1, wxEXPAND);
     sizer->Add(minimap, 0, wxEXPAND);
 

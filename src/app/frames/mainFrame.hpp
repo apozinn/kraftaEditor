@@ -55,6 +55,8 @@ using json = nlohmann::json;
 #include "gui/panels/controlPanel/controlPanel.hpp"
 #include "gui/panels/quickOpen/quickOpen.hpp"
 
+#include "FrameFileDropTarget/FrameFileDropTarget.hpp"
+
 /**
  * @class MainFrame
  * @brief The main top-level window of the Krafta Editor application.
@@ -217,6 +219,14 @@ public:
      */
     void OnPaintedComponent(wxPaintEvent &event);
 
+    /**
+     * @brief Toggles the visibility of the minimap panel.
+     *
+     * Enables or disables the minimap view associated with the editor,
+     * allowing the user to quickly show or hide it via a command or shortcut.
+     *
+     * @param event Command event (unused).
+     */
     void OnToggleMinimapView(wxCommandEvent &WXUNUSED(event));
 
 private:

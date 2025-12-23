@@ -73,6 +73,7 @@ namespace GUI
         OpenFolderButton,              ///< Button to open folder dialog
         QuickOpen,                     ///< Quick file opening panel
         ProjectInfosTools,             ///< Project tools panel
+        OpenFileFromDrop,              ///< Event identifier for opening file from drop
     };
 
 } // namespace GUI

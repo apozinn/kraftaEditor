@@ -23,6 +23,8 @@ MainFrame::MainFrame(const wxString &title)
     SetupAccelerators();
 
     SetSizer(sizer);
+
+    SetDropTarget(new FrameFileDropTarget(this));
 }
 
 MainFrame::~MainFrame()
