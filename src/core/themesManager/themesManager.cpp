@@ -86,3 +86,8 @@ nlohmann::json ThemesManager::LoadThemeFile() const
         throw std::runtime_error("Theme file not found");
     }
 }
+
+bool ThemesManager::IsDarkTheme() const
+{
+    return wxSystemSettings::GetAppearance().IsSystemDark();
+}

@@ -255,27 +255,29 @@ void Editor::ClearIndicators()
 
 void Editor::UpdateUnsavedIndicator()
 {
-    wxWindow *tab =
-        FindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_tab");
+    wxWindow *tab = FindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_tab");
 
     if (!tab || !Modified())
         return;
 
     wxStaticBitmap *icon = nullptr;
 
-    for (wxWindow *child : tab->GetChildren())
+    for (auto children : tab->GetChildren()[0]->GetChildren())
     {
-        icon = wxDynamicCast(child, wxStaticBitmap);
-        if (icon)
+        if (children->GetName() == "tab_icon_close_or_unsaved")
+        {
+            icon = wxDynamicCast(children, wxStaticBitmap);
             break;
+        }
     }
-
-    if (!icon)
-        return;
 
     icon->SetBitmap(
         wxBitmapBundle::FromBitmap(
-            wxBitmap(iconsDir + "white_circle.png", wxBITMAP_TYPE_PNG)));
+            wxBitmap(
+                iconsDir + "unsaved" +
+                    (ThemesManager::Get().IsDarkTheme() ? "_light" : "_dark") +
+                    ".png",
+                wxBITMAP_TYPE_PNG)));
 
     tab->Layout();
 }
@@ -497,7 +499,6 @@ void Editor::MoveSelectedLinesUp()
 
     if (!hasSelection)
     {
-        // Caret only → move current line
         startLine = endLine = LineFromPosition(GetCurrentPos());
     }
     else
@@ -505,13 +506,12 @@ void Editor::MoveSelectedLinesUp()
         startLine = LineFromPosition(selStart);
         endLine = LineFromPosition(selEnd);
 
-        // Adjust when selection ends exactly at line start
         if (selEnd == PositionFromLine(endLine))
             endLine--;
     }
 
     if (startLine <= 0)
-        return; // Already at top
+        return;
 
     BeginUndoAction();
 
@@ -528,7 +528,6 @@ void Editor::MoveSelectedLinesUp()
     SetTargetEnd(removeEnd);
     ReplaceTarget(blockText + textAbove);
 
-    // Restore selection
     int newStartPos = PositionFromLine(startLine - 1);
     int newEndPos = newStartPos + blockText.Length();
 
@@ -552,7 +551,6 @@ void Editor::MoveSelectedLinesDown()
 
     if (!hasSelection)
     {
-        // Caret only → move current line
         startLine = endLine = LineFromPosition(GetCurrentPos());
     }
     else
@@ -565,7 +563,7 @@ void Editor::MoveSelectedLinesDown()
     }
 
     if (endLine >= GetLineCount() - 1)
-        return; // Already at bottom
+        return;
 
     BeginUndoAction();
 
@@ -582,7 +580,6 @@ void Editor::MoveSelectedLinesDown()
     SetTargetEnd(removeEnd);
     ReplaceTarget(textBelow + blockText);
 
-    // Restore selection
     int newStartPos = PositionFromLine(startLine + 1);
     int newEndPos = newStartPos + blockText.Length();
 
