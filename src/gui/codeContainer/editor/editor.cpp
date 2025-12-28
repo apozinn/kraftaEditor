@@ -76,7 +76,7 @@ void Editor::OnUpdateUI(wxStyledTextEvent &event)
     HighlightSelectionOccurrences();
 
     if (m_linked_minimap)
-        m_linked_minimap->ExtractStyledText();
+        m_linked_minimap->Refresh();
 
     event.Skip();
 }
