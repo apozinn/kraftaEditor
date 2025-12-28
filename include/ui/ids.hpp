@@ -3,271 +3,270 @@
 
 /**
  * @file ids.hpp
- * @brief Centralized definitions for all GUI control IDs and event IDs
+ * @brief Central registry of GUI control IDs and application event IDs.
  *
- * Usage example:
+ * This file defines all identifiers used by wxWidgets controls, menus,
+ * commands and custom events. IDs are grouped by functional domain and
+ * assigned fixed numeric ranges to avoid collisions.
+ *
+ * Usage examples:
  * @code
  * button->Bind(wxEVT_BUTTON, handler, +GUI::ControlID::ProjectToggler);
  * menu->Bind(wxEVT_MENU, handler, +Event::File::New);
  * @endcode
  */
 
-// Dedicated ID ranges for each category
-constexpr wxWindowID ID_BASE_FILE = 10000;     ///< Base ID for file operations
-constexpr wxWindowID ID_BASE_FRAME = 11000;    ///< Base ID for frame operations
-constexpr wxWindowID ID_BASE_PROJECT = 12000;  ///< Base ID for project operations
-constexpr wxWindowID ID_BASE_VIEW = 13000;     ///< Base ID for view operations
-constexpr wxWindowID ID_BASE_TERMINAL = 14000; ///< Base ID for terminal operations
-constexpr wxWindowID ID_BASE_CONTROL = 15000;  ///< Base ID for control panel
-constexpr wxWindowID ID_BASE_QUICK_OPEN = 15500;  ///< Base ID for control panel
-constexpr wxWindowID ID_BASE_SEARCH = 16000;   ///< Base ID for search operations
-constexpr wxWindowID ID_BASE_SETTINGS = 17000; ///< Base ID for user settings
-constexpr wxWindowID ID_BASE_EDIT = 18000;     ///< Base ID for code edit
-constexpr wxWindowID ID_TABS_CONTAINER = 19000;     ///< Base ID for tabs container
+/* -------------------------------------------------------------------------- */
+/* ID BASE RANGES                                                              */
+/* -------------------------------------------------------------------------- */
+
+constexpr wxWindowID ID_BASE_FILE        = 10000; ///< File system and file actions
+constexpr wxWindowID ID_BASE_FRAME       = 11000; ///< Main window and frame actions
+constexpr wxWindowID ID_BASE_PROJECT     = 12000; ///< Project lifecycle actions
+constexpr wxWindowID ID_BASE_VIEW        = 13000; ///< UI visibility and layout toggles
+constexpr wxWindowID ID_BASE_TERMINAL    = 14000; ///< Integrated terminal controls
+constexpr wxWindowID ID_BASE_CONTROL     = 15000; ///< Command/control panel navigation
+constexpr wxWindowID ID_BASE_QUICK_OPEN  = 15500; ///< Quick Open navigation and actions
+constexpr wxWindowID ID_BASE_SEARCH      = 16000; ///< Search panels and search actions
+constexpr wxWindowID ID_BASE_SETTINGS    = 17000; ///< User preferences and settings
+constexpr wxWindowID ID_BASE_EDIT        = 18000; ///< Text editing and code manipulation
+constexpr wxWindowID ID_TABS_CONTAINER   = 19000; ///< Editor tab container actions
+
+/* -------------------------------------------------------------------------- */
+/* GUI CONTROL IDS                                                             */
+/* -------------------------------------------------------------------------- */
 
 namespace GUI
 {
-
-    /**
-     * @namespace GUI
-     * @brief Contains all GUI control identifiers
-     */
-
     /**
      * @enum ControlID
-     * @brief Identifiers for visual controls and windows
+     * @brief Identifiers for visible widgets and layout components.
+     *
+     * These IDs are assigned to wxWindow-derived objects such as panels,
+     * buttons, splitters and custom controls.
      */
     enum class ControlID : wxWindowID
     {
-        MainFrame = wxID_ANY,          ///< Main application frame (wxID_ANY = -1)
-        ProjectToggler,                ///< Button/control to toggle project visibility
-        Tabs,                          ///< Main tab control container
-        TabsContainer,                 ///< Container widget holding all tabs
-        CodeEditor,                    ///< Primary code editing control (scintilla, etc.)
-        MiniMap,                       ///< Code minimap visualization panel
-        CodeSearchPanel,               ///< Panel containing code search functionality
-        FileSearchPanel,               ///< Panel containing file search functionality
-        ApplicationLeftMainContainer,  ///< Left container in main application layout
-        ApplicationRightMainContainer, ///< Right container in main application layout
-        CenteredContent,               ///< Central content area container
-        EmptyWindow,                   ///< Placeholder/empty window (initial state)
-        MainSplitter,                  ///< Main window splitter control
-        MainContainerSplitter,         ///< Secondary splitter for containers
-        Terminal,                      ///< Integrated terminal emulator widget
-        TerminalCommandInput,          ///< Input where commands are entered
-        ControlPanel,                  ///< Auxiliary control panel for commands
-        MainContainer,                 ///< Primary container element for central UI
-        FilesTree,                     ///< Tree view showing project files structure
-        ProjectFiles,                  ///< List control showing project files
-        ProjectFilesContainer,         ///< Container widget for project files list
-        MainCode,                      ///< Main code display and editing area
-        StatusBar,                     ///< Application status bar at bottom
-        StatusBarFileExt,              ///< Status bar element showing file extension
-        StatusBarTabSize,              ///< Status bar element showing tab size setting
-        StatusBarCodeLocale,           ///< Status bar element showing language mode
-        MenuBar,                       ///< Main application menu bar
-        NotifyPanel,                   ///< Notification/alert panel
-        ProjectToolsName,              ///< Label showing project name in tools panel
-        ProjectToolsArrow,             ///< Arrow control in project tools panel
-        QuickOpenSearchBar,            ///< Search bar for quick file opening
-        OpenFolderButton,              ///< Button to open folder dialog
-        QuickOpen,                     ///< Quick file opening panel
-        ProjectInfosTools,             ///< Project tools panel
-        OpenFileFromDrop,              ///< Event identifier for opening file from drop
+        MainFrame = wxID_ANY,          ///< Main application window
+        ProjectToggler,               ///< Button that shows/hides the project tree
+        Tabs,                         ///< Main editor tabs control
+        TabsContainer,                ///< Container holding all editor tabs
+        CodeEditor,                   ///< Primary source code editor widget
+        MiniMap,                      ///< Code minimap view
+        CodeSearchPanel,              ///< In-editor text search panel
+        FileSearchPanel,              ///< Workspace-wide file search panel
+        ApplicationLeftMainContainer, ///< Left side of the main layout
+        ApplicationRightMainContainer,///< Right side of the main layout
+        CenteredContent,              ///< Central editor/content area
+        EmptyWindow,                  ///< Placeholder window (no file open)
+        MainSplitter,                 ///< Root splitter dividing main layout
+        MainContainerSplitter,        ///< Secondary splitter for nested containers
+        Terminal,                     ///< Embedded terminal widget
+        TerminalCommandInput,         ///< Terminal command input field
+        ControlPanel,                 ///< Command palette / control panel
+        MainContainer,                ///< Root container for main UI
+        FilesTree,                    ///< Project file tree view
+        ProjectFiles,                 ///< Flat list of project files
+        ProjectFilesContainer,        ///< Container for project files view
+        MainCode,                     ///< Main code editing area
+        StatusBar,                    ///< Application status bar
+        StatusBarFileExt,             ///< Status bar file extension indicator
+        StatusBarTabSize,             ///< Status bar tab size indicator
+        StatusBarCodeLocale,          ///< Status bar language mode indicator
+        MenuBar,                      ///< Application menu bar
+        NotifyPanel,                  ///< Notification and alert panel
+        ProjectToolsName,             ///< Project name label in tools panel
+        ProjectToolsArrow,            ///< Expand/collapse arrow for project tools
+        QuickOpenSearchBar,           ///< Input field for Quick Open
+        OpenFolderButton,             ///< Button to open a project folder
+        QuickOpen,                    ///< Quick Open overlay panel
+        ProjectInfosTools,            ///< Project information tools panel
+        PageSwitcher,                 ///< Sidebar page switcher (Files/Search)
+        OpenFileFromDrop,             ///< Drag-and-drop file open handler
+        FilesPage,                    ///< Files page inside page switcher
+        PageSwitcherSearchPage,       ///< Search page inside page switcher
+        SearchPage                    ///< Full search results page
     };
+}
 
-} // namespace GUI
+/* -------------------------------------------------------------------------- */
+/* EVENT IDS                                                                   */
+/* -------------------------------------------------------------------------- */
 
 namespace Event
 {
-
-    /**
-     * @namespace Event
-     * @brief Contains all event identifiers organized by functional domain
-     */
-
     /**
      * @enum File
-     * @brief File operation related events
+     * @brief Events related to file and directory operations.
      */
     enum class File : wxWindowID
     {
-        New = ID_BASE_FILE + 1,             ///< Create new file
-        OpenFile = ID_BASE_FILE + 2,        ///< Open existing file dialog
-        CreateFileEvent = ID_BASE_FILE + 3, ///< Create new file (K suffix for disambiguation)
-        RenameFile = ID_BASE_FILE + 4,      ///< Rename current file
-        DeleteFileEvent = ID_BASE_FILE + 5, ///< Delete file (K suffix for disambiguation)
-        CloseFile = ID_BASE_FILE + 6,       ///< Close current file
-        Save = ID_BASE_FILE + 7,            ///< Save current file
-        SaveAll = ID_BASE_FILE + 8,         ///< Save all open files
-        SaveAs = ID_BASE_FILE + 9,          ///< Save file with new name dialog
-        CloseAll = ID_BASE_FILE + 10,       ///< Close all open files
-        CreateDir = ID_BASE_FILE + 11,      ///< Create new directory
-        RenameDir = ID_BASE_FILE + 12,      ///< Rename directory
-        DeleteDir = ID_BASE_FILE + 13       ///< Delete directory
+        New              = ID_BASE_FILE + 1,
+        OpenFile         = ID_BASE_FILE + 2,
+        CreateFileEvent  = ID_BASE_FILE + 3,
+        RenameFile       = ID_BASE_FILE + 4,
+        DeleteFileEvent  = ID_BASE_FILE + 5,
+        CloseFile        = ID_BASE_FILE + 6,
+        Save             = ID_BASE_FILE + 7,
+        SaveAll          = ID_BASE_FILE + 8,
+        SaveAs           = ID_BASE_FILE + 9,
+        CloseAll         = ID_BASE_FILE + 10,
+        CreateDir        = ID_BASE_FILE + 11,
+        RenameDir        = ID_BASE_FILE + 12,
+        DeleteDir        = ID_BASE_FILE + 13
     };
 
     /**
      * @enum Edit
-     * @brief Text editing related events
+     * @brief Text editing and code manipulation commands.
      */
     enum class Edit : wxWindowID
     {
-        Undo = wxID_UNDO,                      ///< Standard undo operation
-        Redo = wxID_REDO,                      ///< Standard redo operation
-        ToggleComment = ID_BASE_EDIT + 1,      ///< Toggle line comment on current line/selection
-        ToggleBlockComment = ID_BASE_EDIT + 2, ///< Toggle block comment on selection
-        SelectAll = ID_BASE_EDIT + 3,          ///< Select all text in current editor
-        SelectLine = ID_BASE_EDIT + 4,         ///< Select current line
-        Cut = wxID_CUT,                        ///< Standard cut operation
-        Copy = wxID_COPY,                      ///< Standard copy operation
-        Paste = wxID_PASTE,                     ///< Standard paste operation
-        MoveCursorDown = ID_BASE_EDIT + 5,     ///< Move cursor down one line
-        MoveCursorUp = ID_BASE_EDIT + 6,       ///< Move cursor up one line
-        DuplicateLineDown = ID_BASE_EDIT + 7,  ///< Duplicate current line below
-        DuplicateLineUp = ID_BASE_EDIT + 8,    ///< Duplicate current line above
-        SelectNextOccurrence = ID_BASE_EDIT + 9, ///< Select next occurrence of selected text
-        AutoComplete = ID_BASE_EDIT + 10,        ///< Trigger autocomplete
-        MoveLineUp = ID_BASE_EDIT + 11,         ///< Move line up
-        MoveLineDown = ID_BASE_EDIT + 12,       ///< Move line down
-        RemoveCurrentLine = ID_BASE_EDIT + 13,  ///< Remove current line
+        Undo                   = wxID_UNDO,
+        Redo                   = wxID_REDO,
+        ToggleComment          = ID_BASE_EDIT + 1,
+        ToggleBlockComment     = ID_BASE_EDIT + 2,
+        SelectAll              = ID_BASE_EDIT + 3,
+        SelectLine             = ID_BASE_EDIT + 4,
+        Cut                    = wxID_CUT,
+        Copy                   = wxID_COPY,
+        Paste                  = wxID_PASTE,
+        MoveCursorDown         = ID_BASE_EDIT + 5,
+        MoveCursorUp           = ID_BASE_EDIT + 6,
+        DuplicateLineDown      = ID_BASE_EDIT + 7,
+        DuplicateLineUp        = ID_BASE_EDIT + 8,
+        SelectNextOccurrence   = ID_BASE_EDIT + 9,
+        AutoComplete           = ID_BASE_EDIT + 10,
+        MoveLineUp             = ID_BASE_EDIT + 11,
+        MoveLineDown           = ID_BASE_EDIT + 12,
+        RemoveCurrentLine      = ID_BASE_EDIT + 13
     };
 
     /**
      * @enum Frame
-     * @brief Main frame related events
+     * @brief Application-level window actions.
      */
     enum class Frame : wxWindowID
     {
-        Exit = ID_BASE_FRAME + 1,      ///< Exit application
-        NewWindow = ID_BASE_FRAME + 2, ///< Create new application window
-        About = ID_BASE_FRAME + 3,      ///< Show about dialog
-        DontSaveChanges = ID_BASE_FRAME + 4
+        Exit             = ID_BASE_FRAME + 1,
+        NewWindow        = ID_BASE_FRAME + 2,
+        About            = ID_BASE_FRAME + 3,
+        DontSaveChanges  = ID_BASE_FRAME + 4
     };
 
     /**
      * @enum View
-     * @brief UI visibility and appearance events
+     * @brief UI layout and visibility toggles.
      */
     enum class View : wxWindowID
     {
-        ToggleMenuBar = ID_BASE_VIEW + 1,      ///< Show/hide menu bar
-        ToggleStatusBar = ID_BASE_VIEW + 2,    ///< Show/hide status bar
-        ToggleFileTree = ID_BASE_VIEW + 3,     ///< Show/hide file tree panel
-        ToggleMiniMap = ID_BASE_VIEW + 4,      ///< Show/hide code minimap
-        ToggleControlPanel = ID_BASE_VIEW + 5, ///< Show/hide control panel
-        ToggleTabBar = ID_BASE_VIEW + 6,       ///< Show/hide tab bar
-        ToggleCodeSearch = ID_BASE_VIEW + 7,   ///< Show/hide code search panel
-        FocusMode = ID_BASE_VIEW + 8,           ///< Toggle distraction-free focus mode
-        ToggleQuickOpen = ID_BASE_VIEW + 9,     ///< Show/hide quick open panel
+        ToggleMenuBar     = ID_BASE_VIEW + 1,
+        ToggleStatusBar   = ID_BASE_VIEW + 2,
+        ToggleFileTree    = ID_BASE_VIEW + 3,
+        ToggleMiniMap     = ID_BASE_VIEW + 4,
+        ToggleControlPanel= ID_BASE_VIEW + 5,
+        ToggleTabBar      = ID_BASE_VIEW + 6,
+        ToggleCodeSearch  = ID_BASE_VIEW + 7,
+        FocusMode         = ID_BASE_VIEW + 8,
+        ToggleQuickOpen   = ID_BASE_VIEW + 9
     };
 
     /**
      * @enum Project
-     * @brief Project management events
+     * @brief Project open/close lifecycle events.
      */
     enum class Project : wxWindowID
     {
-        OpenFolder = ID_BASE_PROJECT + 1, ///< Open project folder dialog
-        CloseFolder = ID_BASE_PROJECT + 2 ///< Close current project
+        OpenFolder  = ID_BASE_PROJECT + 1,
+        CloseFolder = ID_BASE_PROJECT + 2
     };
 
     /**
-     * @enum User settings
-     * @brief User settings events
+     * @enum UserSettings
+     * @brief User preferences and configuration actions.
      */
     enum class UserSettings : wxWindowID
     {
-        Edit = ID_BASE_SETTINGS + 1 ///< Edit user preferences/settings
+        Edit = ID_BASE_SETTINGS + 1
     };
 
     /**
      * @enum Terminal
-     * @brief Terminal emulator events
+     * @brief Integrated terminal control and navigation.
      */
     enum class Terminal : wxWindowID
     {
-        Open = ID_BASE_TERMINAL + 1,         ///< Open terminal panel
-        Exit = ID_BASE_TERMINAL + 2,         ///< Close terminal panel
-        ControlUp = ID_BASE_TERMINAL + 3,    ///< Terminal control navigation up
-        ControlDown = ID_BASE_TERMINAL + 4,  ///< Terminal control navigation down
-        ControlSelect = ID_BASE_TERMINAL + 5, ///< Terminal control selection
+        Open          = ID_BASE_TERMINAL + 1,
+        Exit          = ID_BASE_TERMINAL + 2,
+        ControlUp     = ID_BASE_TERMINAL + 3,
+        ControlDown   = ID_BASE_TERMINAL + 4,
+        ControlSelect = ID_BASE_TERMINAL + 5
     };
 
     /**
-     * @enum Control Panel
-     * @brief Control Panel emulator events
+     * @enum ControlPanel
+     * @brief Command palette navigation events.
      */
     enum class ControlPanel : wxWindowID
     {
-        Exit = ID_BASE_CONTROL + 1,  ///< Exit control panel mode
-        Up = ID_BASE_CONTROL + 2,    ///< Navigate up in control panel
-        Down = ID_BASE_CONTROL + 3,  ///< Navigate down in control panel
-        Select = ID_BASE_CONTROL + 4 ///< Select item in control panel
+        Exit   = ID_BASE_CONTROL + 1,
+        Up     = ID_BASE_CONTROL + 2,
+        Down   = ID_BASE_CONTROL + 3,
+        Select = ID_BASE_CONTROL + 4
     };
-    
+
     /**
-     * @enum Quick Open
-     * @brief Quick Open emulator events
+     * @enum QuickOpen
+     * @brief Quick Open navigation and selection events.
      */
     enum class QuickOpen : wxWindowID
     {
-        Exit = ID_BASE_QUICK_OPEN + 1,  ///< Exit quick open mode
-        Up = ID_BASE_QUICK_OPEN + 2,    ///< Navigate up in quick open
-        Down = ID_BASE_QUICK_OPEN + 3,  ///< Navigate down in quick open
-        Select = ID_BASE_QUICK_OPEN + 4 ///< Select item in quick open
+        Exit   = ID_BASE_QUICK_OPEN + 1,
+        Up     = ID_BASE_QUICK_OPEN + 2,
+        Down   = ID_BASE_QUICK_OPEN + 3,
+        Select = ID_BASE_QUICK_OPEN + 4
     };
 
     /**
-     * @enum Code Search
-     * @brief Code Search emulator events
+     * @enum CodeSearch
+     * @brief Workspace and editor search panel actions.
      */
     enum class CodeSearch : wxWindowID
     {
-        Open = ID_BASE_SEARCH + 1, ///< Open code search panel
-        Close = ID_BASE_SEARCH + 2 ///< Close code search panel
+        Open  = ID_BASE_SEARCH + 1,
+        Close = ID_BASE_SEARCH + 2
     };
-    
+
     /**
-     * @enum Tabs Container
-     * @brief Tabs Container emulator events
+     * @enum TabsContainer
+     * @brief Editor tab container navigation and management.
      */
     enum class TabsContainer : wxWindowID
     {
-        OpenFirstTab = ID_TABS_CONTAINER + 1, ///< Open first tab
-        OpenLastTab = ID_TABS_CONTAINER + 2,  ///< Open last tab
-        CloseAllSavedTabs = ID_TABS_CONTAINER + 3,  ///< Close all saved tabs
+        OpenFirstTab       = ID_TABS_CONTAINER + 1,
+        OpenLastTab        = ID_TABS_CONTAINER + 2,
+        CloseAllSavedTabs  = ID_TABS_CONTAINER + 3
     };
+}
 
-} // namespace Event
+/* -------------------------------------------------------------------------- */
+/* ID CONVERSION HELPERS                                                       */
+/* -------------------------------------------------------------------------- */
 
-/**
- * @brief Safe conversion operator for ControlIDs
- * @param id The control ID to convert
- * @return wxWindowID value for wxWidgets APIs
- *
- * Enables using enum values directly in wxWidgets APIs with + prefix
- */
 constexpr wxWindowID operator+(GUI::ControlID id)
 {
     return static_cast<wxWindowID>(id);
 }
 
-/**
- * @brief Safe conversion operator for Event IDs
- * @tparam T Event enum type
- * @param id The event ID to convert
- * @return wxWindowID value for wxWidgets APIs
- *
- * Template version works with any Event namespace enum
- */
 template <typename T>
 constexpr wxWindowID operator+(T id)
 {
     return static_cast<wxWindowID>(id);
 }
 
-// Static assertions to guarantee no ID conflicts
-static_assert(+Event::File::New != +Event::Project::OpenFolder, "ID conflict detected!");
-static_assert(+Event::Frame::Exit != +Event::Project::OpenFolder, "ID conflict detected!");
-// Add more static assertions as needed
+/* -------------------------------------------------------------------------- */
+/* SAFETY CHECKS                                                               */
+/* -------------------------------------------------------------------------- */
+
+static_assert(+Event::File::New != +Event::Project::OpenFolder, "ID conflict detected");
+static_assert(+Event::Frame::Exit != +Event::Project::OpenFolder, "ID conflict detected");

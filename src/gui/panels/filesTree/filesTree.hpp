@@ -91,7 +91,7 @@ public:
      * @param componentIdentifier The unique identifier (path) of the file component.
      * @return True if the file was successfully opened, false otherwise.
      */
-    bool OpenFile(const wxString &componentIdentifier);
+    bool OpenFile(const wxString &componentIdentifier, int line=0);
 
     /**
      * @brief Highlights a file or directory component visually.

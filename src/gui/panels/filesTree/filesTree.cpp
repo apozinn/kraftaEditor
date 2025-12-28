@@ -369,7 +369,7 @@ void FilesTree::OnFileLeftClick(wxMouseEvent &event)
     OpenFile(path);
 }
 
-bool FilesTree::OpenFile(const wxString &componentIdentifier)
+bool FilesTree::OpenFile(const wxString &componentIdentifier, int line)
 {
     auto mainCode = FindWindowById(+GUI::ControlID::MainCode);
     auto tabsContainer = ((Tabs *)FindWindowById(+GUI::ControlID::Tabs));
@@ -411,6 +411,11 @@ bool FilesTree::OpenFile(const wxString &componentIdentifier)
         }
         else
             codeEditor->Show();
+
+        if (codeEditor && line)
+        {
+            ((wxStyledTextCtrl *)codeEditor->GetChildren()[0])->GotoLine(line);
+        }
 
         hideOtherPanelsOfMainCode(codeEditor);
     };

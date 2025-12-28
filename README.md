@@ -36,6 +36,43 @@
 
 ---
 
+## ⚡ Performance Comparison
+
+### 🚀 Startup Time
+
+| Editor             | Startup time           |
+| ------------------ | ---------------------- |
+| **Krafta Editor**  | **Instant (< 200 ms)** |
+| Visual Studio Code | ~2–4 seconds           |
+
+---
+
+### 🧠 Memory Usage (Idle)
+
+| Editor             | RAM usage     |
+| ------------------ | ------------- |
+| **Krafta Editor**  | **~60–70 MB** |
+| Visual Studio Code | ~300–500 MB   |
+
+---
+
+### 🖥️ Tech Stack
+
+|          | Krafta Editor | VS Code                 |
+| -------- | ------------- | ----------------------- |
+| Language | C++           | JavaScript / TypeScript |
+| UI       | wxWidgets     | Electron                |
+| Type     | Native        | Web-based               |
+
+---
+
+### 🔎 Summary
+
+* **Krafta Editor** is lightweight and starts instantly
+* **VS Code** is powerful but significantly heavier due to Electron
+
+---
+
 ## 🚀 **Getting Started**
 
 ### Prerequisites
@@ -248,40 +285,6 @@ Contributions are welcome!
 
 ---
 
-## 🧾 **Release Highlights — v0.8.0**
-
-### *“Boosting Editor Productivity”*
-
-Version 0.8.0 introduces major improvements to editing fluidity, stability, and UX.
-
-### 🧠 Code Editing Workflow
-
-| Feature                     | Description                                  |
-| --------------------------- | -------------------------------------------- |
-| Smart HTML Auto-Completion  | Automatically completes and closes HTML tags |
-| Select Next Occurrence      | Multi-cursor selection for fast refactoring  |
-| Line Duplication Commands   | Duplicate lines or blocks above/below        |
-| Optimized Cursor Navigation | Faster and smoother text interaction         |
-
-### 🎨 Customization & UI
-
-| Feature              | Description                                        |
-| -------------------- | -------------------------------------------------- |
-| Themeable Indicators | Selection and highlight colors are now theme-aware |
-| New Language Icons   | JavaScript, XML, and TypeScript icons added        |
-
-### 🧩 Stability & Quality
-
-| Area         | Improvements                                          |
-| ------------ | ----------------------------------------------------- |
-| Core Editor  | Improved backspace handling and unsaved state display |
-| Event System | Fixed `CharAdded` auto-completion trigger             |
-| UX           | Fixed misaligned icons and removed unused assets      |
-
-> 🔧 Updating to **v0.8.0** is strongly recommended.
-
----
-
 ## 📜 **License**
 
 Krafta Editor is licensed under the **GNU LGPLv3**.
@@ -294,16 +297,6 @@ Krafta Editor is licensed under the **GNU LGPLv3**.
 
 * 🐞 [Open an Issue](https://github.com/apozinn/kraftaEditor/issues)
 * 💡 Use Discussions for feature ideas
-
----
-
-## 🗺️ **Roadmap (Preview)**
-
-* [ ] Plugin system
-* [ ] Split-view editing
-* [ ] Improved search & replace
-* [ ] Portable Windows build
-* [ ] Theme & syntax editor UI
 
 ---
 

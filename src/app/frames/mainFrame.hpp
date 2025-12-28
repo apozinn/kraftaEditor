@@ -54,8 +54,9 @@ using json = nlohmann::json;
 #include "gui/widgets/openFolderButton/openFolderButton.hpp"
 #include "gui/panels/controlPanel/controlPanel.hpp"
 #include "gui/panels/quickOpen/quickOpen.hpp"
-
 #include "FrameFileDropTarget/FrameFileDropTarget.hpp"
+#include "gui/widgets/pageSwitcher/pageSwitcher.hpp"
+#include <gui/panels/searchPage/searchPage.hpp>
 
 /**
  * @class MainFrame
@@ -246,6 +247,8 @@ private:
     wxSplitterWindow *m_mainContainerSplitter;      /**< Splitter dividing the editor area from the terminal/output panel. */
     wxPanel *m_mainContainer;                       /**< The panel holding the editor/tabs area. */
     wxPanel *m_centeredContent;                     /**< Panel for content centered in the editor area (e.g., when empty). */
+    PageSwitcher *m_page_switcher;                  /**< Page Switcher */
+    SearchPage *m_searchPage;                       /**< Search Page */
     wxBoxSizer *sizer = new wxBoxSizer(wxVERTICAL); /**< The main sizer managing the frame layout. */
 
     // --- File System Watcher ---
@@ -286,6 +289,16 @@ private:
      * @brief Sets up the container for the left-hand side panels (file tree).
      */
     void SetupApplicationLeftMainContainer();
+
+    /**
+     * @brief Initializes and configures the page switcher.
+     */
+    void SetupPageSwitcher();
+
+    /**
+     * @brief Initializes and configures the search page.
+     */
+    void SetupSearchPage();
 
     /**
      * @brief Initializes and configures the file tree component.

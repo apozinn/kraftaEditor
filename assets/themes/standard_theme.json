@@ -2,7 +2,7 @@
   "dark": {
     "main": "#1C1C1C",
     "secondary": "#292929",
-    "colorThree": "#d1d1d1",
+    "colorThree": "#454545",
     "highlight": "#008ff5",
     "border": "#5F5F5F",
     "tint": "#00b5cc",
@@ -13,7 +13,7 @@
       "foreground": "#89cde8"
     },
     "editorCaret": "#dedede",
-    "minimapViewport": "#e8e8e8",
+    "minimapViewport": "#757575",
     "minimapCaretPosition": "#c3dde0"
   },
   "light": {

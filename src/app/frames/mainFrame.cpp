@@ -11,6 +11,8 @@ MainFrame::MainFrame(const wxString &title)
 
     SetupMainSplitter();
     SetupApplicationLeftMainContainer();
+    SetupPageSwitcher();
+    SetupSearchPage();
     SetupFilesTree();
     SetupApplicationRightMainContainer();
     SetupMainContainerSplitter();
@@ -71,6 +73,20 @@ void MainFrame::SetupApplicationLeftMainContainer()
     wxBoxSizer *applicationLeftMainContainer_sizer = new wxBoxSizer(wxVERTICAL);
     m_applicationLeftMainContainer->SetSizerAndFit(applicationLeftMainContainer_sizer);
     m_mainSplitter->GetSizer()->Add(m_applicationLeftMainContainer, 0);
+}
+
+void MainFrame::SetupPageSwitcher()
+{
+    m_page_switcher = new PageSwitcher(m_applicationLeftMainContainer);
+    m_applicationLeftMainContainer->GetSizer()->Add(m_page_switcher, 0, wxEXPAND);
+}
+
+void MainFrame::SetupSearchPage()
+{
+    m_searchPage = new SearchPage(m_applicationLeftMainContainer);
+    m_applicationLeftMainContainer->GetSizer()->Add(m_searchPage, 1, wxEXPAND);
+
+    m_searchPage->Hide();
 }
 
 void MainFrame::SetupFilesTree()
