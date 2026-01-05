@@ -28,7 +28,7 @@ public:
      * @param parent The parent window.
      * @param ID The unique ID for the panel.
      */
-    StatusBar(wxWindow* parent, wxWindowID ID);
+    StatusBar(wxWindow* parent);
 
     /**
      * @brief Updates all status components (language, tab size, locale) based on the currently open file.

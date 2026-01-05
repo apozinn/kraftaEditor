@@ -1,5 +1,4 @@
 #include "tabs.hpp"
-#include "ui/ids.hpp"
 #include "gui/codeContainer/code.hpp"
 #include "gui/panels/filesTree/filesTree.hpp"
 #include "gui/widgets/statusBar/statusBar.hpp"
@@ -222,6 +221,12 @@ void Tabs::CloseAllFiles()
     ProjectSettings::Get().SetCurrentlyFileOpen(wxEmptyString);
 
     GetParent()->Layout();
+
+    if (!statusBar)
+        statusBar = ((StatusBar *)FindWindowById(+GUI::ControlID::StatusBar));
+
+    if (statusBar)
+        statusBar->ClearLabels();
 }
 
 void Tabs::Select()
@@ -274,6 +279,9 @@ void Tabs::OnCloseTab(wxMouseEvent &event)
     auto this_tab = ((wxWindow *)obj)->GetGrandParent();
     if (this_tab)
         Tabs::Close(this_tab, this_tab->GetName());
+
+    if (statusBar)
+        statusBar->ClearLabels();
 }
 
 void Tabs::OnMenu(wxMouseEvent &WXUNUSED(event))

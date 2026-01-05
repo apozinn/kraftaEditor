@@ -5,8 +5,8 @@
 #include <wx/file.h>
 #include <wx/filename.h>
 
-StatusBar::StatusBar(wxWindow *parent, wxWindowID ID)
-	: wxPanel(parent, ID)
+StatusBar::StatusBar(wxWindow *parent)
+	: wxPanel(parent, +GUI::ControlID::StatusBar)
 {
 	// setting the background color
 	auto background_color = Theme["secondary"].template get<std::string>();

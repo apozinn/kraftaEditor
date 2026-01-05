@@ -9,6 +9,8 @@
 #include "appPaths/appPaths.hpp"
 #include "appConstants/appConstants.hpp"
 #include "projectSettings/projectSettings.hpp"
+#include "gui/widgets/statusBar/statusBar.hpp"
+#include "ui/ids.hpp"
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -112,12 +114,13 @@ private:
      */
     void OnNextTab();
 
-    wxSizer *sizer;                                            /**< Main sizer for the Tabs panel. */
-    wxStaticBitmap *menu;                                      /**< Icon/button for the tabs menu. */
-    wxBoxSizer *tabsContainerSizer;                            /**< Sizer for the tabs inside tabsContainer. */
-    json Theme = ThemesManager::Get().currentTheme;            /**< Cached theme settings. */
-    wxString iconsDir = ApplicationPaths::AssetsPath("icons"); /**< Path to the icons directory. */
-    ProjectSettings &projectSettings = ProjectSettings::Get(); /**< Reference to global project settings. */
+    wxSizer *sizer;                                                                   /**< Main sizer for the Tabs panel. */
+    wxStaticBitmap *menu;                                                             /**< Icon/button for the tabs menu. */
+    wxBoxSizer *tabsContainerSizer;                                                   /**< Sizer for the tabs inside tabsContainer. */
+    json Theme = ThemesManager::Get().currentTheme;                                   /**< Cached theme settings. */
+    wxString iconsDir = ApplicationPaths::AssetsPath("icons");                        /**< Path to the icons directory. */
+    ProjectSettings &projectSettings = ProjectSettings::Get();                        /**< Reference to global project settings. */
+    StatusBar *statusBar = ((StatusBar *)FindWindowById(+GUI::ControlID::StatusBar)); /**< Pointer to the global status bar. */
 
     wxDECLARE_NO_COPY_CLASS(Tabs);
 };

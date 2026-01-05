@@ -152,7 +152,7 @@ void MainFrame::SetupTerminal()
 
 void MainFrame::SetupStatusBar()
 {
-    m_statusBar = new StatusBar(m_applicationRightMainContainer, +GUI::ControlID::StatusBar);
+    m_statusBar = new StatusBar(m_applicationRightMainContainer);
     m_applicationRightMainContainer->GetSizer()->Add(m_statusBar, 0, wxEXPAND);
     m_statusBar->Hide();
 }
