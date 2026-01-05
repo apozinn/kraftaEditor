@@ -73,8 +73,6 @@ void Editor::ConfigureFoldMargin()
 
 void Editor::OnUpdateUI(wxStyledTextEvent &event)
 {
-    HighlightSelectionOccurrences();
-
     if (m_linked_minimap)
         m_linked_minimap->Refresh();
 
@@ -91,6 +89,7 @@ void Editor::OnChange(wxStyledTextEvent &event)
 
     changedFile = true;
     UpdateUnsavedIndicator();
+    ClearIndicators();
 
     if (statusBar)
         statusBar->UpdateCodeLocale(this);
@@ -180,7 +179,7 @@ void Editor::OnArrowsPress(wxKeyEvent &event)
 
 void Editor::OnClick(wxMouseEvent &event)
 {
-    ClearIndicators();
+    HighlightSelectionOccurrences();
 
     if (statusBar)
         statusBar->UpdateCodeLocale(this);
@@ -246,11 +245,8 @@ void Editor::ClearIndicators()
 
     for (int i = 0; i <= EditorConstants::MAX_INDICATOR; ++i)
     {
-        SetIndicatorCurrent(i);
         IndicatorClearRange(0, len);
     }
-
-    Refresh(false);
 }
 
 void Editor::UpdateUnsavedIndicator()
@@ -332,8 +328,6 @@ static wxString ExtractTagName(wxStyledTextCtrl *ctrl, int openPos, int closePos
 
 void Editor::CharAdd(wxStyledTextEvent &event)
 {
-    ClearIndicators();
-
     const char chr = static_cast<char>(event.GetKey());
     const int pos = GetCurrentPos();
 

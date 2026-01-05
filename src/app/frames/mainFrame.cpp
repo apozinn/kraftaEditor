@@ -511,7 +511,7 @@ void MainFrame::OnToggleSearch(wxCommandEvent &WXUNUSED(event))
     }
     else
     {
-        wxString defaultLabel = "Search a text";
+        wxString defaultLabel = "";
         auto currentEditor = ((wxStyledTextCtrl *)wxFindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_codeEditor"));
         if (currentEditor)
             defaultLabel = currentEditor->GetSelectedText();

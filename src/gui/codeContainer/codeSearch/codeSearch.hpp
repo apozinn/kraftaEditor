@@ -1,64 +1,78 @@
 #pragma once
 
-/**
- * @file codeSearch.hpp
- * @brief Declaration of the Search panel class, used for in-editor text searching.
- */
-
-#include "ui/ids.hpp"
-#include "themesManager/themesManager.hpp"
-
 #include <wx/wx.h>
 #include <wx/stc/stc.h>
-
-#include <nlohmann/json.hpp>
-using json = nlohmann::json;
+#include <themesManager/themesManager.hpp>
 
 /**
  * @class Search
- * @brief A floating panel used for performing search operations within the active code editor.
+ * @brief Lightweight in-editor search panel similar to VS Code Ctrl+F.
  *
- * It provides an input field to enter the search text and handles the logic
- * for highlighting matches in a wxStyledTextCtrl.
+ * This panel provides real-time text search functionality for a
+ * wxStyledTextCtrl instance. All occurrences are highlighted using
+ * a dedicated indicator, and the first match is automatically focused.
+ *
+ * Features:
+ * - Real-time search while typing
+ * - ESC to close
+ * - ENTER to jump to next occurrence
+ * - Non-intrusive highlight using indicators
+ *
+ * This class does not own the editor instance.
  */
 class Search : public wxPanel
 {
 public:
     /**
-     * @brief Constructs the Search panel.
-     * @param parent The parent window (usually the MainFrame or the editor container).
-     * @param defaultLabel The initial text to display in the search input.
-     * @param codeEditor A pointer to the wxStyledTextCtrl instance where the search will be performed.
-     */
-    Search(wxWindow *parent, wxString defaultLabel, wxStyledTextCtrl *codeEditor);
-
-private:
-    /**
-     * @brief Handles input events, specifically when the Enter key is pressed to initiate a search.
-     * @param event The styled text control event.
-     */
-    void EnterEvent(wxStyledTextEvent &event);
-
-    /**
-     * @brief Closes and destroys the search panel.
+     * @brief Constructs the search panel.
      *
-     * Also clears any active highlighting in the editor.
-     * @param WXUNUSED(event) The command event (e.g., triggered by Escape key).
+     * @param parent Parent window.
+     * @param editor Target wxStyledTextCtrl where search is performed.
      */
-    void Close(wxCommandEvent &WXUNUSED(event));
+    explicit Search(wxWindow *parent, const wxString &defaultLabel, wxStyledTextCtrl *editor);
 
     /**
-     * @brief Handles the paint event for the panel.
-     * @param WXUNUSED(event) The paint event.
+     * @brief Destructor. Clears search indicators.
      */
-    void OnPaint(wxPaintEvent &WXUNUSED(event));
-    
-private:
-    wxStyledTextCtrl *input; /**< The input field where the user types the search query. */
-    wxStyledTextCtrl *currentEditor = nullptr; /**< The code editor being searched. */
-    wxBoxSizer *sizer = new wxBoxSizer(wxVERTICAL); /**< The main sizer for the panel. */
-    json Theme = ThemesManager::Get().currentTheme; /**< Cache of the current theme settings. */
+    ~Search() override;
 
-    wxDECLARE_NO_COPY_CLASS(Search);
-    wxDECLARE_EVENT_TABLE();
+private:
+    /**
+     * @brief Handles character input events.
+     *
+     * Triggers real-time search and processes ENTER key
+     * to move to the next match.
+     *
+     * @param event Styled text control event.
+     */
+    void OnChar(wxStyledTextEvent &event);
+
+    /**
+     * @brief Executes the search and highlights all matches.
+     *
+     * @param forward Direction of navigation when pressing ENTER.
+     */
+    void DoSearch(bool forward);
+
+    /**
+     * @brief Closes the search panel and clears highlights.
+     *
+     * @param event Command event.
+     */
+    void Close(wxCommandEvent &event);
+
+    /**
+     * @brief Draws the search panel.
+     *
+     * @param event Paint event.
+     */
+    void OnPaint(wxPaintEvent &event);
+
+private:
+    wxStyledTextCtrl *m_input;
+    wxStyledTextCtrl *m_editor;
+
+    wxColour m_borderColor = ThemesManager::Get().GetColor("border");
+
+    static constexpr int SEARCH_INDICATOR = 8;
 };

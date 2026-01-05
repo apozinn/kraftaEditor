@@ -1,117 +1,128 @@
 #include "codeSearch.hpp"
+#include "ui/ids.hpp"
 
-wxBEGIN_EVENT_TABLE(Search, wxPanel)
-EVT_MENU( +Event::CodeSearch::Close, Search::Close)
-wxEND_EVENT_TABLE()
-
-Search::Search(
-    wxWindow *parent,
-    wxString defaultLabel,
-    wxStyledTextCtrl *codeEditor) : wxPanel(parent, +GUI::ControlID::CodeSearchPanel,
-                                            wxPoint(parent->GetSize().GetWidth() - 350, 50),
-                                            wxSize(250, 50))
+Search::Search(wxWindow *parent, const wxString &defaultLabel, wxStyledTextCtrl *editor)
+    : wxPanel(parent, +GUI::ControlID::CodeSearch, wxPoint(parent->GetSize().GetWidth() - 360, 50), wxSize(250, 35)),
+      m_input(nullptr),
+      m_editor(editor)
 {
-    SetMinSize(wxSize(250, 50));
-    SetSize(wxSize(250, 50));
-    SetBackgroundColour(ThemesManager::Get().GetColor("main"));
-    currentEditor = codeEditor;
+    wxSizer *sizer = new wxBoxSizer(wxHORIZONTAL);
 
-    input = new wxStyledTextCtrl(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-    input->SetSize(wxSize(225, 25));
-    input->SetPosition(wxPoint(10, 13));
-    input->SetText(defaultLabel);
+    SetBackgroundColour(parent->GetBackgroundColour());
 
-    input->SetWrapMode(wxSTC_WRAP_NONE);
+    m_input = new wxStyledTextCtrl(
+        this,
+        wxID_ANY,
+        wxDefaultPosition,
+        wxSize(240, 20),
+        wxBORDER_NONE);
 
-    input->StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(36, 36, 36));
-    input->StyleSetForeground(wxSTC_STYLE_DEFAULT, wxColor(255, 255, 255));
-    input->StyleClearAll();
+    m_input->SetWrapMode(wxSTC_WRAP_NONE);
+    m_input->SetUseVerticalScrollBar(false);
+    m_input->SetUseHorizontalScrollBar(false);
+    m_input->SetMarginWidth(0, 0);
+    m_input->SetMarginWidth(1, 0);
+    m_input->SetCaretWidth(2);
+    m_input->StyleClearAll();
 
-    input->SetMarginWidth(0, 0);
-    input->SetMarginWidth(1, 0);
-    input->SetUseVerticalScrollBar(false);
-    input->SetUseHorizontalScrollBar(false);
+    m_input->SetFocus();
 
-    input->SetCaretForeground(wxColour(wxT("WHITE")));
+    m_input->Bind(wxEVT_STC_CHANGE, &Search::OnChar, this);
 
-    input->SetFocus();
-    input->GotoPos(input->GetLength());
+    sizer->Add(m_input, 0, wxALL, 5);
 
-    input->SetHotspotSingleLine(true);
+    wxAcceleratorEntry accel[1];
+    accel[0].Set(wxACCEL_NORMAL, WXK_ESCAPE, wxID_CLOSE);
+    SetAcceleratorTable(wxAcceleratorTable(1, accel));
 
-    SetSizer(sizer);
-
-    wxAcceleratorEntry entries[1];
-    entries[0].Set(wxACCEL_NORMAL, WXK_ESCAPE, +Event::CodeSearch::Close);
-    wxAcceleratorTable accel(1, entries);
-    SetAcceleratorTable(accel);
-
-    input->Bind(wxEVT_STC_CHARADDED, &Search::EnterEvent, this);
+    Bind(wxEVT_MENU, &Search::Close, this, wxID_CLOSE);
     Bind(wxEVT_PAINT, &Search::OnPaint, this);
+
+    if (m_editor)
+    {
+        m_editor->IndicatorSetStyle(SEARCH_INDICATOR, wxSTC_INDIC_ROUNDBOX);
+        m_editor->IndicatorSetForeground(SEARCH_INDICATOR, wxColour(255, 80, 80));
+        m_editor->IndicatorSetAlpha(SEARCH_INDICATOR, 80);
+    }
+
+    if (!defaultLabel.IsEmpty())
+        m_input->SetText(defaultLabel);
+
+    SetSizerAndFit(sizer);
 }
 
-void Search::EnterEvent(wxStyledTextEvent &event)
+Search::~Search()
 {
-    char chr = (char)event.GetKey();
-    if (chr == '\n')
-    {
-        if (input->GetEOLMode() == wxSTC_EOL_CRLF)
-        {
-            input->Remove(input->GetLength() - 2, input->GetLength());
-        }
-        else
-        {
-            input->Remove(input->GetLength() - 1, input->GetLength());
-        }
-
-        if (currentEditor)
-        {
-            wxString textTarget = input->GetText();
-            int currentEditorLength = currentEditor->GetLength();
-
-            currentEditor->IndicatorSetStyle(0, wxSTC_INDIC_COMPOSITIONTHICK);
-            currentEditor->IndicatorClearRange(0, currentEditorLength);
-
-            int start = currentEditor->SearchNext(0, textTarget);
-            currentEditor->GotoPos(start + textTarget.Length());
-            currentEditor->SearchAnchor();
-            currentEditor->SetTargetRange(start + textTarget.Length(), currentEditorLength);
-
-            if (start != -1)
-            {
-                currentEditor->IndicatorSetForeground(0, wxColor(255, 0, 0));
-                currentEditor->IndicatorFillRange(start, textTarget.Length());
-            }
-
-            currentEditor->SetIndicatorValue(10);
-
-            while (start != -1)
-            {
-                start = currentEditor->SearchNext(0, textTarget);
-                if (start != -1)
-                {
-                    currentEditor->IndicatorFillRange(start, textTarget.Length());
-                    currentEditor->GotoPos(start + textTarget.Length());
-                    currentEditor->SearchAnchor();
-                }
-            }
-
-            currentEditor->IndicatorSetForeground(0, wxColor(255, 0, 0));
-            currentEditor->IndicatorSetAlpha(0, 63);
-        }
-    }
+    if (m_editor)
+        m_editor->IndicatorClearRange(0, m_editor->GetLength());
 }
 
-void Search::Close(wxCommandEvent &WXUNUSED(event))
+void Search::OnChar(wxStyledTextEvent &event)
 {
-    if (currentEditor)
+    char key = static_cast<char>(event.GetKey());
+
+    if (key == '\n')
     {
-        currentEditor->IndicatorClearRange(0, currentEditor->GetLength());
+        DoSearch(true);
+        return;
     }
+
+    DoSearch(true);
+}
+
+void Search::DoSearch(bool forward)
+{
+    if (!m_editor)
+        return;
+
+    wxString query = m_input->GetText();
+    int length = m_editor->GetLength();
+
+    m_editor->IndicatorClearRange(0, length);
+
+    if (query.IsEmpty())
+        return;
+
+    m_editor->SetSearchFlags(0);
+    m_editor->SetTargetStart(0);
+    m_editor->SetTargetEnd(length);
+
+    int pos = 0;
+
+    while (true)
+    {
+        pos = m_editor->SearchInTarget(query);
+        if (pos == -1)
+            break;
+
+        m_editor->IndicatorFillRange(pos, query.Length());
+        m_editor->SetTargetStart(pos + query.Length());
+        m_editor->SetTargetEnd(length);
+    }
+
+    m_editor->SetTargetStart(0);
+    m_editor->SetTargetEnd(length);
+
+    int first = m_editor->SearchInTarget(query);
+    if (first != -1)
+        m_editor->GotoPos(first);
+}
+
+void Search::Close(wxCommandEvent &)
+{
+    if (m_editor)
+        m_editor->IndicatorClearRange(0, m_editor->GetLength());
+
     Destroy();
 }
 
-void Search::OnPaint(wxPaintEvent &WXUNUSED(event))
+void Search::OnPaint(wxPaintEvent&)
 {
-    Refresh();
+    wxPaintDC dc(this);
+
+    dc.SetBrush(*wxTRANSPARENT_BRUSH);
+    dc.SetPen(wxPen(m_borderColor, 1));
+
+    wxSize size = GetClientSize();
+    dc.DrawRectangle(0, 0, size.GetWidth(), size.GetHeight());
 }

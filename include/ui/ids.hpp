@@ -85,7 +85,8 @@ namespace GUI
         OpenFileFromDrop,             ///< Drag-and-drop file open handler
         FilesPage,                    ///< Files page inside page switcher
         PageSwitcherSearchPage,       ///< Search page inside page switcher
-        SearchPage                    ///< Full search results page
+        SearchPage,                    ///< Full search results page
+        CodeSearch,                   ///< In-editor text search panel
     };
 }
 
