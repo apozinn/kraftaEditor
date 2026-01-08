@@ -217,8 +217,7 @@ wxWindow *FilesTree::CreateFileContainer(wxWindow *parent, const wxString &path)
     fileContainer->SetLabel(path + "_file_container");
 
     wxString iconPath;
-    wxImage fileImage;
-    if (fileImage.CanRead(path))
+    if (FileOperations::IsImageFile(path))
         iconPath = ApplicationPaths::GetLanguageIcon("image");
     else
         iconPath = LanguagesPreferences::Get().GetLanguageIconPath(path);
@@ -421,8 +420,9 @@ bool FilesTree::OpenFile(const wxString &componentIdentifier, int line)
     };
 
     wxImage fileImage;
-    if (fileImage.CanRead(componentIdentifier))
+    if (FileOperations::IsImageFile(componentIdentifier))
     {
+        std::cout << "is image" << "\n";
         fileImage.LoadFile(componentIdentifier);
         if (!fileImage.IsOk())
             return false;

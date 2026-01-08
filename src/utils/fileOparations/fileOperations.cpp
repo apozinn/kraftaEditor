@@ -7,12 +7,13 @@
 #include <string>
 #include <exception>
 #include <system_error>
+#include <unordered_set>
 
 namespace fs = std::filesystem;
 
 namespace FileOperations
 {
-    bool CreateFileK(const wxString& path)
+    bool CreateFileK(const wxString &path)
     {
         if (path.empty())
         {
@@ -38,14 +39,14 @@ namespace FileOperations
             wxLogStatus("Successfully created file at path '%s'", path);
             return true;
         }
-        catch (const std::exception& e)
+        catch (const std::exception &e)
         {
             wxLogError("File creation failed for path '%s': %s", path, e.what());
             return false;
         }
     }
 
-    bool CreateDir(const wxString& path)
+    bool CreateDir(const wxString &path)
     {
         if (path.empty())
         {
@@ -69,14 +70,14 @@ namespace FileOperations
             wxLogStatus("Successfully created directory at path '%s'", path);
             return true;
         }
-        catch (const std::exception& e)
+        catch (const std::exception &e)
         {
             wxLogError("Directory creation failed for path '%s': %s", path, e.what());
             return false;
         }
     }
 
-    bool DeleteFileK(const wxString& path)
+    bool DeleteFileK(const wxString &path)
     {
         if (path.empty())
         {
@@ -100,14 +101,14 @@ namespace FileOperations
             wxLogStatus("Successfully deleted file at path '%s'", path);
             return true;
         }
-        catch (const std::exception& e)
+        catch (const std::exception &e)
         {
             wxLogError("File deletion failed for path '%s': %s", path, e.what());
             return false;
         }
     }
 
-    bool DeleteDir(const wxString& path)
+    bool DeleteDir(const wxString &path)
     {
         if (path.empty())
         {
@@ -131,7 +132,7 @@ namespace FileOperations
             wxLogStatus("Successfully deleted directory at path '%s'", path);
             return true;
         }
-        catch (const std::exception& e)
+        catch (const std::exception &e)
         {
             wxLogError("Directory deletion failed for path '%s': %s", path, e.what());
             return false;
@@ -164,14 +165,14 @@ namespace FileOperations
             }
 
             fs::copy_file(src, dest, fs::copy_options::overwrite_existing);
-            wxLogStatus("Successfully copied file from '%s' to '%s'", 
-                      source.data(), destination.data());
+            wxLogStatus("Successfully copied file from '%s' to '%s'",
+                        source.data(), destination.data());
             return true;
         }
-        catch (const fs::filesystem_error& e)
+        catch (const fs::filesystem_error &e)
         {
-            wxLogError("File copy failed: %s (code: %d)", 
-                      e.what(), e.code().value());
+            wxLogError("File copy failed: %s (code: %d)",
+                       e.what(), e.code().value());
             return false;
         }
     }
@@ -191,7 +192,7 @@ namespace FileOperations
         {
             const fs::path source(sourceDir);
             fs::path target(targetParentDir);
-            
+
             if (!fs::exists(source))
             {
                 wxLogError("Source directory does not exist: %s", sourceDir.data());
@@ -211,7 +212,7 @@ namespace FileOperations
 
             fs::create_directories(target);
 
-            for (const auto& entry : fs::recursive_directory_iterator(source))
+            for (const auto &entry : fs::recursive_directory_iterator(source))
             {
                 const auto relativePath = fs::relative(entry.path(), source);
                 const auto destPath = target / relativePath;
@@ -222,20 +223,40 @@ namespace FileOperations
                 }
                 else if (fs::is_regular_file(entry.status()))
                 {
-                    fs::copy_file(entry.path(), destPath, 
-                                fs::copy_options::overwrite_existing);
+                    fs::copy_file(entry.path(), destPath,
+                                  fs::copy_options::overwrite_existing);
                 }
             }
-            
-            wxLogStatus("Successfully copied directory contents from '%s' to '%s'", 
-                       sourceDir.data(), target.string().c_str());
+
+            wxLogStatus("Successfully copied directory contents from '%s' to '%s'",
+                        sourceDir.data(), target.string().c_str());
             return true;
         }
-        catch (const fs::filesystem_error& e)
+        catch (const fs::filesystem_error &e)
         {
-            wxLogError("Directory copy failed: %s (code: %d)", 
-                      e.what(), e.code().value());
+            wxLogError("Directory copy failed: %s (code: %d)",
+                       e.what(), e.code().value());
             return false;
         }
+    }
+
+    bool IsImageFile(const wxString &path)
+    {
+        wxFileName fn(path);
+        wxString ext = fn.GetExt().Lower();
+
+        static const std::unordered_set<wxString> imageExts = {
+            "png", "jpg", "jpeg", "bmp", "gif", "tiff", "tif", "webp", "ico",
+
+            "heif", "heic", "raw", "arw", "cr2", "cr3", "nef", "orf", "rw2", "dng",
+
+            "svg", "svgz", "ai", "eps", "pdf",
+
+            "exr", "hdr", "pfm",
+
+            "tga", "pcx", "ppm", "pgm", "pbm", "pnm",
+            "dds", "xbm", "xpm", "icns"};
+
+        return imageExts.contains(ext);
     }
 }

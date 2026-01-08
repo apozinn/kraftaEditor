@@ -8,6 +8,7 @@
 #include "errorMessages/errorMessages.hpp"
 
 #include <wx/graphics.h>
+#include <fileOperations/fileOperations.hpp>
 
 Tabs::Tabs(wxPanel *parent, wxWindowID ID) : wxPanel(parent, ID)
 {
@@ -67,8 +68,19 @@ void Tabs::Add(wxString tab_name, wxString path)
     wxPanel *tab_infos = new wxPanel(new_tab);
     wxBoxSizer *tab_infos_sizer = new wxBoxSizer(wxHORIZONTAL);
 
+    wxString iconPath;
+
+    if (FileOperations::IsImageFile(path))
+    {
+        iconPath = ApplicationPaths::GetLanguageIcon("image");
+    }
+    else
+    {
+        iconPath = LanguagesPreferences::Get().GetLanguageIconPath(path);
+    }
+
     wxVector<wxBitmap> bitmaps_;
-    bitmaps_.push_back(wxBitmap(LanguagesPreferences::Get().GetLanguageIconPath(path), wxBITMAP_TYPE_PNG));
+    bitmaps_.push_back(wxBitmap(iconPath, wxBITMAP_TYPE_PNG));
     wxStaticBitmap *ico = new wxStaticBitmap(tab_infos, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps_));
     ico->SetName("tab_language_icon");
     tab_infos_sizer->Add(ico, 0, wxALIGN_CENTER | wxLEFT, 10);

@@ -4,6 +4,7 @@
 
 #include <wx/file.h>
 #include <wx/filename.h>
+#include <fileOperations/fileOperations.hpp>
 
 StatusBar::StatusBar(wxWindow *parent)
 	: wxPanel(parent, +GUI::ControlID::StatusBar)
@@ -31,9 +32,9 @@ StatusBar::StatusBar(wxWindow *parent)
 	SetMinSize(wxSize(GetSize().x, 20));
 }
 
-void StatusBar::UpdateComponents(const wxString& path)
+void StatusBar::UpdateComponents(const wxString &path)
 {
-	if(path.empty() || !wxFileExists(path))
+	if (path.empty() || !wxFileExists(path))
 	{
 		ClearLabels();
 		return;
@@ -44,11 +45,12 @@ void StatusBar::UpdateComponents(const wxString& path)
 
 	wxString languageName = LanguagesPreferences::Get().GetLanguagePreferences(path).name;
 
-	if (!languageName.empty()) {
+	if (!languageName.empty())
+	{
 		languageName[0] = wxToupper(languageName[0]);
 	}
 
-	if (fileImage.CanRead(path))
+	if (FileOperations::IsImageFile(path))
 	{
 		wxImage *image = new wxImage(path);
 
@@ -60,7 +62,9 @@ void StatusBar::UpdateComponents(const wxString& path)
 			fileExt->SetLabel(fileProps.GetExt());
 		else
 			fileExt->SetLabel("Unknown");
-	} else {
+	}
+	else
+	{
 		fileExt->SetLabel(languageName);
 	}
 
