@@ -333,6 +333,7 @@ void Editor::CharAdd(wxStyledTextEvent &event)
 
     if (std::isalnum(static_cast<unsigned char>(chr)) || chr == '_')
     {
+        std::cout << "auto complete" << std::endl;
         const int start = WordStartPosition(pos, true);
         const int len = pos - start;
 

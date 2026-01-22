@@ -353,7 +353,7 @@ void Tabs::OnLeaveComp(wxMouseEvent &event)
             if (icon->GetLabel() == "unsaved_icon")
                 return;
 
-            auto unsavedIcon = wxBitmap(iconsDir + "white_circle.png", wxBITMAP_TYPE_PNG);
+            auto unsavedIcon = wxBitmap(iconsDir + "unsaved_light.png", wxBITMAP_TYPE_PNG);
             if (!unsavedIcon.IsOk())
                 return;
             icon->SetBitmap(unsavedIcon);
