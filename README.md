@@ -3,6 +3,7 @@
 
 # ⚡ **Krafta Editor**
 
+
 <p align="center">
   <img width="180" src="https://raw.githubusercontent.com/apozinn/kraftaEditor/refs/heads/main/assets/images/kraftaEditor.png" alt="Krafta Editor Logo">
 </p>

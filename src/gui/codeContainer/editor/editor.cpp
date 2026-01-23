@@ -54,6 +54,11 @@ void Editor::InitializePreferences()
 
     m_AutoCompleteWordsList =
         LanguagesPreferences::Get().GetAutoCompleteWordsList(m_LanguagePreferences);
+
+    SetIndent(4);
+    SetTabWidth(4);
+    SetUseTabs(false);
+    SetIndentationGuides(wxSTC_IV_LOOKBOTH);
 }
 
 void Editor::ConfigureFoldMargin()
@@ -333,7 +338,6 @@ void Editor::CharAdd(wxStyledTextEvent &event)
 
     if (std::isalnum(static_cast<unsigned char>(chr)) || chr == '_')
     {
-        std::cout << "auto complete" << std::endl;
         const int start = WordStartPosition(pos, true);
         const int len = pos - start;
 
@@ -352,6 +356,11 @@ void Editor::CharAdd(wxStyledTextEvent &event)
             else
                 AutoCompCancel();
         }
+    }
+
+    if (chr == '\n')
+    {
+        OnEnterKey(event);
     }
 
     if (chr == '>' && pos > 1)
@@ -378,6 +387,62 @@ void Editor::CharAdd(wxStyledTextEvent &event)
 
     HandleAutoPairing(chr);
     event.Skip();
+}
+
+void Editor::OnEnterKey(wxStyledTextEvent &event)
+{
+    wxStyledTextCtrl *stc = this;
+    const int curPos = stc->GetCurrentPos();
+    const int curLine = stc->GetCurrentLine();
+    const int indentSize = stc->GetIndent();
+
+    int baseIndent = 0;
+    if (curLine > 0)
+    {
+        const int prevLine = curLine - 1;
+        baseIndent = stc->GetLineIndentation(prevLine);
+
+        wxString prevText = stc->GetLine(prevLine);
+        prevText.Trim(true).Trim(false);
+
+        if (prevText.EndsWith("{"))
+        {
+            baseIndent += indentSize;
+        }
+    }
+
+    if (curPos > 0 && curPos < stc->GetTextLength())
+    {
+        const char prevChar = stc->GetCharAt(curPos - 1);
+        const char nextChar = stc->GetCharAt(curPos);
+
+        if (prevChar == '{' || nextChar == '}')
+        {
+            stc->BeginUndoAction();
+
+            stc->AddText("\n");
+            stc->SetLineIndentation(curLine, baseIndent);
+            stc->SetLineIndentation(curLine + 1, baseIndent - indentSize);
+            stc->GotoPos(stc->GetLineIndentPosition(curLine));
+
+            stc->EndUndoAction();
+            return;
+        }
+    }
+
+    event.Skip();
+
+    wxString curText = stc->GetLine(curLine);
+    curText.Trim(true).Trim(false);
+
+    int finalIndent = baseIndent;
+    if (curText.StartsWith("}"))
+    {
+        finalIndent = std::max(0, baseIndent - indentSize);
+    }
+
+    stc->SetLineIndentation(curLine, finalIndent);
+    stc->GotoPos(stc->GetLineIndentPosition(curLine));
 }
 
 void Editor::OnMoveCursorDown(wxCommandEvent &WXUNUSED(event))

@@ -322,6 +322,8 @@ private:
      */
     void CharAdd(wxStyledTextEvent &event);
 
+    void OnEnterKey(wxStyledTextEvent &event);
+
     /**
      * @brief Handler for generic mouse clicks in the text area.
      * @param event The mouse event (**wxEVT_LEFT_DOWN**).
