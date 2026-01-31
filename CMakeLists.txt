@@ -165,7 +165,7 @@ if(UNIX AND NOT APPLE)
     install(FILES ${CMAKE_SOURCE_DIR}/assets/images/kraftaEditor.png
         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/256x256/apps
         RENAME kraftaEditor.png)
-    install(FILES ${CMAKE_SOURCE_DIR}/resources/kraftaEditor.desktop
+    install(FILES ${CMAKE_SOURCE_DIR}/resources/krafta-editor.desktop
         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications)
 endif()
 

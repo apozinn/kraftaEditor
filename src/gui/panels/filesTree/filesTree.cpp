@@ -422,7 +422,6 @@ bool FilesTree::OpenFile(const wxString &componentIdentifier, int line)
     wxImage fileImage;
     if (FileOperations::IsImageFile(componentIdentifier))
     {
-        std::cout << "is image" << "\n";
         fileImage.LoadFile(componentIdentifier);
         if (!fileImage.IsOk())
             return false;
