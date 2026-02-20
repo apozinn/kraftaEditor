@@ -20,7 +20,7 @@ CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxPanel(parent, 
     minimap = new MiniMap(this, editor);
 
     editor->m_linked_minimap = minimap;
-    
+
     sizer->Add(editor, 1, wxEXPAND);
     sizer->Add(minimap, 0, wxEXPAND);
 
@@ -90,7 +90,9 @@ void CodeContainer::OnSave(wxCommandEvent &WXUNUSED(event))
 bool CodeContainer::Save(wxString path)
 {
     auto currentEditor = ((Editor *)wxFindWindowByLabel(path + "_codeEditor"));
-    if (currentEditor)
+    auto currentMinimap = ((MiniMap *)wxFindWindowByLabel(path + "_codeMap"));
+
+    if (currentEditor && currentMinimap)
     {
         if (currentEditor->SaveFile(path) && !currentEditor->Modified())
         {
@@ -104,6 +106,10 @@ bool CodeContainer::Save(wxString path)
                     tab->Layout();
                 }
             }
+
+            if (currentMinimap)
+                currentMinimap->ExtractStyledText();
+
             return true;
         }
         else
@@ -111,6 +117,11 @@ bool CodeContainer::Save(wxString path)
             wxMessageBox(_("File could not be saved!"), _("Close abort"),
                          wxOK | wxICON_EXCLAMATION);
         }
+    }
+    else
+    {
+        wxMessageBox(_("File could not be saved!"), _("Close abort"),
+                     wxOK | wxICON_EXCLAMATION);
     }
     return false;
 }
