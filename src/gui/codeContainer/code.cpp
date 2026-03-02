@@ -243,9 +243,8 @@ void CodeContainer::ToggleCommentLine(wxCommandEvent &WXUNUSED(event))
     if (currentCodeEditor)
     {
         auto currentEditor = ((wxStyledTextCtrl *)currentCodeEditor->GetChildren()[0]);
-        auto currentMinimap = ((wxStyledTextCtrl *)currentCodeEditor->GetChildren()[1]);
 
-        if (currentEditor && currentMinimap)
+        if (currentEditor)
         {
             int lineStart = 0;
             if (currentEditor->GetSelectionEnd() - currentEditor->GetSelectionStart() <= 0)
@@ -271,12 +270,10 @@ void CodeContainer::ToggleCommentLine(wxCommandEvent &WXUNUSED(event))
             if (chr == '/' && (char)currentEditor->GetCharAt(lineStart + 1) == '/')
             {
                 currentEditor->DeleteRange(lineStart, 2);
-                currentMinimap->DeleteRange(lineStart, 2);
             }
             else
             {
                 currentEditor->InsertText(lineStart, "//");
-                currentMinimap->InsertText(lineStart, "//");
             }
         }
     }
@@ -292,8 +289,7 @@ void CodeContainer::ToggleCommentBlock(wxCommandEvent &WXUNUSED(event))
     if (currentCodeEditor->GetChildren().GetCount() < 2)
         return;
     auto *currentEditor = dynamic_cast<wxStyledTextCtrl *>(currentCodeEditor->GetChildren()[0]);
-    auto *currentMinimap = dynamic_cast<wxStyledTextCtrl *>(currentCodeEditor->GetChildren()[1]);
-    if (!currentEditor || !currentMinimap)
+    if (!currentEditor)
         return;
 
     int selStart = currentEditor->GetSelectionStart();
@@ -346,16 +342,12 @@ void CodeContainer::ToggleCommentBlock(wxCommandEvent &WXUNUSED(event))
     if (hasOpen && hasClose)
     {
         unwrap(currentEditor);
-        unwrap(currentMinimap);
         currentEditor->SetSelection(selStart, wxMax(selStart, selEnd - 4));
-        currentMinimap->SetSelection(selStart, wxMax(selStart, selEnd - 4));
     }
     else
     {
         wrap(currentEditor);
-        wrap(currentMinimap);
         currentEditor->SetSelection(selStart, selEnd + 4);
-        currentMinimap->SetSelection(selStart, selEnd + 4);
     }
 }
 

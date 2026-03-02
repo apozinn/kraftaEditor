@@ -27,11 +27,11 @@ MenuBar::MenuBar()
 	menuEdit->Append(wxID_PASTE, _("&Paste\tCtrl+V"));
 	menuEdit->AppendSeparator();
 	menuEdit->Append(+Event::Edit::ToggleComment, _("&Toggle Comment\tCtrl+;"));
-	menuEdit->Append(+Event::Edit::ToggleBlockComment, _("&Toggle Block Comment\tShift+alt+A"));
+	menuEdit->Append(+Event::Edit::ToggleBlockComment, _("&Toggle Block Comment\tCtrl+alt+;"));
 	menuEdit->AppendSeparator();
 	menuEdit->Append(+Event::Edit::MoveLineUp, _("&Move Line Up\tAlt+Up"));
 	menuEdit->Append(+Event::Edit::MoveLineDown, _("&Move Line Down\tAlt+Down"));
-	menuEdit->Append(+Event::Edit::RemoveCurrentLine, _("&Remove Current Line\tctrl+del"));
+	menuEdit->Append(+Event::Edit::RemoveCurrentLine, _("&Remove Current Line\tShift+del"));
 
 	wxMenu *menuSelection = new wxMenu;
 	menuSelection->Append(+Event::Edit::SelectAll, _("&Select All"));
