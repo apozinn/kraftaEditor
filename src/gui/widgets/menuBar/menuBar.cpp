@@ -68,7 +68,6 @@ MenuBar::MenuBar()
 	menuView->Append(+Event::View::ZoomIn, _("&Zoom In") + GetSC("shortcut_zoom_in"));
 	menuView->Append(+Event::View::ZoomOut, _("&Zoom Out") + GetSC("shortcut_zoom_out"));
 	menuView->Append(+Event::View::ZoomReset, _("&Reset Zoom") + GetSC("shortcut_zoom_reset"));
-	menuView->Append(+Event::View::ToggleMiniMap, _("&Minimap") + GetSC("shortcut_toggle_minimap"));
 
 	wxMenu *menuTools = new wxMenu;
 	menuTools->Append(+Event::View::ToggleControlPanel, _("&Command Palette") + GetSC("shortcut_command_palette"));

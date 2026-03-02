@@ -78,7 +78,6 @@ ShortCutSettingsManager::ShortCutSettingsManager()
         {"shortcut_zoom_in", "Ctrl++"},
         {"shortcut_zoom_out", "Ctrl+-"},
         {"shortcut_zoom_reset", "Ctrl+0"},
-        {"shortcut_toggle_minimap", "Ctrl+M"},
         {"shortcut_toggle_file_tree", "Ctrl+Shift+E"},
         {"shortcut_toggle_status_bar", "Ctrl+Shift+B"},
         {"shortcut_toggle_tab_bar", "Ctrl+Shift+T"},
