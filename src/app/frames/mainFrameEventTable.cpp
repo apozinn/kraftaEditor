@@ -50,4 +50,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
 
     // Settings
     EVT_MENU(+Event::UserSettings::Edit, MainFrame::OnEditSettings)
+
+    // Keyboard Shortcuts
+    EVT_MENU(+Event::Shortcuts::Edit, MainFrame::OnEditShortcuts)
 wxEND_EVENT_TABLE()

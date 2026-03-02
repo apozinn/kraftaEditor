@@ -3,6 +3,7 @@
 #include "appConstants/appConstants.hpp"
 #include "themesManager/themesManager.hpp"
 #include "userSettings/userSettings.hpp"
+#include "shortcutsSettings/shortcutsSettings.hpp"
 #include "languagesPreferences/languagesPreferences.hpp"
 
 #if __WXMSW__
@@ -86,6 +87,11 @@ void KraftaEditor::SetupThemeManager()
 void KraftaEditor::SetupUserSettings()
 {
     UserSettingsManager::Get();
+}
+
+void KraftaEditor::SetupShortcutsSettings()
+{
+    ShortCutSettingsManager::Get();
 }
 
 bool KraftaEditor::SetupApplicationDirectories()

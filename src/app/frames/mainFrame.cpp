@@ -636,7 +636,24 @@ void MainFrame::OnEditSettings(wxCommandEvent &WXUNUSED(event))
     if (wxFileExists(path))
     {
         m_filesTree->OpenFile(path);
-        AddEntry(wxFSWPath_File, path);
+    }
+    else
+    {
+        wxMessageBox("Settings file not found");
+    }
+}
+void MainFrame::OnEditShortcuts(wxCommandEvent &WXUNUSED(event))
+{
+    if (!m_filesTree)
+    {
+        wxMessageBox("Files tree not initialized");
+        return;
+    }
+
+    wxString path = ShortCutSettingsManager::Get().ShortcutsPath;
+    if (wxFileExists(path))
+    {
+        m_filesTree->OpenFile(path);
     }
     else
     {

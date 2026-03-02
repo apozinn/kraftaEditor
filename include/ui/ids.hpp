@@ -31,6 +31,7 @@ constexpr wxWindowID ID_BASE_SEARCH = 16000;     ///< Search panels and search a
 constexpr wxWindowID ID_BASE_SETTINGS = 17000;   ///< User preferences and settings
 constexpr wxWindowID ID_BASE_EDIT = 18000;       ///< Text editing and code manipulation
 constexpr wxWindowID ID_TABS_CONTAINER = 19000;  ///< Editor tab container actions
+constexpr wxWindowID ID_BASE_SHORTCUTS = 20000;  ///< Keyboard shortcuts
 
 /* -------------------------------------------------------------------------- */
 /* GUI CONTROL IDS                                                             */
@@ -141,6 +142,9 @@ namespace Event
         MoveLineUp = ID_BASE_EDIT + 11,
         MoveLineDown = ID_BASE_EDIT + 12,
         RemoveCurrentLine = ID_BASE_EDIT + 13,
+        GoToLine = ID_BASE_EDIT + 14,
+        GoToSymbol = ID_BASE_EDIT + 15,
+        GoToDefinition = ID_BASE_EDIT + 16
     };
 
     /**
@@ -169,7 +173,12 @@ namespace Event
         ToggleTabBar = ID_BASE_VIEW + 6,
         ToggleCodeSearch = ID_BASE_VIEW + 7,
         FocusMode = ID_BASE_VIEW + 8,
-        ToggleQuickOpen = ID_BASE_VIEW + 9
+        ToggleQuickOpen = ID_BASE_VIEW + 9,
+        ToggleFullScreen = ID_BASE_VIEW + 10,
+        SplitEditor = ID_BASE_VIEW + 11,
+        ZoomIn = ID_BASE_VIEW + 12,
+        ZoomOut = ID_BASE_VIEW + 13,
+        ZoomReset = ID_BASE_VIEW + 14
     };
 
     /**
@@ -189,6 +198,15 @@ namespace Event
     enum class UserSettings : wxWindowID
     {
         Edit = ID_BASE_SETTINGS + 1
+    };
+
+    /**
+     * @enum Shortcuts
+     * @brief Shortcuts preferences and configuration actions.
+     */
+    enum class Shortcuts : wxWindowID
+    {
+        Edit = ID_BASE_SHORTCUTS + 1
     };
 
     /**

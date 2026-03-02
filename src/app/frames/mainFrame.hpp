@@ -37,6 +37,7 @@ using json = nlohmann::json;
 
 #include "appPaths/appPaths.hpp"
 #include "userSettings/userSettings.hpp"
+#include "shortcutsSettings/shortcutsSettings.hpp"
 #include "themesManager/themesManager.hpp"
 #include "ui/ids.hpp"
 #include "platformInfos/platformInfos.hpp"
@@ -152,6 +153,12 @@ public:
      * @param WXUNUSED(event) The command event.
      */
     void OnEditSettings(wxCommandEvent &WXUNUSED(event));
+    
+    /**
+     * @brief Handler for the "Edit Shortcuts" command.
+     * @param WXUNUSED(event) The command event.
+     */
+    void OnEditShortcuts(wxCommandEvent &WXUNUSED(event));
 
     // --- Layout and View Toggles ---
 

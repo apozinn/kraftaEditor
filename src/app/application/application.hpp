@@ -42,6 +42,11 @@ public:
      * @brief Initializes and loads persistent user settings.
      */
     void SetupUserSettings();
+    
+    /**
+     * @brief Initializes and loads persistent shortcuts settings.
+     */
+    void SetupShortcutsSettings();
 
     /**
      * @brief Creates necessary application directories (e.g., configuration, data).
