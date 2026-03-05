@@ -28,6 +28,11 @@ bool KraftaEditor::OnInit()
         if (!wxApp::OnInit())
             return false;
 
+        SetVendorName("Krafta");
+        SetAppName("krafta-editor");
+
+        wxConfig::Set(new wxConfig(GetAppName(), GetVendorName()));
+
         wxInitAllImageHandlers();
         LoadTranslations();
 
@@ -68,7 +73,9 @@ void KraftaEditor::VerifyIfSytemIsDarkMode()
 #if __WXMSW__
             MSWEnableDarkMode(DarkMode_Always);
 #endif
-        } else {
+        }
+        else
+        {
             SetAppearance(wxApp::Appearance::Light);
         }
     }

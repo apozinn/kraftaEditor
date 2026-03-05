@@ -1,5 +1,6 @@
 #include "menuBar.hpp"
 #include "shortcutsSettings/shortcutsSettings.hpp"
+#include "app/frames/mainFrame.hpp"
 
 MenuBar::MenuBar()
 {
@@ -17,6 +18,18 @@ MenuBar::MenuBar()
 	menuFile->AppendSeparator();
 	menuFile->Append(+Event::Project::OpenFolder, _("&Open Folder...") + GetSC("shortcut_open_folder"));
 	menuFile->Append(+Event::File::OpenFile, _("&Open File...") + GetSC("shortcut_open_file"));
+
+	auto projectFilesContainer = wxWindow::FindWindowById(+GUI::ControlID::ProjectFilesContainer);
+	auto mainFrame = (MainFrame *)wxGetTopLevelParent(projectFilesContainer);
+
+	mainFrame->UpdateRecentWorkspacesMenu(recentsWorkspacesMenu);
+	menuFile->AppendSubMenu(recentsWorkspacesMenu, "Recent Workspaces");
+
+	menuFile->Bind(wxEVT_MENU_OPEN, [this, mainFrame](wxMenuEvent &std_event)
+				   {
+    mainFrame->UpdateRecentWorkspacesMenu(recentsWorkspacesMenu);
+    std_event.Skip(); });
+
 	menuFile->AppendSeparator();
 	menuFile->Append(+Event::File::Save, _("&Save") + GetSC("shortcut_save_file"));
 	menuFile->Append(+Event::File::SaveAs, _("&Save As...") + GetSC("shortcut_save_file_as"));

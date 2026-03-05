@@ -31,6 +31,7 @@ public:
      * command identifiers and user actions.
      */
     MenuBar();
+    wxMenu *recentsWorkspacesMenu = new wxMenu;
 
 private:
     /**

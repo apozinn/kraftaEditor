@@ -20,18 +20,20 @@
 /* ID BASE RANGES                                                              */
 /* -------------------------------------------------------------------------- */
 
-constexpr wxWindowID ID_BASE_FILE = 10000;       ///< File system and file actions
-constexpr wxWindowID ID_BASE_FRAME = 11000;      ///< Main window and frame actions
-constexpr wxWindowID ID_BASE_PROJECT = 12000;    ///< Project lifecycle actions
-constexpr wxWindowID ID_BASE_VIEW = 13000;       ///< UI visibility and layout toggles
-constexpr wxWindowID ID_BASE_TERMINAL = 14000;   ///< Integrated terminal controls
-constexpr wxWindowID ID_BASE_CONTROL = 15000;    ///< Command/control panel navigation
-constexpr wxWindowID ID_BASE_QUICK_OPEN = 15500; ///< Quick Open navigation and actions
-constexpr wxWindowID ID_BASE_SEARCH = 16000;     ///< Search panels and search actions
-constexpr wxWindowID ID_BASE_SETTINGS = 17000;   ///< User preferences and settings
-constexpr wxWindowID ID_BASE_EDIT = 18000;       ///< Text editing and code manipulation
-constexpr wxWindowID ID_TABS_CONTAINER = 19000;  ///< Editor tab container actions
-constexpr wxWindowID ID_BASE_SHORTCUTS = 20000;  ///< Keyboard shortcuts
+constexpr wxWindowID ID_OPEN_RECENT_WORKSPACE_BASE = 5000; ///< ase ID for the first recent workspace item.
+constexpr wxWindowID ID_OPEN_RECENT_WORKSPACE_MAX = 6000;  ///< Maximum ID threshold for the recent workspace range.
+constexpr wxWindowID ID_BASE_FILE = 10000;                 ///< File system and file actions
+constexpr wxWindowID ID_BASE_FRAME = 11000;                ///< Main window and frame actions
+constexpr wxWindowID ID_BASE_PROJECT = 12000;              ///< Project lifecycle actions
+constexpr wxWindowID ID_BASE_VIEW = 13000;                 ///< UI visibility and layout toggles
+constexpr wxWindowID ID_BASE_TERMINAL = 14000;             ///< Integrated terminal controls
+constexpr wxWindowID ID_BASE_CONTROL = 15000;              ///< Command/control panel navigation
+constexpr wxWindowID ID_BASE_QUICK_OPEN = 15500;           ///< Quick Open navigation and actions
+constexpr wxWindowID ID_BASE_SEARCH = 16000;               ///< Search panels and search actions
+constexpr wxWindowID ID_BASE_SETTINGS = 17000;             ///< User preferences and settings
+constexpr wxWindowID ID_BASE_EDIT = 18000;                 ///< Text editing and code manipulation
+constexpr wxWindowID ID_TABS_CONTAINER = 19000;            ///< Editor tab container actions
+constexpr wxWindowID ID_BASE_SHORTCUTS = 20000;            ///< Keyboard shortcuts
 
 /* -------------------------------------------------------------------------- */
 /* GUI CONTROL IDS                                                             */
@@ -188,7 +190,8 @@ namespace Event
     enum class Project : wxWindowID
     {
         OpenFolder = ID_BASE_PROJECT + 1,
-        CloseFolder = ID_BASE_PROJECT + 2
+        CloseFolder = ID_BASE_PROJECT + 2,
+        OpenRecentWorspace = ID_BASE_PROJECT + 3
     };
 
     /**

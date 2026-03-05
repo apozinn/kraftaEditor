@@ -42,8 +42,9 @@ using json = nlohmann::json;
 #include "ui/ids.hpp"
 #include "platformInfos/platformInfos.hpp"
 #include "projectSettings/projectSettings.hpp"
+#include "convertPathToHash/convertPathToHash.hpp"
+#include "workspaceStorageManager/workspaceStorageManager.hpp"
 
-// UI Component Includes
 #include "gui/widgets/menuBar/menuBar.hpp"
 #include "gui/panels/filesTree/filesTree.hpp"
 #include "gui/codeContainer/code.hpp"
@@ -153,7 +154,7 @@ public:
      * @param WXUNUSED(event) The command event.
      */
     void OnEditSettings(wxCommandEvent &WXUNUSED(event));
-    
+
     /**
      * @brief Handler for the "Edit Shortcuts" command.
      * @param WXUNUSED(event) The command event.
@@ -236,6 +237,23 @@ public:
      * @param event Command event (unused).
      */
     void OnToggleMinimapView(wxCommandEvent &WXUNUSED(event));
+
+    /**
+     * @brief Dynamically populates a menu with the most recent workspaces.
+     * * Clears the provided menu and rebuilds it using the history retrieved
+     * from the WorkspaceStorageManager. Each item is assigned a specific
+     * command ID and stores the workspace path in its help string.
+     * * @param recentsMenu Pointer to the wxMenu to be updated.
+     */
+    void UpdateRecentWorkspacesMenu(wxMenu *recentsMenu);
+
+    /**
+     * @brief Handles selection events from the recent workspaces submenu.
+     * * Extracts the target path from the selected menu item's metadata (help string)
+     * and triggers the project loading sequence for that specific workspace.
+     * * @param event The menu command event containing the selected item's ID.
+     */
+    void OnRecentWorkspaceClick(wxCommandEvent &event);
 
 private:
     // --- UI Component Pointers ---

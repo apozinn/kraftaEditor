@@ -53,6 +53,9 @@ void MainFrame::SetupMenuBar()
     m_menuBar = new MenuBar();
     if (UserSettings["show_menu_bar"] == true)
         SetMenuBar(m_menuBar);
+
+    Bind(wxEVT_MENU, &MainFrame::OnRecentWorkspaceClick, this,
+         ID_OPEN_RECENT_WORKSPACE_BASE, ID_OPEN_RECENT_WORKSPACE_MAX);
 }
 
 void MainFrame::SetupMainSplitter()
@@ -348,24 +351,63 @@ void MainFrame::OpenFolderDialog()
     wxString path = dlg->GetPath();
 
     if (path.size())
+        LoadPath(path);
+}
+
+void MainFrame::LoadPath(wxString path)
+{
+    if (!m_tabs || !m_filesTree)
     {
-        projectSettings.SetProjectName(wxFileNameFromPath(path));
-        if (path.Last() != PlatformInfos::OsPathSeparator())
-            path.Append(PlatformInfos::OsPathSeparator());
+        wxLogError("Critical UI components (Tabs/FilesTree) not initialized");
+        return;
+    }
 
-        projectSettings.SetProjectPath(path);
+    wxFileName fn;
+    fn.AssignDir(path);
+    wxString normalizedPath = fn.GetPath(wxPATH_GET_SEPARATOR);
 
-        if (m_tabs)
-            m_tabs->CloseAllFiles();
+    if (normalizedPath == ProjectSettings::Get().GetProjectPath())
+        return;
 
-        m_filesTree->LoadProject(m_filesTree->GetProjectFilesContainer(), path);
+    if (normalizedPath.IsEmpty() || !wxDirExists(normalizedPath))
+    {
+        wxMessageBox("Invalid or inaccessible path: " + normalizedPath, "Error", wxICON_ERROR);
 
-        wxConfig *config = new wxConfig("krafta-editor");
-        config->Write("workspace", path);
-        delete config;
+        m_tabs->CloseAllFiles();
+        m_filesTree->CloseProject();
 
-        SetTitle("Krafta Editor - " + projectSettings.GetProjectName());
-        AddEntry(wxFSWPath_Tree, path);
+        wxConfig globalConfig("krafta-editor");
+        globalConfig.Write("workspace", "");
+
+        new OpenFolderButton();
+        return;
+    }
+
+    projectSettings.SetProjectName(wxFileNameFromPath(fn.GetFullPath().RemoveLast()));
+    projectSettings.SetProjectPath(normalizedPath);
+
+    std::string workspaceId = WorkspaceStorageManager::ConvertPathToHash(normalizedPath.ToStdString());
+    WorkspaceStorageManager::Get().Initialize(workspaceId);
+    WorkspaceStorageManager::Get().AddToRecents(normalizedPath);
+
+    wxConfig globalConfig("krafta-editor");
+    globalConfig.Write("workspace", normalizedPath);
+
+    m_tabs->CloseAllFiles();
+    SetTitle("Krafta Editor - " + projectSettings.GetProjectName());
+
+    if (GetMenuBar() && m_menuBar->recentsWorkspacesMenu)
+    {
+        UpdateRecentWorkspacesMenu(m_menuBar->recentsWorkspacesMenu);
+    }
+
+    m_filesTree->LoadProject(m_filesTree->GetProjectFilesContainer(), normalizedPath);
+    AddEntry(wxFSWPath_Tree, normalizedPath);
+
+    auto lastFile = WorkspaceStorageManager::Get().GetSetting<std::string>("last_focused_file");
+    if (lastFile.found && wxFileExists(lastFile.value))
+    {
+        m_filesTree->OpenFile(wxString(lastFile.value));
     }
 }
 
@@ -429,50 +471,6 @@ void MainFrame::OnSashPosChange(wxSplitterEvent &event)
 void MainFrame::CloseAllFiles(wxCommandEvent &WXUNUSED(event))
 {
     m_tabs->CloseAllFiles();
-}
-
-void MainFrame::LoadPath(wxString path)
-{
-    if (!m_tabs || !m_filesTree)
-    {
-        wxLogError("Tabs or files tree not initialized");
-        return;
-    }
-
-    wxDir dir(path);
-    wxConfig *config = new wxConfig("krafta-editor");
-
-    if (path.IsEmpty() || !dir.Exists(path))
-    {
-        m_tabs->CloseAllFiles();
-        config->Write("workspace", "");
-        delete config;
-
-        new OpenFolderButton();
-        return;
-    }
-
-    if (path == ProjectSettings::Get().GetProjectPath())
-        return;
-
-    if (path.Last() != PlatformInfos::OsPathSeparator())
-        path.Append(PlatformInfos::OsPathSeparator());
-
-    wxString pathWithoutPathSeparator = path.Clone().RemoveLast();
-
-    projectSettings.SetProjectName(wxFileNameFromPath(pathWithoutPathSeparator));
-    projectSettings.SetProjectPath(path);
-
-    config->Write("workspace", path);
-    delete config;
-
-    m_tabs->CloseAllFiles();
-
-    m_filesTree->LoadProject(m_filesTree->GetProjectFilesContainer(), path);
-
-    SetTitle("Krafta Editor - " + projectSettings.GetProjectName());
-
-    AddEntry(wxFSWPath_Tree, path);
 }
 
 void MainFrame::OnOpenTerminal(wxCommandEvent &WXUNUSED(event))
@@ -695,3 +693,38 @@ void MainFrame::OnClose(wxCloseEvent &event)
 
 void MainFrame::OnOpenFolderMenu(wxCommandEvent &WXUNUSED(event)) { OpenFolderDialog(); }
 void MainFrame::OnOpenFolderClick(wxMouseEvent &WXUNUSED(event)) { OpenFolderDialog(); }
+
+void MainFrame::UpdateRecentWorkspacesMenu(wxMenu *recentsMenu)
+{
+    while (recentsMenu->GetMenuItemCount() > 0)
+    {
+        recentsMenu->Delete(recentsMenu->FindItemByPosition(0));
+    }
+
+    auto recents = WorkspaceStorageManager::Get().GetRecentWorkspaces();
+    if (recents.empty())
+    {
+        recentsMenu->Append(wxID_NONE, "No Recent Workspaces")->Enable(false);
+        return;
+    }
+
+    for (size_t i = 0; i < recents.size(); ++i)
+    {
+        int currentID = ID_OPEN_RECENT_WORKSPACE_BASE + (int)i;
+        recentsMenu->Append(currentID, recents[i].name, recents[i].path);
+    }
+}
+
+void MainFrame::OnRecentWorkspaceClick(wxCommandEvent &event)
+{
+    int id = event.GetId();
+    wxMenuItem *item = m_menuBar->FindItem(id);
+    if (item)
+    {
+        wxString path = item->GetHelp();
+        if (!path.IsEmpty())
+        {
+            this->LoadPath(path);
+        }
+    }
+}
