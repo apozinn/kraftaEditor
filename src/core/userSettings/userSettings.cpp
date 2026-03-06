@@ -48,6 +48,9 @@ UserSettingsManager::UserSettingsManager()
         {"show_status_bar", true},
         {"show_tab_bar", true},
         {"show_minimap", true},
+        
+        {"show_hidden_dirs", false},
+        {"show_hidden_files", false},
 
         {"windowMaximized", true},
         {"windowSizeX", 1000},

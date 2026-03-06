@@ -7,7 +7,7 @@
 
 #include <wx/stc/stc.h>
 
-#include "FrameFileDropTarget/FrameFileDropTarget.hpp"
+#include "frameFileDropTarget/frameFileDropTarget.hpp"
 
 CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxPanel(parent, wxID_ANY, wxDefaultPosition)
 {

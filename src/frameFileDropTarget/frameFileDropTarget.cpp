@@ -1,4 +1,4 @@
-#include "FrameFileDropTarget.hpp"
+#include "frameFileDropTarget.hpp"
 #include <ui/ids.hpp>
 #include <gui/panels/tabs/tabs.hpp>
 #include <gui/panels/filesTree/filesTree.hpp>

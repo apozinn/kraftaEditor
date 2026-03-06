@@ -56,7 +56,7 @@ using json = nlohmann::json;
 #include "gui/widgets/openFolderButton/openFolderButton.hpp"
 #include "gui/panels/controlPanel/controlPanel.hpp"
 #include "gui/panels/quickOpen/quickOpen.hpp"
-#include "FrameFileDropTarget/FrameFileDropTarget.hpp"
+#include "frameFileDropTarget/frameFileDropTarget.hpp"
 #include "gui/widgets/pageSwitcher/pageSwitcher.hpp"
 #include <gui/panels/searchPage/searchPage.hpp>
 

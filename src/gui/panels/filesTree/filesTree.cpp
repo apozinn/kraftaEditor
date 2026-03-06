@@ -26,6 +26,7 @@
 #include <wx/statbmp.h>
 #include <wx/graphics.h>
 #include <wx/timer.h>
+#include <algorithm>
 
 FilesTree::FilesTree(wxWindow *parent, wxWindowID ID)
     : wxPanel(parent, ID)
@@ -175,14 +176,40 @@ void FilesTree::CreateDirectoryComponents(wxWindow *parent, const wxString &path
         return;
     }
 
+    auto show_hidden_dirs = UserSettingsManager::Get().GetSetting<bool>("show_hidden_dirs");
+    auto show_hidden_files = UserSettingsManager::Get().GetSetting<bool>("show_hidden_files");
+
     std::vector<std::filesystem::directory_entry> folders, files;
+
     for (auto const &entry : std::filesystem::directory_iterator{path.ToStdString()})
     {
+        wxString fileName = wxFileNameFromPath(wxString(entry.path()));
+        if (fileName.IsEmpty())
+            continue;
+
+        auto firstChar = fileName[0];
+
         if (entry.is_directory())
+        {
+            if (show_hidden_dirs.value == false && firstChar == '.')
+                continue;
             folders.push_back(entry);
+        }
         else
+        {
+            if (show_hidden_files.value == false && firstChar == '.')
+                continue;
             files.push_back(entry);
+        }
     }
+
+    auto sortRule = [](const std::filesystem::directory_entry &a, const std::filesystem::directory_entry &b)
+    {
+        return a.path().filename().string() < b.path().filename().string();
+    };
+
+    std::sort(folders.begin(), folders.end(), sortRule);
+    std::sort(files.begin(), files.end(), sortRule);
 
     for (auto &folder : folders)
         CreateDirContainer(parent, wxString(folder.path()));
