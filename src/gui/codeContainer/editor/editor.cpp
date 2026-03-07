@@ -4,13 +4,15 @@
 #include <vector>
 #include <algorithm>
 #include <cctype>
+#include "gui/codeContainer/code.hpp"
 
 Editor::Editor(wxWindow *parent)
     : wxStyledTextCtrl(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE)
 {
-    currentPath = parent ? parent->GetLabel() : wxString{};
     InitializePreferences();
     ConfigureFoldMargin();
+
+    m_linked_container = (CodeContainer *)parent;
 }
 
 void Editor::InitializePreferences()
@@ -92,10 +94,18 @@ void Editor::OnChange(wxStyledTextEvent &event)
         return;
     }
 
-    changedFile = true;
-    UpdateUnsavedIndicator();
+    if (UserSettingsManager::Get().GetSetting<bool>("autoSave").value)
+    {
+        m_linked_container->Save(GetName());
+    }
+    else
+    {
+        changedFile = true;
+        UpdateUnsavedIndicator();
+    }
+    
     ClearIndicators();
-
+    
     if (statusBar)
         statusBar->UpdateCodeLocale(this);
 

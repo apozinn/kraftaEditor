@@ -1,13 +1,12 @@
+#include "./code.hpp"
+
 #include "platformInfos/platformInfos.hpp"
 #include "appConstants/appConstants.hpp"
 #include "languagesPreferences/languagesPreferences.hpp"
-
-#include "./code.hpp"
-#include <wx/filename.h>
-
-#include <wx/stc/stc.h>
-
 #include "frameFileDropTarget/frameFileDropTarget.hpp"
+
+#include <wx/filename.h>
+#include <wx/stc/stc.h>
 
 CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxPanel(parent, wxID_ANY, wxDefaultPosition)
 {
@@ -56,7 +55,6 @@ void CodeContainer::LoadPath(wxString path)
 
         editor->SetLabel(path + "_codeEditor");
         editor->SetName(path);
-        editor->LoadFile(path);
 
         minimap->SetLabel(path + "_codeMap");
         minimap->SetName(path);
@@ -66,12 +64,13 @@ void CodeContainer::LoadPath(wxString path)
 
         editor->SetAutoCompleteWordsList(LanguagesPreferences::Get().GetAutoCompleteWordsList(languagePreferences));
         editor->SetLanguagesPreferences(languagePreferences);
-
-        Save(path);
         editor->SendMsg(4003, 0, -1);
+        editor->LoadFile(path);
 
         minimap->languagePreferences = languagePreferences;
         minimap->ExtractStyledText();
+
+        Save(path);
     }
     else
     {

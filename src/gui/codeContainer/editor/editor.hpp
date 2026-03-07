@@ -22,6 +22,8 @@
 #include "languagesPreferences/languagesPreferences.hpp"
 #include "gui/codeContainer/minimap/minimap.hpp"
 
+class CodeContainer;
+
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
@@ -173,6 +175,7 @@ public:
      * if the minimap feature is disabled or not attached.
      */
     MiniMap *m_linked_minimap = nullptr;
+    CodeContainer *m_linked_container = nullptr;
 
 private:
     /**

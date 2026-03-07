@@ -42,7 +42,7 @@ UserSettingsManager::UserSettingsManager()
     }
 
     DefaultSettings = {
-        // viewers settings
+        {"autoSave", false},
         {"show_files_tree", true},
         {"show_menu_bar", true},
         {"show_status_bar", true},
