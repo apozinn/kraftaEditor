@@ -51,7 +51,7 @@ bool MainFrame::SetAppIcon()
 void MainFrame::SetupMenuBar()
 {
     m_menuBar = new MenuBar();
-    if (UserSettings["show_menu_bar"] == true)
+    if (UserSettings["showMenuBar"] == true)
         SetMenuBar(m_menuBar);
 
     Bind(wxEVT_MENU, &MainFrame::OnRecentWorkspaceClick, this,
@@ -553,12 +553,12 @@ void MainFrame::OnToggleMenuBarView(wxCommandEvent &WXUNUSED(event))
     if (GetMenuBar())
     {
         SetMenuBar(nullptr);
-        UserSettings["show_menu_bar"] = false;
+        UserSettings["showMenuBar"] = false;
     }
     else
     {
         SetMenuBar(m_menuBar);
-        UserSettings["show_menu_bar"] = true;
+        UserSettings["showMenuBar"] = true;
     }
 
     UserSettingsManager::Get().Update(UserSettings);
@@ -575,12 +575,12 @@ void MainFrame::OnToggleStatusBarView(wxCommandEvent &WXUNUSED(event))
     if (m_statusBar->IsShown())
     {
         m_statusBar->Hide();
-        UserSettings["show_status_bar"] = false;
+        UserSettings["showStatusBar"] = false;
     }
     else
     {
         m_statusBar->Show();
-        UserSettings["show_status_bar"] = true;
+        UserSettings["showStatusBar"] = true;
     }
     m_applicationRightMainContainer->GetSizer()->Layout();
 
@@ -605,7 +605,7 @@ void MainFrame::OnToggleTabBarView(wxCommandEvent &WXUNUSED(event))
 
 void MainFrame::OnToggleMinimapView(wxCommandEvent &WXUNUSED(event))
 {
-    UserSettings["show_minimap"] = !UserSettings["show_minimap"];
+    UserSettings["showMinimap"] = !UserSettings["showMinimap"];
     UserSettingsManager::Get().Update(UserSettings);
 
     if (!m_tabs)
@@ -616,7 +616,7 @@ void MainFrame::OnToggleMinimapView(wxCommandEvent &WXUNUSED(event))
         auto minimap = FindWindowByLabel(tab->GetName() + "_codeMap");
         if (minimap)
         {
-            minimap->Show(UserSettings["show_minimap"]);
+            minimap->Show(UserSettings["showMinimap"]);
             minimap->GetParent()->GetSizer()->Layout();
         }
     }

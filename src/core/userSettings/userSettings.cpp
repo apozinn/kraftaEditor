@@ -43,14 +43,14 @@ UserSettingsManager::UserSettingsManager()
 
     DefaultSettings = {
         {"autoSave", false},
-        {"show_files_tree", true},
-        {"show_menu_bar", true},
-        {"show_status_bar", true},
-        {"show_tab_bar", true},
-        {"show_minimap", true},
-        
-        {"show_hidden_dirs", false},
-        {"show_hidden_files", false},
+        {"showFilesTree", true},
+        {"showMenuBar", true},
+        {"showStatusBar", true},
+        {"showTabBar", true},
+        {"showMinimap", true},
+
+        {"showHiddenDirs", false},
+        {"showHiddenFiles", false},
 
         {"windowMaximized", true},
         {"windowSizeX", 1000},

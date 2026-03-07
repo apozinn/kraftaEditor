@@ -176,8 +176,8 @@ void FilesTree::CreateDirectoryComponents(wxWindow *parent, const wxString &path
         return;
     }
 
-    auto show_hidden_dirs = UserSettingsManager::Get().GetSetting<bool>("show_hidden_dirs");
-    auto show_hidden_files = UserSettingsManager::Get().GetSetting<bool>("show_hidden_files");
+    auto showHiddenDirs = UserSettingsManager::Get().GetSetting<bool>("showHiddenDirs");
+    auto showHiddenFiles = UserSettingsManager::Get().GetSetting<bool>("showHiddenFiles");
 
     std::vector<std::filesystem::directory_entry> folders, files;
 
@@ -191,13 +191,13 @@ void FilesTree::CreateDirectoryComponents(wxWindow *parent, const wxString &path
 
         if (entry.is_directory())
         {
-            if (show_hidden_dirs.value == false && firstChar == '.')
+            if (showHiddenDirs.value == false && firstChar == '.')
                 continue;
             folders.push_back(entry);
         }
         else
         {
-            if (show_hidden_files.value == false && firstChar == '.')
+            if (showHiddenFiles.value == false && firstChar == '.')
                 continue;
             files.push_back(entry);
         }

@@ -27,7 +27,7 @@ CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxPanel(parent, 
     LoadPath(path);
     Layout();
 
-    if (UserSettings["show_minimap"] == false)
+    if (UserSettings["showMinimap"] == false)
         minimap->Hide();
 
     if (PlatformInfos::IsWindows())
