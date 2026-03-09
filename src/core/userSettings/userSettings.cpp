@@ -80,10 +80,7 @@ bool UserSettingsManager::SetSetting(const std::string &token, const T &value)
 
     try
     {
-        // Atualiza apenas a chave específica no JSON em memória
         currentSettings[token] = value;
-
-        // Salva o estado atualizado no disco
         return SaveInternal(currentSettings);
     }
     catch (const std::exception &e)
@@ -93,7 +90,6 @@ bool UserSettingsManager::SetSetting(const std::string &token, const T &value)
     }
 }
 
-// Instanciações para o método SetSetting usando string
 template bool UserSettingsManager::SetSetting<bool>(const std::string&, const bool&);
 template bool UserSettingsManager::SetSetting<int>(const std::string&, const int&);
 template bool UserSettingsManager::SetSetting<std::string>(const std::string&, const std::string&);
@@ -111,10 +107,9 @@ bool UserSettingsManager::SaveInternal(const nlohmann::json &data)
                 return false;
 
             file << std::setw(4) << data << std::endl;
-            file.flush(); // Garante que os dados saíram do buffer do C++
-        } // O arquivo fecha aqui (RAII)
+            file.flush();
+        }
 
-        // wxRenameFile com 'true' para sobrescrever o original de forma atômica
         if (!wxRenameFile(tempPath, SettingsPath, true))
         {
             wxRemoveFile(tempPath);
@@ -183,7 +178,7 @@ json UserSettingsManager::LoadSettingsFromFile()
     }
     catch (const json::exception &e)
     {
-        // wxMessageBox("JSON parsing error: %s", e.what());
+        wxMessageBox("JSON parsing error: %s", e.what());
         CreateDefaultSettingsFile();
         return DefaultSettings;
     }

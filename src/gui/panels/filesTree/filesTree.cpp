@@ -176,45 +176,45 @@ void FilesTree::CreateDirectoryComponents(wxWindow *parent, const wxString &path
         return;
     }
 
-    // auto showHiddenDirs = UserSettingsManager::Get().GetSetting<bool>("view/showHiddenDirs");
-    // auto showHiddenFiles = UserSettingsManager::Get().GetSetting<bool>("view/showHiddenFiles");
+    auto showHiddenDirs = UserSettingsManager::Get().GetSetting<bool>("view/showHiddenDirs");
+    auto showHiddenFiles = UserSettingsManager::Get().GetSetting<bool>("view/showHiddenFiles");
 
-    // std::vector<std::filesystem::directory_entry> folders, files;
+    std::vector<std::filesystem::directory_entry> folders, files;
 
-    // for (auto const &entry : std::filesystem::directory_iterator{path.ToStdString()})
-    // {
-    //     wxString fileName = wxFileNameFromPath(wxString(entry.path()));
-    //     if (fileName.IsEmpty())
-    //         continue;
+    for (auto const &entry : std::filesystem::directory_iterator{path.ToStdString()})
+    {
+        wxString fileName = wxFileNameFromPath(wxString(entry.path()));
+        if (fileName.IsEmpty())
+            continue;
 
-    //     auto firstChar = fileName[0];
+        auto firstChar = fileName[0];
 
-    //     if (entry.is_directory())
-    //     {
-    //         if (showHiddenDirs.value == false && firstChar == '.')
-    //             continue;
-    //         folders.push_back(entry);
-    //     }
-    //     else
-    //     {
-    //         if (showHiddenFiles.value == false && firstChar == '.')
-    //             continue;
-    //         files.push_back(entry);
-    //     }
-    // }
+        if (entry.is_directory())
+        {
+            if (showHiddenDirs.value == false && firstChar == '.')
+                continue;
+            folders.push_back(entry);
+        }
+        else
+        {
+            if (showHiddenFiles.value == false && firstChar == '.')
+                continue;
+            files.push_back(entry);
+        }
+    }
 
-    // auto sortRule = [](const std::filesystem::directory_entry &a, const std::filesystem::directory_entry &b)
-    // {
-    //     return a.path().filename().string() < b.path().filename().string();
-    // };
+    auto sortRule = [](const std::filesystem::directory_entry &a, const std::filesystem::directory_entry &b)
+    {
+        return a.path().filename().string() < b.path().filename().string();
+    };
 
-    // std::sort(folders.begin(), folders.end(), sortRule);
-    // std::sort(files.begin(), files.end(), sortRule);
+    std::sort(folders.begin(), folders.end(), sortRule);
+    std::sort(files.begin(), files.end(), sortRule);
 
-    // for (auto &folder : folders)
-    //     CreateDirContainer(parent, wxString(folder.path()));
-    // for (auto &file : files)
-    //     CreateFileContainer(parent, wxString(file.path()));
+    for (auto &folder : folders)
+        CreateDirContainer(parent, wxString(folder.path()));
+    for (auto &file : files)
+        CreateFileContainer(parent, wxString(file.path()));
 }
 
 wxWindow *FilesTree::CreateFileContainer(wxWindow *parent, const wxString &path)
@@ -728,22 +728,22 @@ void FilesTree::OnDeleteDirRequested(wxCommandEvent &)
             AdjustContainerSize(parent, true);
         };
 
-        // auto dontAsk = UserSettingsManager::Get().GetSetting<bool>("prompt/confirmDirDelete");
-        // if (dontAsk.found && !dontAsk.value)
-        // {
-        //     ConfirmDialog dlg(NULL, "Are you sure you want to delete this dir?", "Delete Dir");
-        //     int result = dlg.ShowModal();
-        //     if (result == wxID_OK)
-        //     {
-        //         if (dlg.DontAskAgain())
-        //         {
-        //             UserSettingsManager::Get().currentSettings["dontAskMeAgainDirDelete"] = true;
-        //             UserSettingsManager::Get().Update(UserSettingsManager::Get().currentSettings);
-        //         }
-        //         deleteDir();
-        //         return;
-        //     }
-        // }
+            auto dontAsk = UserSettingsManager::Get().GetSetting<bool>("prompt/confirmDirDelete");
+            if (dontAsk.found && !dontAsk.value)
+            {
+                ConfirmDialog dlg(NULL, "Are you sure you want to delete this dir?", "Delete Dir");
+                int result = dlg.ShowModal();
+                if (result == wxID_OK)
+                {
+                    if (dlg.DontAskAgain())
+                    {
+                        UserSettingsManager::Get().currentSettings["dontAskMeAgainDirDelete"] = true;
+                        UserSettingsManager::Get().Update(UserSettingsManager::Get().currentSettings);
+                    }
+                    deleteDir();
+                    return;
+                }
+            }
         deleteDir();
     }
     catch (const std::exception &err)
@@ -840,22 +840,22 @@ void FilesTree::OnDeleteFileRequested(wxCommandEvent &)
             ProjectSettings::Get().SetCurrentlyMenuFile(ProjectSettings::Get().GetProjectPath());
         };
 
-        // auto dontAsk = UserSettingsManager::Get().GetSetting<bool>("prompt/confirmFileDelete");
-        // if (dontAsk.found && !dontAsk.value)
-        // {
-        //     ConfirmDialog dlg(NULL, "Are you sure you want to delete this file?", "Delete File");
-        //     int result = dlg.ShowModal();
-        //     if (result == wxID_OK)
-        //     {
-        //         if (dlg.DontAskAgain())
-        //         {
-        //             UserSettingsManager::Get().currentSettings["dontAskMeAgainFileDelete"] = true;
-        //             UserSettingsManager::Get().Update(UserSettingsManager::Get().currentSettings);
-        //         }
-        //         deleteFile();
-        //         return;
-        //     }
-        // }
+        auto dontAsk = UserSettingsManager::Get().GetSetting<bool>("prompt/confirmFileDelete");
+        if (dontAsk.found && !dontAsk.value)
+        {
+            ConfirmDialog dlg(NULL, "Are you sure you want to delete this file?", "Delete File");
+            int result = dlg.ShowModal();
+            if (result == wxID_OK)
+            {
+                if (dlg.DontAskAgain())
+                {
+                    UserSettingsManager::Get().currentSettings["dontAskMeAgainFileDelete"] = true;
+                    UserSettingsManager::Get().Update(UserSettingsManager::Get().currentSettings);
+                }
+                deleteFile();
+                return;
+            }
+        }
         deleteFile();
     }
     catch (const std::exception &err)

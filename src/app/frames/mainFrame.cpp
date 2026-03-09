@@ -44,15 +44,15 @@ bool MainFrame::SetAppIcon()
         return true;
     }
 
-    wxLogError("Failed to set application icon");
+    wxMessageBox("Failed to set application icon");
     return false;
 }
 
 void MainFrame::SetupMenuBar()
 {
     m_menuBar = new MenuBar();
-    // if (UserSettingsManager::Get().GetSetting<bool>("view/showMenuBar").value)
-    //     SetMenuBar(m_menuBar);
+    if (UserSettingsManager::Get().GetSetting<bool>("view/showMenuBar").value)
+        SetMenuBar(m_menuBar);
 
     Bind(wxEVT_MENU, &MainFrame::OnRecentWorkspaceClick, this,
          ID_OPEN_RECENT_WORKSPACE_BASE, ID_OPEN_RECENT_WORKSPACE_MAX);
@@ -61,7 +61,7 @@ void MainFrame::SetupMenuBar()
 void MainFrame::SetupMainSplitter()
 {
     m_mainSplitter = new wxSplitterWindow(this, +GUI::ControlID::MainSplitter);
-    m_mainSplitter->SetBackgroundColour(wxColor(ThemesManager::Get().GetColor("main")));
+    m_mainSplitter->SetBackgroundColour(ThemesManager::Get().GetColor("main"));
     wxBoxSizer *mainSplitterSizer = new wxBoxSizer(wxHORIZONTAL);
     m_mainSplitter->SetSizerAndFit(mainSplitterSizer);
     m_mainSplitter->SetMinimumPaneSize(250);
@@ -181,42 +181,43 @@ void MainFrame::SetupAccelerators()
 
 void MainFrame::WindowResizeFunctions()
 {
-    // SetMinSize(wxSize(800, 600));
-    // if (UserSettingsManager::Get().GetSetting<bool>("window/maximized").value)
-    // {
-    //     Maximize();
-    // }
-    // else
-    // {
-    //     auto userPredefinedSize = wxSize(
-    //         UserSettingsManager::Get().GetSetting<int>("window/sizeX").value,
-    //         UserSettingsManager::Get().GetSetting<int>("window/sizeY").value);
+    SetMinSize(wxSize(800, 600));
+    UserSettingsManager &settings = UserSettingsManager::Get();
 
-    //     SetSize(userPredefinedSize);
+    if (settings.GetSetting<bool>("window/maximized").value)
+    {
+        Maximize();
+    }
+    else
+    {
+        auto userPredefinedSize = wxSize(
+            settings.GetSetting<int>("window/sizeX").value,
+            settings.GetSetting<int>("window/sizeY").value);
 
-    //     Centre();
-    // }
+        SetSize(userPredefinedSize);
+        Centre();
+    }
 
-    // Bind(wxEVT_SIZE, &MainFrame::OnFrameResized, this);
-    // Bind(wxEVT_MAXIMIZE, &MainFrame::OnFrameMaximized, this);
+    Bind(wxEVT_SIZE, &MainFrame::OnFrameResized, this);
+    Bind(wxEVT_MAXIMIZE, &MainFrame::OnFrameMaximized, this);
 }
 
 void MainFrame::OnFrameResized(wxSizeEvent &event)
 {
-    // if (!IsMaximized())
-    // {
-    //     auto &settings = UserSettingsManager::Get().currentSettings;
-    //     settings["window"]["sizeX"] = event.GetSize().x;
-    //     settings["window"]["sizeY"] = event.GetSize().y;
-    //     settings["window"]["maximized"] = false;
-    // }
+    if (!IsMaximized())
+    {
+        auto &settings = UserSettingsManager::Get().currentSettings;
+        settings["window"]["sizeX"] = event.GetSize().x;
+        settings["window"]["sizeY"] = event.GetSize().y;
+        settings["window"]["maximized"] = false;
+    }
 
     event.Skip();
 }
 
 void MainFrame::OnFrameMaximized(wxMaximizeEvent &(event))
 {
-    // UserSettingsManager::Get().SetSetting<bool>("window/maximized", true);
+    UserSettingsManager::Get().SetSetting<bool>("window/maximized", true);
     event.Skip();
 }
 
@@ -225,7 +226,7 @@ void MainFrame::OnNewWindow(wxCommandEvent &WXUNUSED(event))
     auto newWindow = new MainFrame();
     if (!newWindow)
     {
-        wxLogError("Failed to create a new window - memory allocation error");
+        wxMessageBox("Failed to create a new window");
         return;
     }
     newWindow->Show();
@@ -257,20 +258,20 @@ void MainFrame::CreateWatcher()
 {
     if (!wxTheApp || !wxTheApp->IsActive() || IsBeingDeleted())
     {
-        wxLogWarning("Cannot create watcher - application not active or being destroyed");
+        wxMessageBox("Cannot create watcher - application not active or being destroyed");
         return;
     }
 
     if (m_watcher)
     {
-        wxLogError("File watcher already initialized");
+        wxMessageBox("File watcher already initialized");
         return;
     }
 
     m_watcher = new wxFileSystemWatcher();
     if (!m_watcher)
     {
-        wxLogFatalError("Failed to create file system watcher - memory allocation error");
+        wxMessageBox("Failed to create file system watcher - memory allocation error");
         return;
     }
 
@@ -404,11 +405,11 @@ void MainFrame::LoadPath(wxString path)
     m_filesTree->LoadProject(m_filesTree->GetProjectFilesContainer(), normalizedPath);
     AddEntry(wxFSWPath_Tree, normalizedPath);
 
-    // auto lastFile = WorkspaceStorageManager::Get().GetSetting<std::string>("last_focused_file");
-    // if (lastFile.found && wxFileExists(lastFile.value))
-    // {
-    //     m_filesTree->OpenFile(wxString(lastFile.value));
-    // }
+    auto lastFile = WorkspaceStorageManager::Get().GetSetting<std::string>("last_focused_file");
+    if (lastFile.found && wxFileExists(lastFile.value))
+    {
+        m_filesTree->OpenFile(wxString(lastFile.value));
+    }
 }
 
 void MainFrame::OnOpenFile(wxCommandEvent &WXUNUSED(event))
@@ -431,8 +432,9 @@ void MainFrame::OnPaintedComponent(wxPaintEvent &event)
     wxPaintDC dc(target);
     PaintSash(dc, target);
 
-    dc.SetBrush(ThemesManager::Get().GetColor("border"));
-    dc.SetPen(wxPen(ThemesManager::Get().GetColor("border"), 0.20));
+    wxColour borderColor = ThemesManager::Get().GetColor("border");
+    dc.SetBrush(borderColor);
+    dc.SetPen(wxPen(borderColor, 0.20));
 
     dc.DrawLine(target->GetSashPosition() + 3, 0, target->GetSashPosition() + 3, target->GetSize().y);
 }
@@ -485,7 +487,7 @@ void MainFrame::OnCloseFolder(wxCommandEvent &WXUNUSED(event))
 {
     if (!m_filesTree || !m_mainContainer || !m_tabs)
     {
-        wxLogError("Required UI components not initialized");
+        wxMessageBox("Required UI components not initialized");
         return;
     }
 
@@ -601,24 +603,24 @@ void MainFrame::OnToggleTabBarView(wxCommandEvent &WXUNUSED(event))
 
 void MainFrame::OnToggleMinimapView(wxCommandEvent &WXUNUSED(event))
 {
-    // auto& settingsManager = UserSettingsManager::Get();
-    
-    // bool currentState = settingsManager.GetSetting<bool>("showMinimap").value;
-    // bool newState = !currentState;
+    auto& settingsManager = UserSettingsManager::Get();
 
-    // settingsManager.SetSetting<bool>("showMinimap", newState);
+    bool currentState = settingsManager.GetSetting<bool>("editor/showMinimap").value;
+    bool newState = !currentState;
 
-    // if (!m_tabs) return;
+    settingsManager.SetSetting<bool>("editor/showMinimap", newState);
 
-    // for (auto &child : m_tabs->tabsContainer->GetChildren())
-    // {
-    //     auto minimap = wxWindow::FindWindowByName(child->GetName() + "_codeMap");
-    //     if (minimap)
-    //     {
-    //         minimap->Show(newState);
-    //         minimap->GetParent()->Layout(); 
-    //     }
-    // }
+    if (!m_tabs) return;
+
+    for (auto &child : m_tabs->tabsContainer->GetChildren())
+    {
+        auto minimap = wxWindow::FindWindowByName(child->GetName() + "_codeMap");
+        if (minimap)
+        {
+            minimap->Show(newState);
+            minimap->GetParent()->Layout();
+        }
+    }
 }
 
 void MainFrame::OnEditSettings(wxCommandEvent &WXUNUSED(event))

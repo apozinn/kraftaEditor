@@ -27,8 +27,8 @@ CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxPanel(parent, 
     LoadPath(path);
     Layout();
 
-    // if (UserSettings["showMinimap"] == false)
-    //     minimap->Hide();
+    if (UserSettingsManager::Get().GetSetting<bool>("view/showMinimap").value)
+        minimap->Hide();
 
     if (PlatformInfos::IsWindows())
         font = wxFont(wxFontInfo(10).FaceName("Cascadia Code"));
@@ -74,7 +74,7 @@ void CodeContainer::LoadPath(wxString path)
     }
     else
     {
-        wxLogError("There was an error opening the file");
+        wxMessageBox("There was an error opening the file");
     }
 
     GetParent()->Layout();

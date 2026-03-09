@@ -12,6 +12,8 @@ MenuBar::MenuBar()
 		return s.found ? wxString("\t") + s.value : wxString("");
 	};
 
+	UserSettingsManager &settings = UserSettingsManager::Get();
+
 	wxMenu *menuFile = new wxMenu;
 	menuFile->Append(+Event::File::CreateFileEvent, _("&New File") + GetSC("shortcut_new_file"));
 	menuFile->Append(+Event::File::CreateDir, _("&New Dir"));
@@ -62,19 +64,19 @@ MenuBar::MenuBar()
 	wxMenu *menuView = new wxMenu;
 	wxMenuItem *toggleFileTreeView = new wxMenuItem(menuView, +Event::View::ToggleFileTree, "File Tree", wxEmptyString, wxITEM_CHECK);
 	menuView->Append(toggleFileTreeView);
-	// toggleFileTreeView->Check(UserSettings["showFilesTree"]);
+	toggleFileTreeView->Check(settings.GetSetting<bool>("view/showFileTree").value);
 	wxMenuItem *toggleMenuBarView = new wxMenuItem(menuView, +Event::View::ToggleMenuBar, "Menu Bar", wxEmptyString, wxITEM_CHECK);
 	menuView->Append(toggleMenuBarView);
-	// toggleMenuBarView->Check(UserSettings["showMenuBar"]);
+	toggleMenuBarView->Check(settings.GetSetting<bool>("view/showMenuBar").value);
 	wxMenuItem *toggleStatusBarView = new wxMenuItem(menuView, +Event::View::ToggleStatusBar, "Status Bar", wxEmptyString, wxITEM_CHECK);
 	menuView->Append(toggleStatusBarView);
-	// toggleStatusBarView->Check(UserSettings["showStatusBar"]);
+	toggleStatusBarView->Check(settings.GetSetting<bool>("view/showStatusBar").value);
 	wxMenuItem *toggleTabBarView = new wxMenuItem(menuView, +Event::View::ToggleTabBar, "Tab bar", wxEmptyString, wxITEM_CHECK);
 	menuView->Append(toggleTabBarView);
-	// toggleTabBarView->Check(UserSettings["showTabBar"]);
+	toggleTabBarView->Check(settings.GetSetting<bool>("view/showTabBar").value);
 	wxMenuItem *toggleMinimapView = new wxMenuItem(menuView, +Event::View::ToggleMiniMap, "Minimap", wxEmptyString, wxITEM_CHECK);
 	menuView->Append(toggleMinimapView);
-	// toggleMinimapView->Check(UserSettings["showMinimap"]);
+	toggleMinimapView->Check(settings.GetSetting<bool>("view/showMinimap").value);
 	menuView->AppendSeparator();
 	menuView->Append(+Event::View::ToggleFullScreen, _("&Full Screen") + GetSC("shortcut_toggle_full_screen"));
 	menuView->Append(+Event::View::SplitEditor, _("&Split Editor") + GetSC("shortcut_split_editor"));
