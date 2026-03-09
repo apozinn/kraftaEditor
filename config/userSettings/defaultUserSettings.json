@@ -1,0 +1,21 @@
+{
+    "editor": {
+        "autoSave": false,
+        "showMinimap": true
+    },
+    "view": {
+        "showFilesTree": true,
+        "showMenuBar": true,
+        "showStatusBar": true,
+        "showHiddenFiles": false
+    },
+    "window": {
+        "maximized": true,
+        "sizeX": 1000,
+        "sizeY": 700
+    },
+    "prompts": {
+        "confirmFileDelete": true,
+        "confirmDirDelete": true
+    }
+}

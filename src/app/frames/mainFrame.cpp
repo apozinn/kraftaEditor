@@ -37,7 +37,7 @@ MainFrame::~MainFrame()
 bool MainFrame::SetAppIcon()
 {
     wxIcon aaplicationIcon;
-    aaplicationIcon.LoadFile(assetsImagePath + "kraftaEditor.png", wxBITMAP_TYPE_PNG);
+    aaplicationIcon.LoadFile(ApplicationPaths::AssetsPath("images") + "kraftaEditor.png", wxBITMAP_TYPE_PNG);
     if (aaplicationIcon.IsOk())
     {
         SetIcon(aaplicationIcon);
@@ -51,8 +51,8 @@ bool MainFrame::SetAppIcon()
 void MainFrame::SetupMenuBar()
 {
     m_menuBar = new MenuBar();
-    if (UserSettings["showMenuBar"] == true)
-        SetMenuBar(m_menuBar);
+    // if (UserSettingsManager::Get().GetSetting<bool>("view/showMenuBar").value)
+    //     SetMenuBar(m_menuBar);
 
     Bind(wxEVT_MENU, &MainFrame::OnRecentWorkspaceClick, this,
          ID_OPEN_RECENT_WORKSPACE_BASE, ID_OPEN_RECENT_WORKSPACE_MAX);
@@ -61,7 +61,7 @@ void MainFrame::SetupMenuBar()
 void MainFrame::SetupMainSplitter()
 {
     m_mainSplitter = new wxSplitterWindow(this, +GUI::ControlID::MainSplitter);
-    m_mainSplitter->SetBackgroundColour(wxColor(Theme["main"].template get<std::string>()));
+    m_mainSplitter->SetBackgroundColour(wxColor(ThemesManager::Get().GetColor("main")));
     wxBoxSizer *mainSplitterSizer = new wxBoxSizer(wxHORIZONTAL);
     m_mainSplitter->SetSizerAndFit(mainSplitterSizer);
     m_mainSplitter->SetMinimumPaneSize(250);
@@ -181,44 +181,43 @@ void MainFrame::SetupAccelerators()
 
 void MainFrame::WindowResizeFunctions()
 {
-    SetMinSize(wxSize(800, 600));
-    if (UserSettings["windowMaximized"] == true)
-    {
-        Maximize();
-    }
-    else
-    {
-        auto userPredefinedSize = wxSize(
-            UserSettings["windowSizeX"].template get<int>(),
-            UserSettings["windowSizeY"].template get<int>());
+    // SetMinSize(wxSize(800, 600));
+    // if (UserSettingsManager::Get().GetSetting<bool>("window/maximized").value)
+    // {
+    //     Maximize();
+    // }
+    // else
+    // {
+    //     auto userPredefinedSize = wxSize(
+    //         UserSettingsManager::Get().GetSetting<int>("window/sizeX").value,
+    //         UserSettingsManager::Get().GetSetting<int>("window/sizeY").value);
 
-        SetSize(userPredefinedSize);
+    //     SetSize(userPredefinedSize);
 
-        Centre();
-    }
+    //     Centre();
+    // }
 
-    Bind(wxEVT_SIZE, &MainFrame::OnFrameResized, this);
-    Bind(wxEVT_MAXIMIZE, &MainFrame::OnFrameMaximized, this);
+    // Bind(wxEVT_SIZE, &MainFrame::OnFrameResized, this);
+    // Bind(wxEVT_MAXIMIZE, &MainFrame::OnFrameMaximized, this);
 }
 
 void MainFrame::OnFrameResized(wxSizeEvent &event)
 {
-    if (!IsMaximized())
-    {
-        UserSettings["windowMaximized"] = false;
-        UserSettings["windowSizeX"] = event.GetSize().x;
-        UserSettings["windowSizeY"] = event.GetSize().y;
-
-        UserSettingsManager::Get().Update(UserSettings);
-    }
+    // if (!IsMaximized())
+    // {
+    //     auto &settings = UserSettingsManager::Get().currentSettings;
+    //     settings["window"]["sizeX"] = event.GetSize().x;
+    //     settings["window"]["sizeY"] = event.GetSize().y;
+    //     settings["window"]["maximized"] = false;
+    // }
 
     event.Skip();
 }
 
-void MainFrame::OnFrameMaximized(wxMaximizeEvent &WXUNUSED(event))
+void MainFrame::OnFrameMaximized(wxMaximizeEvent &(event))
 {
-    UserSettings["windowMaximized"] = true;
-    UserSettingsManager::Get().Update(UserSettings);
+    // UserSettingsManager::Get().SetSetting<bool>("window/maximized", true);
+    event.Skip();
 }
 
 void MainFrame::OnNewWindow(wxCommandEvent &WXUNUSED(event))
@@ -383,8 +382,9 @@ void MainFrame::LoadPath(wxString path)
         return;
     }
 
-    projectSettings.SetProjectName(wxFileNameFromPath(fn.GetFullPath().RemoveLast()));
-    projectSettings.SetProjectPath(normalizedPath);
+    ProjectSettings::Get().ClearProject();
+    ProjectSettings::Get().SetProjectPath(normalizedPath);
+    ProjectSettings::Get().SetProjectName(wxFileNameFromPath(fn.GetFullPath().RemoveLast()));
 
     std::string workspaceId = WorkspaceStorageManager::ConvertPathToHash(normalizedPath.ToStdString());
     WorkspaceStorageManager::Get().Initialize(workspaceId);
@@ -394,7 +394,7 @@ void MainFrame::LoadPath(wxString path)
     globalConfig.Write("workspace", normalizedPath);
 
     m_tabs->CloseAllFiles();
-    SetTitle("Krafta Editor - " + projectSettings.GetProjectName());
+    SetTitle("Krafta Editor - " + ProjectSettings::Get().GetProjectName());
 
     if (GetMenuBar() && m_menuBar->recentsWorkspacesMenu)
     {
@@ -404,11 +404,11 @@ void MainFrame::LoadPath(wxString path)
     m_filesTree->LoadProject(m_filesTree->GetProjectFilesContainer(), normalizedPath);
     AddEntry(wxFSWPath_Tree, normalizedPath);
 
-    auto lastFile = WorkspaceStorageManager::Get().GetSetting<std::string>("last_focused_file");
-    if (lastFile.found && wxFileExists(lastFile.value))
-    {
-        m_filesTree->OpenFile(wxString(lastFile.value));
-    }
+    // auto lastFile = WorkspaceStorageManager::Get().GetSetting<std::string>("last_focused_file");
+    // if (lastFile.found && wxFileExists(lastFile.value))
+    // {
+    //     m_filesTree->OpenFile(wxString(lastFile.value));
+    // }
 }
 
 void MainFrame::OnOpenFile(wxCommandEvent &WXUNUSED(event))
@@ -496,7 +496,7 @@ void MainFrame::OnCloseFolder(wxCommandEvent &WXUNUSED(event))
     config->Write("workspace", "");
     delete config;
 
-    projectSettings.ClearProject();
+    ProjectSettings::Get().ClearProject();
 
     new OpenFolderButton();
 }
@@ -553,15 +553,13 @@ void MainFrame::OnToggleMenuBarView(wxCommandEvent &WXUNUSED(event))
     if (GetMenuBar())
     {
         SetMenuBar(nullptr);
-        UserSettings["showMenuBar"] = false;
+        UserSettingsManager::Get().SetSetting<bool>("showMenuBar", false);
     }
     else
     {
         SetMenuBar(m_menuBar);
-        UserSettings["showMenuBar"] = true;
+        UserSettingsManager::Get().SetSetting<bool>("showMenuBar", true);
     }
-
-    UserSettingsManager::Get().Update(UserSettings);
 }
 
 void MainFrame::OnToggleStatusBarView(wxCommandEvent &WXUNUSED(event))
@@ -575,16 +573,14 @@ void MainFrame::OnToggleStatusBarView(wxCommandEvent &WXUNUSED(event))
     if (m_statusBar->IsShown())
     {
         m_statusBar->Hide();
-        UserSettings["showStatusBar"] = false;
+        UserSettingsManager::Get().SetSetting<bool>("showStatusBar", false);
     }
     else
     {
         m_statusBar->Show();
-        UserSettings["showStatusBar"] = true;
+        UserSettingsManager::Get().SetSetting<bool>("showStatusBar", true);
     }
     m_applicationRightMainContainer->GetSizer()->Layout();
-
-    UserSettingsManager::Get().Update(UserSettings);
 }
 
 void MainFrame::OnToggleTabBarView(wxCommandEvent &WXUNUSED(event))
@@ -605,21 +601,24 @@ void MainFrame::OnToggleTabBarView(wxCommandEvent &WXUNUSED(event))
 
 void MainFrame::OnToggleMinimapView(wxCommandEvent &WXUNUSED(event))
 {
-    UserSettings["showMinimap"] = !UserSettings["showMinimap"];
-    UserSettingsManager::Get().Update(UserSettings);
+    // auto& settingsManager = UserSettingsManager::Get();
+    
+    // bool currentState = settingsManager.GetSetting<bool>("showMinimap").value;
+    // bool newState = !currentState;
 
-    if (!m_tabs)
-        return;
+    // settingsManager.SetSetting<bool>("showMinimap", newState);
 
-    for (auto &tab : m_tabs->tabsContainer->GetChildren())
-    {
-        auto minimap = FindWindowByLabel(tab->GetName() + "_codeMap");
-        if (minimap)
-        {
-            minimap->Show(UserSettings["showMinimap"]);
-            minimap->GetParent()->GetSizer()->Layout();
-        }
-    }
+    // if (!m_tabs) return;
+
+    // for (auto &child : m_tabs->tabsContainer->GetChildren())
+    // {
+    //     auto minimap = wxWindow::FindWindowByName(child->GetName() + "_codeMap");
+    //     if (minimap)
+    //     {
+    //         minimap->Show(newState);
+    //         minimap->GetParent()->Layout(); 
+    //     }
+    // }
 }
 
 void MainFrame::OnEditSettings(wxCommandEvent &WXUNUSED(event))
@@ -686,6 +685,8 @@ void MainFrame::OnClose(wxCloseEvent &event)
         Unbind(wxEVT_FSWATCHER, &MainFrame::OnFileSystemEvent, this);
         wxDELETE(m_watcher);
     }
+
+    UserSettingsManager::Get().Update(UserSettingsManager::Get().currentSettings);
 
     Destroy();
     event.Skip(false);

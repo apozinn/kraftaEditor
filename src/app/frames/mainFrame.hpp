@@ -280,12 +280,12 @@ private:
     wxFileSystemWatcher *m_watcher = nullptr; /**< The file system watcher instance for monitoring project changes. */
     bool m_followLinks;                       /**< Flag indicating whether the watcher should follow symbolic links. */
 
-    // --- Configuration and State ---
-    ProjectSettings &projectSettings = ProjectSettings::Get();         /**< Reference to global project settings manager. */
-    json UserSettings = UserSettingsManager::Get().currentSettings;    /**< Current user settings (window state, theme, etc.). */
-    json Theme = ThemesManager::Get().currentTheme;                    /**< Current visual theme configuration. */
-    wxString assetsImagePath = ApplicationPaths::AssetsPath("images"); /**< Path to the application's image assets. */
-    wxString appPath = ApplicationPaths::ApplicationPath();            /**< The base application execution path. */
+    // // --- Configuration and State ---
+    // ProjectSettings &projectSettings = ProjectSettings::Get();         /**< Reference to global project settings manager. */
+    // json UserSettings = UserSettingsManager::Get().currentSettings;    /**< Current user settings (window state, theme, etc.). */
+    // json Theme = ThemesManager::Get().currentTheme;                    /**< Current visual theme configuration. */
+    // wxString assetsImagePath = ApplicationPaths::AssetsPath("images"); /**< Path to the application's image assets. */
+    // wxString appPath = ApplicationPaths::ApplicationPath();            /**< The base application execution path. */
 
     // --- Private Setup and Utility Methods ---
 

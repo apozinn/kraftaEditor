@@ -58,12 +58,17 @@ public:
      * @return RequestedSetting<T> Struct containing value and found flag
      */
     template <typename T>
-    RequestedSetting<T> GetSetting(const std::string &settingName);
+    RequestedSetting<T> GetSetting(const std::string &token);
+
+    template <typename T>
+    bool SetSetting(const std::string &token, const T &value);
 
     wxString SettingsPath; ///< Path to settings JSON file
 private:
     json DefaultSettings;
     std::mutex settingsMutex; ///< Mutex for thread safety
+
+    json EmergencyDefaultSettings = {"window", {"maximized", true, "sizeX", 1000, "sizeY", 700}};
 
     /**
      * @brief Private constructor for singleton pattern
@@ -72,6 +77,7 @@ private:
      */
     UserSettingsManager();
 
+    bool SaveInternal(const nlohmann::json &data);
     /**
      * @brief Loads settings from file or creates default settings if file doesn't exist
      * @return json Loaded settings data

@@ -10,8 +10,8 @@ StatusBar::StatusBar(wxWindow *parent)
 	: wxPanel(parent, +GUI::ControlID::StatusBar)
 {
 	// setting the background color
-	auto background_color = Theme["secondary"].template get<std::string>();
-	SetBackgroundColour(wxColor(background_color));
+	auto background_color = ThemesManager::Get().GetColor("secondary");
+	SetBackgroundColour(background_color);
 
 	sizer->AddStretchSpacer();
 
@@ -68,7 +68,7 @@ void StatusBar::UpdateComponents(const wxString &path)
 		fileExt->SetLabel(languageName);
 	}
 
-	if (!IsShown() && UserSettings["showStatusBar"] == true)
+	if (!IsShown() && UserSettingsManager::Get().GetSetting<bool>("showStatusBar").value)
 	{
 		Show();
 		GetParent()->GetSizer()->Layout();
@@ -80,7 +80,7 @@ void StatusBar::UpdateComponents(const wxString &path)
 
 void StatusBar::UpdateCodeLocale(wxStyledTextCtrl *codeEditor)
 {
-	if (!IsShown() && UserSettings["showStatusBar"] == true)
+	if (!IsShown() && UserSettingsManager::Get().GetSetting<bool>("showStatusBar").value)
 	{
 		Show();
 		GetParent()->GetSizer()->Layout();
@@ -113,15 +113,16 @@ void StatusBar::ClearLabels()
 void StatusBar::OnPaint(wxPaintEvent &WXUNUSED(event))
 {
 	wxPaintDC dc(this);
-	dc.SetBrush(wxColor(Theme["border"].template get<std::string>()));
-	dc.SetPen(wxPen(wxColor(Theme["border"].template get<std::string>()), 0.20));
+	wxColour borderColor = ThemesManager::Get().GetColor("border");
+
+	dc.SetBrush(borderColor);
+	dc.SetPen(wxPen(borderColor, 0.20));
 	dc.DrawLine(0, 0, GetSize().GetWidth(), 0);
 }
 
 void StatusBar::UpdateLanguage(const languagePreferencesStruct &language)
 {
 	fileExt->SetLabel(wxString(language.preferences["name"].template get<std::string>()));
-
 	Refresh();
 	sizer->Layout();
 }

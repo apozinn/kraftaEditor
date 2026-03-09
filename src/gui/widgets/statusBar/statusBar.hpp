@@ -66,9 +66,5 @@ public:
 
 private:
     wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL); /**< Main sizer for the status bar layout. */
-    json Theme = ThemesManager::Get().currentTheme; /**< Cached theme settings. */
-    json UserSettings = UserSettingsManager::Get().currentSettings; /**< Cached user settings. */
-    wxString iconsDir = ApplicationPaths::AssetsPath("icons"); /**< Path to the icons directory. */
-    
     wxDECLARE_NO_COPY_CLASS(StatusBar);
 };

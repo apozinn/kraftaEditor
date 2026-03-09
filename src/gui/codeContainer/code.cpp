@@ -27,8 +27,8 @@ CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxPanel(parent, 
     LoadPath(path);
     Layout();
 
-    if (UserSettings["showMinimap"] == false)
-        minimap->Hide();
+    // if (UserSettings["showMinimap"] == false)
+    //     minimap->Hide();
 
     if (PlatformInfos::IsWindows())
         font = wxFont(wxFontInfo(10).FaceName("Cascadia Code"));

@@ -94,15 +94,15 @@ void Editor::OnChange(wxStyledTextEvent &event)
         return;
     }
 
-    if (UserSettingsManager::Get().GetSetting<bool>("autoSave").value)
-    {
-        m_linked_container->Save(GetName());
-    }
-    else
-    {
-        changedFile = true;
-        UpdateUnsavedIndicator();
-    }
+    // if (UserSettingsManager::Get().GetSetting<bool>("editor/autosave").value)
+    // {
+    //     m_linked_container->Save(GetName());
+    // }
+    // else
+    // {
+    //     changedFile = true;
+    //     UpdateUnsavedIndicator();
+    // }
     
     ClearIndicators();
     
