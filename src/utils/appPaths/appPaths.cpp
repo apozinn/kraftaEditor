@@ -12,15 +12,20 @@
 #include <string>
 #include <stdexcept>
 
+#ifndef _
+#define _(s) wxGetTranslation(s)
+#endif
+
 namespace ApplicationPaths
 {
     const wxString &ApplicationPath()
     {
-        static const wxString path = [] {
+        static const wxString path = []
+        {
             wxFileName file(wxStandardPaths::Get().GetExecutablePath());
             if (!file.IsOk())
             {
-                wxLogError("ApplicationPath: failed to resolve executable path");
+                wxMessageBox(_("ApplicationPath: failed to resolve executable path"), _("Error"), wxICON_ERROR);
                 return wxString();
             }
             return file.GetPathWithSep();
@@ -30,7 +35,8 @@ namespace ApplicationPaths
 
     bool IsRunningInDevelopmentEnvironment()
     {
-        static const bool isDev = [] {
+        static const bool isDev = []
+        {
             const wxString path = ApplicationPath().Lower();
             const wxArrayString patterns = {"debug", "release", "build", "cmake-build", "x64", "x86"};
 
@@ -75,12 +81,13 @@ namespace ApplicationPaths
 
     const wxString DevelopmentEnvironmentPath()
     {
-        static const wxString path = [] {
+        static const wxString path = []
+        {
             if (!IsRunningInDevelopmentEnvironment())
                 return ApplicationPath();
             wxString devRoot = FindDevelopmentRoot(ApplicationPath(), DEV_MARKER_FILES, 6);
             if (devRoot.IsEmpty())
-                wxLogWarning("DevelopmentEnvironmentPath: no marker files (%s) found.", wxJoin(DEV_MARKER_FILES, ','));
+                wxMessageBox(wxString::Format(_("DevelopmentEnvironmentPath: no marker files (%s) found."), wxJoin(DEV_MARKER_FILES, ',')), _("Warning"), wxICON_WARNING);
             return devRoot.IsEmpty() ? ApplicationPath() : devRoot;
         }();
         return path;
@@ -110,7 +117,7 @@ namespace ApplicationPaths
             base += target + wxFileName::GetPathSeparator();
         if (!wxDirExists(base) && !warned)
         {
-            wxLogWarning("AssetsPath: directory not found: %s", base);
+            wxMessageBox(wxString::Format(_("AssetsPath: directory not found: %s"), base), _("Warning"), wxICON_WARNING);
             warned = true;
         }
         return wxDirExists(base) ? base : "";
@@ -157,7 +164,7 @@ namespace ApplicationPaths
         wxString base = (IsRunningInDevelopmentEnvironment() ? DevelopmentEnvironmentPath() + "config" + PlatformInfos::OsPathSeparator() : InstalledBasePath("config"));
         if (name.IsEmpty())
             return base;
-        wxString path = base + name + PlatformInfos::OsPathSeparator(); 
+        wxString path = base + name + PlatformInfos::OsPathSeparator();
         return wxDirExists(path) ? path : "";
     }
 
@@ -166,7 +173,7 @@ namespace ApplicationPaths
         wxString base = (IsRunningInDevelopmentEnvironment() ? DevelopmentEnvironmentPath() + "i18n" + PlatformInfos::OsPathSeparator() : InstalledBasePath("i18n"));
         if (wxDirExists(base))
             return base;
-        wxLogError("GetI18nLanguagePath: directory not found: %s", base);
+        wxMessageBox(wxString::Format(_("GetI18nLanguagePath: directory not found: %s"), base), _("Error"), wxICON_ERROR);
         return wxEmptyString;
     }
 }

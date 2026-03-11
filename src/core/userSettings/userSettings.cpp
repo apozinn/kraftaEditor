@@ -15,6 +15,10 @@
 #include <wx/stdpaths.h>
 #include <wx/msgdlg.h>
 
+#ifndef _
+    #define _(s) wxGetTranslation(s)
+#endif
+
 using json = nlohmann::json;
 
 UserSettingsManager &UserSettingsManager::Get()
@@ -37,7 +41,7 @@ UserSettingsManager::UserSettingsManager()
         wxFileName fn(SettingsPath);
         if (!fn.DirExists() && !fn.Mkdir(wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL))
         {
-            wxLogError("Failed to create settings directory: %s", fn.GetPath());
+            wxMessageBox(_("Failed to create settings directory: %s"), fn.GetPath());
         }
     }
     wxString defaultUserSettingsPath = ApplicationPaths::GetConfigPath("userSettings") + "defaultUserSettings.json";
@@ -53,7 +57,7 @@ UserSettingsManager::UserSettingsManager()
             }
             catch (const json::parse_error &e)
             {
-                wxLogError("Erro de sintaxe no JSON padrão: %s", e.what());
+                wxMessageBox(_("JSON syntax error in default settings: %s"), e.what());
             }
         }
     }
@@ -68,7 +72,7 @@ UserSettingsManager::UserSettingsManager()
     }
     catch (const std::exception &e)
     {
-        wxMessageBox("Initial settings load failed");
+        wxMessageBox(_("Initial settings load failed"), _("Error"), wxICON_ERROR);
         currentSettings = DefaultSettings;
     }
 }
@@ -85,7 +89,7 @@ bool UserSettingsManager::SetSetting(const std::string &token, const T &value)
     }
     catch (const std::exception &e)
     {
-        wxLogError("Failed to set setting: %s", e.what());
+        wxMessageBox(_("Failed to set setting: %s"), e.what());
         return false;
     }
 }
@@ -151,7 +155,7 @@ bool UserSettingsManager::Update(const json &data)
     }
     catch (const std::exception &e)
     {
-        wxMessageBox("Settings update failed: %s", e.what());
+        wxMessageBox(wxString::Format(_("Settings update failed: %s"), e.what()), _("Error"), wxICON_ERROR);
 
         return false;
     }
@@ -178,7 +182,7 @@ json UserSettingsManager::LoadSettingsFromFile()
     }
     catch (const json::exception &e)
     {
-        wxMessageBox("JSON parsing error: %s", e.what());
+        wxMessageBox(wxString::Format(_("JSON parsing error: %s"), e.what()), _("Error"), wxICON_ERROR);
         CreateDefaultSettingsFile();
         return DefaultSettings;
     }
@@ -206,7 +210,7 @@ void UserSettingsManager::CreateDefaultSettingsFile()
     }
     catch (const std::exception &e)
     {
-        wxMessageBox("Failed to create default settings: %s", e.what());
+        wxMessageBox(wxString::Format(_("Failed to create default settings: %s"), e.what()), _("Error"), wxICON_ERROR);
         throw;
     }
 }

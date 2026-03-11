@@ -74,7 +74,7 @@ void CodeContainer::LoadPath(wxString path)
     }
     else
     {
-        wxMessageBox("There was an error opening the file");
+        wxMessageBox(_("There was an error opening the file"), _("Error"), wxICON_ERROR);
     }
 
     GetParent()->Layout();

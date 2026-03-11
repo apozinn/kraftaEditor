@@ -134,7 +134,7 @@ void Tabs::Close(wxWindow *tab, wxString tab_path)
     {
         if (codeContainer->editor->Modified())
         {
-            SaveChangesDialog dlg(NULL, wxString("Do you want to save the changes you made to " + wxFileNameFromPath(codeContainer->currentPath)) + "?", "Krafta Editor");
+            SaveChangesDialog dlg(NULL, wxString::Format(_("Do you want to save the changes you made to: %s?"), wxFileNameFromPath(codeContainer->currentPath)), "Krafta Editor");
             int result = dlg.ShowModal();
 
             if (result == wxID_OK)

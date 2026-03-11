@@ -87,11 +87,11 @@ void StatusBar::UpdateCodeLocale(wxStyledTextCtrl *codeEditor)
 	}
 
 	if (tabSize)
-		tabSize->SetLabel("Tab Size: " + std::to_string(codeEditor->GetTabWidth()));
+		tabSize->SetLabel(wxString::Format(_("Tab Size: %S"), std::to_string(codeEditor->GetTabWidth())));
 
 	if (codeLocale)
 		codeLocale->SetLabel(
-			"Line " + std::to_string(codeEditor->GetCurrentLine() + 1) + ", Column " + std::to_string(codeEditor->GetColumn(codeEditor->GetCurrentPos())));
+			wxString::Format(_("Line: %S, Column: %S"), std::to_string(codeEditor->GetCurrentLine() + 1), std::to_string(codeEditor->GetColumn(codeEditor->GetCurrentPos()))));
 
 	Refresh();
 	sizer->Layout();

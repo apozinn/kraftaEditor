@@ -7,6 +7,7 @@
 #include <fstream>
 #include <wx/settings.h>
 #include <wx/file.h>
+#include <wx/msgdlg.h>
 
 ThemesManager &ThemesManager::Get()
 {
@@ -23,7 +24,7 @@ wxColor ThemesManager::GetColor(const std::string &key) const
     }
     catch (...)
     {
-        wxLogWarning("Color '%s' not found - using default", key);
+        wxMessageBox(_("Color '%s' not found - using default"), key);
         return wxColor(0, 0, 0);
     }
 }
@@ -43,7 +44,7 @@ wxFont ThemesManager::GetFont(const std::string &key) const
     }
     catch (...)
     {
-        wxLogWarning("Font '%s' not found - using default", key);
+        wxMessageBox(_("Font '%s' not found - using default"), key);
         return wxFont(12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
     }
 }
@@ -67,7 +68,7 @@ nlohmann::json ThemesManager::LoadThemeFile() const
 
     if (!wxFileExists(themePath))
     {
-        wxLogError("Failed to load theme");
+        wxLogError(_("Failed to load theme"));
         throw std::runtime_error("Theme file not found");
     }
 
@@ -82,7 +83,7 @@ nlohmann::json ThemesManager::LoadThemeFile() const
     }
     catch (const std::exception &e)
     {
-        wxLogError("Failed to load theme: %s", e.what());
+        wxLogError(wxString::Format(_("Failed to load theme: %s"), e.what()));
         throw std::runtime_error("Theme file not found");
     }
 }

@@ -44,7 +44,7 @@ bool MainFrame::SetAppIcon()
         return true;
     }
 
-    wxMessageBox("Failed to set application icon");
+    wxMessageBox(_("Failed to set application icon"));
     return false;
 }
 
@@ -226,7 +226,7 @@ void MainFrame::OnNewWindow(wxCommandEvent &WXUNUSED(event))
     auto newWindow = new MainFrame();
     if (!newWindow)
     {
-        wxMessageBox("Failed to create a new window");
+        wxMessageBox(_("Failed to create a new window"));
         return;
     }
     newWindow->Show();
@@ -258,20 +258,20 @@ void MainFrame::CreateWatcher()
 {
     if (!wxTheApp || !wxTheApp->IsActive() || IsBeingDeleted())
     {
-        wxMessageBox("Cannot create watcher - application not active or being destroyed");
+        wxMessageBox(_("Cannot create watcher - application not active or being destroyed"));
         return;
     }
 
     if (m_watcher)
     {
-        wxMessageBox("File watcher already initialized");
+        wxMessageBox(_("File watcher already initialized"));
         return;
     }
 
     m_watcher = new wxFileSystemWatcher();
     if (!m_watcher)
     {
-        wxMessageBox("Failed to create file system watcher - memory allocation error");
+        wxMessageBox(_("Failed to create file system watcher - memory allocation error"));
         return;
     }
 
@@ -280,8 +280,8 @@ void MainFrame::CreateWatcher()
 
 void MainFrame::OnAbout(wxCommandEvent &WXUNUSED(event))
 {
-    wxMessageBox("A fast, lightweight, and cross-platform code editor built with C++ and wxWidgets",
-                 "About Krafta Editor",
+    wxMessageBox(_("A fast, lightweight, and cross-platform code editor built with C++ and wxWidgets"),
+                 _("About Krafta Editor"),
                  wxOK | wxICON_INFORMATION, this);
 }
 
@@ -358,7 +358,7 @@ void MainFrame::LoadPath(wxString path)
 {
     if (!m_tabs || !m_filesTree)
     {
-        wxLogError("Critical UI components (Tabs/FilesTree) not initialized");
+        wxMessageBox(_("Critical UI components (Tabs/FilesTree) not initialized"));
         return;
     }
 
@@ -371,7 +371,7 @@ void MainFrame::LoadPath(wxString path)
 
     if (normalizedPath.IsEmpty() || !wxDirExists(normalizedPath))
     {
-        wxMessageBox("Invalid or inaccessible path: " + normalizedPath, "Error", wxICON_ERROR);
+        wxMessageBox(wxString::Format(_("Directory '%s' does not exist"), normalizedPath), "Error", wxICON_ERROR);
 
         m_tabs->CloseAllFiles();
         m_filesTree->CloseProject();
@@ -487,7 +487,7 @@ void MainFrame::OnCloseFolder(wxCommandEvent &WXUNUSED(event))
 {
     if (!m_filesTree || !m_mainContainer || !m_tabs)
     {
-        wxMessageBox("Required UI components not initialized");
+        wxMessageBox(_("Required UI components not initialized"));
         return;
     }
 
@@ -540,7 +540,7 @@ void MainFrame::OnToggleFileTreeView(wxCommandEvent &WXUNUSED(event))
 {
     if (!m_mainSplitter || !m_applicationLeftMainContainer || !m_applicationRightMainContainer)
     {
-        wxLogError("Main splitter or containers not initialized");
+        wxMessageBox(_("Main splitter or containers not initialized"));
         return;
     }
 
@@ -568,7 +568,7 @@ void MainFrame::OnToggleStatusBarView(wxCommandEvent &WXUNUSED(event))
 {
     if (!m_applicationRightMainContainer || !m_statusBar)
     {
-        wxLogError("Status bar or right main container not initialized");
+        wxMessageBox(_("Status bar or right main container not initialized"));
         return;
     }
 
@@ -589,7 +589,7 @@ void MainFrame::OnToggleTabBarView(wxCommandEvent &WXUNUSED(event))
 {
     if (!m_tabs || !m_mainContainer)
     {
-        wxLogError("Tabs or main container not initialized");
+        wxLogError(_("Tabs or main container not initialized"));
         return;
     }
 
@@ -603,14 +603,15 @@ void MainFrame::OnToggleTabBarView(wxCommandEvent &WXUNUSED(event))
 
 void MainFrame::OnToggleMinimapView(wxCommandEvent &WXUNUSED(event))
 {
-    auto& settingsManager = UserSettingsManager::Get();
+    auto &settingsManager = UserSettingsManager::Get();
 
     bool currentState = settingsManager.GetSetting<bool>("editor/showMinimap").value;
     bool newState = !currentState;
 
     settingsManager.SetSetting<bool>("editor/showMinimap", newState);
 
-    if (!m_tabs) return;
+    if (!m_tabs)
+        return;
 
     for (auto &child : m_tabs->tabsContainer->GetChildren())
     {
@@ -627,7 +628,7 @@ void MainFrame::OnEditSettings(wxCommandEvent &WXUNUSED(event))
 {
     if (!m_filesTree)
     {
-        wxMessageBox("Files tree not initialized");
+        wxMessageBox(_("Files tree not initialized"));
         return;
     }
 
@@ -638,14 +639,15 @@ void MainFrame::OnEditSettings(wxCommandEvent &WXUNUSED(event))
     }
     else
     {
-        wxMessageBox("Settings file not found");
+        wxMessageBox(_("Settings file not found"));
     }
 }
 void MainFrame::OnEditShortcuts(wxCommandEvent &WXUNUSED(event))
 {
     if (!m_filesTree)
     {
-        wxMessageBox("Files tree not initialized");
+        wxMessageBox(_("Files tree not initialized"));
+
         return;
     }
 
@@ -656,7 +658,7 @@ void MainFrame::OnEditShortcuts(wxCommandEvent &WXUNUSED(event))
     }
     else
     {
-        wxMessageBox("Settings file not found");
+        wxMessageBox(_("Settings file not found"));
     }
 }
 
@@ -707,7 +709,7 @@ void MainFrame::UpdateRecentWorkspacesMenu(wxMenu *recentsMenu)
     auto recents = WorkspaceStorageManager::Get().GetRecentWorkspaces();
     if (recents.empty())
     {
-        recentsMenu->Append(wxID_NONE, "No Recent Workspaces")->Enable(false);
+        recentsMenu->Append(wxID_NONE, _("No Recent Workspaces"))->Enable(false);
         return;
     }
 

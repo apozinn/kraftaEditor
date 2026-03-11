@@ -83,7 +83,7 @@ languagePreferencesStruct LanguagesPreferences::SetupLanguagesPreferences(wxWind
     }
     catch (const std::exception &e)
     {
-        wxLogError("Unexpected error in GetLanguagePreferences: %s", e.what());
+        wxMessageBox(wxString::Format(_("Failed to get language preferences: %s"), e.what()));
         throw std::runtime_error(std::string("Failed to get language preferences: ") + e.what());
     }
 }
@@ -172,7 +172,7 @@ void LanguagesPreferences::SetupFold(const languagePreferencesStruct &currentLan
     wxString foldSettingsPath = ApplicationPaths::GetConfigPath("foldSettings") + "foldSettings.json";
     if (!wxFileExists(foldSettingsPath))
     {
-        wxMessageBox("Unable to access fold settings:", "Fold Error");
+        wxMessageBox(_("Unable to access fold settings:"));
         return;
     }
 

@@ -1,7 +1,6 @@
 #include "shortcutsSettings/shortcutsSettings.hpp"
 #include "appPaths/appPaths.hpp"
 #include <nlohmann/json.hpp>
-#include <wx/log.h>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -34,12 +33,11 @@ ShortCutSettingsManager::ShortCutSettingsManager()
         wxFileName fn(ShortcutsPath);
         if (!fn.DirExists() && !fn.Mkdir(wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL))
         {
-            wxLogError("Failed to create shortcut settings directory: %s", fn.GetPath());
+            wxMessageBox(wxString::Format(_("Failed to create shortcut settings directory: %s"), fn.GetPath()), _("Error"), wxICON_ERROR);
         }
     }
 
     DefaultShortCutSettings = {
-        // File operations
         {"shortcut_new_file", "Ctrl+N"},
         {"shortcut_open_file", "Ctrl+O"},
         {"shortcut_open_folder", "Ctrl+Shift+K"},
@@ -49,8 +47,6 @@ ShortCutSettingsManager::ShortCutSettingsManager()
         {"shortcut_close_file", "Ctrl+W"},
         {"shortcut_close_all", "Ctrl+Alt+W"},
         {"shortcut_quit", "Ctrl+Q"},
-
-        // Edit operations
         {"shortcut_undo", "Ctrl+Z"},
         {"shortcut_redo", "Ctrl+Y"},
         {"shortcut_cut", "Ctrl+X"},
@@ -66,15 +62,11 @@ ShortCutSettingsManager::ShortCutSettingsManager()
         {"shortcut_toggle_block_comment", "Ctrl+Alt+;"},
         {"shortcut_indent", "Tab"},
         {"shortcut_outdent", "Shift+Tab"},
-
-        // Find & Replace
         {"shortcut_find", "Ctrl+F"},
         {"shortcut_find_replace", "Ctrl+H"},
         {"shortcut_find_next", "F3"},
         {"shortcut_find_previous", "Shift+F3"},
         {"shortcut_go_to_line", "Ctrl+G"},
-
-        // View operations
         {"shortcut_zoom_in", "Ctrl++"},
         {"shortcut_zoom_out", "Ctrl+-"},
         {"shortcut_zoom_reset", "Ctrl+0"},
@@ -84,8 +76,6 @@ ShortCutSettingsManager::ShortCutSettingsManager()
         {"shortcut_toggle_menu_bar", "Ctrl+Shift+M"},
         {"shortcut_toggle_full_screen", "F11"},
         {"shortcut_split_editor", "Ctrl+\\"},
-
-        // Navigation
         {"shortcut_go_to_definition", "F12"},
         {"shortcut_go_to_symbol", "Ctrl+Shift+O"},
         {"shortcut_go_to_file", "Ctrl+P"},
@@ -93,8 +83,6 @@ ShortCutSettingsManager::ShortCutSettingsManager()
         {"shortcut_go_forward", "Alt+Right"},
         {"shortcut_next_tab", "Ctrl+Tab"},
         {"shortcut_previous_tab", "Ctrl+Shift+Tab"},
-
-        // Tools
         {"shortcut_command_palette", "Ctrl+Shift+P"},
         {"shortcut_quick_open", "Ctrl+P"},
         {"shortcut_open_terminal", "Ctrl+J"},
@@ -107,7 +95,7 @@ ShortCutSettingsManager::ShortCutSettingsManager()
     }
     catch (const std::exception &e)
     {
-        wxMessageBox("Initial shortcut settings load failed: %s", e.what());
+        wxMessageBox(_("Initial shortcut settings load failed"), _("Error"), wxICON_ERROR);
         currentSettings = DefaultShortCutSettings;
     }
 }
@@ -139,7 +127,7 @@ bool ShortCutSettingsManager::Update(const json &data)
     }
     catch (const std::exception &e)
     {
-        wxMessageBox("Shortcut settings update failed: %s", e.what());
+        wxMessageBox(_("Shortcut settings update failed"), _("Error"), wxICON_ERROR);
         return false;
     }
 }
@@ -165,7 +153,7 @@ json ShortCutSettingsManager::LoadSettingsFromFile()
     }
     catch (const json::exception &e)
     {
-        wxMessageBox("Shortcut settings JSON parsing error: %s", e.what());
+        wxMessageBox(wxString::Format(_("JSON parsing error: %s"), e.what()), _("Error"), wxICON_ERROR);
         CreateDefaultSettingsFile();
         return DefaultShortCutSettings;
     }
@@ -193,7 +181,7 @@ void ShortCutSettingsManager::CreateDefaultSettingsFile()
     }
     catch (const std::exception &e)
     {
-        wxMessageBox("Failed to create default shortcut settings: %s", e.what());
+        wxMessageBox(_("Failed to create default shortcut settings"), _("Error"), wxICON_ERROR);
         throw;
     }
 }

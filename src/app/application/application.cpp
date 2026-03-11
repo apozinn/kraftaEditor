@@ -28,7 +28,7 @@ bool KraftaEditor::OnInit()
         if (!wxApp::OnInit())
             return false;
 
-        SetVendorName("Krafta");
+        SetVendorName("Krafta-editor");
         SetAppName("krafta-editor");
 
         wxConfig::Set(new wxConfig(GetAppName(), GetVendorName()));
@@ -111,19 +111,19 @@ bool KraftaEditor::SetupApplicationDirectories()
 
     std::vector<AppPathWithErrorMessage> appPathsWithErrorMessage = {
         {ApplicationPaths::ApplicationPath(),
-         "Failed to locate the application executable path."},
+         _("Failed to locate the application executable path.")},
         {ApplicationPaths::AssetsPath(wxEmptyString),
-         "Critical error: Unable to locate the application's assets directory."},
+         _("UI Error: The application assets directory was not found.")},
         {ApplicationPaths::AssetsPath("icons"),
-         "UI Error: The application icons directory was not found."},
+         _("UI Error: The application icons directory was not found.")},
         {ApplicationPaths::AssetsPath("themes"),
-         "UI Error: Missing application themes directory."},
+         _("UI Error: Missing application themes directory.")},
         {ApplicationPaths::AssetsPath("images"),
-         "UI Error: Missing application directory."},
+         _("UI Error: Missing application directory.")},
         {ApplicationPaths::AssetsPath("file_ext"),
-         "Language Support Error: Missing file extension icons directory."},
+         _("Language Support Error: Missing file extension icons directory.")},
         {ApplicationPaths::DevelopmentEnvironmentPath(),
-         "Configuration Error: Failed to determine the application root directory."}};
+         _("Configuration Error: Failed to determine the application root directory.")}};
 
     bool allPathsOk = true;
     for (const auto &AppPath : appPathsWithErrorMessage)
@@ -211,11 +211,11 @@ void KraftaEditor::LoadTranslations()
 
     if (!locale.Init(sysLang))
     {
-        wxLogWarning("The system language (%s) is not fully supported. Using the default language.", wxLocale::GetLanguageName(sysLang));
+        wxMessageBox("The system language (%s) is not fully supported. Using the default language.", wxLocale::GetLanguageName(sysLang));
     }
 
     if (!trans->AddCatalog("kraftaeditor"))
     {
-        wxLogWarning("Failed to load translation catalog '%s'. Check the .mo file.", "kraftaeditor");
+        wxMessageBox("Failed to load translation catalog '%s'. Check the .mo file.", "kraftaeditor");
     }
 }

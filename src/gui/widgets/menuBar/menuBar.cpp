@@ -2,6 +2,10 @@
 #include "shortcutsSettings/shortcutsSettings.hpp"
 #include "app/frames/mainFrame.hpp"
 
+#ifndef _
+#define _(s) wxGetTranslation(s)
+#endif
+
 MenuBar::MenuBar()
 {
 	auto &sc = ShortCutSettingsManager::Get();
@@ -25,7 +29,7 @@ MenuBar::MenuBar()
 	auto mainFrame = (MainFrame *)wxGetTopLevelParent(projectFilesContainer);
 
 	mainFrame->UpdateRecentWorkspacesMenu(recentsWorkspacesMenu);
-	menuFile->AppendSubMenu(recentsWorkspacesMenu, "Recent Workspaces");
+	menuFile->AppendSubMenu(recentsWorkspacesMenu, _("Recent Workspaces"));
 
 	menuFile->Bind(wxEVT_MENU_OPEN, [this, mainFrame](wxMenuEvent &std_event)
 				   {
@@ -62,19 +66,19 @@ MenuBar::MenuBar()
 	menuSelection->Append(+Event::Edit::SelectLine, _("&Select Line") + GetSC("shortcut_select_line"));
 
 	wxMenu *menuView = new wxMenu;
-	wxMenuItem *toggleFileTreeView = new wxMenuItem(menuView, +Event::View::ToggleFileTree, "File Tree", wxEmptyString, wxITEM_CHECK);
+	wxMenuItem *toggleFileTreeView = new wxMenuItem(menuView, +Event::View::ToggleFileTree, _("File Tree"), wxEmptyString, wxITEM_CHECK);
 	menuView->Append(toggleFileTreeView);
 	toggleFileTreeView->Check(settings.GetSetting<bool>("view/showFileTree").value);
-	wxMenuItem *toggleMenuBarView = new wxMenuItem(menuView, +Event::View::ToggleMenuBar, "Menu Bar", wxEmptyString, wxITEM_CHECK);
+	wxMenuItem *toggleMenuBarView = new wxMenuItem(menuView, +Event::View::ToggleMenuBar, _("Menu Bar"), wxEmptyString, wxITEM_CHECK);
 	menuView->Append(toggleMenuBarView);
 	toggleMenuBarView->Check(settings.GetSetting<bool>("view/showMenuBar").value);
-	wxMenuItem *toggleStatusBarView = new wxMenuItem(menuView, +Event::View::ToggleStatusBar, "Status Bar", wxEmptyString, wxITEM_CHECK);
+	wxMenuItem *toggleStatusBarView = new wxMenuItem(menuView, +Event::View::ToggleStatusBar, _("Status Bar"), wxEmptyString, wxITEM_CHECK);
 	menuView->Append(toggleStatusBarView);
 	toggleStatusBarView->Check(settings.GetSetting<bool>("view/showStatusBar").value);
-	wxMenuItem *toggleTabBarView = new wxMenuItem(menuView, +Event::View::ToggleTabBar, "Tab bar", wxEmptyString, wxITEM_CHECK);
+	wxMenuItem *toggleTabBarView = new wxMenuItem(menuView, +Event::View::ToggleTabBar, _("Tab bar"), wxEmptyString, wxITEM_CHECK);
 	menuView->Append(toggleTabBarView);
 	toggleTabBarView->Check(settings.GetSetting<bool>("view/showTabBar").value);
-	wxMenuItem *toggleMinimapView = new wxMenuItem(menuView, +Event::View::ToggleMiniMap, "Minimap", wxEmptyString, wxITEM_CHECK);
+	wxMenuItem *toggleMinimapView = new wxMenuItem(menuView, +Event::View::ToggleMiniMap, _("Minimap"), wxEmptyString, wxITEM_CHECK);
 	menuView->Append(toggleMinimapView);
 	toggleMinimapView->Check(settings.GetSetting<bool>("view/showMinimap").value);
 	menuView->AppendSeparator();
