@@ -94,7 +94,7 @@ void Editor::OnChange(wxStyledTextEvent &event)
         return;
     }
 
-    if (UserSettingsManager::Get().GetSetting<bool>("editor/autosave").value)
+    if (UserSettingsManager::Get().GetSetting<bool>("editor/autoSave").value)
     {
         m_linked_container->Save(GetName());
     }

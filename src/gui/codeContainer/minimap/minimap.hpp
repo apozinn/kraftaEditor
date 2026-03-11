@@ -150,7 +150,7 @@ public:
      */
     languagePreferencesStruct languagePreferences;
 
-private:
+    private:
     wxStyledTextCtrl *m_editor;             ///< Pointer to the associated text editor.
     wxMemoryBuffer m_buf;                   ///< Internal buffer used for `SCI_GETSTYLEDTEXT`.
     std::array<wxColour, 256> m_styleColor; ///< Cached colors for each of the 256 Scintilla style indices.

@@ -27,7 +27,7 @@ CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxPanel(parent, 
     LoadPath(path);
     Layout();
 
-    if (UserSettingsManager::Get().GetSetting<bool>("view/showMinimap").value)
+    if (!UserSettingsManager::Get().GetSetting<bool>("editor/showMinimap").value)
         minimap->Hide();
 
     if (PlatformInfos::IsWindows())
@@ -55,6 +55,7 @@ void CodeContainer::LoadPath(wxString path)
 
         editor->SetLabel(path + "_codeEditor");
         editor->SetName(path);
+        editor->LoadFile(path);
 
         minimap->SetLabel(path + "_codeMap");
         minimap->SetName(path);
@@ -64,13 +65,12 @@ void CodeContainer::LoadPath(wxString path)
 
         editor->SetAutoCompleteWordsList(LanguagesPreferences::Get().GetAutoCompleteWordsList(languagePreferences));
         editor->SetLanguagesPreferences(languagePreferences);
+
+        Save(path);
         editor->SendMsg(4003, 0, -1);
-        editor->LoadFile(path);
 
         minimap->languagePreferences = languagePreferences;
         minimap->ExtractStyledText();
-
-        Save(path);
     }
     else
     {
@@ -91,7 +91,7 @@ bool CodeContainer::Save(wxString path)
     auto currentEditor = ((Editor *)wxFindWindowByLabel(path + "_codeEditor"));
     auto currentMinimap = ((MiniMap *)wxFindWindowByLabel(path + "_codeMap"));
 
-    if (currentEditor && currentMinimap)
+    if (currentEditor)
     {
         if (currentEditor->SaveFile(path) && !currentEditor->Modified())
         {
