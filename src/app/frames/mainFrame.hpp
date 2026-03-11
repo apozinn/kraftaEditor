@@ -275,6 +275,14 @@ private:
     PageSwitcher *m_page_switcher;                  /**< Page Switcher */
     SearchPage *m_searchPage;                       /**< Search Page */
     wxBoxSizer *sizer = new wxBoxSizer(wxVERTICAL); /**< The main sizer managing the frame layout. */
+    wxTimer *m_saveSettingsTimer;                   /**< Timer for saving settings periodically. */
+    void OnSaveSettingsTimer(wxTimerEvent &event);  /**< Handler for the save settings timer. */
+
+    // --- Constants ---
+    enum
+    {
+        ID_SAVE_SETTINGS_TIMER = 454545
+    };
 
     // --- File System Watcher ---
     wxFileSystemWatcher *m_watcher = nullptr; /**< The file system watcher instance for monitoring project changes. */
@@ -293,6 +301,11 @@ private:
      * @brief Initializes the wxFileSystemWatcher object.
      */
     void CreateWatcher();
+
+    /**
+     * @brief Sets up the timer for periodic settings saving.
+     */
+    void SetupSettingsTimer();
 
     /**
      * @brief Sets the application icon based on available assets.

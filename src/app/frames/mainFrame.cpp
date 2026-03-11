@@ -4,7 +4,9 @@ MainFrame::MainFrame(const wxString &title)
     : wxFrame(nullptr, wxID_ANY, title), m_watcher(nullptr), m_followLinks(false)
 {
     SetTitle(title);
+    SetupSettingsTimer();
     WindowResizeFunctions();
+
     SetThemeEnabled(true);
     SetAppIcon();
     SetupMenuBar();
@@ -32,6 +34,12 @@ MainFrame::MainFrame(const wxString &title)
 MainFrame::~MainFrame()
 {
     delete m_watcher;
+}
+
+void MainFrame::SetupSettingsTimer()
+{
+    m_saveSettingsTimer = new wxTimer(this, ID_SAVE_SETTINGS_TIMER);
+    Bind(wxEVT_TIMER, &MainFrame::OnSaveSettingsTimer, this, ID_SAVE_SETTINGS_TIMER);
 }
 
 bool MainFrame::SetAppIcon()
@@ -179,6 +187,30 @@ void MainFrame::SetupAccelerators()
     SetAcceleratorTable(accel);
 }
 
+void MainFrame::OnFrameResized(wxSizeEvent &event)
+{
+    m_saveSettingsTimer->Start(500, wxTIMER_ONE_SHOT);
+    event.Skip();
+}
+
+void MainFrame::OnFrameMaximized(wxMaximizeEvent &event)
+{
+    m_saveSettingsTimer->Start(500, wxTIMER_ONE_SHOT);
+    event.Skip();
+}
+
+void MainFrame::OnSaveSettingsTimer(wxTimerEvent &event)
+{
+    UserSettingsManager &settings = UserSettingsManager::Get();
+
+    bool isMaximized = IsMaximized();
+    settings.SetSetting("window/maximized", isMaximized);
+
+    wxSize size = GetSize();
+    settings.SetSetting("window/sizeX", size.x);
+    settings.SetSetting("window/sizeY", size.y);
+}
+
 void MainFrame::WindowResizeFunctions()
 {
     SetMinSize(wxSize(800, 600));
@@ -200,25 +232,6 @@ void MainFrame::WindowResizeFunctions()
 
     Bind(wxEVT_SIZE, &MainFrame::OnFrameResized, this);
     Bind(wxEVT_MAXIMIZE, &MainFrame::OnFrameMaximized, this);
-}
-
-void MainFrame::OnFrameResized(wxSizeEvent &event)
-{
-    if (!IsMaximized())
-    {
-        auto &settings = UserSettingsManager::Get().currentSettings;
-        settings["window"]["sizeX"] = event.GetSize().x;
-        settings["window"]["sizeY"] = event.GetSize().y;
-        settings["window"]["maximized"] = false;
-    }
-
-    event.Skip();
-}
-
-void MainFrame::OnFrameMaximized(wxMaximizeEvent &(event))
-{
-    UserSettingsManager::Get().SetSetting<bool>("window/maximized", true);
-    event.Skip();
 }
 
 void MainFrame::OnNewWindow(wxCommandEvent &WXUNUSED(event))
@@ -689,8 +702,6 @@ void MainFrame::OnClose(wxCloseEvent &event)
         Unbind(wxEVT_FSWATCHER, &MainFrame::OnFileSystemEvent, this);
         wxDELETE(m_watcher);
     }
-
-    UserSettingsManager::Get().Update(UserSettingsManager::Get().currentSettings);
 
     Destroy();
     event.Skip(false);
