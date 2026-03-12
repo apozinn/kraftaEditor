@@ -10,6 +10,7 @@
 
 #include "ui/ids.hpp"
 #include "userSettings/userSettings.hpp"
+#include "shortcutsSettings/shortcutsSettings.hpp"
 #include "appPaths/appPaths.hpp"
 #include "projectSettings/projectSettings.hpp"
 

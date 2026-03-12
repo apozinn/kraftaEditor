@@ -109,6 +109,16 @@ bool CodeContainer::Save(wxString path)
             if (currentMinimap)
                 currentMinimap->ExtractStyledText();
 
+            if (path == UserSettingsManager::Get().SettingsPath)
+            {
+                UserSettingsManager::Get().LoadSettingsFromFile();
+            }
+
+            if(path == ShortCutSettingsManager::Get().ShortcutsPath)
+            {
+                ShortCutSettingsManager::Get().LoadSettingsFromFile();
+            }
+
             return true;
         }
         else

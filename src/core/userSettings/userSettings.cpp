@@ -16,7 +16,7 @@
 #include <wx/msgdlg.h>
 
 #ifndef _
-    #define _(s) wxGetTranslation(s)
+#define _(s) wxGetTranslation(s)
 #endif
 
 using json = nlohmann::json;
@@ -44,6 +44,7 @@ UserSettingsManager::UserSettingsManager()
             wxMessageBox(_("Failed to create settings directory: %s"), fn.GetPath());
         }
     }
+
     wxString defaultUserSettingsPath = ApplicationPaths::GetConfigPath("userSettings") + "defaultUserSettings.json";
 
     if (wxFileExists(defaultUserSettingsPath))
@@ -94,10 +95,10 @@ bool UserSettingsManager::SetSetting(const std::string &token, const T &value)
     }
 }
 
-template bool UserSettingsManager::SetSetting<bool>(const std::string&, const bool&);
-template bool UserSettingsManager::SetSetting<int>(const std::string&, const int&);
-template bool UserSettingsManager::SetSetting<std::string>(const std::string&, const std::string&);
-template bool UserSettingsManager::SetSetting<double>(const std::string&, const double&);
+template bool UserSettingsManager::SetSetting<bool>(const std::string &, const bool &);
+template bool UserSettingsManager::SetSetting<int>(const std::string &, const int &);
+template bool UserSettingsManager::SetSetting<std::string>(const std::string &, const std::string &);
+template bool UserSettingsManager::SetSetting<double>(const std::string &, const double &);
 
 bool UserSettingsManager::SaveInternal(const nlohmann::json &data)
 {
@@ -178,7 +179,9 @@ json UserSettingsManager::LoadSettingsFromFile()
         }
 
         json data = json::parse(config_file);
-        return MergeWithDefaults(data);
+        auto mergedSettings = MergeWithDefaults(data);
+        currentSettings = mergedSettings;
+        return mergedSettings;
     }
     catch (const json::exception &e)
     {
@@ -271,7 +274,7 @@ RequestedSetting<T> UserSettingsManager::GetSetting(const std::string &path)
     return result;
 }
 
-template RequestedSetting<bool> UserSettingsManager::GetSetting<bool>(const std::string&);
-template RequestedSetting<int> UserSettingsManager::GetSetting<int>(const std::string&);
-template RequestedSetting<std::string> UserSettingsManager::GetSetting<std::string>(const std::string&);
-template RequestedSetting<double> UserSettingsManager::GetSetting<double>(const std::string&);
+template RequestedSetting<bool> UserSettingsManager::GetSetting<bool>(const std::string &);
+template RequestedSetting<int> UserSettingsManager::GetSetting<int>(const std::string &);
+template RequestedSetting<std::string> UserSettingsManager::GetSetting<std::string>(const std::string &);
+template RequestedSetting<double> UserSettingsManager::GetSetting<double>(const std::string &);

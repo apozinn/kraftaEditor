@@ -728,22 +728,22 @@ void FilesTree::OnDeleteDirRequested(wxCommandEvent &)
             AdjustContainerSize(parent, true);
         };
 
-            auto dontAsk = UserSettingsManager::Get().GetSetting<bool>("prompt/confirmDirDelete");
-            if (dontAsk.found && !dontAsk.value)
+        auto dontAsk = UserSettingsManager::Get().GetSetting<bool>("prompt/confirmDirDelete");
+        if (dontAsk.found && !dontAsk.value)
+        {
+            ConfirmDialog dlg(NULL, "Are you sure you want to delete this dir?", "Delete Dir");
+            int result = dlg.ShowModal();
+            if (result == wxID_OK)
             {
-                ConfirmDialog dlg(NULL, "Are you sure you want to delete this dir?", "Delete Dir");
-                int result = dlg.ShowModal();
-                if (result == wxID_OK)
+                if (dlg.DontAskAgain())
                 {
-                    if (dlg.DontAskAgain())
-                    {
-                        UserSettingsManager::Get().currentSettings["dontAskMeAgainDirDelete"] = true;
-                        UserSettingsManager::Get().Update(UserSettingsManager::Get().currentSettings);
-                    }
-                    deleteDir();
-                    return;
+                    UserSettingsManager::Get().currentSettings["dontAskMeAgainDirDelete"] = true;
+                    UserSettingsManager::Get().Update(UserSettingsManager::Get().currentSettings);
                 }
+                deleteDir();
+                return;
             }
+        }
         deleteDir();
     }
     catch (const std::exception &err)

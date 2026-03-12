@@ -149,7 +149,9 @@ json ShortCutSettingsManager::LoadSettingsFromFile()
         }
 
         json data = json::parse(config_file);
-        return MergeWithDefaults(data);
+        auto mergedSettings = MergeWithDefaults(data);
+        currentSettings = mergedSettings;
+        return mergedSettings;
     }
     catch (const json::exception &e)
     {

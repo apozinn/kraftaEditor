@@ -48,6 +48,13 @@ public:
     bool Update(const json &data);
 
     /**
+     * @brief Loads shortcut settings from file or creates defaults if file doesn't exist
+     * @return json Loaded shortcut settings data
+     * @throws std::runtime_error if settings cannot be loaded or parsed
+     */
+    json LoadSettingsFromFile();
+
+    /**
      * @brief Gets a typed shortcut setting by name
      *
      * Checks if the shortcut setting exists and is of the correct type.
@@ -72,13 +79,6 @@ private:
      * creating defaults if no settings file exists
      */
     ShortCutSettingsManager();
-
-    /**
-     * @brief Loads shortcut settings from file or creates defaults if file doesn't exist
-     * @return json Loaded shortcut settings data
-     * @throws std::runtime_error if settings cannot be loaded or parsed
-     */
-    json LoadSettingsFromFile();
 
     /**
      * @brief Creates a new shortcut settings file with default key bindings

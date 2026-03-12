@@ -655,6 +655,7 @@ void MainFrame::OnEditSettings(wxCommandEvent &WXUNUSED(event))
         wxMessageBox(_("Settings file not found"));
     }
 }
+
 void MainFrame::OnEditShortcuts(wxCommandEvent &WXUNUSED(event))
 {
     if (!m_filesTree)

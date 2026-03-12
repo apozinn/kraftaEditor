@@ -60,15 +60,29 @@ public:
     template <typename T>
     RequestedSetting<T> GetSetting(const std::string &token);
 
+    /**
+     * @brief Sets a typed setting in user settings
+     *
+     * @tparam T Type of the setting (int, bool, std::string)
+     * @param settingName Name of the setting
+     * @param value Value to set
+     * @return True if setting was successfully set, false otherwise
+     */
     template <typename T>
     bool SetSetting(const std::string &token, const T &value);
 
+    /**
+     * @brief Loads settings from file or creates default settings if file doesn't exist
+     * @return json Loaded settings data
+     * @throws std::runtime_error if settings cannot be loaded
+     */
+    json LoadSettingsFromFile();
+
     wxString SettingsPath; ///< Path to settings JSON file
 private:
-    json DefaultSettings;
+    json DefaultSettings;    ///< Default settings
     std::mutex settingsMutex; ///< Mutex for thread safety
-
-    json EmergencyDefaultSettings = {"window", {"maximized", true, "sizeX", 1000, "sizeY", 700}};
+    json EmergencyDefaultSettings = {"window", {"maximized", true, "sizeX", 1000, "sizeY", 700}}; ///< Emergency default settings
 
     /**
      * @brief Private constructor for singleton pattern
@@ -77,13 +91,12 @@ private:
      */
     UserSettingsManager();
 
-    bool SaveInternal(const nlohmann::json &data);
     /**
-     * @brief Loads settings from file or creates default settings if file doesn't exist
-     * @return json Loaded settings data
-     * @throws std::runtime_error if settings cannot be loaded
+     * @brief Saves settings to file
+     * @param data Settings JSON to save
+     * @return True if settings were successfully saved, false otherwise
      */
-    json LoadSettingsFromFile();
+    bool SaveInternal(const nlohmann::json &data);
 
     /**
      * @brief Creates a new settings file with default values
