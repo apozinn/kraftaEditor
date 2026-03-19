@@ -16,6 +16,15 @@
 #define _(s) wxGetTranslation(s)
 #endif
 
+// KRAFTA_ASSET_RELATIVE_PATH is injected by CMake via target_compile_definitions.
+// Values per platform:
+//   macOS   → "../Resources"          (inside .app bundle)
+//   Windows → "assets"                (next to the .exe)
+//   Linux   → "/usr/share/kraftaEditor" (absolute, honours CMAKE_INSTALL_PREFIX)
+#ifndef KRAFTA_ASSET_RELATIVE_PATH
+    #error "KRAFTA_ASSET_RELATIVE_PATH is not defined. Make sure CMake is configured correctly."
+#endif
+
 namespace ApplicationPaths
 {
     const wxString &ApplicationPath()
@@ -47,7 +56,8 @@ namespace ApplicationPaths
 #ifdef __WXMSW__
             return !(path.Contains("program files") || path.Contains("program files (x86)"));
 #elif defined(__WXGTK__)
-            return !(path.StartsWith("/usr/") || path.StartsWith("/opt/") || path.Contains("/snap/") || path.Contains("/local/"));
+            return !(path.StartsWith("/usr/") || path.StartsWith("/opt/") ||
+                     path.Contains("/snap/")  || path.Contains("/local/"));
 #elif defined(__WXOSX__)
             return !path.Contains(".app/contents/macos");
 #else
@@ -87,34 +97,47 @@ namespace ApplicationPaths
                 return ApplicationPath();
             wxString devRoot = FindDevelopmentRoot(ApplicationPath(), DEV_MARKER_FILES, 6);
             if (devRoot.IsEmpty())
-                wxMessageBox(wxString::Format(_("DevelopmentEnvironmentPath: no marker files (%s) found."), wxJoin(DEV_MARKER_FILES, ',')), _("Warning"), wxICON_WARNING);
+                wxMessageBox(
+                    wxString::Format(_("DevelopmentEnvironmentPath: no marker files (%s) found."),
+                                     wxJoin(DEV_MARKER_FILES, ',')),
+                    _("Warning"), wxICON_WARNING);
             return devRoot.IsEmpty() ? ApplicationPath() : devRoot;
         }();
         return path;
     }
 
+    // Returns the installed base path for a given subdirectory.
+    // Uses KRAFTA_ASSET_RELATIVE_PATH (set by CMake) so the binary always
+    // respects the actual install prefix — no hardcoded paths.
     wxString InstalledBasePath(const wxString &subdir)
     {
-#ifdef __WXGTK__
-        return "/usr/share/kraftaEditor/" + subdir + "/";
+        const wxString assetRoot = wxString::FromUTF8(KRAFTA_ASSET_RELATIVE_PATH);
+
+#ifdef __WXOSX__
+        // macOS: path is relative to the binary inside the .app bundle
+        wxFileName base(ApplicationPath() + assetRoot);
+        base.Normalize();
+        return base.GetPathWithSep() + subdir + "/";
 #elif defined(__WXMSW__)
-        wxString progFiles = wxGetenv("PROGRAMFILES");
-        if (progFiles.IsEmpty())
-            progFiles = "C:\\Program Files";
-        return progFiles + "\\Krafta Editor\\" + subdir + "\\";
-#elif defined(__WXOSX__)
-        return "/Applications/Krafta Editor.app/Contents/Resources/" + subdir + "/";
+        // Windows: path is relative to the directory containing the .exe
+        return ApplicationPath() + assetRoot + wxFileName::GetPathSeparator()
+               + subdir + wxFileName::GetPathSeparator();
 #else
-        return ApplicationPath();
+        // Linux/BSD: CMake provides an absolute path (e.g. /usr/share/kraftaEditor)
+        return assetRoot + "/" + subdir + "/";
 #endif
     }
 
     wxString AssetsPath(const wxString &target)
     {
         static bool warned = false;
-        wxString base = (IsRunningInDevelopmentEnvironment() ? DevelopmentEnvironmentPath() + "assets" + PlatformInfos::OsPathSeparator() : InstalledBasePath("assets"));
+        wxString base = IsRunningInDevelopmentEnvironment()
+            ? DevelopmentEnvironmentPath() + "assets" + PlatformInfos::OsPathSeparator()
+            : InstalledBasePath("assets");
+
         if (!target.IsEmpty())
             base += target + wxFileName::GetPathSeparator();
+
         if (!wxDirExists(base) && !warned)
         {
             wxMessageBox(wxString::Format(_("AssetsPath: directory not found: %s"), base), _("Warning"), wxICON_WARNING);
@@ -147,7 +170,10 @@ namespace ApplicationPaths
 
     wxString GetLanguagePreferencesPath(const wxString &lang)
     {
-        wxString base = (IsRunningInDevelopmentEnvironment() ? DevelopmentEnvironmentPath() + "languages" + PlatformInfos::OsPathSeparator() : InstalledBasePath("languages"));
+        wxString base = IsRunningInDevelopmentEnvironment()
+            ? DevelopmentEnvironmentPath() + "languages" + PlatformInfos::OsPathSeparator()
+            : InstalledBasePath("languages");
+
         if (lang.IsEmpty())
             return base;
 
@@ -161,18 +187,26 @@ namespace ApplicationPaths
 
     wxString GetConfigPath(const wxString &name)
     {
-        wxString base = (IsRunningInDevelopmentEnvironment() ? DevelopmentEnvironmentPath() + "config" + PlatformInfos::OsPathSeparator() : InstalledBasePath("config"));
+        wxString base = IsRunningInDevelopmentEnvironment()
+            ? DevelopmentEnvironmentPath() + "config" + PlatformInfos::OsPathSeparator()
+            : InstalledBasePath("config");
+
         if (name.IsEmpty())
             return base;
+
         wxString path = base + name + PlatformInfos::OsPathSeparator();
         return wxDirExists(path) ? path : "";
     }
 
     wxString GetI18nLanguagePath()
     {
-        wxString base = (IsRunningInDevelopmentEnvironment() ? DevelopmentEnvironmentPath() + "i18n" + PlatformInfos::OsPathSeparator() : InstalledBasePath("i18n"));
+        wxString base = IsRunningInDevelopmentEnvironment()
+            ? DevelopmentEnvironmentPath() + "i18n" + PlatformInfos::OsPathSeparator()
+            : InstalledBasePath("i18n");
+
         if (wxDirExists(base))
             return base;
+
         wxMessageBox(wxString::Format(_("GetI18nLanguagePath: directory not found: %s"), base), _("Error"), wxICON_ERROR);
         return wxEmptyString;
     }

@@ -1,6 +1,3 @@
-
----
-
 # ⚡ **Krafta Editor**
 
 
@@ -82,34 +79,70 @@
 | Platform    | Requirements                 |
 | ----------- | ---------------------------- |
 | **All**     | CMake ≥ 3.27, C++20 compiler |
-| **Linux**   | GTK3, wxWidgets 3.3+         |
+| **Linux**   | GTK3                         |
 | **macOS**   | Xcode Command Line Tools     |
 | **Windows** | Visual Studio 2022+          |
 
-> 💡 *Tip:* You can use CMake’s `FetchContent` to automatically download wxWidgets.
-> This simplifies setup but increases build time and directory size.
+---
+
+## 🧩 **wxWidgets — Recommended Setup**
+
+Krafta Editor depends on **wxWidgets 3.3+**. There are two ways to provide it:
+
+### ✅ Option 1 — FetchContent (Recommended)
+
+By default, CMake automatically downloads and compiles wxWidgets 3.3 during the build.
+**No manual installation is needed.** This is the recommended approach because it guarantees
+the correct version on every platform and requires zero extra setup.
+
+> ⚠️ The first build will take longer since wxWidgets is compiled from source.
+> Subsequent builds are fast due to CMake's FetchContent cache.
+
+```bash
+# Nothing to do — just build normally:
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release
+```
 
 ---
 
-## 🧩 **Dependencies Installation**
+### Option 2 — System-installed wxWidgets
 
-### Linux (Debian / Ubuntu)
+If you prefer to use a version already installed on your system, pass `-DUSE_SYSTEM_WXWIDGETS=ON`.
+
+> ⚠️ **Version requirement: wxWidgets 3.3 or newer.**
+> If version 3.2 or older is detected, the build will automatically fall back to
+> FetchContent and download 3.3 — no error, no manual intervention needed.
+
+#### Linux (Debian / Ubuntu)
 
 ```bash
+# wxWidgets 3.2 is available in most distro repos — the build will still work,
+# but it will fall back to FetchContent to fetch 3.3 automatically.
 sudo apt install build-essential cmake libgtk-3-dev libwxgtk3.2-dev
+
+# To use it:
+cmake -S . -B build -DUSE_SYSTEM_WXWIDGETS=ON -DCMAKE_BUILD_TYPE=Release
 ```
 
-### macOS (Homebrew)
+#### macOS (Homebrew)
 
 ```bash
-brew install cmake wxwidgets
+brew install cmake wxwidgets   # Homebrew ships wxWidgets 3.3+
+
+cmake -S . -B build -DUSE_SYSTEM_WXWIDGETS=ON -DCMAKE_BUILD_TYPE=Release
 ```
 
-### Windows
+#### Windows
 
-1. Install [CMake](https://cmake.org/download/)
-2. Install [wxWidgets](https://www.wxwidgets.org/downloads/)
-3. Install **Visual Studio 2022+** with C++ workload enabled
+1. Download wxWidgets 3.3+ from [wxwidgets.org/downloads](https://www.wxwidgets.org/downloads/)
+2. Build and install it following the official guide
+3. Set the `wxWidgets_ROOT_DIR` environment variable to your install path
+4. Configure with:
+
+```bat
+cmake -S . -B build -DUSE_SYSTEM_WXWIDGETS=ON -DCMAKE_BUILD_TYPE=Release
+```
 
 ---
 
@@ -120,10 +153,10 @@ brew install cmake wxwidgets
 git clone https://github.com/apozinn/kraftaEditor.git
 cd kraftaEditor
 
-# Configure
-cmake -S . -B build
+# Configure (wxWidgets downloaded automatically)
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 
-# Build (Release)
+# Build
 cmake --build build --config Release
 
 # Run
@@ -138,18 +171,20 @@ cmake --build build --target run --config Release
 > * The executable will be generated at:
 >
 >   ```
->   build/bin/RELEASE/kraftaEditor
+>   build/bin/Release/kraftaEditor
 >   ```
 
 ---
 
-### Optional CMake Flags
+### All CMake Options
 
-```bash
--DUSE_SYSTEM_WXWIDGETS=ON    # Use system-installed wxWidgets
--DENABLE_TESTS=ON           # Build test suite
--DENABLE_CLANG_TIDY=ON      # Enable clang-tidy static analysis
-```
+| Flag | Default | Description |
+| ---- | ------- | ----------- |
+| `-DUSE_SYSTEM_WXWIDGETS=ON` | OFF | Use system wxWidgets instead of FetchContent |
+| `-DENABLE_TESTS=ON` | OFF | Build the test suite |
+| `-DENABLE_CLANG_TIDY=ON` | OFF | Enable clang-tidy static analysis |
+| `-DENABLE_WERROR=ON` | OFF | Treat warnings as errors |
+| `-DENABLE_UNITY_BUILD=OFF` | ON | Disable unity build (faster incremental builds) |
 
 > ℹ️ `-DCMAKE_BUILD_TYPE=Release` is only required when using **single-config generators**
 > (Linux/macOS with Make or Ninja).
@@ -158,65 +193,72 @@ cmake --build build --target run --config Release
 
 ## 🐧 **Linux Installation & Uninstallation**
 
-Krafta Editor provides helper scripts for **system-wide installation** on Linux.
+There are two ways to install Krafta Editor system-wide on Linux:
 
-These scripts handle:
+| Method | Best for |
+| ------ | -------- |
+| **Helper scripts** (`scripts/install.sh`) | Quick local install from a source build |
+| **CMake install** (`cmake --target install`) | CI, packaging, custom install prefixes |
 
-* Binary installation
-* Assets, languages, config, and i18n files
-* Desktop entry creation/removal
+Both methods install the binary, assets, desktop entry, and icon, and refresh the system caches automatically so the app appears in your applications menu.
 
-> ⚠️ **Root permissions are required**
-> Files are installed under `/usr/local` and `/usr/share`.
+> ⚠️ **Root permissions are required.**
+> Files are written to `/usr/local/bin` and `/usr/share`.
 
 ---
 
-### 📦 Install
+### 📦 Method 1 — Helper script
 
-Before installing, make sure the project is built and the executable exists at:
+Make sure the project is built before running the script:
 
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release
 ```
-build/bin/RELEASE/kraftaEditor
-```
 
-#### Steps
+Then install:
 
 ```bash
 chmod +x scripts/install.sh
 sudo ./scripts/install.sh
 ```
 
-#### What the install script does
+**What it installs:**
 
-* Installs the executable to:
+```
+/usr/local/bin/kraftaEditor                          ← executable
+/usr/share/kraftaEditor/
+├── assets/
+├── languages/
+├── config/
+└── i18n/
+/usr/share/icons/hicolor/256x256/apps/kraftaEditor.png
+/usr/share/applications/krafta-editor.desktop
+```
 
-  ```
-  /usr/local/bin/kraftaEditor
-  ```
-* Installs shared resources to:
+After installation you can launch Krafta Editor from the applications menu or run it directly:
 
-  ```
-  /usr/share/kraftaEditor/
-  ├── assets/
-  ├── languages/
-  ├── config/
-  └── i18n/
-  ```
-* Creates a desktop entry:
+```bash
+kraftaEditor
+```
 
-  ```
-  /usr/share/applications/kraftaEditor.desktop
-  ```
-* Updates the desktop database
+---
 
-After installation, you can:
+### 📦 Method 2 — CMake install
 
-* Launch **Krafta Editor** from your applications menu
-* Or run from the terminal:
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release
+sudo cmake --install build
+```
 
-  ```bash
-  kraftaEditor
-  ```
+To install to a custom prefix (no `sudo` needed):
+
+```bash
+cmake --install build --prefix ~/.local
+```
+
+CMake handles everything the script does, including updating the desktop database and icon cache.
 
 ---
 
@@ -227,33 +269,24 @@ chmod +x scripts/uninstall.sh
 sudo ./scripts/uninstall.sh
 ```
 
-#### What the uninstall script does
+**What it removes:**
 
-* Removes the executable from:
+```
+/usr/local/bin/kraftaEditor
+/usr/share/kraftaEditor/
+/usr/share/icons/hicolor/256x256/apps/kraftaEditor.png
+/usr/share/applications/krafta-editor.desktop
+```
 
-  ```
-  /usr/local/bin/kraftaEditor
-  ```
-* Deletes all shared application data:
-
-  ```
-  /usr/share/kraftaEditor
-  ```
-* Removes the desktop entry:
-
-  ```
-  /usr/share/applications/kraftaEditor.desktop
-  ```
-
-After uninstalling, no system files related to Krafta Editor remain.
+The desktop database and icon cache are refreshed automatically. After uninstalling, no system files related to Krafta Editor remain.
 
 ---
 
 ### ℹ️ Notes
 
-* These scripts are intended for **local/system-wide installs**
+* The helper scripts are intended for **local/system-wide installs from source**
 * They are **not a replacement for package managers**
-* For distribution packaging (`.deb`, `.rpm`, Arch PKGBUILD), these scripts can be used as a reference
+* For distribution packaging (`.deb`, `.rpm`, Arch PKGBUILD), use `cmake --install` with the appropriate prefix and reference the scripts as a guide
 
 ---
 
@@ -291,7 +324,7 @@ Contributions are welcome!
 
 Krafta Editor is licensed under the **GNU LGPLv3**.
 
-© 2023–2025 **Okarin Softwares**
+© 2023–2026 **Okarin Softwares**
 
 ---
 

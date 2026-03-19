@@ -1,9 +1,11 @@
 [Desktop Entry]
+Version=1.0
+Type=Application
 Name=Krafta Editor
 Comment=A fast, lightweight, and cross-platform code editor built with C++ and wxWidgets.
-Exec=krafta-editor
-Icon=krafta-editor
+Exec=kraftaEditor %F
+Icon=kraftaEditor
+Categories=Development;TextEditor;IDE;
 Terminal=false
-Type=Application
-Categories=Development;IDE;
 StartupNotify=true
+MimeType=text/plain;text/x-c++;text/x-chdr;text/x-csrc;
