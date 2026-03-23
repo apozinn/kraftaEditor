@@ -568,12 +568,12 @@ void MainFrame::OnToggleMenuBarView(wxCommandEvent &WXUNUSED(event))
     if (GetMenuBar())
     {
         SetMenuBar(nullptr);
-        UserSettingsManager::Get().SetSetting<bool>("showMenuBar", false);
+        UserSettingsManager::Get().SetSetting<bool>("view/showMenuBar", false);
     }
     else
     {
         SetMenuBar(m_menuBar);
-        UserSettingsManager::Get().SetSetting<bool>("showMenuBar", true);
+        UserSettingsManager::Get().SetSetting<bool>("view/showMenuBar", true);
     }
 }
 
@@ -588,12 +588,12 @@ void MainFrame::OnToggleStatusBarView(wxCommandEvent &WXUNUSED(event))
     if (m_statusBar->IsShown())
     {
         m_statusBar->Hide();
-        UserSettingsManager::Get().SetSetting<bool>("showStatusBar", false);
+        UserSettingsManager::Get().SetSetting<bool>("view/showStatusBar", false);
     }
     else
     {
         m_statusBar->Show();
-        UserSettingsManager::Get().SetSetting<bool>("showStatusBar", true);
+        UserSettingsManager::Get().SetSetting<bool>("view/showStatusBar", true);
     }
     m_applicationRightMainContainer->GetSizer()->Layout();
 }

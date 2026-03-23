@@ -68,7 +68,7 @@ void StatusBar::UpdateComponents(const wxString &path)
 		fileExt->SetLabel(languageName);
 	}
 
-	if (!IsShown() && UserSettingsManager::Get().GetSetting<bool>("showStatusBar").value)
+	if (!IsShown() && UserSettingsManager::Get().GetSetting<bool>("view/showStatusBar").value)
 	{
 		Show();
 		GetParent()->GetSizer()->Layout();
@@ -80,7 +80,7 @@ void StatusBar::UpdateComponents(const wxString &path)
 
 void StatusBar::UpdateCodeLocale(wxStyledTextCtrl *codeEditor)
 {
-	if (!IsShown() && UserSettingsManager::Get().GetSetting<bool>("showStatusBar").value)
+	if (!IsShown() && UserSettingsManager::Get().GetSetting<bool>("view/showStatusBar").value)
 	{
 		Show();
 		GetParent()->GetSizer()->Layout();
