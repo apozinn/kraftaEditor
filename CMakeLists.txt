@@ -205,10 +205,8 @@ elseif(WIN32)
     target_compile_definitions(kraftaEditor PRIVATE wxUSE_NO_MANIFEST=0)
     set_target_properties(kraftaEditor PROPERTIES WIN32_EXECUTABLE TRUE)
     set(KRAFTA_ASSET_PATH "assets")
-
 else() # Linux / BSD
-    # Absolute path resolved at startup via the installed data directory
-    set(KRAFTA_ASSET_PATH "${CMAKE_INSTALL_FULL_DATADIR}/kraftaEditor")
+    set(KRAFTA_ASSET_PATH "/usr/share/kraftaEditor")
 endif()
 
 target_compile_definitions(kraftaEditor PRIVATE
