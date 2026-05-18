@@ -27,6 +27,7 @@ void Editor::InitializePreferences()
     SetIndentationGuides(true);
     SetScrollWidth(1);
     SetEndAtLastLine(true);
+    SetFocus();
 
     StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(backgroundColor));
     StyleSetForeground(wxSTC_STYLE_DEFAULT, wxColor(textColor));
