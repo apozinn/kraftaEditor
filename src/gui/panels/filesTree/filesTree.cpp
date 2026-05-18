@@ -442,7 +442,7 @@ bool FilesTree::OpenFile(const wxString &componentIdentifier, int line)
         {
             ((wxStyledTextCtrl *)codeEditor->GetChildren()[0])->GotoLine(line);
         }
-
+        
         hideOtherPanelsOfMainCode(codeEditor);
     };
 
@@ -477,7 +477,7 @@ bool FilesTree::OpenFile(const wxString &componentIdentifier, int line)
     ProjectSettings::Get().SetCurrentlyFileOpen(componentIdentifier);
     ProjectSettings::Get().SetCurrentlyMenuDir(parentPath);
     ProjectSettings::Get().SetCurrentlyMenuFile(componentIdentifier);
-
+    
     return true;
 }
 
@@ -943,6 +943,10 @@ void FilesTree::OnFileSystemEvent(int type, const wxString &oldPath, wxString ne
             }
             position++;
         }
+        
+        if(newPath == m_currentSelectedFile || newPath == ProjectSettings::Get().GetCurrentlyMenuFile()) {
+            SetFileHighlight(newPath);
+        }
     };
 
     if (type == wxFSW_EVENT_CREATE)
@@ -1078,7 +1082,7 @@ void FilesTree::OnComponentMouseExit(wxMouseEvent &event)
 }
 
 void FilesTree::SetFileHighlight(const wxString &componentIdentifier)
-{
+{    
     auto target = wxFindWindowByLabel(componentIdentifier + "_file_container");
     auto defaultColor = ThemesManager::Get().GetColor("main");
     auto selectedColor = ThemesManager::Get().GetColor("selectedFile");
