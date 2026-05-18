@@ -17,6 +17,7 @@
 #include "gui/panels/tabs/tabs.hpp"
 #include "gui/codeContainer/code.hpp"
 #include "gui/widgets/confirmDialog/confirmDialog.hpp"
+#include "gui/widgets/openFolderButton/openFolderButton.hpp"
 
 #include <vector>
 #include <wx/fswatcher.h>
@@ -79,18 +80,21 @@ FilesTree::FilesTree(wxWindow *parent, wxWindowID ID)
 
     mainSizer->Add(m_projectInformations, 0, wxEXPAND | wxTOP | wxBOTTOM, 5);
 
-    if (!ProjectSettings::Get().IsProjectSet())
-        m_projectInformations->Hide();
-
     m_projectFilesContainer = new wxScrolled<wxPanel>(this, +GUI::ControlID::ProjectFilesContainer);
     m_projectFilesContainer->SetScrollbars(20, 20, 50, 50);
-
+        
     auto *filesContainerSizer = new wxBoxSizer(wxVERTICAL);
     m_projectFilesContainer->SetSizerAndFit(filesContainerSizer);
     mainSizer->Add(m_projectFilesContainer, 1, wxEXPAND);
 
     LinkClickEventToProjectInformationsComponents();
     SetSizerAndFit(mainSizer);
+    
+    if (!ProjectSettings::Get().IsProjectSet())
+    {
+        new OpenFolderButton();
+        m_projectInformations->Hide();
+    }
 }
 
 void FilesTree::LinkClickEventToProjectInformationsComponents()
