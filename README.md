@@ -46,6 +46,17 @@
 
 ---
 
+### 📦 Executable Size (On Disk)
+
+| Editor             | Storage Size |
+| ------------------ | ------------ |
+| **Krafta Editor**  | **~11 MB**   |
+| Sublime Text 4     | ~40 MB       |
+| Zed Editor         | ~100–150 MB  |
+| Visual Studio Code | ~350–400 MB  |
+
+---
+
 ### 🧠 Memory Usage (Idle)
 
 | Editor             | RAM usage     |
