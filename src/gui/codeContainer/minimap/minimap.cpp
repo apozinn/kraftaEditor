@@ -104,6 +104,9 @@ MiniMap::MiniMap(wxWindow *parent, wxStyledTextCtrl *editor)
     SetSize(wxSize(100, ph));
     
     SetBackgroundStyle(wxBG_STYLE_PAINT);
+    
+    auto backgroundColor = m_themesManager.GetColor("secondary");
+    SetBackgroundColour(backgroundColor);
 
     Bind(wxEVT_PAINT, &MiniMap::OnPaint, this);
     Bind(wxEVT_LEFT_DOWN, &MiniMap::OnMouseDown, this);

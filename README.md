@@ -28,7 +28,7 @@
 * 🪶 **Lightweight** — no Electron or heavy dependencies
 * 🧰 **Productivity-first design** with intuitive workflows
 
-![Krafta Editor Dark theme Screenshot](https://i.imgur.com/M0sKSg9.png)
+![Krafta Editor Dark theme Screenshot](https://i.imgur.com/GM7mMJ6.png)
 ![Krafta Editor Light theme Screenshot](https://i.imgur.com/mtKpEO3.png)
 
 <p align="center"><em>Clean and fast interface designed for developers.</em></p>

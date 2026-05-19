@@ -25,7 +25,6 @@ void Editor::InitializePreferences()
     SetTabIndents(true);
     SetBackSpaceUnIndents(true);
     SetIndentationGuides(true);
-    SetScrollWidth(1);
     SetEndAtLastLine(true);
     SetFocus();
 
