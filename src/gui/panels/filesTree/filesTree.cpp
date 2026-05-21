@@ -271,7 +271,7 @@ wxWindow *FilesTree::CreateFileContainer(wxWindow *parent, const wxString &path)
     fileSizer->Add(fileName, 0, wxALIGN_CENTRE_VERTICAL | wxLEFT, 5);
     fileContainer->SetSizerAndFit(fileSizer);
 
-    parentSizer->Add(fileContainer, 0, wxEXPAND | wxLEFT | wxTOP, 2);
+    parentSizer->Add(fileContainer, 0, wxEXPAND);
     parentSizer->Layout();
 
     fileContainer->CallForEachChild([this](wxWindow *win)
@@ -355,9 +355,9 @@ wxWindow *FilesTree::CreateDirContainer(wxWindow *parent, wxString path, bool wi
     childrenPanel->Hide();
 
     if (withPosition)
-        parentSizer->Insert(pos, dirContainer, 0, wxEXPAND | wxLEFT | wxTOP, 2);
+        parentSizer->Insert(pos, dirContainer, 0, wxEXPAND);
     else
-        parentSizer->Add(dirContainer, 0, wxEXPAND | wxLEFT | wxTOP, 2);
+        parentSizer->Add(dirContainer, 0, wxEXPAND);
 
     parent->Layout();
 
