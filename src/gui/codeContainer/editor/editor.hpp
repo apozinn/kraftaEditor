@@ -21,6 +21,7 @@
 #include "gui/widgets/statusBar/statusBar.hpp"
 #include "languagesPreferences/languagesPreferences.hpp"
 #include "gui/codeContainer/minimap/minimap.hpp"
+#include "userSettings/userSettings.hpp"
 
 class CodeContainer;
 
