@@ -743,5 +743,14 @@ void MainFrame::OnRecentWorkspaceClick(wxCommandEvent &event)
         {
             this->LoadPath(path);
         }
-    }
-}
+    }     
+ }
+ 
+  void MainFrame::ToggleAutosave(wxCommandEvent& WXUNUSED(event)) {
+    auto &settingsManager = UserSettingsManager::Get();
+
+    bool currentState = settingsManager.GetSetting<bool>("editor/autoSave").value;
+    bool newState = !currentState;
+
+    settingsManager.SetSetting<bool>("editor/autoSave", newState);
+  }

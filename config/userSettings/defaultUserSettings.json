@@ -7,7 +7,8 @@
         "showFilesTree": true,
         "showMenuBar": true,
         "showStatusBar": true,
-        "showHiddenFiles": false
+        "showHiddenFiles": false,
+        "showTabBar": true
     },
     "window": {
         "maximized": true,

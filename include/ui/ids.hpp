@@ -117,7 +117,8 @@ namespace Event
         CloseAll = ID_BASE_FILE + 10,
         CreateDir = ID_BASE_FILE + 11,
         RenameDir = ID_BASE_FILE + 12,
-        DeleteDir = ID_BASE_FILE + 13
+        DeleteDir = ID_BASE_FILE + 13,
+        ToggleAutosave = ID_BASE_FILE + 14,
     };
 
     /**

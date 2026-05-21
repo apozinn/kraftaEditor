@@ -254,6 +254,16 @@ public:
      * * @param event The menu command event containing the selected item's ID.
      */
     void OnRecentWorkspaceClick(wxCommandEvent &event);
+    
+    /**
+     * @brief Toggles the automatic file saving feature on or off.
+     * 
+     * Switches the current state of the autosave mechanism. This is typically 
+     * triggered by a menu item toggle or keyboard shortcut.
+     * 
+     * @param event The command event that triggered the action (unused).
+     */
+    void ToggleAutosave(wxCommandEvent& WXUNUSED(event));
 
 private:
     // --- UI Component Pointers ---

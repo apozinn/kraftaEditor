@@ -35,6 +35,12 @@ MenuBar::MenuBar()
 				   {
     mainFrame->UpdateRecentWorkspacesMenu(recentsWorkspacesMenu);
     std_event.Skip(); });
+    
+    menuFile->AppendSeparator();
+    
+    wxMenuItem *toggleAutosave = new wxMenuItem(menuFile, +Event::File::ToggleAutosave, "Auto Save", wxEmptyString, wxITEM_CHECK);
+	menuFile->Append(toggleAutosave);
+	toggleAutosave->Check(settings.GetSetting<bool>("editor/autoSave").value);
 
 	menuFile->AppendSeparator();
 	menuFile->Append(+Event::File::Save, _("&Save") + GetSC("shortcut_save_file"));
@@ -66,21 +72,27 @@ MenuBar::MenuBar()
 	menuSelection->Append(+Event::Edit::SelectLine, _("&Select Line") + GetSC("shortcut_select_line"));
 
 	wxMenu *menuView = new wxMenu;
+    
 	wxMenuItem *toggleFileTreeView = new wxMenuItem(menuView, +Event::View::ToggleFileTree, _("File Tree"), wxEmptyString, wxITEM_CHECK);
 	menuView->Append(toggleFileTreeView);
-	toggleFileTreeView->Check(settings.GetSetting<bool>("view/showFileTree").value);
+	toggleFileTreeView->Check(settings.GetSetting<bool>("view/showFilesTree").value);
+    
 	wxMenuItem *toggleMenuBarView = new wxMenuItem(menuView, +Event::View::ToggleMenuBar, _("Menu Bar"), wxEmptyString, wxITEM_CHECK);
 	menuView->Append(toggleMenuBarView);
 	toggleMenuBarView->Check(settings.GetSetting<bool>("view/showMenuBar").value);
+    
 	wxMenuItem *toggleStatusBarView = new wxMenuItem(menuView, +Event::View::ToggleStatusBar, _("Status Bar"), wxEmptyString, wxITEM_CHECK);
 	menuView->Append(toggleStatusBarView);
 	toggleStatusBarView->Check(settings.GetSetting<bool>("view/showStatusBar").value);
+    
 	wxMenuItem *toggleTabBarView = new wxMenuItem(menuView, +Event::View::ToggleTabBar, _("Tab bar"), wxEmptyString, wxITEM_CHECK);
 	menuView->Append(toggleTabBarView);
 	toggleTabBarView->Check(settings.GetSetting<bool>("view/showTabBar").value);
+    
 	wxMenuItem *toggleMinimapView = new wxMenuItem(menuView, +Event::View::ToggleMiniMap, _("Minimap"), wxEmptyString, wxITEM_CHECK);
 	menuView->Append(toggleMinimapView);
-	toggleMinimapView->Check(settings.GetSetting<bool>("view/showMinimap").value);
+	toggleMinimapView->Check(settings.GetSetting<bool>("editor/showMinimap").value);
+    
 	menuView->AppendSeparator();
 	menuView->Append(+Event::View::ToggleFullScreen, _("&Full Screen") + GetSC("shortcut_toggle_full_screen"));
 	menuView->Append(+Event::View::SplitEditor, _("&Split Editor") + GetSC("shortcut_split_editor"));

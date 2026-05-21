@@ -10,7 +10,9 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(+Event::File::CloseFile,       CodeContainer::OnCloseFile)
     EVT_MENU(+Event::File::CloseAll,        MainFrame::CloseAllFiles)
     EVT_MENU(+Event::File::OpenFile,        MainFrame::OnOpenFile)
-
+    
+    EVT_MENU(+Event::File::ToggleAutosave,        MainFrame::ToggleAutosave)
+    
     // Edit Operations
     EVT_MENU(+Event::Edit::Cut,                CodeContainer::OnCut)
     EVT_MENU(+Event::Edit::Copy,               CodeContainer::OnCopy)

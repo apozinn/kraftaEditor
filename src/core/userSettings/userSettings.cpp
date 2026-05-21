@@ -85,7 +85,8 @@ bool UserSettingsManager::SetSetting(const std::string &token, const T &value)
 
     try
     {
-        currentSettings[token] = value;
+        auto ptr = nlohmann::json::json_pointer(token.front() == '/' ? token : "/" + token);
+        currentSettings[ptr] = value;
         return SaveInternal(currentSettings);
     }
     catch (const std::exception &e)
