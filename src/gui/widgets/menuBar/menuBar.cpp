@@ -38,7 +38,7 @@ MenuBar::MenuBar()
     
     menuFile->AppendSeparator();
     
-    wxMenuItem *toggleAutosave = new wxMenuItem(menuFile, +Event::File::ToggleAutosave, "Auto Save", wxEmptyString, wxITEM_CHECK);
+    wxMenuItem *toggleAutosave = new wxMenuItem(menuFile, +Event::File::ToggleAutosave, _("Auto Save"), wxEmptyString, wxITEM_CHECK);
 	menuFile->Append(toggleAutosave);
 	toggleAutosave->Check(settings.GetSetting<bool>("editor/autoSave").value);
 

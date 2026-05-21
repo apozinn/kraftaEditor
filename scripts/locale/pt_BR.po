@@ -1,0 +1,566 @@
+# Portuguese translations for kraftaeditor package.
+# Copyright (C) 2026 THE kraftaeditor'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the kraftaeditor package.
+# Automatically generated, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: kraftaeditor\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-20 22:10-0300\n"
+"PO-Revision-Date: 2026-05-20 22:01-0300\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ASCII\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:117
+msgid "&About Krafta Editor"
+msgstr ""
+
+#: ../src/gui/menus/tabsContainerMenu.cpp:9
+msgid "&Close All"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:51
+msgid "&Close All Files"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:50
+msgid "&Close File"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:52
+msgid "&Close Folder"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:104
+msgid "&Command Palette"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:60
+msgid "&Copy"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:59
+msgid "&Cut"
+msgstr ""
+
+#: ../src/gui/menus/fileContextMenu.cpp:10
+msgid "&Delete File"
+msgstr ""
+
+#: ../src/gui/menus/dirContextMenu.cpp:14
+msgid "&Delete Folder"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:120
+msgid "&Edit"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:119
+msgid "&File"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:97
+msgid "&Full Screen"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:110
+msgid "&Go to Definition"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:108
+msgid "&Go to Line"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:109
+msgid "&Go to Symbol"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:125
+msgid "&Help"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:67
+msgid "&Move Line Down"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:66
+msgid "&Move Line Up"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:23
+msgid "&New Dir"
+msgstr ""
+
+#: ../src/gui/menus/dirContextMenu.cpp:11
+#: ../src/gui/widgets/menuBar/menuBar.cpp:22
+msgid "&New File"
+msgstr ""
+
+#: ../src/gui/menus/dirContextMenu.cpp:12
+msgid "&New Folder"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:26
+msgid "&Open File..."
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:25
+msgid "&Open Folder..."
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:106
+msgid "&Open Terminal"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:61
+msgid "&Paste"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:124
+msgid "&Preferences"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:105
+msgid "&Quick Open"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:53
+msgid "&Quit"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:57
+msgid "&Redo"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:68
+msgid "&Remove Current Line"
+msgstr ""
+
+#: ../src/gui/menus/dirContextMenu.cpp:10
+#: ../src/gui/menus/fileContextMenu.cpp:9
+msgid "&Rename"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:101
+msgid "&Reset Zoom"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:46
+msgid "&Save"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:48
+msgid "&Save All"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:47
+msgid "&Save As..."
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:71
+msgid "&Select All"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:72
+msgid "&Select Line"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:121
+msgid "&Selection"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:113
+msgid "&Settings"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:114
+msgid "&Shortcuts"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:98
+msgid "&Split Editor"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:64
+msgid "&Toggle Block Comment"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:63
+msgid "&Toggle Comment"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:123
+msgid "&Tools"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:56
+msgid "&Undo"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:122
+msgid "&View"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:99
+msgid "&Zoom In"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:100
+msgid "&Zoom Out"
+msgstr ""
+
+#: ../src/app/frames/mainFrame.cpp:296
+msgid ""
+"A fast, lightweight, and cross-platform code editor built with C++ and "
+"wxWidgets"
+msgstr ""
+
+#: ../src/app/frames/mainFrame.cpp:297
+msgid "About Krafta Editor"
+msgstr ""
+
+#: ../src/utils/appPaths/appPaths.cpp:37
+msgid "ApplicationPath: failed to resolve executable path"
+msgstr ""
+
+#: ../src/utils/appPaths/appPaths.cpp:143
+#, c-format
+msgid "AssetsPath: directory not found: %s"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:41
+msgid "Auto Save"
+msgstr ""
+
+#: ../src/app/frames/mainFrame.cpp:274
+msgid "Cannot create watcher - application not active or being destroyed"
+msgstr ""
+
+#: ../src/gui/codeContainer/code.cpp:170
+msgid "Close"
+msgstr ""
+
+#: ../src/gui/codeContainer/code.cpp:126 ../src/gui/codeContainer/code.cpp:132
+#: ../src/gui/codeContainer/code.cpp:176
+msgid "Close abort"
+msgstr ""
+
+#: ../src/core/themesManager/themesManager.cpp:27
+#, c-format
+msgid "Color '%s' not found - using default"
+msgstr ""
+
+#: ../src/app/application/application.cpp:126
+msgid ""
+"Configuration Error: Failed to determine the application root directory."
+msgstr ""
+
+#: ../src/app/frames/mainFrame.cpp:374
+msgid "Critical UI components (Tabs/FilesTree) not initialized"
+msgstr ""
+
+#: ../src/utils/appPaths/appPaths.cpp:101
+#, c-format
+msgid "DevelopmentEnvironmentPath: no marker files (%s) found."
+msgstr ""
+
+#: ../src/app/frames/mainFrame.cpp:387
+#, c-format
+msgid "Directory '%s' does not exist"
+msgstr ""
+
+#: ../include/errorMessages/errorMessages.hpp:13
+msgid "Directory not found."
+msgstr ""
+
+#: ../src/gui/panels/tabs/tabs.cpp:137
+#, c-format
+msgid "Do you want to save the changes you made to: %s?"
+msgstr ""
+
+#: ../src/core/shortcutsSettings/shortcutsSettings.cpp:36
+#: ../src/core/shortcutsSettings/shortcutsSettings.cpp:98
+#: ../src/core/shortcutsSettings/shortcutsSettings.cpp:130
+#: ../src/core/shortcutsSettings/shortcutsSettings.cpp:158
+#: ../src/core/shortcutsSettings/shortcutsSettings.cpp:186
+#: ../src/core/userSettings/userSettings.cpp:76
+#: ../src/core/userSettings/userSettings.cpp:160
+#: ../src/core/userSettings/userSettings.cpp:189
+#: ../src/core/userSettings/userSettings.cpp:217
+#: ../src/gui/codeContainer/code.cpp:77 ../src/utils/appPaths/appPaths.cpp:37
+#: ../src/utils/appPaths/appPaths.cpp:210
+msgid "Error"
+msgstr ""
+
+#: ../src/app/frames/mainFrame.cpp:242
+msgid "Failed to create a new window"
+msgstr ""
+
+#: ../src/core/userSettings/userSettings.cpp:217
+#, c-format
+msgid "Failed to create default settings: %s"
+msgstr ""
+
+#: ../src/core/shortcutsSettings/shortcutsSettings.cpp:186
+msgid "Failed to create default shortcut settings"
+msgstr ""
+
+#: ../src/app/frames/mainFrame.cpp:287
+msgid "Failed to create file system watcher - memory allocation error"
+msgstr ""
+
+#: ../src/core/userSettings/userSettings.cpp:44
+#, c-format
+msgid "Failed to create settings directory: %s"
+msgstr ""
+
+#: ../src/core/shortcutsSettings/shortcutsSettings.cpp:36
+#, c-format
+msgid "Failed to create shortcut settings directory: %s"
+msgstr ""
+
+#: ../include/errorMessages/errorMessages.hpp:17
+msgid "Failed to create the context menu."
+msgstr ""
+
+#: ../include/errorMessages/errorMessages.hpp:21
+msgid "Failed to create the directory. Error: "
+msgstr ""
+
+#: ../include/errorMessages/errorMessages.hpp:22
+msgid "Failed to create the file. Error: "
+msgstr ""
+
+#: ../include/errorMessages/errorMessages.hpp:23
+msgid "Failed to delete the directory. Error: "
+msgstr ""
+
+#: ../include/errorMessages/errorMessages.hpp:24
+msgid "Failed to delete the file. Error: "
+msgstr ""
+
+#: ../src/core/languagesPreferences/languagesPreferences.cpp:86
+#, c-format
+msgid "Failed to get language preferences: %s"
+msgstr ""
+
+#: ../src/core/themesManager/themesManager.cpp:71
+msgid "Failed to load theme"
+msgstr ""
+
+#: ../src/core/themesManager/themesManager.cpp:86
+#, c-format
+msgid "Failed to load theme: %s"
+msgstr ""
+
+#: ../src/app/application/application.cpp:114
+msgid "Failed to locate the application executable path."
+msgstr ""
+
+#: ../include/errorMessages/errorMessages.hpp:18
+msgid "Failed to rename the directory. Error: "
+msgstr ""
+
+#: ../include/errorMessages/errorMessages.hpp:19
+msgid "Failed to rename the file. Error: "
+msgstr ""
+
+#: ../include/errorMessages/errorMessages.hpp:16
+msgid "Failed to retrieve a GUI component. Please restart the application."
+msgstr ""
+
+#: ../src/app/frames/mainFrame.cpp:55
+msgid "Failed to set application icon"
+msgstr ""
+
+#: ../src/core/userSettings/userSettings.cpp:94
+#, c-format
+msgid "Failed to set setting: %s"
+msgstr ""
+
+#: ../include/errorMessages/errorMessages.hpp:20
+msgid "Failed to toggle directory visibility."
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:76
+msgid "File Tree"
+msgstr ""
+
+#: ../src/gui/codeContainer/code.cpp:126 ../src/gui/codeContainer/code.cpp:132
+msgid "File could not be saved!"
+msgstr ""
+
+#: ../include/errorMessages/errorMessages.hpp:11
+msgid "File not found."
+msgstr ""
+
+#: ../src/app/frames/mainFrame.cpp:280
+msgid "File watcher already initialized"
+msgstr ""
+
+#: ../src/app/frames/mainFrame.cpp:644 ../src/app/frames/mainFrame.cpp:663
+msgid "Files tree not initialized"
+msgstr ""
+
+#: ../src/core/themesManager/themesManager.cpp:47
+#, c-format
+msgid "Font '%s' not found - using default"
+msgstr ""
+
+#: ../src/utils/appPaths/appPaths.cpp:210
+#, c-format
+msgid "GetI18nLanguagePath: directory not found: %s"
+msgstr ""
+
+#: ../src/core/userSettings/userSettings.cpp:76
+msgid "Initial settings load failed"
+msgstr ""
+
+#: ../src/core/shortcutsSettings/shortcutsSettings.cpp:98
+msgid "Initial shortcut settings load failed"
+msgstr ""
+
+#: ../src/core/shortcutsSettings/shortcutsSettings.cpp:158
+#: ../src/core/userSettings/userSettings.cpp:189
+#, c-format
+msgid "JSON parsing error: %s"
+msgstr ""
+
+#: ../src/core/userSettings/userSettings.cpp:61
+#, c-format
+msgid "JSON syntax error in default settings: %s"
+msgstr ""
+
+#: ../src/app/application/application.cpp:124
+msgid "Language Support Error: Missing file extension icons directory."
+msgstr ""
+
+#: ../src/gui/widgets/statusBar/statusBar.cpp:94
+#, c-format
+msgid "Line: %S, Column: %S"
+msgstr ""
+
+#: ../src/app/frames/mainFrame.cpp:556
+msgid "Main splitter or containers not initialized"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:80
+msgid "Menu Bar"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:92
+msgid "Minimap"
+msgstr ""
+
+#: ../src/app/frames/mainFrame.cpp:724
+msgid "No Recent Workspaces"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:32
+msgid "Recent Workspaces"
+msgstr ""
+
+#: ../src/app/frames/mainFrame.cpp:503
+msgid "Required UI components not initialized"
+msgstr ""
+
+#: ../src/app/frames/mainFrame.cpp:655 ../src/app/frames/mainFrame.cpp:675
+msgid "Settings file not found"
+msgstr ""
+
+#: ../src/core/userSettings/userSettings.cpp:160
+#, c-format
+msgid "Settings update failed: %s"
+msgstr ""
+
+#: ../src/core/shortcutsSettings/shortcutsSettings.cpp:130
+msgid "Shortcut settings update failed"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:84
+msgid "Status Bar"
+msgstr ""
+
+#: ../src/app/frames/mainFrame.cpp:584
+msgid "Status bar or right main container not initialized"
+msgstr ""
+
+#: ../src/gui/widgets/statusBar/statusBar.cpp:90
+#, c-format
+msgid "Tab Size: %S"
+msgstr ""
+
+#: ../src/gui/widgets/menuBar/menuBar.cpp:88
+msgid "Tab bar"
+msgstr ""
+
+#: ../src/app/frames/mainFrame.cpp:605
+msgid "Tabs or main container not initialized"
+msgstr ""
+
+#: ../src/gui/codeContainer/code.cpp:176
+msgid "Text could not be saved!"
+msgstr ""
+
+#: ../src/gui/codeContainer/code.cpp:170
+msgid "Text is not saved, save before closing?"
+msgstr ""
+
+#: ../include/errorMessages/errorMessages.hpp:25
+msgid "The provided directory name is not valid."
+msgstr ""
+
+#: ../include/errorMessages/errorMessages.hpp:26
+msgid "The provided file name is not valid."
+msgstr ""
+
+#: ../include/errorMessages/errorMessages.hpp:15
+msgid "The specified project path is invalid."
+msgstr ""
+
+#: ../src/gui/codeContainer/code.cpp:77
+msgid "There was an error opening the file"
+msgstr ""
+
+#: ../src/app/application/application.cpp:122
+msgid "UI Error: Missing application directory."
+msgstr ""
+
+#: ../src/app/application/application.cpp:120
+msgid "UI Error: Missing application themes directory."
+msgstr ""
+
+#: ../src/app/application/application.cpp:116
+msgid "UI Error: The application assets directory was not found."
+msgstr ""
+
+#: ../src/app/application/application.cpp:118
+msgid "UI Error: The application icons directory was not found."
+msgstr ""
+
+#: ../src/core/languagesPreferences/languagesPreferences.cpp:175
+msgid "Unable to access fold settings:"
+msgstr ""
+
+#: ../include/errorMessages/errorMessages.hpp:27
+msgid "Unable to locate the parent directory."
+msgstr ""
+
+#: ../include/errorMessages/errorMessages.hpp:12
+msgid "Unable to open the directory."
+msgstr ""
+
+#: ../include/errorMessages/errorMessages.hpp:14
+msgid "Unable to read contents of the directory."
+msgstr ""
+
+#: ../src/utils/appPaths/appPaths.cpp:103
+#: ../src/utils/appPaths/appPaths.cpp:143
+msgid "Warning"
+msgstr ""
