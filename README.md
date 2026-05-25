@@ -1,350 +1,274 @@
-# ⚡ **Krafta Editor**
+# <img src="https://raw.githubusercontent.com/apozinn/kraftaEditor/refs/heads/main/assets/images/kraftaEditor.png" alt="Krafta Editor" width="54" align="middle"> &nbsp; Krafta Editor
 
-<p align="center">
-  <img width="180" src="https://raw.githubusercontent.com/apozinn/kraftaEditor/refs/heads/main/assets/images/kraftaEditor.png" alt="Krafta Editor Logo">
-</p>
+![Version](https://img.shields.io/badge/Version-0.9.0-orange)
+![License](https://img.shields.io/badge/License-LGPLv3-blue)
+![C++20](https://img.shields.io/badge/C++-20-00599C?logo=cplusplus)
+![Platforms](https://img.shields.io/badge/Platforms-Windows%20%7C%20Linux%20%7C%20macOS-success)
 
-<p align="center">
-  <b>A fast, lightweight, and cross-platform code editor built with C++ and wxWidgets.</b><br>
-  Designed for developers who value <b>speed, simplicity, and native performance</b>.
-</p>
+A fast, native code editor built with C++ and wxWidgets.
 
-<p align="center">
-  <img src="https://img.shields.io/badge/C++-20-00599C?style=for-the-badge&logo=cplusplus" alt="C++20">
-  <img src="https://img.shields.io/badge/wxWidgets-3.3+-0078D6?style=for-the-badge" alt="wxWidgets 3.3+">
-  <img src="https://img.shields.io/badge/Version-0.8.0-orange?style=for-the-badge" alt="Version 0.8.0">
-  <img src="https://img.shields.io/badge/License-LGPLv3-blue?style=for-the-badge" alt="LGPLv3 License">
-</p>
+No Electron. No Chromium. No web stack.
+Just a lightweight native application focused on speed, responsiveness, and low memory usage.
 
----
+![Krafta Editor — dark theme](https://i.imgur.com/GM7mMJ6.png)
 
-## ✨ **Key Features**
+## Performance
 
-* ⚡ **Blazing fast performance** powered by native C++
-* 🧩 **Cross-platform support:** Windows, Linux, macOS
-* 🎨 **Modern, customizable UI** built with wxWidgets
-* 🧠 **Smart syntax highlighting** for multiple languages
-* 🪶 **Lightweight** — no Electron or heavy dependencies
-* 🧰 **Productivity-first design** with intuitive workflows
+Measured on a Release build running on Linux.
 
-![Krafta Editor Dark theme Screenshot](https://i.imgur.com/GM7mMJ6.png)
-![Krafta Editor Light theme Screenshot](https://i.imgur.com/mtKpEO3.png)
+| Metric           | Krafta Editor | Visual Studio Code |
+| ---------------- | ------------- | ------------------ |
+| Startup time     | < 200 ms      | ~2–4 seconds       |
+| RAM usage (idle) | ~60–70 MB     | ~300–500 MB        |
+| Executable size  | ~11 MB        | ~350–400 MB        |
 
-<p align="center"><em>Clean and fast interface designed for developers.</em></p>
+> Values are approximate and may vary depending on platform, compiler, extensions, and system configuration.
 
 ---
 
-## ⚡ Performance Comparison
+## Platform Status
 
-### 🚀 Startup Time
-
-| Editor             | Startup time           |
-| ------------------ | ---------------------- |
-| **Krafta Editor**  | **Instant (< 200 ms)** |
-| Visual Studio Code | ~2–4 seconds           |
-
----
-
-### 📦 Executable Size (On Disk)
-
-| Editor             | Storage Size |
-| ------------------ | ------------ |
-| **Krafta Editor**  | **~11 MB**   |
-| Sublime Text 4     | ~40 MB       |
-| Zed Editor         | ~100–150 MB  |
-| Visual Studio Code | ~350–400 MB  |
+| Platform | Status       |
+| -------- | ------------ |
+| Linux    | Stable       |
+| Windows  | Stable       |
+| macOS    | Experimental |
 
 ---
 
-### 🧠 Memory Usage (Idle)
+## Tech Stack
 
-| Editor             | RAM usage     |
-| ------------------ | ------------- |
-| **Krafta Editor**  | **~60–70 MB** |
-| Visual Studio Code | ~300–500 MB   |
-
----
-
-### 🖥️ Tech Stack
-
-|          | Krafta Editor | VS Code                 |
-| -------- | ------------- | ----------------------- |
-| Language | C++           | JavaScript / TypeScript |
-| UI       | wxWidgets     | Electron                |
-| Type     | Native        | Web-based               |
+* C++20
+* wxWidgets 3.3+
+* CMake 3.27+
 
 ---
 
-### 🔎 Summary
+## Prerequisites
 
-* **Krafta Editor** is lightweight and starts instantly
-* **VS Code** is powerful but significantly heavier due to Electron
+| Platform | Requirements                                 |
+| -------- | -------------------------------------------- |
+| All      | CMake ≥ 3.27 and a C++20-compatible compiler |
+| Linux    | GTK3 (`libgtk-3-dev`)                        |
+| macOS    | Xcode Command Line Tools                     |
+| Windows  | Visual Studio 2022+                          |
 
----
+wxWidgets 3.3+ is required.
 
-## 🚀 **Getting Started**
+By default, CMake downloads and builds wxWidgets automatically using FetchContent, so no manual installation is required.
 
-### Prerequisites
-
-| Platform    | Requirements                 |
-| ----------- | ---------------------------- |
-| **All**     | CMake ≥ 3.27, C++20 compiler |
-| **Linux**   | GTK3                         |
-| **macOS**   | Xcode Command Line Tools     |
-| **Windows** | Visual Studio 2022+          |
+See [wxWidgets Setup](#wxwidgets-setup) for system-installed alternatives.
 
 ---
 
-## 🧩 **wxWidgets — Recommended Setup**
-
-Krafta Editor depends on **wxWidgets 3.3+**. There are two ways to provide it:
-
-### ✅ Option 1 — FetchContent (Recommended)
-
-By default, CMake automatically downloads and compiles wxWidgets 3.3 during the build.
-**No manual installation is needed.** This is the recommended approach because it guarantees
-the correct version on every platform and requires zero extra setup.
-
-> ⚠️ The first build will take longer since wxWidgets is compiled from source.
-> Subsequent builds are fast due to CMake's FetchContent cache.
+## Build from Source
 
 ```bash
-# Nothing to do — just build normally:
+git clone https://github.com/apozinn/kraftaEditor.git
+cd kraftaEditor
+
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release
+
+# Run directly after building
+cmake --build build --target run --config Release
+
 ```
+
+The executable is generated at:
+
+```text
+build/bin/Release/kraftaEditor
+
+```
+
+> On Windows with Visual Studio, `--config Release` is mandatory.
+> On Linux/macOS with Ninja or Make, it is optional but kept for consistency.
+
+---
+
+## wxWidgets Setup
+
+### Option 1 — FetchContent (Recommended)
+
+CMake automatically downloads and compiles wxWidgets 3.3.
+
+No additional setup is required.
+
+The first build may take longer due to dependency compilation, but subsequent builds use cached artifacts.
 
 ---
 
 ### Option 2 — System-installed wxWidgets
 
-If you prefer to use a version already installed on your system, pass `-DUSE_SYSTEM_WXWIDGETS=ON`.
+Use an existing wxWidgets installation by passing the appropriate flag to CMake:
 
-> ⚠️ **Version requirement: wxWidgets 3.3 or newer.**
-> If version 3.2 or older is detected, the build will automatically fall back to
-> FetchContent and download 3.3 — no error, no manual intervention needed.
+```text
+-DUSE_SYSTEM_WXWIDGETS=ON
 
-#### Linux (Debian / Ubuntu)
-
-```bash
-# wxWidgets 3.2 is available in most distro repos — the build will still work,
-# but it will fall back to FetchContent to fetch 3.3 automatically.
-sudo apt install build-essential cmake libgtk-3-dev libwxgtk3.2-dev
-
-# To use it:
-cmake -S . -B build -DUSE_SYSTEM_WXWIDGETS=ON -DCMAKE_BUILD_TYPE=Release
 ```
 
-#### macOS (Homebrew)
-
-```bash
-brew install cmake wxwidgets   # Homebrew ships wxWidgets 3.3+
-
-cmake -S . -B build -DUSE_SYSTEM_WXWIDGETS=ON -DCMAKE_BUILD_TYPE=Release
-```
-
-#### Windows
-
-1. Download wxWidgets 3.3+ from [wxwidgets.org/downloads](https://www.wxwidgets.org/downloads/)
-2. Build and install it following the official guide
-3. Set the `wxWidgets_ROOT_DIR` environment variable to your install path
-4. Configure with:
-
-```bat
-cmake -S . -B build -DUSE_SYSTEM_WXWIDGETS=ON -DCMAKE_BUILD_TYPE=Release
-```
+If the detected version is older than 3.3, the build automatically falls back to FetchContent.
 
 ---
 
-## ⚙️ **Building from Source**
+### Linux (Debian/Ubuntu)
+
+wxWidgets 3.3 is not yet available in official apt repositories.
+
+Install only the required system dependencies:
 
 ```bash
-# Clone the repository
-git clone https://github.com/apozinn/kraftaEditor.git
-cd kraftaEditor
+sudo apt install build-essential cmake libgtk-3-dev
 
-# Configure (wxWidgets downloaded automatically)
+```
+
+Then build normally:
+
+```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
 
-# Build
-cmake --build build --config Release
-
-# Run
-cmake --build build --target run --config Release
 ```
 
-> ℹ️ **Build Notes**
->
-> * On **Windows (Visual Studio)**, `--config Release` is mandatory.
-> * On **Linux and macOS (Make/Ninja)**, `--config Release` is ignored but kept for
->   cross-platform consistency.
-> * The executable will be generated at:
->
->   ```
->   build/bin/Release/kraftaEditor
->   ```
+> `-DUSE_SYSTEM_WXWIDGETS=ON` is currently not applicable on Linux until wxWidgets 3.3 becomes available in official repositories.
 
 ---
 
-### All CMake Options
+### macOS
+
+```bash
+brew install cmake wxwidgets
+
+cmake -S . -B build \
+  -DUSE_SYSTEM_WXWIDGETS=ON \
+  -DCMAKE_BUILD_TYPE=Release
+
+```
+
+---
+
+### Windows
+
+1. Download wxWidgets 3.3+ from: [https://www.wxwidgets.org/downloads/](https://www.wxwidgets.org/downloads/)
+2. Build and install it following the official documentation.
+3. Set `wxWidgets_ROOT_DIR` to the installation path.
+4. Configure the project:
+
+```cmd
+cmake -S . -B build ^
+  -DUSE_SYSTEM_WXWIDGETS=ON ^
+  -DCMAKE_BUILD_TYPE=Release
+
+```
+
+---
+
+## CMake Options
 
 | Flag | Default | Description |
-| ---- | ------- | ----------- |
-| `-DUSE_SYSTEM_WXWIDGETS=ON` | OFF | Use system wxWidgets instead of FetchContent |
-| `-DENABLE_TESTS=ON` | OFF | Build the test suite |
-| `-DENABLE_CLANG_TIDY=ON` | OFF | Enable clang-tidy static analysis |
-| `-DENABLE_WERROR=ON` | OFF | Treat warnings as errors |
-| `-DENABLE_UNITY_BUILD=OFF` | ON | Disable unity build (faster incremental builds) |
-
-> ℹ️ `-DCMAKE_BUILD_TYPE=Release` is only required when using **single-config generators**
-> (Linux/macOS with Make or Ninja).
+| --- | --- | --- |
+| `-DUSE_SYSTEM_WXWIDGETS` | OFF | Use system wxWidgets instead of FetchContent |
+| `-DENABLE_TESTS` | OFF | Build test suite |
+| `-DENABLE_CLANG_TIDY` | OFF | Enable clang-tidy analysis |
+| `-DENABLE_WERROR` | OFF | Treat warnings as errors |
+| `-DENABLE_UNITY_BUILD` | ON | Disable unity build for faster incremental builds |
 
 ---
 
-## 🐧 **Linux Installation & Uninstallation**
+## Linux Installation
 
-There are two ways to install Krafta Editor system-wide on Linux:
-
-| Method | Best for |
-| ------ | -------- |
-| **Helper scripts** (`scripts/install.sh`) | Quick local install from a source build |
-| **CMake install** (`cmake --target install`) | CI, packaging, custom install prefixes |
-
-Both methods install the binary, assets, desktop entry, and icon, and refresh the system caches automatically so the app appears in your applications menu.
-
-> ⚠️ **Root permissions are required.**
-> Files are written to `/usr/local/bin` and `/usr/share`.
+Two installation methods are available. Both install the executable, assets, desktop entry, and application icon, as well as refreshing desktop and icon caches automatically. Root permissions are required for system-wide installation.
 
 ---
 
-### 📦 Method 1 — Helper script
-
-Make sure the project is built before running the script:
+### Method 1 — Install Script
 
 ```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release
-```
 
-Then install:
-
-```bash
 chmod +x scripts/install.sh
 sudo ./scripts/install.sh
-```
-
-**What it installs:**
 
 ```
-/usr/local/bin/kraftaEditor                          ← executable
-/usr/share/kraftaEditor/
-├── assets/
-├── languages/
-├── config/
-└── i18n/
+
+Installed paths:
+
+```text
+/usr/local/bin/kraftaEditor
+/usr/share/kraftaEditor/{assets,languages,config,i18n}
 /usr/share/icons/hicolor/256x256/apps/kraftaEditor.png
 /usr/share/applications/krafta-editor.desktop
-```
 
-After installation you can launch Krafta Editor from the applications menu or run it directly:
-
-```bash
-kraftaEditor
 ```
 
 ---
 
-### 📦 Method 2 — CMake install
+### Method 2 — CMake Install
 
 ```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release
+
 sudo cmake --install build
+
 ```
 
-To install to a custom prefix (no `sudo` needed):
+Install locally without `sudo`:
 
 ```bash
 cmake --install build --prefix ~/.local
-```
 
-CMake handles everything the script does, including updating the desktop database and icon cache.
+```
 
 ---
 
-### 🗑️ Uninstall
+### Uninstall
 
 ```bash
 chmod +x scripts/uninstall.sh
 sudo ./scripts/uninstall.sh
-```
-
-**What it removes:**
 
 ```
-/usr/local/bin/kraftaEditor
-/usr/share/kraftaEditor/
-/usr/share/icons/hicolor/256x256/apps/kraftaEditor.png
-/usr/share/applications/krafta-editor.desktop
-```
 
-The desktop database and icon cache are refreshed automatically. After uninstalling, no system files related to Krafta Editor remain.
+Removes all installed files and refreshes desktop/icon caches.
+
+> The install scripts are intended for local/system-wide source installs and are not replacements for package managers.
+> For `.deb`, `.rpm`, or Arch Linux packaging, prefer `cmake --install` with the appropriate prefix.
 
 ---
 
-### ℹ️ Notes
+## Roadmap
 
-* The helper scripts are intended for **local/system-wide installs from source**
-* They are **not a replacement for package managers**
-* For distribution packaging (`.deb`, `.rpm`, Arch PKGBUILD), use `cmake --install` with the appropriate prefix and reference the scripts as a guide
+* [ ] LSP integration (Language Server Protocol)
+* [ ] Integrated terminal
+* [ ] Plugin API
+* [ ] Git integration
+* [ ] Multi-cursor editing
 
 ---
 
-## 🛠️ **Development**
+## Contributing
 
-Contributions are welcome!
+### Guidelines
 
 1. Fork the repository
-2. Create a branch:
+2. Create a branch from `main`
+3. Keep commits focused and descriptive
+4. Follow the existing code style
+5. Update documentation when applicable
+6. Open a pull request with a clear description
 
-   ```bash
-   git checkout -b feature/new-feature
-   ```
-3. Commit your changes:
-
-   ```bash
-   git commit -am "Add new feature"
-   ```
-4. Push to your fork:
-
-   ```bash
-   git push origin feature/new-feature
-   ```
-5. Open a Pull Request
-
-### Code Style
-
-* Follow the existing style (4-space indentation)
-* Keep commits **clear and focused**
-* Update documentation when applicable
+For bug reports and feature requests, use:
+[https://github.com/apozinn/kraftaEditor/issues](https://github.com/apozinn/kraftaEditor/issues)
 
 ---
 
-## 📜 **License**
+## License
 
-Krafta Editor is licensed under the **GNU LGPLv3**.
-
-© 2023–2026 **Okarin Softwares**
+Krafta Editor is licensed under the GNU LGPLv3 license. See the `LICENSE` file for details.
 
 ---
 
-## 💬 **Support**
-
-* 🐞 [Open an Issue](https://github.com/apozinn/kraftaEditor/issues)
-* 💡 Use Discussions for feature ideas
-
----
-
-⭐ **If you like Krafta Editor, consider giving it a star — it helps a lot!**
-
----
+© 2023–2026 Okarin Softwares
