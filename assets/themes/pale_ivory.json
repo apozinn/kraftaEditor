@@ -1,0 +1,15 @@
+{
+  "main": "#F7E7CE",
+  "secondary": "#EDD8B8",
+  "colorThree": "#D4B890",
+  "highlight": "#1E6868",
+  "border": "#D4B890",
+  "tint": "#2A9898",
+  "selectedFile": "#E8D4B0",
+  "text": "#0F2020",
+  "secondaryText": "#5A8080",
+  "indicator": { "foreground": "#77A8A8" },
+  "editorCaret": "#0A1F1F",
+  "minimapViewport": "#77A8A8",
+  "minimapCaretPosition": "#3A7070"
+}
