@@ -50,7 +50,9 @@ void Editor::InitializePreferences()
         {wxACCEL_CTRL | wxACCEL_SHIFT, WXK_RETURN, static_cast<int>(Event::Edit::MoveCursorUp)},
         {wxACCEL_CTRL | wxACCEL_SHIFT, (int)'D', static_cast<int>(Event::Edit::DuplicateLineDown)},
         {wxACCEL_CTRL | wxACCEL_ALT | wxACCEL_SHIFT, (int)'D', static_cast<int>(Event::Edit::DuplicateLineUp)},
-        {wxACCEL_CTRL, (int)'D', static_cast<int>(Event::Edit::SelectNextOccurrence)}};
+        {wxACCEL_CTRL, (int)'D', static_cast<int>(Event::Edit::SelectNextOccurrence)},
+        {wxACCEL_CTRL, (int)'C', static_cast<int>(Event::Edit::CopyByKeyboard)},
+    };
 
     SetAcceleratorTable(wxAcceleratorTable(WXSIZEOF(entries), entries));
 
@@ -262,6 +264,11 @@ void Editor::ClearIndicators()
     {
         IndicatorClearRange(0, len);
     }
+}
+
+void Editor::OnCopy(wxCommandEvent &event)
+{
+    CopyAllowLine();
 }
 
 void Editor::UpdateUnsavedIndicator()

@@ -147,7 +147,8 @@ namespace Event
         RemoveCurrentLine = ID_BASE_EDIT + 13,
         GoToLine = ID_BASE_EDIT + 14,
         GoToSymbol = ID_BASE_EDIT + 15,
-        GoToDefinition = ID_BASE_EDIT + 16
+        GoToDefinition = ID_BASE_EDIT + 16,
+        CopyByKeyboard =  ID_BASE_EDIT + 17,
     };
 
     /**

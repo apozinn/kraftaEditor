@@ -229,9 +229,7 @@ void CodeContainer::OnCopy(wxCommandEvent &WXUNUSED(event))
     auto currentEditor = ((Editor *)wxFindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_codeEditor"));
     if (currentEditor)
     {
-        if (currentEditor->GetSelectionEnd() - currentEditor->GetSelectionStart() <= 0)
-            return;
-        currentEditor->Copy();
+        currentEditor->CopyAllowLine();
     }
 }
 
