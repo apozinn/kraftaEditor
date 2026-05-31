@@ -67,7 +67,7 @@ include(FetchContent)
 include(GNUInstallDirs)
 
 # wxWidgets — prefer system 3.3+, fall back to FetchContent if too old or absent
-set(wxWidgets_MIN_VERSION "3.3.0")
+set(wxWidgets_MIN_VERSION "3.3.2")
 if(USE_SYSTEM_WXWIDGETS)
     find_package(wxWidgets ${wxWidgets_MIN_VERSION} QUIET COMPONENTS core base stc)
 
@@ -91,7 +91,7 @@ if(NOT USE_SYSTEM_WXWIDGETS)
     FetchContent_Declare(
         wxWidgets
         GIT_REPOSITORY https://github.com/wxWidgets/wxWidgets.git
-        GIT_TAG        v3.3.0
+        GIT_TAG        v3.3.2
         GIT_SHALLOW    ON
     )
     FetchContent_MakeAvailable(wxWidgets)

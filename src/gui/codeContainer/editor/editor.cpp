@@ -34,6 +34,11 @@ void Editor::InitializePreferences()
 
     SetCaretForeground(ThemesManager::Get().GetColor("editorCaret"));
     SetCaretWidth(3);
+    
+    SetMultipleSelection(true);
+    SetAdditionalSelectionTyping(true);
+    SetMultiPaste(wxSTC_MULTIPASTE_EACH);
+    SetVirtualSpaceOptions(wxSTC_VS_RECTANGULARSELECTION);
 
     SetMarginWidth(EditorConstants::LINE_NUMBER_MARGIN,
                    TextWidth(wxSTC_STYLE_LINENUMBER, wxT("_99999")));
@@ -82,9 +87,6 @@ void Editor::ConfigureFoldMargin()
 
 void Editor::OnUpdateUI(wxStyledTextEvent &event)
 {
-    if (m_linked_minimap)
-        m_linked_minimap->Refresh();
-
     event.Skip();
 }
 

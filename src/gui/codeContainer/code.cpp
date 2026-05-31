@@ -16,19 +16,11 @@ CodeContainer::CodeContainer(wxWindow *parent, wxString path) : wxPanel(parent, 
 
     editor = new Editor(this);
     editor->SetMinSize(wxSize(parent->GetSize().x - 100, parent->GetSize().y));
-    minimap = new MiniMap(this, editor);
-
-    editor->m_linked_minimap = minimap;
-
     sizer->Add(editor, 1, wxEXPAND);
-    sizer->Add(minimap, 0, wxEXPAND);
-
+    
     SetSizerAndFit(sizer);
     LoadPath(path);
     Layout();
-
-    if (!UserSettingsManager::Get().GetSetting<bool>("editor/showMinimap").value)
-        minimap->Hide();
 
     if (PlatformInfos::IsWindows())
         font = wxFont(wxFontInfo(10).FaceName("Cascadia Code"));
@@ -56,9 +48,7 @@ void CodeContainer::LoadPath(wxString path)
         editor->SetLabel(path + "_codeEditor");
         editor->SetName(path);
         editor->LoadFile(path);
-
-        minimap->SetLabel(path + "_codeMap");
-        minimap->SetName(path);
+        
         statusBar->UpdateComponents(path);
 
         languagePreferences = LanguagesPreferences::Get().SetupLanguagesPreferences(this);
@@ -68,15 +58,24 @@ void CodeContainer::LoadPath(wxString path)
 
         Save(path);
         editor->SendMsg(4003, 0, -1);
-
-        minimap->languagePreferences = languagePreferences;
-        minimap->ExtractStyledText();
+        
+        wxStyledTextCtrlMiniMap* minimap = new wxStyledTextCtrlMiniMap(this, editor);
+        minimap->SetSize(wxSize(100, minimap->GetSize().y));
+        minimap->SetMinSize(wxSize(100, minimap->GetSize().y));
+        
+        sizer->Add(minimap,  0 ,wxEXPAND);
+        
+        if (!UserSettingsManager::Get().GetSetting<bool>("editor/showMinimap").value)
+        minimap->Hide();
+        
+        minimap->SetLabel(path + "_codeMap");
+        minimap->SetName(path);
     }
     else
     {
         wxMessageBox(_("There was an error opening the file"), _("Error"), wxICON_ERROR);
     }
-
+    
     GetParent()->Layout();
     Layout();
 }
@@ -89,7 +88,6 @@ void CodeContainer::OnSave(wxCommandEvent &WXUNUSED(event))
 bool CodeContainer::Save(wxString path)
 {
     auto currentEditor = ((Editor *)wxFindWindowByLabel(path + "_codeEditor"));
-    auto currentMinimap = ((MiniMap *)wxFindWindowByLabel(path + "_codeMap"));
 
     if (currentEditor)
     {
@@ -105,9 +103,6 @@ bool CodeContainer::Save(wxString path)
                     tab->Layout();
                 }
             }
-
-            if (currentMinimap)
-                currentMinimap->ExtractStyledText();
 
             if (path == UserSettingsManager::Get().SettingsPath)
             {

@@ -13,9 +13,9 @@
 #include "shortcutsSettings/shortcutsSettings.hpp"
 #include "appPaths/appPaths.hpp"
 #include "projectSettings/projectSettings.hpp"
+#include <wx/stc/minimap.h>
 
 #include "./editor/editor.hpp"
-#include "./minimap/minimap.hpp"
 
 #include "gui/panels/tabs/tabs.hpp"
 #include "gui/widgets/statusBar/statusBar.hpp"
@@ -147,7 +147,7 @@ public:
 private:
     wxString iconsDir = ApplicationPaths::AssetsPath("icons");                        /**< Directory containing editor icons. */
     wxFont font;                                                                      /**< Editor font. */
-    MiniMap *minimap;                                                                 /**< Minimap instance. */
+    wxStyledTextCtrlMiniMap* minimap;                                                                 /**< Minimap instance. */
     bool codeMapMouseOver = false;                                                    /**< Indicates if the mouse is over the minimap. */
     languagePreferencesStruct languagePreferences;                                    /**< Language-specific editor preferences. */
     wxPoint codeMapClickPoint = wxPoint(0, 0);                                        /**< Last minimap click position. */

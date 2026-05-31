@@ -20,7 +20,6 @@
 #include "appPaths/appPaths.hpp"
 #include "gui/widgets/statusBar/statusBar.hpp"
 #include "languagesPreferences/languagesPreferences.hpp"
-#include "gui/codeContainer/minimap/minimap.hpp"
 #include "userSettings/userSettings.hpp"
 
 class CodeContainer;
@@ -190,7 +189,6 @@ public:
      * Used to display a small-scale, mirrored overview of the code. May be **nullptr**
      * if the minimap feature is disabled or not attached.
      */
-    MiniMap *m_linked_minimap = nullptr;
     CodeContainer *m_linked_container = nullptr;
 
 private:
