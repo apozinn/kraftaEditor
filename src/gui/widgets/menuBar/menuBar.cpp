@@ -21,8 +21,6 @@ MenuBar::MenuBar()
 	wxMenu *menuFile = new wxMenu;
 	menuFile->Append(+Event::File::CreateFileEvent, _("&New File") + GetSC("shortcut_new_file"));
     
-    menuFile->Append(+Event::Shortcuts::ZoomIn, "cu");
-    
 	menuFile->Append(+Event::File::CreateDir, _("&New Dir"));
 	menuFile->AppendSeparator();
 	menuFile->Append(+Event::Project::OpenFolder, _("&Open Folder...") + GetSC("shortcut_open_folder"));
@@ -101,7 +99,6 @@ MenuBar::MenuBar()
 	menuView->Append(+Event::View::SplitEditor, _("&Split Editor") + GetSC("shortcut_split_editor"));
 	menuView->Append(+Event::View::ZoomIn, _("&Zoom In") + GetSC("shortcut_zoom_in"));
 	menuView->Append(+Event::View::ZoomOut, _("&Zoom Out") + GetSC("shortcut_zoom_out"));
-	menuView->Append(+Event::View::ZoomReset, _("&Reset Zoom") + GetSC("shortcut_zoom_reset"));
 
 	wxMenu *menuTools = new wxMenu;
 	menuTools->Append(+Event::View::ToggleControlPanel, _("&Command Palette") + GetSC("shortcut_command_palette"));
@@ -119,11 +116,11 @@ MenuBar::MenuBar()
 	wxMenu *menuHelp = new wxMenu;
 	menuHelp->Append(+Event::Frame::About, _("&About Krafta Editor"));
 
-	this->Append(menuFile, _("&File"));
-	this->Append(menuEdit, _("&Edit"));
-	this->Append(menuSelection, _("&Selection"));
-	this->Append(menuView, _("&View"));
-	this->Append(menuTools, _("&Tools"));
-	this->Append(menuPreference, _("&Preferences"));
-	this->Append(menuHelp, _("&Help"));
+	Append(menuFile, _("&File"));
+	Append(menuEdit, _("&Edit"));
+	Append(menuSelection, _("&Selection"));
+	Append(menuView, _("&View"));
+	Append(menuTools, _("&Tools"));
+	Append(menuPreference, _("&Preferences"));
+	Append(menuHelp, _("&Help"));
 }

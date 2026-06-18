@@ -57,8 +57,8 @@ void Editor::InitializePreferences()
         {wxACCEL_CTRL | wxACCEL_ALT | wxACCEL_SHIFT, (int)'D', static_cast<int>(Event::Edit::DuplicateLineUp)},
         {wxACCEL_CTRL, (int)'D', static_cast<int>(Event::Edit::SelectNextOccurrence)},
         {wxACCEL_CTRL, (int)'C', static_cast<int>(Event::Edit::CopyByKeyboard)},
-        {wxACCEL_CTRL | wxACCEL_SHIFT, (int)'+', static_cast<int>(Event::Shortcuts::ZoomIn)},
-        {wxACCEL_CTRL ,  (int)'-', static_cast<int>(Event::Shortcuts::ZoomOut)},
+        {wxACCEL_CTRL | wxACCEL_SHIFT, (int)'+', static_cast<int>(Event::View::ZoomIn)},
+        {wxACCEL_CTRL ,  (int)'-', static_cast<int>(Event::View::ZoomOut)},
     };
 
     SetAcceleratorTable(wxAcceleratorTable(WXSIZEOF(entries), entries));

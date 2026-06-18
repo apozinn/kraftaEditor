@@ -36,6 +36,9 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(+Event::View::ToggleMenuBar,       MainFrame::OnToggleMenuBarView)
     EVT_MENU(+Event::View::ToggleStatusBar,     MainFrame::OnToggleStatusBarView)
     EVT_MENU(+Event::View::ToggleTabBar,        MainFrame::OnToggleTabBarView)
+    
+    EVT_MENU(+Event::View::ZoomIn,        CodeContainer::ZoomIn)
+    EVT_MENU(+Event::View::ZoomOut,        CodeContainer::ZoomOut)
 
     // Project Operations
     EVT_MENU(+Event::Project::OpenFolder,  MainFrame::OnOpenFolderMenu)

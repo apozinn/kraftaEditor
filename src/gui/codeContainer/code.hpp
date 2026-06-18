@@ -126,6 +126,10 @@ public:
 
     /** @brief Moves the current or selected lines down. */
     void OnMoveLineDown(wxCommandEvent &WXUNUSED(event));
+    
+    void ZoomIn(wxCommandEvent& event);
+    
+    void ZoomOut(wxCommandEvent& event);
 
     /**
      * @brief Removes the current line or the active selection.

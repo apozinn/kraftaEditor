@@ -399,3 +399,19 @@ void CodeContainer::OnRemoveCurrentLine(wxCommandEvent &WXUNUSED(event))
         currentEditor->RemoveCurrentLine();
     }
 }
+
+void CodeContainer::ZoomIn(wxCommandEvent& event) {
+    auto currentEditor = ((Editor *)wxFindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_codeEditor"));
+    if (currentEditor)
+    {
+        currentEditor->ZoomIn();
+    }
+}
+
+void CodeContainer::ZoomOut(wxCommandEvent& event) {
+    auto currentEditor = ((Editor *)wxFindWindowByLabel(ProjectSettings::Get().GetCurrentlyFileOpen() + "_codeEditor"));
+    if (currentEditor)
+    {
+        currentEditor->ZoomOut();
+    }
+}
