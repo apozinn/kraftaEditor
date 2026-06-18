@@ -1,6 +1,6 @@
 # <img src="https://raw.githubusercontent.com/apozinn/kraftaEditor/refs/heads/main/assets/images/kraftaEditor.png" alt="Krafta Editor" width="54" align="middle"> &nbsp; Krafta Editor
 
-![Version](https://img.shields.io/badge/Version-0.9.0-orange)
+![Version](https://img.shields.io/badge/Version-0.9.1-orange)
 ![License](https://img.shields.io/badge/License-LGPLv3-blue)
 ![C++20](https://img.shields.io/badge/C++-20-00599C?logo=cplusplus)
 ![Platforms](https://img.shields.io/badge/Platforms-Windows%20%7C%20Linux%20%7C%20macOS-success)

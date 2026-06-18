@@ -95,6 +95,8 @@ FilesTree::FilesTree(wxWindow *parent, wxWindowID ID)
         new OpenFolderButton();
         m_projectInformations->Hide();
     }
+    
+    
 }
 
 void FilesTree::LinkClickEventToProjectInformationsComponents()

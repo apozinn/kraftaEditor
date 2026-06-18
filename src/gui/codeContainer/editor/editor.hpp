@@ -254,6 +254,10 @@ private:
      * @brief Handler to duplicate the current line one line above it.
      */
     void OnDuplicateLineUp(wxCommandEvent &event);
+    
+    void OnZoomIn(wxCommandEvent &event);
+    
+    void OnZoomOut(wxCommandEvent &event);
 
     /**
      * @brief Searches for and selects the next occurrence of the currently selected text.

@@ -20,6 +20,9 @@ MenuBar::MenuBar()
 
 	wxMenu *menuFile = new wxMenu;
 	menuFile->Append(+Event::File::CreateFileEvent, _("&New File") + GetSC("shortcut_new_file"));
+    
+    menuFile->Append(+Event::Shortcuts::ZoomIn, "cu");
+    
 	menuFile->Append(+Event::File::CreateDir, _("&New Dir"));
 	menuFile->AppendSeparator();
 	menuFile->Append(+Event::Project::OpenFolder, _("&Open Folder...") + GetSC("shortcut_open_folder"));

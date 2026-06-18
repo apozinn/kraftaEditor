@@ -264,6 +264,8 @@ private:
      * @brief Auxiliary tools panel associated with the file tree.
      */
     ProjectInfosTools *m_projectInfosTools = nullptr;
+    
+    bool m_shiftIsPressed = false;
 
     wxDECLARE_NO_COPY_CLASS(FilesTree);
     wxDECLARE_EVENT_TABLE();

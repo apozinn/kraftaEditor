@@ -57,12 +57,13 @@ void Editor::InitializePreferences()
         {wxACCEL_CTRL | wxACCEL_ALT | wxACCEL_SHIFT, (int)'D', static_cast<int>(Event::Edit::DuplicateLineUp)},
         {wxACCEL_CTRL, (int)'D', static_cast<int>(Event::Edit::SelectNextOccurrence)},
         {wxACCEL_CTRL, (int)'C', static_cast<int>(Event::Edit::CopyByKeyboard)},
+        {wxACCEL_CTRL | wxACCEL_SHIFT, (int)'+', static_cast<int>(Event::Shortcuts::ZoomIn)},
+        {wxACCEL_CTRL ,  (int)'-', static_cast<int>(Event::Shortcuts::ZoomOut)},
     };
 
     SetAcceleratorTable(wxAcceleratorTable(WXSIZEOF(entries), entries));
 
-    m_AutoCompleteWordsList =
-        LanguagesPreferences::Get().GetAutoCompleteWordsList(m_LanguagePreferences);
+    m_AutoCompleteWordsList = LanguagesPreferences::Get().GetAutoCompleteWordsList(m_LanguagePreferences);
 
     SetIndent(4);
     SetTabWidth(4);
@@ -716,4 +717,12 @@ void Editor::OnHorizontalScroll(wxMouseEvent &event)
     Freeze();
     SetXOffset(newOffset);
     Thaw();
+}
+
+void Editor::OnZoomIn(wxCommandEvent& event) {
+   ZoomIn();
+}
+
+void Editor::OnZoomOut(wxCommandEvent& event) {
+   ZoomOut();
 }

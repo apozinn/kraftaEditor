@@ -211,7 +211,9 @@ namespace Event
      */
     enum class Shortcuts : wxWindowID
     {
-        Edit = ID_BASE_SHORTCUTS + 1
+        Edit = ID_BASE_SHORTCUTS + 1,
+        ZoomIn = ID_BASE_SHORTCUTS + 2,
+        ZoomOut = ID_BASE_SHORTCUTS + 3,
     };
 
     /**

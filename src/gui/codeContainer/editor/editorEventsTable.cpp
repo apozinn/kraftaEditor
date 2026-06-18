@@ -12,6 +12,9 @@ wxBEGIN_EVENT_TABLE(Editor, wxStyledTextCtrl)
     
     EVT_MENU(+Event::Edit::CopyByKeyboard, Editor::OnCopy)
     
+    EVT_MENU(+Event::Shortcuts::ZoomIn, Editor::OnZoomIn)
+    EVT_MENU(+Event::Shortcuts::ZoomOut, Editor::OnZoomOut)
+    
     EVT_MENU(+Event::Edit::MoveCursorDown,Editor::OnMoveCursorDown)
     EVT_MENU(+Event::Edit::MoveCursorUp, Editor::OnMoveCursorUp)
     EVT_MENU(+Event::Edit::DuplicateLineDown, Editor::OnDuplicateLineDown)
