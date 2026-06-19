@@ -56,6 +56,7 @@ using json = nlohmann::json;
 #include "gui/widgets/openFolderButton/openFolderButton.hpp"
 #include "gui/panels/controlPanel/controlPanel.hpp"
 #include "gui/panels/quickOpen/quickOpen.hpp"
+#include "gui/panels/gotoline/gotoline.hpp"
 #include "frameFileDropTarget/frameFileDropTarget.hpp"
 #include "gui/widgets/pageSwitcher/pageSwitcher.hpp"
 #include <gui/panels/searchPage/searchPage.hpp>
@@ -267,6 +268,8 @@ public:
      * @param event The command event that triggered the action (unused).
      */
     void ToggleAutosave(wxCommandEvent& WXUNUSED(event));
+    
+    void OnGotoline(wxCommandEvent& event);
 
 private:
     // --- UI Component Pointers ---
@@ -290,6 +293,7 @@ private:
     wxBoxSizer *sizer = new wxBoxSizer(wxVERTICAL); /**< The main sizer managing the frame layout. */
     wxTimer *m_saveSettingsTimer;                   /**< Timer for saving settings periodically. */
     void OnSaveSettingsTimer(wxTimerEvent &event);  /**< Handler for the save settings timer. */
+    ProjectSettings &projectSettings = ProjectSettings::Get();                        /**< Reference to global project settings. */
 
     // --- Constants ---
     enum

@@ -128,7 +128,6 @@ public:
     void OnMoveLineDown(wxCommandEvent &WXUNUSED(event));
     
     void ZoomIn(wxCommandEvent& event);
-    
     void ZoomOut(wxCommandEvent& event);
 
     /**

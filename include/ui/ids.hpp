@@ -32,6 +32,7 @@ constexpr wxWindowID ID_BASE_SETTINGS = 17000;              ///< User preference
 constexpr wxWindowID ID_BASE_EDIT = 18000;                  ///< Text editing and code manipulation
 constexpr wxWindowID ID_TABS_CONTAINER = 19000;             ///< Editor tab container actions
 constexpr wxWindowID ID_BASE_SHORTCUTS = 20000;             ///< Keyboard shortcuts
+constexpr wxWindowID ID_BASE_GOTOLINE = 21000;             ///< Gotoline
 constexpr wxWindowID ID_OPEN_RECENT_WORKSPACE_BASE = 30000; ///< ase ID for the first recent workspace item.
 constexpr wxWindowID ID_OPEN_RECENT_WORKSPACE_MAX = 40000;  ///< Maximum ID threshold for the recent workspace range.
 
@@ -239,6 +240,11 @@ namespace Event
         Up = ID_BASE_CONTROL + 2,
         Down = ID_BASE_CONTROL + 3,
         Select = ID_BASE_CONTROL + 4
+    };
+    
+    enum class Gotoline : wxWindowID
+    {
+        Exit = ID_BASE_GOTOLINE+ 1,
     };
 
     /**

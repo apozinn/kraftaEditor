@@ -614,6 +614,10 @@ void MainFrame::OnToggleTabBarView(wxCommandEvent &WXUNUSED(event))
     m_mainContainer->GetSizer()->Layout();
 }
 
+void MainFrame::OnGotoline(wxCommandEvent& event) {
+    new Gotoline(this);
+}
+
 void MainFrame::OnToggleMinimapView(wxCommandEvent &WXUNUSED(event))
 {
     auto &settingsManager = UserSettingsManager::Get();

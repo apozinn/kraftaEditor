@@ -49,6 +49,8 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(+Event::Frame::Exit,      MainFrame::OnExit)
     EVT_MENU(+Event::Frame::About,     MainFrame::OnAbout)
     EVT_CLOSE(MainFrame::OnClose)
+    
+    EVT_MENU(+Event::Edit::GoToLine, MainFrame::OnGotoline)
 
     // Terminal
     EVT_MENU(+Event::Terminal::Open, MainFrame::OnOpenTerminal)
