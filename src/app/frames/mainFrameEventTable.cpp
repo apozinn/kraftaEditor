@@ -1,63 +1,87 @@
 #include "mainFrame.hpp"
 
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
-    // // File Operations
-    EVT_MENU(+Event::File::CreateFileEvent, FilesTree::OnCreateFileRequested)
-    EVT_MENU(+Event::File::CreateDir,       FilesTree::OnCreateDirRequested)
-    EVT_MENU(+Event::File::Save,            CodeContainer::OnSave)
-    EVT_MENU(+Event::File::SaveAs,          CodeContainer::OnSaveAs)
-    EVT_MENU(+Event::File::SaveAll,         CodeContainer::OnSaveAll)
-    EVT_MENU(+Event::File::CloseFile,       CodeContainer::OnCloseFile)
-    EVT_MENU(+Event::File::CloseAll,        MainFrame::CloseAllFiles)
-    EVT_MENU(+Event::File::OpenFile,        MainFrame::OnOpenFile)
-    
-    EVT_MENU(+Event::File::ToggleAutosave,        MainFrame::ToggleAutosave)
-    
-    // Edit Operations
-    EVT_MENU(+Event::Edit::Cut,                CodeContainer::OnCut)
-    EVT_MENU(+Event::Edit::Copy,               CodeContainer::OnCopy)
-    EVT_MENU(+Event::Edit::Paste,              CodeContainer::OnPaste)
-    EVT_MENU(+Event::Edit::Redo,               CodeContainer::OnRedo)
-    EVT_MENU(+Event::Edit::Undo,               CodeContainer::OnUndo)
-    EVT_MENU(+Event::Edit::ToggleComment,      CodeContainer::ToggleCommentLine)
-    EVT_MENU(+Event::Edit::ToggleBlockComment, CodeContainer::ToggleCommentBlock)
-    EVT_MENU(+Event::Edit::SelectLine,         CodeContainer::OnSelectLine)
-    EVT_MENU(+Event::Edit::SelectAll,          CodeContainer::OnSelectAll)
-    EVT_MENU(+Event::Edit::MoveLineUp,          CodeContainer::OnMoveLineUp)
-    EVT_MENU(+Event::Edit::MoveLineDown,       CodeContainer::OnMoveLineDown)
-    EVT_MENU(+Event::Edit::RemoveCurrentLine,       CodeContainer::OnRemoveCurrentLine)
-    
-    // View Operations
-    EVT_MENU(+Event::View::ToggleMiniMap,       MainFrame::OnToggleMinimapView)
-    EVT_MENU(+Event::View::ToggleCodeSearch,    MainFrame::OnToggleSearch)
-    EVT_MENU(+Event::View::ToggleControlPanel,  MainFrame::OnToggleControlPanel)
-    EVT_MENU(+Event::View::ToggleQuickOpen,     MainFrame::OnToggleQuickOpen)
-    EVT_MENU(+Event::View::ToggleFileTree,      MainFrame::OnToggleFileTreeView)
-    EVT_MENU(+Event::View::ToggleMenuBar,       MainFrame::OnToggleMenuBarView)
-    EVT_MENU(+Event::View::ToggleStatusBar,     MainFrame::OnToggleStatusBarView)
-    EVT_MENU(+Event::View::ToggleTabBar,        MainFrame::OnToggleTabBarView)
-    
-    EVT_MENU(+Event::View::ZoomIn,        CodeContainer::ZoomIn)
-    EVT_MENU(+Event::View::ZoomOut,        CodeContainer::ZoomOut)
+	// // File Operations
+	EVT_MENU(+Event::File::CreateFileEvent, FilesTree::OnCreateFileRequested)
+		EVT_MENU(+Event::File::CreateDir, FilesTree::OnCreateDirRequested)
+			EVT_MENU(+Event::File::Save, CodeContainer::OnSave)
+				EVT_MENU(+Event::File::SaveAs, CodeContainer::OnSaveAs)
+					EVT_MENU(+Event::File::SaveAll, CodeContainer::OnSaveAll)
+						EVT_MENU(+Event::File::CloseFile,
+								 CodeContainer::OnCloseFile)
+							EVT_MENU(+Event::File::CloseAll,
+									 MainFrame::CloseAllFiles)
+								EVT_MENU(+Event::File::OpenFile,
+										 MainFrame::OnOpenFile)
 
-    // Project Operations
-    EVT_MENU(+Event::Project::OpenFolder,  MainFrame::OnOpenFolderMenu)
-    EVT_MENU(+Event::Project::CloseFolder, MainFrame::OnCloseFolder)
+									EVT_MENU(+Event::File::ToggleAutosave,
+											 MainFrame::ToggleAutosave)
 
-    // Frame Operations
-    EVT_MENU(+Event::Frame::NewWindow, MainFrame::OnNewWindow)
-    EVT_MENU(+Event::Frame::Exit,      MainFrame::OnExit)
-    EVT_MENU(+Event::Frame::About,     MainFrame::OnAbout)
-    EVT_CLOSE(MainFrame::OnClose)
-    
-    EVT_MENU(+Event::Edit::GoToLine, MainFrame::OnGotoline)
+	// Edit Operations
+	EVT_MENU(+Event::Edit::Cut,
+			 CodeContainer::OnCut) EVT_MENU(+Event::Edit::Copy,
+											CodeContainer::OnCopy)
+		EVT_MENU(+Event::Edit::Paste,
+				 CodeContainer::OnPaste) EVT_MENU(+Event::Edit::Redo,
+												  CodeContainer::OnRedo)
+			EVT_MENU(+Event::Edit::Undo, CodeContainer::OnUndo) EVT_MENU(
+				+Event::Edit::ToggleComment, CodeContainer::ToggleCommentLine)
+				EVT_MENU(+Event::Edit::ToggleBlockComment,
+						 CodeContainer::ToggleCommentBlock)
+					EVT_MENU(+Event::Edit::SelectLine,
+							 CodeContainer::OnSelectLine)
+						EVT_MENU(+Event::Edit::SelectAll,
+								 CodeContainer::OnSelectAll)
+							EVT_MENU(+Event::Edit::MoveLineUp,
+									 CodeContainer::OnMoveLineUp)
+								EVT_MENU(+Event::Edit::MoveLineDown,
+										 CodeContainer::OnMoveLineDown)
+									EVT_MENU(+Event::Edit::RemoveCurrentLine,
+											 CodeContainer::OnRemoveCurrentLine)
 
-    // Terminal
-    EVT_MENU(+Event::Terminal::Open, MainFrame::OnOpenTerminal)
+	// View Operations
+	EVT_MENU(+Event::View::ToggleMiniMap, MainFrame::OnToggleMinimapView)
+		EVT_MENU(+Event::View::ToggleCodeSearch, MainFrame::OnToggleSearch)
+			EVT_MENU(+Event::View::ToggleControlPanel,
+					 MainFrame::OnToggleControlPanel)
+				EVT_MENU(+Event::View::ToggleQuickOpen,
+						 MainFrame::OnToggleQuickOpen)
+					EVT_MENU(+Event::View::ToggleFileTree,
+							 MainFrame::OnToggleFileTreeView)
+						EVT_MENU(+Event::View::ToggleMenuBar,
+								 MainFrame::OnToggleMenuBarView)
+							EVT_MENU(+Event::View::ToggleStatusBar,
+									 MainFrame::OnToggleStatusBarView)
+								EVT_MENU(+Event::View::ToggleTabBar,
+										 MainFrame::OnToggleTabBarView)
 
-    // Settings
-    EVT_MENU(+Event::UserSettings::Edit, MainFrame::OnEditSettings)
+									EVT_MENU(+Event::View::ZoomIn,
+											 CodeContainer::ZoomIn)
+										EVT_MENU(+Event::View::ZoomOut,
+												 CodeContainer::ZoomOut)
 
-    // Keyboard Shortcuts
-    EVT_MENU(+Event::Shortcuts::Edit, MainFrame::OnEditShortcuts)
-wxEND_EVENT_TABLE()
+	// Project Operations
+	EVT_MENU(+Event::Project::OpenFolder, MainFrame::OnOpenFolderMenu)
+		EVT_MENU(+Event::Project::CloseFolder, MainFrame::OnCloseFolder)
+
+	// Frame Operations
+	EVT_MENU(+Event::Frame::NewWindow, MainFrame::OnNewWindow)
+		EVT_MENU(+Event::Frame::Exit, MainFrame::OnExit)
+			EVT_MENU(+Event::Frame::About, MainFrame::OnAbout)
+				EVT_CLOSE(MainFrame::OnClose)
+
+					EVT_MENU(+Event::Edit::GoToLine, MainFrame::OnGotoline)
+
+	// Terminal
+	EVT_MENU(+Event::Terminal::Open, MainFrame::OnOpenTerminal)
+
+	// Settings
+	EVT_MENU(+Event::UserSettings::Edit, MainFrame::OnEditSettings)
+
+	// Keyboard Shortcuts
+	EVT_MENU(+Event::Shortcuts::Edit, MainFrame::OnEditShortcuts)
+
+	// Code Search
+	EVT_MENU(+Event::CodeSearch::OpenCodeSearchTab, MainFrame::OpenCodeSearch)
+
+		wxEND_EVENT_TABLE()

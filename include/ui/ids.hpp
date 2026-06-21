@@ -256,7 +256,7 @@ namespace Event
         Exit = ID_BASE_QUICK_OPEN + 1,
         Up = ID_BASE_QUICK_OPEN + 2,
         Down = ID_BASE_QUICK_OPEN + 3,
-        Select = ID_BASE_QUICK_OPEN + 4
+        Select = ID_BASE_QUICK_OPEN + 4,
     };
 
     /**
@@ -266,7 +266,8 @@ namespace Event
     enum class CodeSearch : wxWindowID
     {
         Open = ID_BASE_SEARCH + 1,
-        Close = ID_BASE_SEARCH + 2
+        Close = ID_BASE_SEARCH + 2,
+        OpenCodeSearchTab = ID_BASE_SEARCH + 3,
     };
 
     /**
@@ -277,7 +278,7 @@ namespace Event
     {
         OpenFirstTab = ID_TABS_CONTAINER + 1,
         OpenLastTab = ID_TABS_CONTAINER + 2,
-        CloseAllSavedTabs = ID_TABS_CONTAINER + 3
+        CloseAllSavedTabs = ID_TABS_CONTAINER + 3,
     };
 }
 

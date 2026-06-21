@@ -59,7 +59,8 @@ using json = nlohmann::json;
 #include "gui/panels/gotoline/gotoline.hpp"
 #include "frameFileDropTarget/frameFileDropTarget.hpp"
 #include "gui/widgets/pageSwitcher/pageSwitcher.hpp"
-#include <gui/panels/searchPage/searchPage.hpp>
+#include "gui/panels/searchPage/searchPage.hpp"
+#include "gui/widgets/kraftaTopLogo/kraftaTopLogo.hpp"
 #include "eventFilters/eventFilters.hpp"
 
 /**
@@ -288,6 +289,7 @@ private:
     wxSplitterWindow *m_mainContainerSplitter;      /**< Splitter dividing the editor area from the terminal/output panel. */
     wxPanel *m_mainContainer;                       /**< The panel holding the editor/tabs area. */
     wxPanel *m_centeredContent;                     /**< Panel for content centered in the editor area (e.g., when empty). */
+    KraftaTopLogo* m_kraftaTopLogo;
     PageSwitcher *m_page_switcher;                  /**< Page Switcher */
     SearchPage *m_searchPage;                       /**< Search Page */
     wxBoxSizer *sizer = new wxBoxSizer(wxVERTICAL); /**< The main sizer managing the frame layout. */
@@ -344,6 +346,8 @@ private:
      * @brief Sets up the container for the left-hand side panels (file tree).
      */
     void SetupApplicationLeftMainContainer();
+    
+    void SetupKraftaTopLogo();
 
     /**
      * @brief Initializes and configures the page switcher.
@@ -473,6 +477,8 @@ private:
      * @param WXUNUSED(event) The maximize event.
      */
     void OnFrameMaximized(wxMaximizeEvent &WXUNUSED(event));
+    
+    void OpenCodeSearch(wxCommandEvent& event);
 
     wxDECLARE_NO_COPY_CLASS(MainFrame);
     wxDECLARE_EVENT_TABLE();

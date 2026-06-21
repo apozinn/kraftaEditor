@@ -1,19 +1,19 @@
 #include "userSettings/userSettings.hpp"
 #include "appPaths/appPaths.hpp"
-#include <wx/colour.h>
-#include <wx/font.h>
-#include <nlohmann/json.hpp>
-#include <wx/log.h>
+#include "platformInfos/platformInfos.hpp"
 #include <fstream>
-#include <wx/settings.h>
 #include <iomanip>
 #include <iostream>
 #include <mutex>
+#include <nlohmann/json.hpp>
+#include <wx/colour.h>
 #include <wx/file.h>
 #include <wx/filename.h>
-#include "platformInfos/platformInfos.hpp"
-#include <wx/stdpaths.h>
+#include <wx/font.h>
+#include <wx/log.h>
 #include <wx/msgdlg.h>
+#include <wx/settings.h>
+#include <wx/stdpaths.h>
 
 #ifndef _
 #define _(s) wxGetTranslation(s)
@@ -21,261 +21,230 @@
 
 using json = nlohmann::json;
 
-UserSettingsManager &UserSettingsManager::Get()
-{
-    static UserSettingsManager instance;
-    return instance;
+UserSettingsManager &UserSettingsManager::Get() {
+	static UserSettingsManager instance;
+	return instance;
 }
 
-UserSettingsManager::UserSettingsManager()
-{
-    if (SettingsPath.empty())
-    {
-        SettingsPath =
-            wxStandardPaths::Get().GetUserConfigDir() +
-            PlatformInfos::OsPathSeparator() +
-            ".kraftaEditor" +
-            PlatformInfos::OsPathSeparator() +
-            "user_settings.json";
+UserSettingsManager::UserSettingsManager() {
+	if (SettingsPath.empty()) {
+		SettingsPath = wxStandardPaths::Get().GetUserConfigDir() +
+					   PlatformInfos::OsPathSeparator() + ".kraftaEditor" +
+					   PlatformInfos::OsPathSeparator() + "user_settings.json";
 
-        wxFileName fn(SettingsPath);
-        if (!fn.DirExists() && !fn.Mkdir(wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL))
-        {
-            wxMessageBox(_("Failed to create settings directory: %s"), fn.GetPath());
-        }
-    }
+		wxFileName fn(SettingsPath);
+		if (!fn.DirExists() && !fn.Mkdir(wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL)) {
+			wxMessageBox(_("Failed to create settings directory: %s"),
+						 fn.GetPath());
+		}
+	}
 
-    wxString defaultUserSettingsPath = ApplicationPaths::GetConfigPath("userSettings") + "defaultUserSettings.json";
+	wxString defaultUserSettingsPath =
+		ApplicationPaths::GetConfigPath("userSettings") +
+		"defaultUserSettings.json";
 
-    if (wxFileExists(defaultUserSettingsPath))
-    {
-        std::ifstream file(defaultUserSettingsPath.ToStdString());
-        if (file.is_open())
-        {
-            try
-            {
-                DefaultSettings = json::parse(file);
-            }
-            catch (const json::parse_error &e)
-            {
-                wxMessageBox(_("JSON syntax error in default settings: %s"), e.what());
-            }
-        }
-    }
-    else
-    {
-        DefaultSettings = EmergencyDefaultSettings;
-    }
+	if (wxFileExists(defaultUserSettingsPath)) {
+		std::ifstream file(defaultUserSettingsPath.ToStdString());
+		if (file.is_open()) {
+			try {
+				DefaultSettings = json::parse(file);
+			} catch (const json::parse_error &e) {
+				wxMessageBox(_("JSON syntax error in default settings: %s"),
+							 e.what());
+			}
+		}
+	} else {
+		DefaultSettings = EmergencyDefaultSettings;
+	}
 
-    try
-    {
-        currentSettings = LoadSettingsFromFile();
-    }
-    catch (const std::exception &e)
-    {
-        wxMessageBox(_("Initial settings load failed"), _("Error"), wxICON_ERROR);
-        currentSettings = DefaultSettings;
-    }
+	try {
+		currentSettings = LoadSettingsFromFile();
+	} catch (const std::exception &e) {
+		wxMessageBox(_("Initial settings load failed"), _("Error"),
+					 wxICON_ERROR);
+		currentSettings = DefaultSettings;
+	}
 }
 
 template <typename T>
-bool UserSettingsManager::SetSetting(const std::string &token, const T &value)
-{
-    std::lock_guard<std::mutex> lock(settingsMutex);
+bool UserSettingsManager::SetSetting(const std::string &token, const T &value) {
+	std::lock_guard<std::mutex> lock(settingsMutex);
 
-    try
-    {
-        auto ptr = nlohmann::json::json_pointer(token.front() == '/' ? token : "/" + token);
-        currentSettings[ptr] = value;
-        return SaveInternal(currentSettings);
-    }
-    catch (const std::exception &e)
-    {
-        wxMessageBox(_("Failed to set setting: %s"), e.what());
-        return false;
-    }
+	try {
+		auto ptr = nlohmann::json::json_pointer(
+			token.front() == '/' ? token : "/" + token);
+		currentSettings[ptr] = value;
+		return SaveInternal(currentSettings);
+	} catch (const std::exception &e) {
+		wxMessageBox(_("Failed to set setting: %s"), e.what());
+		return false;
+	}
 }
 
-template bool UserSettingsManager::SetSetting<bool>(const std::string &, const bool &);
-template bool UserSettingsManager::SetSetting<int>(const std::string &, const int &);
-template bool UserSettingsManager::SetSetting<std::string>(const std::string &, const std::string &);
-template bool UserSettingsManager::SetSetting<double>(const std::string &, const double &);
+template bool UserSettingsManager::SetSetting<bool>(const std::string &,
+													const bool &);
+template bool UserSettingsManager::SetSetting<int>(const std::string &,
+												   const int &);
+template bool UserSettingsManager::SetSetting<std::string>(const std::string &,
+														   const std::string &);
+template bool UserSettingsManager::SetSetting<double>(const std::string &,
+													  const double &);
 
-bool UserSettingsManager::SaveInternal(const nlohmann::json &data)
-{
-    wxString tempPath = SettingsPath + ".tmp";
+bool UserSettingsManager::SaveInternal(const nlohmann::json &data) {
+	wxString tempPath = SettingsPath + ".tmp";
 
-    try
-    {
-        {
-            std::ofstream file(tempPath.ToStdString(), std::ios::out | std::ios::trunc);
-            if (!file.is_open())
-                return false;
+	try {
+		{
+			std::ofstream file(tempPath.ToStdString(),
+							   std::ios::out | std::ios::trunc);
+			if (!file.is_open())
+				return false;
 
-            file << std::setw(4) << data << std::endl;
-            file.flush();
-        }
+			file << std::setw(4) << data << std::endl;
+			file.flush();
+		}
 
-        if (!wxRenameFile(tempPath, SettingsPath, true))
-        {
-            wxRemoveFile(tempPath);
-            return false;
-        }
+		if (!wxRenameFile(tempPath, SettingsPath, true)) {
+			wxRemoveFile(tempPath);
+			return false;
+		}
 
-        return true;
-    }
-    catch (...)
-    {
-        return false;
-    }
+		return true;
+	} catch (...) {
+		return false;
+	}
 }
 
-bool UserSettingsManager::Update(const json &data)
-{
-    std::lock_guard<std::mutex> lock(settingsMutex);
+bool UserSettingsManager::Update(const json &data) {
+	std::lock_guard<std::mutex> lock(settingsMutex);
 
-    try
-    {
-        wxString tempPath = SettingsPath + ".tmp";
+	try {
+		wxString tempPath = SettingsPath + ".tmp";
 
-        {
-            std::ofstream config_file(tempPath.ToStdString());
-            if (!config_file)
-            {
-                throw std::runtime_error("Failed to open temporary settings file");
-            }
-            config_file << std::setw(4) << data << std::endl;
-        }
+		{
+			std::ofstream config_file(tempPath.ToStdString());
+			if (!config_file) {
+				throw std::runtime_error(
+					"Failed to open temporary settings file");
+			}
+			config_file << std::setw(4) << data << std::endl;
+		}
 
-        if (!wxRenameFile(tempPath, SettingsPath, true))
-        {
-            throw std::runtime_error("Failed to replace settings file");
-        }
+		if (!wxRenameFile(tempPath, SettingsPath, true)) {
+			throw std::runtime_error("Failed to replace settings file");
+		}
 
-        currentSettings = data;
-        return true;
-    }
-    catch (const std::exception &e)
-    {
-        wxMessageBox(wxString::Format(_("Settings update failed: %s"), e.what()), _("Error"), wxICON_ERROR);
+		currentSettings = data;
+		return true;
+	} catch (const std::exception &e) {
+		wxMessageBox(
+			wxString::Format(_("Settings update failed: %s"), e.what()),
+			_("Error"), wxICON_ERROR);
 
-        return false;
-    }
+		return false;
+	}
 }
 
-json UserSettingsManager::LoadSettingsFromFile()
-{
-    if (!wxFileExists(SettingsPath))
-    {
-        CreateDefaultSettingsFile();
-        return DefaultSettings;
-    }
+json UserSettingsManager::LoadSettingsFromFile() {
+	if (!wxFileExists(SettingsPath)) {
+		CreateDefaultSettingsFile();
+		return DefaultSettings;
+	}
 
-    try
-    {
-        std::ifstream config_file(SettingsPath.ToStdString());
-        if (!config_file)
-        {
-            throw std::runtime_error("Failed to open settings file for reading");
-        }
+	try {
+		std::ifstream config_file(SettingsPath.ToStdString());
+		if (!config_file) {
+			throw std::runtime_error(
+				"Failed to open settings file for reading");
+		}
 
-        json data = json::parse(config_file);
-        auto mergedSettings = MergeWithDefaults(data);
-        currentSettings = mergedSettings;
-        return mergedSettings;
-    }
-    catch (const json::exception &e)
-    {
-        wxMessageBox(wxString::Format(_("JSON parsing error: %s"), e.what()), _("Error"), wxICON_ERROR);
-        CreateDefaultSettingsFile();
-        return DefaultSettings;
-    }
+		json data = json::parse(config_file);
+		auto mergedSettings = MergeWithDefaults(data);
+		currentSettings = mergedSettings;
+		return mergedSettings;
+	} catch (const json::exception &e) {
+		wxMessageBox(wxString::Format(_("JSON parsing error: %s"), e.what()),
+					 _("Error"), wxICON_ERROR);
+		CreateDefaultSettingsFile();
+		return DefaultSettings;
+	}
 }
 
-void UserSettingsManager::CreateDefaultSettingsFile()
-{
-    try
-    {
-        wxString tempPath = SettingsPath + ".tmp";
+void UserSettingsManager::CreateDefaultSettingsFile() {
+	try {
+		wxString tempPath = SettingsPath + ".tmp";
 
-        {
-            std::ofstream fileStream(tempPath.ToStdString());
-            if (!fileStream)
-            {
-                throw std::runtime_error("Failed to create temporary settings file");
-            }
-            fileStream << std::setw(4) << DefaultSettings << std::endl;
-        }
+		{
+			std::ofstream fileStream(tempPath.ToStdString());
+			if (!fileStream) {
+				throw std::runtime_error(
+					"Failed to create temporary settings file");
+			}
+			fileStream << std::setw(4) << DefaultSettings << std::endl;
+		}
 
-        if (!wxRenameFile(tempPath, SettingsPath))
-        {
-            throw std::runtime_error("Failed to replace settings file with defaults");
-        }
-    }
-    catch (const std::exception &e)
-    {
-        wxMessageBox(wxString::Format(_("Failed to create default settings: %s"), e.what()), _("Error"), wxICON_ERROR);
-        throw;
-    }
+		if (!wxRenameFile(tempPath, SettingsPath)) {
+			throw std::runtime_error(
+				"Failed to replace settings file with defaults");
+		}
+	} catch (const std::exception &e) {
+		wxMessageBox(wxString::Format(
+						 _("Failed to create default settings: %s"), e.what()),
+					 _("Error"), wxICON_ERROR);
+		throw;
+	}
 }
 
-json UserSettingsManager::MergeWithDefaults(json &data)
-{
-    bool needsUpdate = false;
+json UserSettingsManager::MergeWithDefaults(json &data) {
+	bool needsUpdate = false;
 
-    for (const auto &[key, value] : DefaultSettings.items())
-    {
-        if (!data.contains(key))
-        {
-            data[key] = value;
-            needsUpdate = true;
-        }
-    }
+	for (const auto &[key, value] : DefaultSettings.items()) {
+		if (!data.contains(key)) {
+			data[key] = value;
+			needsUpdate = true;
+		}
+	}
 
-    if (needsUpdate)
-    {
-        Update(data);
-    }
+	if (needsUpdate) {
+		Update(data);
+	}
 
-    return data;
+	return data;
 }
 
 template <typename T>
-RequestedSetting<T> UserSettingsManager::GetSetting(const std::string &path)
-{
-    std::lock_guard<std::mutex> lock(settingsMutex);
-    RequestedSetting<T> result{};
+RequestedSetting<T> UserSettingsManager::GetSetting(const std::string &path) {
+	std::lock_guard<std::mutex> lock(settingsMutex);
+	RequestedSetting<T> result{};
 
-    try
-    {
-        auto ptr = nlohmann::json::json_pointer(path.front() == '/' ? path : "/" + path);
+	try {
+		auto ptr = nlohmann::json::json_pointer(
+			path.front() == '/' ? path : "/" + path);
 
-        const nlohmann::json *target = nullptr;
+		const nlohmann::json *target = nullptr;
 
-        if (currentSettings.contains(ptr))
-        {
-            target = &currentSettings[ptr];
-        }
-        else if (DefaultSettings.contains(ptr))
-        {
-            target = &DefaultSettings[ptr];
-        }
+		if (currentSettings.contains(ptr)) {
+			target = &currentSettings[ptr];
+		} else if (DefaultSettings.contains(ptr)) {
+			target = &DefaultSettings[ptr];
+		}
 
-        if (target && !target->is_null())
-        {
-            result.value = target->get<T>();
-            result.found = true;
-        }
-    }
-    catch (...)
-    {
-        result.found = false;
-    }
+		if (target && !target->is_null()) {
+			result.value = target->get<T>();
+			result.found = true;
+		}
+	} catch (...) {
+		result.found = false;
+	}
 
-    return result;
+	return result;
 }
 
-template RequestedSetting<bool> UserSettingsManager::GetSetting<bool>(const std::string &);
-template RequestedSetting<int> UserSettingsManager::GetSetting<int>(const std::string &);
-template RequestedSetting<std::string> UserSettingsManager::GetSetting<std::string>(const std::string &);
-template RequestedSetting<double> UserSettingsManager::GetSetting<double>(const std::string &);
+template RequestedSetting<bool>
+UserSettingsManager::GetSetting<bool>(const std::string &);
+template RequestedSetting<int>
+UserSettingsManager::GetSetting<int>(const std::string &);
+template RequestedSetting<std::string>
+UserSettingsManager::GetSetting<std::string>(const std::string &);
+template RequestedSetting<double>
+UserSettingsManager::GetSetting<double>(const std::string &);

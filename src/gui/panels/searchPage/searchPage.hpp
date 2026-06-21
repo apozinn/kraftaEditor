@@ -4,6 +4,14 @@
 #include <wx/listctrl.h>
 #include <set>
 
+#include <wx/dir.h>
+#include <wx/filename.h>
+#include <wx/textfile.h>
+#include <ui/ids.hpp>
+#include <projectSettings/projectSettings.hpp>
+#include <gui/panels/filesTree/filesTree.hpp>
+#include <themesManager/themesManager.hpp>
+
 /**
  * @class SearchPage
  * @brief Provides a workspace-wide search and replace interface similar to

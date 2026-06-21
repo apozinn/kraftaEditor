@@ -1,7 +1,7 @@
 {
   "dark": {
-    "main": "#1C1C1C",
-    "secondary": "#292929",
+    "main": "#292929",
+    "secondary": "#1C1C1C",
     "colorThree": "#454545",
     "highlight": "#008ff5",
     "border": "#5F5F5F",
