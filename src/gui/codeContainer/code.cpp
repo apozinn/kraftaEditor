@@ -363,6 +363,14 @@ void CodeContainer::OnMoveLineDown(wxCommandEvent &WXUNUSED(event)) {
 	}
 }
 
+void CodeContainer::OnDuplicateLine(wxCommandEvent & event) {
+	auto currentEditor = ((Editor *)wxFindWindowByLabel(
+		ProjectSettings::Get().GetCurrentlyFileOpen() + "_codeEditor"));
+	if (currentEditor) {
+		currentEditor->OnDuplicateLineDown(event);
+	}
+}
+
 void CodeContainer::OnRemoveCurrentLine(wxCommandEvent &WXUNUSED(event)) {
 	auto currentEditor = ((Editor *)wxFindWindowByLabel(
 		ProjectSettings::Get().GetCurrentlyFileOpen() + "_codeEditor"));

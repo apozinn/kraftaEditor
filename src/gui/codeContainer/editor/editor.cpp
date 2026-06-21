@@ -456,7 +456,7 @@ void Editor::OnMoveCursorUp(wxCommandEvent &WXUNUSED(event)) {
 	EnsureCaretVisible();
 }
 
-void Editor::OnDuplicateLineDown(wxCommandEvent &WXUNUSED(event)) {
+void Editor::OnDuplicateLineDown(wxCommandEvent & event) {
 	const int line = GetCurrentLine();
 	const int lineStart = PositionFromLine(line);
 	const int lineEnd = GetLineEndPosition(line);
@@ -473,7 +473,7 @@ void Editor::OnDuplicateLineDown(wxCommandEvent &WXUNUSED(event)) {
 	EnsureCaretVisible();
 }
 
-void Editor::OnDuplicateLineUp(wxCommandEvent &WXUNUSED(event)) {
+void Editor::OnDuplicateLineUp(wxCommandEvent &  event) {
 	const int line = GetCurrentLine();
 	const int lineStart = PositionFromLine(line);
 	const int lineEnd = GetLineEndPosition(line);

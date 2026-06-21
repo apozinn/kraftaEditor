@@ -120,6 +120,8 @@ public:
 
     /** @brief Selects the current line. */
     void OnSelectLine(wxCommandEvent &WXUNUSED(event));
+    
+    void OnDuplicateLine(wxCommandEvent& event);
 
     /** @brief Moves the current or selected lines up. */
     void OnMoveLineUp(wxCommandEvent &WXUNUSED(event));

@@ -32,6 +32,8 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
 							 CodeContainer::OnSelectLine)
 						EVT_MENU(+Event::Edit::SelectAll,
 								 CodeContainer::OnSelectAll)
+                                 EVT_MENU(+Event::Edit::DuplicateLineDown,
+										 CodeContainer::OnDuplicateLine)
 							EVT_MENU(+Event::Edit::MoveLineUp,
 									 CodeContainer::OnMoveLineUp)
 								EVT_MENU(+Event::Edit::MoveLineDown,
