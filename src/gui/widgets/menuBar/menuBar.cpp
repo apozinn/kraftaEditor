@@ -78,7 +78,7 @@ MenuBar::MenuBar() {
 	menuEdit->AppendSeparator();
 	menuEdit->Append(+Event::Edit::DuplicateLineDown,
 					 _("&Duplicate line") + GetSC("shortcut_duplicate_line"));
-    menuEdit->Append(+Event::Edit::MoveLineUp,
+	menuEdit->Append(+Event::Edit::MoveLineUp,
 					 _("&Move Line Up") + GetSC("shortcut_move_line_up"));
 	menuEdit->Append(+Event::Edit::MoveLineDown,
 					 _("&Move Line Down") + GetSC("shortcut_move_line_down"));

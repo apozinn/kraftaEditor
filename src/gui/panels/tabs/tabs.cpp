@@ -30,11 +30,15 @@ Tabs::Tabs(wxPanel *parent, wxWindowID ID) : wxPanel(parent, ID) {
 	sizer->Add(menu, 0, wxALIGN_CENTER | wxRIGHT, 10);
 
 	SetSizerAndFit(sizer);
+
 	tabsContainer->SetScrollRate(20, 20);
 	tabsContainer->EnableScrolling(true, false);
+
 	Bind(wxEVT_PAINT, &Tabs::OnPaint, this);
 
 	SetMinSize(wxSize(parent->GetSize().x, 50));
+	SetSize(wxSize(parent->GetSize().x, 50));
+
 	SetLabel("tabsContainer");
 	Hide();
 }
@@ -115,6 +119,23 @@ void Tabs::Add(wxString tab_name, wxString path) {
 
 	for (auto &&tab : tabsContainer->GetChildren())
 		tab->Refresh();
+
+	auto scrollWheelHandler = [this](wxMouseEvent &event) {
+		int rotation = event.GetWheelRotation();
+		int currentX, currentY;
+		this->tabsContainer->GetViewStart(&currentX, &currentY);
+
+		if (rotation > 0) {
+			this->tabsContainer->Scroll(currentX - 20, currentY);
+		} else if (rotation < 0) {
+			this->tabsContainer->Scroll(currentX + 20, currentY);
+		}
+	};
+
+	new_tab->Bind(wxEVT_MOUSEWHEEL, scrollWheelHandler);
+	new_tab->CallForEachChild([scrollWheelHandler](auto child) {
+		child->Bind(wxEVT_MOUSEWHEEL, scrollWheelHandler);
+	});
 
 	sizer->Layout();
 	tabsContainerSizer->Layout();

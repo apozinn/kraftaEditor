@@ -18,22 +18,21 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
 											 MainFrame::ToggleAutosave)
 
 	// Edit Operations
-	EVT_MENU(+Event::Edit::Cut,
-			 CodeContainer::OnCut) EVT_MENU(+Event::Edit::Copy,
-											CodeContainer::OnCopy)
-		EVT_MENU(+Event::Edit::Paste,
-				 CodeContainer::OnPaste) EVT_MENU(+Event::Edit::Redo,
-												  CodeContainer::OnRedo)
-			EVT_MENU(+Event::Edit::Undo, CodeContainer::OnUndo) EVT_MENU(
-				+Event::Edit::ToggleComment, CodeContainer::ToggleCommentLine)
-				EVT_MENU(+Event::Edit::ToggleBlockComment,
-						 CodeContainer::ToggleCommentBlock)
-					EVT_MENU(+Event::Edit::SelectLine,
-							 CodeContainer::OnSelectLine)
-						EVT_MENU(+Event::Edit::SelectAll,
-								 CodeContainer::OnSelectAll)
-                                 EVT_MENU(+Event::Edit::DuplicateLineDown,
-										 CodeContainer::OnDuplicateLine)
+	EVT_MENU(+Event::Edit::Cut, CodeContainer::OnCut) EVT_MENU(
+		+Event::Edit::Copy,
+		CodeContainer::OnCopy) EVT_MENU(+Event::Edit::Paste,
+										CodeContainer::OnPaste)
+		EVT_MENU(+Event::Edit::Redo, CodeContainer::OnRedo) EVT_MENU(
+			+Event::Edit::Undo,
+			CodeContainer::OnUndo) EVT_MENU(+Event::Edit::ToggleComment,
+											CodeContainer::ToggleCommentLine)
+			EVT_MENU(+Event::Edit::ToggleBlockComment,
+					 CodeContainer::ToggleCommentBlock)
+				EVT_MENU(+Event::Edit::SelectLine, CodeContainer::OnSelectLine)
+					EVT_MENU(+Event::Edit::SelectAll,
+							 CodeContainer::OnSelectAll)
+						EVT_MENU(+Event::Edit::DuplicateLineDown,
+								 CodeContainer::OnDuplicateLine)
 							EVT_MENU(+Event::Edit::MoveLineUp,
 									 CodeContainer::OnMoveLineUp)
 								EVT_MENU(+Event::Edit::MoveLineDown,
