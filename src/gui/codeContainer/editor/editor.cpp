@@ -78,6 +78,7 @@ void Editor::InitializePreferences() {
 	SetTabWidth(4);
 	SetUseTabs(false);
 	SetIndentationGuides(wxSTC_IV_LOOKBOTH);
+    SetEndAtLastLine(false);
 }
 
 void Editor::ConfigureFoldMargin() {
