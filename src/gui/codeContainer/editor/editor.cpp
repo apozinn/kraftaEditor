@@ -78,7 +78,14 @@ void Editor::InitializePreferences() {
 	SetTabWidth(4);
 	SetUseTabs(false);
 	SetIndentationGuides(wxSTC_IV_LOOKBOTH);
-    SetEndAtLastLine(false);
+	SetEndAtLastLine(false);
+
+	Bind(wxEVT_LEFT_DOWN, [this](wxMouseEvent &event) {
+		if (ProjectSettings::Get().GetCurrentlyFileOpen() != this->GetName()) {
+			ProjectSettings::Get().SetCurrentlyFileOpen(this->GetName());
+		}
+		event.Skip();
+	});
 }
 
 void Editor::ConfigureFoldMargin() {

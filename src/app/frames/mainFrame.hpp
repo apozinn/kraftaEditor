@@ -287,8 +287,8 @@ private:
     wxPanel *m_applicationLeftMainContainer;        /**< Container for the file tree and related side content. */
     wxPanel *m_applicationRightMainContainer;       /**< Container for the tabs and editor area. */
     wxSplitterWindow *m_mainContainerSplitter;      /**< Splitter dividing the editor area from the terminal/output panel. */
-    wxPanel *m_mainContainer;                       /**< The panel holding the editor/tabs area. */
     wxPanel *m_centeredContent;                     /**< Panel for content centered in the editor area (e.g., when empty). */
+    wxPanel *m_mainContainer;                       /**< The panel holding the editor/tabs area. */
     KraftaTopLogo* m_kraftaTopLogo;
     PageSwitcher *m_page_switcher;                  /**< Page Switcher */
     SearchPage *m_searchPage;                       /**< Search Page */
@@ -296,6 +296,9 @@ private:
     wxTimer *m_saveSettingsTimer;                   /**< Timer for saving settings periodically. */
     void OnSaveSettingsTimer(wxTimerEvent &event);  /**< Handler for the save settings timer. */
     ProjectSettings &projectSettings = ProjectSettings::Get();                        /**< Reference to global project settings. */
+    wxSplitterWindow* m_codeContainersBlock;
+    wxPanel* m_codeContainerBlockLeft ;
+    wxPanel* m_codeContainerBlockRight ;
 
     // --- Constants ---
     enum
@@ -373,6 +376,8 @@ private:
      * @brief Sets up the splitter dividing the editor area from the output/terminal area.
      */
     void SetupMainContainerSplitter();
+    
+    void SetupCodeContainersBlock();
 
     /**
      * @brief Configures the main editor container panel.

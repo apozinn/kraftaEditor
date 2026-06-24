@@ -12,6 +12,8 @@
 #include "gui/widgets/statusBar/statusBar.hpp"
 #include "ui/ids.hpp"
 
+#include "splitEditor/splitEditor.hpp"
+
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
@@ -46,7 +48,7 @@ public:
      * @param tab The wxWindow representing the tab panel to close.
      * @param tab_path The path of the file associated with the tab.
      */
-    void Close(wxWindow *tab, wxString tab_path);
+    void Close(wxString tab_path);
 
     /**
      * @brief Closes all currently open files and their respective tabs.
@@ -74,7 +76,10 @@ public:
      * @brief Handles mouse click event on the menu button (e.g., to open a context menu for tabs).
      * @param WXUNUSED(event) The mouse event.
      */
-    void OnMenu(wxMouseEvent &WXUNUSED(event));
+    void OnDownMenuClick(wxMouseEvent &WXUNUSED(event));
+    void OnSplitEditorMenuClick(wxMouseEvent &WXUNUSED(event));
+    
+    
 
     wxString selected_tab;              /**< The file path of the currently selected tab. */
     wxScrolled<wxPanel> *tabsContainer; /**< The container for all individual tabs, enabling horizontal scrolling. */
@@ -121,6 +126,6 @@ private:
     wxString iconsDir = ApplicationPaths::AssetsPath("icons");                        /**< Path to the icons directory. */
     ProjectSettings &projectSettings = ProjectSettings::Get();                        /**< Reference to global project settings. */
     StatusBar *statusBar = ((StatusBar *)FindWindowById(+GUI::ControlID::StatusBar)); /**< Pointer to the global status bar. */
-
+    
     wxDECLARE_NO_COPY_CLASS(Tabs);
 };

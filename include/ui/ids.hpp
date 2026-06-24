@@ -54,6 +54,7 @@ namespace GUI
         MainFrame = wxID_ANY,          ///< Main application window
         ProjectToggler,                ///< Button that shows/hides the project tree
         Tabs,                          ///< Main editor tabs control
+        SplitEditorTabs,
         TabsContainer,                 ///< Container holding all editor tabs
         CodeEditor,                    ///< Primary source code editor widget
         MiniMap,                       ///< Code minimap view
@@ -90,7 +91,10 @@ namespace GUI
         FilesPage,                     ///< Files page inside page switcher
         PageSwitcherSearchPage,        ///< Search page inside page switcher
         SearchPage,                    ///< Full search results page
-        CodeSearch,                    /// < In-editor text search panel
+        CodeSearch,                    /// < In-editor text search panel,
+        CodeContainersBlock, 
+        CodeContainerBlockLeft,
+        CodeContainerBlockRight,
     };
 }
 

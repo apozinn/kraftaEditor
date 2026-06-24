@@ -68,7 +68,7 @@ FilesTree::FilesTree(wxWindow *parent, wxWindowID ID) : wxPanel(parent, ID) {
 	m_projectInformationsName->SetFont(font);
 	m_projectInformationsName->Refresh();
 
-	projectInfoSizer->Add(m_projectInformationsName, 0, wxLEFT, 4);
+	projectInfoSizer->Add(m_projectInformationsName, 0, wxBOTTOM | wxLEFT, 4);
 
 	m_projectInfosTools = new ProjectInfosTools(
 		m_projectInformations, +GUI::ControlID::ProjectInfosTools);
@@ -77,7 +77,7 @@ FilesTree::FilesTree(wxWindow *parent, wxWindowID ID) : wxPanel(parent, ID) {
 	m_projectInformations->SetSizerAndFit(projectInfoSizer);
 	m_projectInformations->SetMinSize(wxSize(GetSize().x, 20));
 
-	mainSizer->Add(m_projectInformations, 0, wxEXPAND | wxTOP | wxBOTTOM, 3);
+	mainSizer->Add(m_projectInformations, 0, wxEXPAND | wxTOP, 7);
 
 	m_projectFilesContainer =
 		new wxScrolled<wxPanel>(this, +GUI::ControlID::ProjectFilesContainer);
@@ -476,7 +476,6 @@ bool FilesTree::OpenFile(const wxString &componentIdentifier, int line) {
 
 	return true;
 }
-
 void FilesTree::OnFileRightClick(wxMouseEvent &event) {
 	auto target = ((wxWindow *)event.GetEventObject());
 	if (!target)
@@ -943,7 +942,7 @@ void FilesTree::OnFileSystemEvent(int type, const wxString &oldPath,
 		if (linkedTab) {
 			auto tabs = ((Tabs *)FindWindowById(+GUI::ControlID::Tabs));
 			if (tabs)
-				tabs->Close(linkedTab, linkedTab->GetName());
+				tabs->Close(linkedTab->GetName());
 		}
 		if (component)
 			component->Destroy();

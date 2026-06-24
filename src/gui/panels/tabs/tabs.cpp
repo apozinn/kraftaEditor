@@ -20,14 +20,32 @@ Tabs::Tabs(wxPanel *parent, wxWindowID ID) : wxPanel(parent, ID) {
 	tabsContainerSizer = new wxBoxSizer(wxHORIZONTAL);
 	tabsContainer->SetSizerAndFit(tabsContainerSizer);
 
-	wxVector<wxBitmap> bitmaps;
-	bitmaps.push_back(wxBitmap(iconsDir + "menu_down.png", wxBITMAP_TYPE_PNG));
-	menu = new wxStaticBitmap(this, wxID_ANY,
-							  wxBitmapBundle::FromBitmaps(bitmaps));
-	menu->Bind(wxEVT_LEFT_UP, &Tabs::OnMenu, this);
-
 	sizer->Add(tabsContainer, 1, wxEXPAND | wxTOP | wxBOTTOM, 5);
-	sizer->Add(menu, 0, wxALIGN_CENTER | wxRIGHT, 10);
+
+	if (ID != (+GUI::ControlID::SplitEditorTabs)) {
+		wxPanel *rightMenus = new wxPanel(this);
+		auto rightMenusSizer = new wxBoxSizer(wxHORIZONTAL);
+
+		wxVector<wxBitmap> splitEditorBitmap;
+		splitEditorBitmap.push_back(
+			wxBitmap(iconsDir + "split_editor.png", wxBITMAP_TYPE_PNG));
+		auto splittEditor =
+			new wxStaticBitmap(rightMenus, wxID_ANY,
+							   wxBitmapBundle::FromBitmaps(splitEditorBitmap));
+		splittEditor->Bind(wxEVT_LEFT_UP, &Tabs::OnSplitEditorMenuClick, this);
+		rightMenusSizer->Add(splittEditor, 0, wxEXPAND | wxRIGHT, 10);
+
+		wxVector<wxBitmap> menuDownBitmap;
+		menuDownBitmap.push_back(
+			wxBitmap(iconsDir + "menu_down.png", wxBITMAP_TYPE_PNG));
+		auto menuDown = new wxStaticBitmap(
+			rightMenus, wxID_ANY, wxBitmapBundle::FromBitmaps(menuDownBitmap));
+		menuDown->Bind(wxEVT_LEFT_UP, &Tabs::OnDownMenuClick, this);
+		rightMenusSizer->Add(menuDown, 0);
+
+		rightMenus->SetSizer(rightMenusSizer);
+		sizer->Add(rightMenus, 0, wxALIGN_CENTER | wxRIGHT, 10);
+	}
 
 	SetSizerAndFit(sizer);
 
@@ -142,7 +160,7 @@ void Tabs::Add(wxString tab_name, wxString path) {
 	new_tab->Show();
 }
 
-void Tabs::Close(wxWindow *tab, wxString tab_path) {
+void Tabs::Close(wxString tab_path) {
 	auto codeContainer =
 		((CodeContainer *)FindWindowByName(tab_path + "_codeContainer"));
 	auto imgContainer =
@@ -150,6 +168,10 @@ void Tabs::Close(wxWindow *tab, wxString tab_path) {
 	auto fileContainer =
 		((FilesTree *)FindWindowById(+GUI::ControlID::FilesTree));
 	auto mainCode = FindWindowById(+GUI::ControlID::MainCode);
+
+	auto tab = FindWindowByLabel(tab_path + "_tab");
+	if (!tab)
+		return;
 
 	if (codeContainer) {
 		if (codeContainer->editor->Modified()) {
@@ -172,55 +194,106 @@ void Tabs::Close(wxWindow *tab, wxString tab_path) {
 		}
 		codeContainer->Destroy();
 	}
+
 	if (imgContainer)
 		imgContainer->Destroy();
 
 	wxWindow *descendantTab = NULL;
-	if (auto prevTab = tab->GetPrevSibling()) {
-		descendantTab = prevTab;
-	} else if (auto nextTab = tab->GetNextSibling()) {
-		descendantTab = nextTab;
-	}
 
-	if (descendantTab) {
-		projectSettings.SetCurrentlyFileOpen(descendantTab->GetName());
-		descendantTab->Refresh();
-
-		auto linkedFile = FindWindowByLabel(
-			ProjectSettings::Get().GetCurrentlyFileOpen() + "_file_container");
-		if (linkedFile) {
-			fileContainer->SetFileHighlight(linkedFile->GetName());
+	if (ProjectSettings::Get().GetSecondSplittedEditorPath() != tab_path) {
+		if (auto prevTab = tab->GetPrevSibling()) {
+			descendantTab = prevTab;
+		} else if (auto nextTab = tab->GetNextSibling()) {
+			descendantTab = nextTab;
 		}
 
-		auto other_codeContainer = ((CodeContainer *)FindWindowByName(
-			ProjectSettings::Get().GetCurrentlyFileOpen() + "_codeContainer"));
-		if (other_codeContainer)
-			other_codeContainer->Show();
+		if (descendantTab) {
+			projectSettings.SetCurrentlyFileOpen(descendantTab->GetName());
+			descendantTab->Refresh();
 
-		auto new_imageContainer = FindWindowByLabel(
-			ProjectSettings::Get().GetCurrentlyFileOpen() + "_imageContainer");
-		if (new_imageContainer)
-			new_imageContainer->Show();
-	} else {
-		fileContainer->SetFileHighlight(wxEmptyString);
+			auto linkedFile = FindWindowByLabel(
+				ProjectSettings::Get().GetCurrentlyFileOpen() +
+				"_file_container");
+			if (linkedFile) {
+				fileContainer->SetFileHighlight(linkedFile->GetName());
+			}
 
-		Hide();
-		auto emptyWindow = FindWindowById(+GUI::ControlID::EmptyWindow);
-		if (emptyWindow) {
-			emptyWindow->Show();
-		}
+			auto other_codeContainer = ((CodeContainer *)FindWindowByName(
+				ProjectSettings::Get().GetCurrentlyFileOpen() +
+				"_codeContainer"));
+			if (other_codeContainer)
+				other_codeContainer->Show();
 
-		auto statusBar =
-			((StatusBar *)FindWindowById(+GUI::ControlID::StatusBar));
-		if (statusBar) {
-			statusBar->ClearLabels();
+			auto new_imageContainer = FindWindowByLabel(
+				ProjectSettings::Get().GetCurrentlyFileOpen() +
+				"_imageContainer");
+			if (new_imageContainer)
+				new_imageContainer->Show();
+		} else {
+			fileContainer->SetFileHighlight(wxEmptyString);
+
+			Hide();
+
+			auto emptyWindow = FindWindowById(+GUI::ControlID::EmptyWindow);
+			if (emptyWindow) {
+				emptyWindow->Show();
+			}
+
+			auto statusBar =
+				((StatusBar *)FindWindowById(+GUI::ControlID::StatusBar));
+			if (statusBar) {
+				statusBar->ClearLabels();
+			}
 		}
 	}
 
 	tab->Destroy();
+
+	auto CodeContainerBlockRight =
+		wxWindow::FindWindowById(+GUI::ControlID::CodeContainerBlockRight);
+	auto mainCodeParent =
+		(wxSplitterWindow *)CodeContainerBlockRight->GetParent();
+
+	if (GetId() == (+GUI::ControlID::SplitEditorTabs)) {
+		if (mainCodeParent)
+			mainCodeParent->Unsplit(CodeContainerBlockRight);
+
+		auto mainTabs = ((Tabs *)FindWindowById(+GUI::ControlID::Tabs));
+		if (mainTabs) {
+			ProjectSettings::Get().SetCurrentlyFileOpen(
+				ProjectSettings::Get().GetFirstSplittedEditorPath());
+			ProjectSettings::Get().SetSplitEditorPaths("", "");
+
+			mainTabs->Select();
+		}
+	} else {
+		if (tab_path == ProjectSettings::Get().GetFirstSplittedEditorPath()) {
+
+			auto splitEditorTab =
+				((Tabs *)FindWindowById(+GUI::ControlID::SplitEditorTabs));
+			if (splitEditorTab) {
+
+				if (mainCodeParent)
+					mainCodeParent->Unsplit(CodeContainerBlockRight);
+
+				splitEditorTab->CloseAllFiles();
+			}
+
+			if (fileContainer) {
+				fileContainer->OpenFile(
+					ProjectSettings::Get().GetSecondSplittedEditorPath(), 0);
+			}
+
+			ProjectSettings::Get().SetSplitEditorPaths("", "");
+		}
+	}
+
 	tabsContainer->GetSizer()->Layout();
 	tabsContainer->FitInside();
 	mainCode->GetSizer()->Layout();
+
+	if (GetId() == (+GUI::ControlID::SplitEditorTabs))
+		Destroy();
 }
 
 void Tabs::CloseAllFiles() {
@@ -302,13 +375,13 @@ void Tabs::OnCloseTab(wxMouseEvent &event) {
 	wxObject *obj = event.GetEventObject();
 	auto this_tab = ((wxWindow *)obj)->GetGrandParent();
 	if (this_tab)
-		Tabs::Close(this_tab, this_tab->GetName());
+		Tabs::Close(this_tab->GetName());
 
 	if (statusBar)
 		statusBar->ClearLabels();
 }
 
-void Tabs::OnMenu(wxMouseEvent &WXUNUSED(event)) {
+void Tabs::OnDownMenuClick(wxMouseEvent &WXUNUSED(event)) {
 	auto tabsContainerMenu = TabsContainerMenu::Get();
 	if (!tabsContainerMenu) {
 		wxMessageBox(ErrorMessages::CreateMenuContextError, "Error",
@@ -317,6 +390,30 @@ void Tabs::OnMenu(wxMouseEvent &WXUNUSED(event)) {
 	}
 
 	PopupMenu(tabsContainerMenu);
+}
+
+void Tabs::OnSplitEditorMenuClick(wxMouseEvent &WXUNUSED(event)) {
+	int TabsLength = tabsContainer->GetChildren().size();
+
+	if (TabsLength > 1) {
+		auto GetOtherTabPath = [this]() {
+			auto currentlyOpenTab = wxFindWindowByLabel(
+				ProjectSettings::Get().GetCurrentlyFileOpen() + "_tab");
+			if (currentlyOpenTab) {
+				if (auto next = currentlyOpenTab->GetNextSibling()) {
+					return next->GetName();
+				} else if (auto prev = currentlyOpenTab->GetPrevSibling()) {
+					return prev->GetName();
+				} else
+					return wxString("");
+			} else
+				return wxString("");
+
+			return wxString("");
+		};
+
+		SplitEditorManager::CreateSplitedEditor(GetOtherTabPath());
+	}
 }
 
 void Tabs::OnEnterComp(wxMouseEvent &event) {

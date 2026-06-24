@@ -95,3 +95,16 @@ void ProjectSettings::ClearProject() {
 	m_menuDirPath.clear();
 	m_menuFilePath.clear();
 }
+
+void ProjectSettings::SetSplitEditorPaths(const wxString &firstEditorPath,
+										  const wxString &secondEditorPath) {
+	m_splitEditor_firstEditorPath = firstEditorPath;
+	m_splitEditor_SecondEditorPath = secondEditorPath;
+}
+
+wxString ProjectSettings::GetFirstSplittedEditorPath() {
+	return m_splitEditor_firstEditorPath;
+}
+wxString ProjectSettings::GetSecondSplittedEditorPath() {
+	return m_splitEditor_SecondEditorPath;
+}

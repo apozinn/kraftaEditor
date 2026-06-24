@@ -90,7 +90,7 @@ void StatusBar::UpdateCodeLocale(wxStyledTextCtrl *codeEditor) {
 
 	if (codeLocale)
 		codeLocale->SetLabel(
-			wxString::Format(_("Line: %S, Column: %S"),
+			wxString::Format(_("Line: %S Column: %S"),
 							 std::to_string(codeEditor->GetCurrentLine() + 1),
 							 std::to_string(codeEditor->GetColumn(
 								 codeEditor->GetCurrentPos()))));

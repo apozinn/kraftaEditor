@@ -6,11 +6,10 @@ MainFrame::MainFrame(const wxString &title)
 	SetTitle(title);
 	SetupSettingsTimer();
 	WindowResizeFunctions();
-
 	SetThemeEnabled(true);
+
 	SetAppIcon();
 	SetupMenuBar();
-
 	SetupMainSplitter();
 	SetupApplicationLeftMainContainer();
 	SetupSearchPage();
@@ -18,6 +17,7 @@ MainFrame::MainFrame(const wxString &title)
 	SetupApplicationRightMainContainer();
 	SetupMainContainerSplitter();
 	SetupCenteredContent();
+	SetupCodeContainersBlock();
 	SetupMainContainer();
 	SetupTabs();
 	SetupEmptyWindow();
@@ -26,7 +26,6 @@ MainFrame::MainFrame(const wxString &title)
 	SetupAccelerators();
 
 	SetSizer(sizer);
-
 	SetDropTarget(new FrameFileDropTarget(this));
 }
 
@@ -76,9 +75,11 @@ void MainFrame::SetupApplicationLeftMainContainer() {
 	m_applicationLeftMainContainer = new wxPanel(
 		m_mainSplitter, +GUI::ControlID::ApplicationLeftMainContainer);
 	wxBoxSizer *applicationLeftMainContainer_sizer = new wxBoxSizer(wxVERTICAL);
-	m_applicationLeftMainContainer->SetSizerAndFit(
+	m_applicationLeftMainContainer->SetSizer(
 		applicationLeftMainContainer_sizer);
 	m_mainSplitter->GetSizer()->Add(m_applicationLeftMainContainer, 0);
+	m_applicationLeftMainContainer->SetBackgroundColour(
+		ThemesManager::Get().GetColor("main"));
 }
 
 void MainFrame::SetupKraftaTopLogo() {
@@ -96,14 +97,14 @@ void MainFrame::SetupPageSwitcher() {
 void MainFrame::SetupSearchPage() {
 	m_searchPage = new SearchPage(m_applicationLeftMainContainer);
 	m_applicationLeftMainContainer->GetSizer()->Add(m_searchPage, 1, wxEXPAND);
-
 	m_searchPage->Hide();
 }
 
 void MainFrame::SetupFilesTree() {
 	m_filesTree = new FilesTree(m_applicationLeftMainContainer,
 								+GUI::ControlID::FilesTree);
-	m_applicationLeftMainContainer->GetSizer()->Add(m_filesTree, 1, wxEXPAND);
+	m_applicationLeftMainContainer->GetSizer()->Add(m_filesTree, 1,
+													wxEXPAND | wxLEFT, 3);
 }
 
 void MainFrame::SetupApplicationRightMainContainer() {
@@ -111,7 +112,7 @@ void MainFrame::SetupApplicationRightMainContainer() {
 		m_mainSplitter, +GUI::ControlID::ApplicationRightMainContainer);
 	wxBoxSizer *applicationRightMainContainer_sizer =
 		new wxBoxSizer(wxVERTICAL);
-	m_applicationRightMainContainer->SetSizerAndFit(
+	m_applicationRightMainContainer->SetSizer(
 		applicationRightMainContainer_sizer);
 	m_mainSplitter->GetSizer()->Add(m_applicationRightMainContainer, 1,
 									wxEXPAND);
@@ -124,9 +125,7 @@ void MainFrame::SetupMainContainerSplitter() {
 		new wxSplitterWindow(m_applicationRightMainContainer,
 							 +GUI::ControlID::MainContainerSplitter);
 	wxBoxSizer *mainContainerSplitterSizer = new wxBoxSizer(wxVERTICAL);
-	m_mainContainerSplitter->Bind(wxEVT_PAINT, &MainFrame::OnPaintedComponent,
-								  this);
-	m_mainContainerSplitter->SetSizerAndFit(mainContainerSplitterSizer);
+	m_mainContainerSplitter->SetSizer(mainContainerSplitterSizer);
 	m_applicationRightMainContainer->GetSizer()->Add(m_mainContainerSplitter, 1,
 													 wxEXPAND);
 }
@@ -135,15 +134,47 @@ void MainFrame::SetupCenteredContent() {
 	m_centeredContent =
 		new wxPanel(m_mainContainerSplitter, +GUI::ControlID::CenteredContent);
 	wxBoxSizer *centeredContentSizer = new wxBoxSizer(wxVERTICAL);
-	m_centeredContent->SetSizerAndFit(centeredContentSizer);
+	m_centeredContent->SetSizer(centeredContentSizer);
 	m_mainContainerSplitter->GetSizer()->Add(m_centeredContent, 1, wxEXPAND);
 }
 
+void MainFrame::SetupCodeContainersBlock() {
+	m_codeContainersBlock = new wxSplitterWindow(
+		m_centeredContent, +GUI::ControlID::CodeContainersBlock);
+	m_codeContainersBlock->SetSashGravity(0.5);
+
+	wxBoxSizer *m_codeContainersBlock_sizer = new wxBoxSizer(wxHORIZONTAL);
+
+	m_codeContainerBlockLeft = new wxPanel(
+		m_codeContainersBlock, +GUI::ControlID::CodeContainerBlockLeft);
+	wxBoxSizer *m_codeContainerBlockLeft_sizer = new wxBoxSizer(wxVERTICAL);
+	m_codeContainerBlockLeft->SetSizer(m_codeContainerBlockLeft_sizer);
+
+	m_codeContainersBlock_sizer->Add(m_codeContainerBlockLeft, 1, wxEXPAND);
+
+	m_codeContainerBlockRight = new wxPanel(
+		m_codeContainersBlock, +GUI::ControlID::CodeContainerBlockRight);
+	wxBoxSizer *m_codeContainerBlockRight_sizer = new wxBoxSizer(wxVERTICAL);
+	m_codeContainerBlockRight->SetSizer(m_codeContainerBlockRight_sizer);
+
+	m_codeContainersBlock_sizer->Add(m_codeContainerBlockRight, 1, wxEXPAND);
+
+	m_codeContainersBlock->SetMinimumPaneSize(100);
+
+	m_codeContainersBlock->SplitVertically(m_codeContainerBlockLeft,
+										   m_codeContainerBlockRight);
+	m_codeContainersBlock->SetSizer(m_codeContainersBlock_sizer);
+	m_centeredContent->GetSizer()->Add(m_codeContainersBlock, 1, wxEXPAND);
+
+	m_codeContainersBlock->Unsplit(m_codeContainerBlockRight);
+}
+
 void MainFrame::SetupMainContainer() {
-	m_mainContainer = new wxPanel(m_centeredContent, +GUI::ControlID::MainCode);
+	m_mainContainer =
+		new wxPanel(m_codeContainerBlockLeft, +GUI::ControlID::MainCode);
 	wxBoxSizer *mainContainerSizer = new wxBoxSizer(wxVERTICAL);
-	m_mainContainer->SetSizerAndFit(mainContainerSizer);
-	m_centeredContent->GetSizer()->Add(m_mainContainer, 1, wxEXPAND);
+	m_mainContainer->SetSizer(mainContainerSizer);
+	m_codeContainerBlockLeft->GetSizer()->Add(m_mainContainer, 1, wxEXPAND);
 }
 
 void MainFrame::SetupTabs() {
@@ -154,7 +185,9 @@ void MainFrame::SetupTabs() {
 void MainFrame::SetupEmptyWindow() {
 	m_emptyWindow =
 		new EmptyWindow(m_mainContainer, +GUI::ControlID::EmptyWindow);
-	m_mainContainer->GetSizer()->Add(m_emptyWindow, 1, wxEXPAND);
+	m_mainContainer->GetSizer()->Add(m_emptyWindow, 0, wxEXPAND);
+
+	m_emptyWindow->Hide();
 }
 
 void MainFrame::SetupTerminal() {
@@ -162,7 +195,8 @@ void MainFrame::SetupTerminal() {
 		new Terminal(m_mainContainerSplitter, +GUI::ControlID::Terminal);
 	m_mainContainerSplitter->GetSizer()->Add(m_terminal, 0);
 
-	m_mainContainerSplitter->SplitVertically(m_centeredContent, m_terminal, 0);
+	m_mainContainerSplitter->SplitHorizontally(m_centeredContent, m_terminal,
+											   -200);
 	m_mainContainerSplitter->Unsplit(m_terminal);
 }
 

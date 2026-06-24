@@ -10,16 +10,15 @@
 
 CodeContainer::CodeContainer(wxWindow *parent, wxString path)
 	: wxPanel(parent, wxID_ANY, wxDefaultPosition) {
-	Hide();
-
 	sizer = new wxBoxSizer(wxHORIZONTAL);
 
 	editor = new Editor(this);
-	editor->SetMinSize(wxSize(parent->GetSize().x - 100, parent->GetSize().y));
 	sizer->Add(editor, 1, wxEXPAND);
 
 	SetSizerAndFit(sizer);
 	LoadPath(path);
+
+	sizer->Layout();
 	Layout();
 
 	if (PlatformInfos::IsWindows())
@@ -166,11 +165,7 @@ void CodeContainer::OnCloseFile(wxCommandEvent &WXUNUSED(event)) {
 
 		auto tabsContainer = ((Tabs *)FindWindowById(+GUI::ControlID::Tabs));
 		if (tabsContainer) {
-			if (auto tab = FindWindowByLabel(
-					ProjectSettings::Get().GetCurrentlyFileOpen() + "_tab")) {
-				tabsContainer->Close(
-					tab, ProjectSettings::Get().GetCurrentlyFileOpen());
-			}
+			tabsContainer->Close(ProjectSettings::Get().GetCurrentlyFileOpen());
 		}
 	}
 }

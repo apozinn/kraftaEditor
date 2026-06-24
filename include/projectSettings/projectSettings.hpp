@@ -174,6 +174,11 @@ public:
      * @endcode
      */
     void SetCurrentlyMenuFile(const wxString& filePath);
+    
+    void SetSplitEditorPaths(const wxString& firstEditorPath, const wxString& secondEditorPath);
+    
+    wxString GetFirstSplittedEditorPath();
+    wxString GetSecondSplittedEditorPath();
 
     // ==================== Utility Methods ====================
 
@@ -230,4 +235,6 @@ private:
     wxString m_currentlyFileOpen; ///< Path of the currently open file in the editor.
     wxString m_menuDirPath;       ///< Path of the directory selected via context menu.
     wxString m_menuFilePath;      ///< Path of the file selected via context menu.
+    wxString m_splitEditor_firstEditorPath;
+    wxString m_splitEditor_SecondEditorPath;
 };
