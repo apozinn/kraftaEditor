@@ -465,20 +465,28 @@ void Editor::OnMoveCursorUp(wxCommandEvent &WXUNUSED(event)) {
 }
 
 void Editor::OnDuplicateLineDown(wxCommandEvent &event) {
-	const int line = GetCurrentLine();
-	const int lineStart = PositionFromLine(line);
-	const int lineEnd = GetLineEndPosition(line);
-	const wxString text = GetTextRange(lineStart, lineEnd);
+const int selStart = GetSelectionStart();
+const int selEnd = GetSelectionEnd();
 
-	BeginUndoAction();
+if (selStart == selEnd) {
+    const int line = GetCurrentLine();
+    const int lineStart = PositionFromLine(line);
+    const int lineEnd = GetLineEndPosition(line);
+    const wxString text = GetTextRange(lineStart, lineEnd);
+    BeginUndoAction();
+    InsertText(lineEnd, "\n" + text);
+    EndUndoAction();
+    GotoLine(line + 1);
+    SetEmptySelection(GetCurrentPos());
+} else {
+    const wxString text = GetTextRange(selStart, selEnd);
+    BeginUndoAction();
+    InsertText(selEnd,  "\n" + text);
+    EndUndoAction();
+    SetSelection(selEnd, selEnd + text.Length());
+}
 
-	InsertText(lineEnd, "\n" + text);
-
-	EndUndoAction();
-
-	GotoLine(line + 1);
-	SetEmptySelection(GetCurrentPos());
-	EnsureCaretVisible();
+EnsureCaretVisible();
 }
 
 void Editor::OnDuplicateLineUp(wxCommandEvent &event) {
