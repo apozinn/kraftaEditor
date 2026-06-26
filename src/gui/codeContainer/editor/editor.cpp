@@ -65,7 +65,9 @@ void Editor::InitializePreferences() {
 		{wxACCEL_CTRL, (int)'C', static_cast<int>(Event::Edit::CopyByKeyboard)},
 		{wxACCEL_CTRL | wxACCEL_SHIFT, (int)'+',
 		 static_cast<int>(Event::View::ZoomIn)},
-		{wxACCEL_CTRL, (int)'-', static_cast<int>(Event::View::ZoomOut)},
+        {wxACCEL_CTRL , (int)'-', static_cast<int>(Event::View::ZoomOut)},
+		{wxACCEL_CTRL, (int)'/', static_cast<int>(Event::Edit::ToggleLineComment)},
+        {wxACCEL_CTRL | wxACCEL_SHIFT , (int)'?', static_cast<int>(Event::Edit::ToggleBlockComment)},
 	};
 
 	SetAcceleratorTable(wxAcceleratorTable(WXSIZEOF(entries), entries));
@@ -677,3 +679,83 @@ void Editor::OnHorizontalScroll(wxMouseEvent &event) {
 void Editor::OnZoomIn(wxCommandEvent &event) { ZoomIn(); }
 
 void Editor::OnZoomOut(wxCommandEvent &event) { ZoomOut(); }
+
+void Editor::OnToggleLineComment(wxCommandEvent& event) {
+    int lineStart = 0;
+			if (GetSelectionEnd() -
+					GetSelectionStart() <=
+				0) {
+				lineStart = PositionFromLine(
+					GetCurrentLine());
+			} else {
+				lineStart = GetSelectionStart();
+			}
+
+			char chr = (char)GetCharAt(lineStart);
+
+			if (chr == ' ') {
+				while (chr == ' ') {
+					lineStart++;
+					chr = (char)GetCharAt(lineStart);
+				}
+			}
+
+			if (chr == '/' &&
+				(char)GetCharAt(lineStart + 1) == '/') {
+				DeleteRange(lineStart, 2);
+			} else {
+				InsertText(lineStart, "//");
+			}
+}
+
+void Editor::OnToggleBlockComment(wxCommandEvent& event) {
+    int selStart = GetSelectionStart();
+	int selEnd = GetSelectionEnd();
+	if (selStart > selEnd)
+		std::swap(selStart, selEnd);
+
+	if (selStart == selEnd) {
+		const int line = GetCurrentLine();
+		selStart = PositionFromLine(line);
+		selEnd = GetLineEndPosition(line);
+	}
+
+	auto isSpace = [&](int ch) {
+		return ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n';
+	};
+
+	int s = selStart;
+	int e = selEnd;
+	while (s < e && isSpace(GetCharAt(s)))
+		s++;
+	while (e > s && isSpace(GetCharAt(e - 1)))
+		e--;
+
+	const bool hasOpen = (e - s >= 2) && GetCharAt(s) == '/' &&
+						 GetCharAt(s + 1) == '*';
+	const bool hasClose = (e - s >= 4) &&
+						  GetCharAt(e - 2) == '*' &&
+						  GetCharAt(e - 1) == '/';
+
+	auto unwrap = [&](wxStyledTextCtrl *ctrl) {
+		ctrl->BeginUndoAction();
+		ctrl->DeleteRange(e - 2, 2);
+		ctrl->DeleteRange(s, 2);
+		ctrl->EndUndoAction();
+	};
+
+	auto wrap = [&](wxStyledTextCtrl *ctrl) {
+		ctrl->BeginUndoAction();
+		ctrl->InsertText(e, "*/");
+		ctrl->InsertText(s, "/*");
+		ctrl->EndUndoAction();
+	};
+
+	if (hasOpen && hasClose) {
+		unwrap(this);
+		SetSelection(selStart, wxMax(selStart, selEnd - 4));
+	} else {
+		wrap(this);
+		SetSelection(selStart, selEnd + 4);
+	}
+}

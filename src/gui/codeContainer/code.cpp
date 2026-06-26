@@ -221,104 +221,19 @@ void CodeContainer::OnPaste(wxCommandEvent &WXUNUSED(event)) {
 	}
 }
 
-void CodeContainer::ToggleCommentLine(wxCommandEvent &WXUNUSED(event)) {
-	wxWindow *currentCodeEditor = wxFindWindowByLabel(
-		ProjectSettings::Get().GetCurrentlyFileOpen() + "_codeContainer");
-	if (currentCodeEditor) {
-		auto currentEditor =
-			((wxStyledTextCtrl *)currentCodeEditor->GetChildren()[0]);
-
-		if (currentEditor) {
-			int lineStart = 0;
-			if (currentEditor->GetSelectionEnd() -
-					currentEditor->GetSelectionStart() <=
-				0) {
-				lineStart = currentEditor->PositionFromLine(
-					currentEditor->GetCurrentLine());
-			} else {
-				lineStart = currentEditor->GetSelectionStart();
-			}
-
-			char chr = (char)currentEditor->GetCharAt(lineStart);
-
-			if (chr == ' ') {
-				while (chr == ' ') {
-					lineStart++;
-					chr = (char)currentEditor->GetCharAt(lineStart);
-				}
-			}
-
-			if (chr == '/' &&
-				(char)currentEditor->GetCharAt(lineStart + 1) == '/') {
-				currentEditor->DeleteRange(lineStart, 2);
-			} else {
-				currentEditor->InsertText(lineStart, "//");
-			}
-		}
+void CodeContainer::ToggleCommentLine(wxCommandEvent &event) {
+		auto currentEditor = ((Editor *)wxFindWindowByLabel(
+		ProjectSettings::Get().GetCurrentlyFileOpen() + "_codeEditor"));
+	if (currentEditor) {
+		currentEditor->OnToggleLineComment(event);
 	}
 }
 
-void CodeContainer::ToggleCommentBlock(wxCommandEvent &WXUNUSED(event)) {
-	wxWindow *currentCodeEditor = wxFindWindowByLabel(
-		ProjectSettings::Get().GetCurrentlyFileOpen() + "_codeContainer");
-	if (!currentCodeEditor)
-		return;
-
-	if (currentCodeEditor->GetChildren().GetCount() < 2)
-		return;
-	auto *currentEditor =
-		dynamic_cast<wxStyledTextCtrl *>(currentCodeEditor->GetChildren()[0]);
-	if (!currentEditor)
-		return;
-
-	int selStart = currentEditor->GetSelectionStart();
-	int selEnd = currentEditor->GetSelectionEnd();
-	if (selStart > selEnd)
-		std::swap(selStart, selEnd);
-
-	if (selStart == selEnd) {
-		const int line = currentEditor->GetCurrentLine();
-		selStart = currentEditor->PositionFromLine(line);
-		selEnd = currentEditor->GetLineEndPosition(line);
-	}
-
-	auto isSpace = [&](int ch) {
-		return ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n';
-	};
-
-	int s = selStart;
-	int e = selEnd;
-	while (s < e && isSpace(currentEditor->GetCharAt(s)))
-		s++;
-	while (e > s && isSpace(currentEditor->GetCharAt(e - 1)))
-		e--;
-
-	const bool hasOpen = (e - s >= 2) && currentEditor->GetCharAt(s) == '/' &&
-						 currentEditor->GetCharAt(s + 1) == '*';
-	const bool hasClose = (e - s >= 4) &&
-						  currentEditor->GetCharAt(e - 2) == '*' &&
-						  currentEditor->GetCharAt(e - 1) == '/';
-
-	auto unwrap = [&](wxStyledTextCtrl *ctrl) {
-		ctrl->BeginUndoAction();
-		ctrl->DeleteRange(e - 2, 2);
-		ctrl->DeleteRange(s, 2);
-		ctrl->EndUndoAction();
-	};
-
-	auto wrap = [&](wxStyledTextCtrl *ctrl) {
-		ctrl->BeginUndoAction();
-		ctrl->InsertText(e, "*/");
-		ctrl->InsertText(s, "/*");
-		ctrl->EndUndoAction();
-	};
-
-	if (hasOpen && hasClose) {
-		unwrap(currentEditor);
-		currentEditor->SetSelection(selStart, wxMax(selStart, selEnd - 4));
-	} else {
-		wrap(currentEditor);
-		currentEditor->SetSelection(selStart, selEnd + 4);
+void CodeContainer::ToggleCommentBlock(wxCommandEvent &event ) {
+	auto currentEditor = ((Editor *)wxFindWindowByLabel(
+		ProjectSettings::Get().GetCurrentlyFileOpen() + "_codeEditor"));
+	if (currentEditor) {
+		currentEditor->OnToggleBlockComment(event);
 	}
 }
 

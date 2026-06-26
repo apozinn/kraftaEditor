@@ -106,10 +106,10 @@ public:
     // -------------------------------------------------------------------------
 
     /** @brief Toggles line comments on the current selection or line. */
-    void ToggleCommentLine(wxCommandEvent &WXUNUSED(event));
+    void ToggleCommentLine(wxCommandEvent &(event));
 
     /** @brief Toggles block comments on the current selection. */
-    void ToggleCommentBlock(wxCommandEvent &WXUNUSED(event));
+    void ToggleCommentBlock(wxCommandEvent &(event));
 
     // -------------------------------------------------------------------------
     // Selection operations

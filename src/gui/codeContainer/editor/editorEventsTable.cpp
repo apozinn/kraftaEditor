@@ -7,6 +7,11 @@ wxBEGIN_EVENT_TABLE(Editor, wxStyledTextCtrl) EVT_STC_MODIFIED(
 		wxID_ANY, Editor::CharAdd) EVT_LEFT_UP(Editor::OnClick)
 		EVT_MOUSEWHEEL(Editor::OnScroll) EVT_KEY_DOWN(
 			Editor::OnBackspace) EVT_STC_UPDATEUI(wxID_ANY, Editor::OnUpdateUI)
+            
+            EVT_MENU(+Event::Edit::ToggleLineComment,
+											Editor::OnToggleLineComment)
+			EVT_MENU(+Event::Edit::ToggleBlockComment,
+					 Editor::OnToggleBlockComment)
 
 			EVT_MENU(+Event::Edit::CopyByKeyboard, Editor::OnCopy)
 

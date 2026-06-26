@@ -187,6 +187,9 @@ public:
      * @brief Handler to duplicate the current line one line below it.
      */
     void OnDuplicateLineDown(wxCommandEvent &event);
+    
+    void OnToggleLineComment(wxCommandEvent& event) ;
+    void OnToggleBlockComment(wxCommandEvent& event) ;
 
     /**
      * @brief Pointer to an optional synchronized minimap view of the document.

@@ -134,7 +134,7 @@ namespace Event
     {
         Undo = wxID_UNDO,
         Redo = wxID_REDO,
-        ToggleComment = ID_BASE_EDIT + 1,
+        ToggleLineComment = ID_BASE_EDIT + 1,
         ToggleBlockComment = ID_BASE_EDIT + 2,
         SelectAll = ID_BASE_EDIT + 3,
         SelectLine = ID_BASE_EDIT + 4,

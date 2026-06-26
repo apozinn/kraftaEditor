@@ -24,7 +24,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
 										CodeContainer::OnPaste)
 		EVT_MENU(+Event::Edit::Redo, CodeContainer::OnRedo) EVT_MENU(
 			+Event::Edit::Undo,
-			CodeContainer::OnUndo) EVT_MENU(+Event::Edit::ToggleComment,
+			CodeContainer::OnUndo) EVT_MENU(+Event::Edit::ToggleLineComment,
 											CodeContainer::ToggleCommentLine)
 			EVT_MENU(+Event::Edit::ToggleBlockComment,
 					 CodeContainer::ToggleCommentBlock)
