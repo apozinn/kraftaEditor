@@ -44,6 +44,7 @@ using json = nlohmann::json;
 #include "projectSettings/projectSettings.hpp"
 #include "convertPathToHash/convertPathToHash.hpp"
 #include "workspaceStorageManager/workspaceStorageManager.hpp"
+#include "lsp/lspManager/lspManager.hpp"
 
 #include "gui/widgets/menuBar/menuBar.hpp"
 #include "gui/panels/filesTree/filesTree.hpp"

@@ -17,7 +17,7 @@ void CreateSplitedEditor(const wxString &path) {
 	auto statusBar =
 		((StatusBar *)wxWindow::FindWindowById(+GUI::ControlID::StatusBar));
 
-	if (!CodeContainerBlockLeft || !CodeContainerBlockRight|| !tabsContainer ||
+	if (!CodeContainerBlockLeft || !CodeContainerBlockRight || !tabsContainer ||
 		!statusBar)
 		return;
 	if (!wxFileExists(path))

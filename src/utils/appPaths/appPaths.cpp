@@ -42,6 +42,20 @@ const wxString &ApplicationPath() {
 	return path;
 }
 
+const wxString GetLspPath() {
+	wxString baseDir = wxStandardPaths::Get().GetUserConfigDir() +
+					   wxFileName::GetPathSeparator() + ".kraftaEditor" +
+					   wxFileName::GetPathSeparator() + "lsp" +
+					   wxFileName::GetPathSeparator();
+
+	wxFileName fn(baseDir);
+	if (!fn.DirExists()) {
+		fn.Mkdir(wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
+	}
+
+	return fn.GetFullPath();
+}
+
 bool IsRunningInDevelopmentEnvironment() {
 	static const bool isDev = [] {
 		const wxString path = ApplicationPath().Lower();

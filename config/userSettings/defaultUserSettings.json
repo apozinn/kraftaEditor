@@ -17,6 +17,7 @@
     },
     "prompts": {
         "confirmFileDelete": true,
-        "confirmDirDelete": true
+        "confirmDirDelete": true,
+        "dontAskForInstallLspList": []
     }
 }

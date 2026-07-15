@@ -47,12 +47,89 @@ void LanguagesPreferences::LoadExtensionsList() {
 	}
 }
 
+bool LanguagesPreferences::VerifyLanguageLsp(
+	const languagePreferencesStruct &currentLanguagePreferences,
+	std::function<void(bool)> onComplete) {
+
+	if (!currentLanguagePreferences.preferences.contains("lsp")) {
+		if (onComplete)
+			onComplete(false);
+		return false;
+	}
+
+	auto &lspConfig = currentLanguagePreferences.preferences["lsp"];
+	wxString lspDownloadLink;
+	wxString serverName;
+
+	try {
+		if (lspConfig.contains("server")) {
+			auto &server = lspConfig["server"];
+
+			if (server.contains("name")) {
+				serverName =
+					wxString::FromUTF8(server["name"].get<std::string>());
+			}
+
+			if (server.contains("download") &&
+				server["download"].contains("urls")) {
+
+				auto &urls = server["download"]["urls"];
+				auto platformId = wxPlatformInfo::Get().GetOperatingSystemId();
+				std::string platformKey;
+
+				if (platformId == wxOS_WINDOWS_NT) {
+					platformKey = "windows";
+				} else if (platformId == wxOS_MAC) {
+					platformKey = "mac";
+				} else if (platformId == wxOS_UNIX_LINUX) {
+					platformKey = "linux";
+				} else {
+					wxLogError(
+						"The current operating system does not support LSP.");
+					if (onComplete)
+						onComplete(false);
+					return false;
+				}
+
+				if (urls.contains(platformKey) &&
+					!urls[platformKey].is_null()) {
+					lspDownloadLink = wxString::FromUTF8(
+						urls[platformKey].get<std::string>());
+				}
+			}
+		}
+	} catch (const std::exception &e) {
+		wxLogError("Failed to parse LSP config: %s", e.what());
+		if (onComplete)
+			onComplete(false);
+		return false;
+	}
+
+	if (serverName.empty()) {
+		wxLogError("No server name in LSP config");
+		if (onComplete)
+			onComplete(false);
+		return false;
+	}
+
+	LspManager::Get().VerifyIfLanguageHasLsp(currentLanguagePreferences.name,
+											 serverName, lspDownloadLink,
+											 onComplete);
+
+	return true;
+}
+
 languagePreferencesStruct
 LanguagesPreferences::SetupLanguagesPreferences(wxWindow *codeContainer) {
+
 	try {
 		wxString path = codeContainer->GetName();
 		wxStyledTextCtrl *editor =
-			((wxStyledTextCtrl *)codeContainer->GetChildren()[0]);
+			dynamic_cast<wxStyledTextCtrl *>(codeContainer->GetChildren()[0]);
+
+		if (!editor) {
+			throw std::runtime_error("Editor not found in container");
+		}
 
 		languagePreferencesStruct currentLanguagePreferences =
 			GetLanguagePreferences(path);
@@ -60,11 +137,19 @@ LanguagesPreferences::SetupLanguagesPreferences(wxWindow *codeContainer) {
 		editor->SetLexer(currentLanguagePreferences.lexer);
 
 		if (currentLanguagePreferences.preferences.contains("lexer_settings")) {
-			int tabWidth = currentLanguagePreferences
-							   .preferences["lexer_settings"]["tab_width"]
-							   .template get<int>();
-			editor->SetTabWidth(tabWidth);
-			editor->SetIndent(tabWidth);
+			auto &settings =
+				currentLanguagePreferences.preferences["lexer_settings"];
+
+			if (settings.contains("tab_width")) {
+				int tabWidth = settings["tab_width"].get<int>();
+				editor->SetTabWidth(tabWidth);
+				editor->SetIndent(tabWidth);
+			}
+
+			if (settings.contains("use_spaces")) {
+				bool useSpaces = settings["use_spaces"].get<bool>();
+				editor->SetUseTabs(!useSpaces);
+			}
 		}
 
 		ApplyLexerStyles(currentLanguagePreferences, editor);
@@ -73,7 +158,22 @@ LanguagesPreferences::SetupLanguagesPreferences(wxWindow *codeContainer) {
 		SetupFold(currentLanguagePreferences, editor);
 		UpdateStatusBar(currentLanguagePreferences);
 
+		if (currentLanguagePreferences.preferences.contains("lsp")) {
+			Editor *editorPtr = dynamic_cast<Editor *>(editor);
+			if (editorPtr) {
+				VerifyLanguageLsp(currentLanguagePreferences,
+								  [editorPtr](bool success) {
+									  if (success) {
+										  wxTheApp->CallAfter([editorPtr]() {
+											  editorPtr->Lsp();
+										  });
+									  }
+								  });
+			}
+		}
+
 		return currentLanguagePreferences;
+
 	} catch (const std::exception &e) {
 		wxMessageBox(wxString::Format(
 			_("Failed to get language preferences: %s"), e.what()));

@@ -27,6 +27,11 @@ StatusBar::StatusBar(wxWindow *parent)
 	fileExt = new wxStaticText(this, +GUI::ControlID::StatusBarFileExt, "");
 	sizer->Add(fileExt, 0, wxALIGN_CENTER | wxRIGHT, 10);
 
+	// LSP status
+	m_lsp_status_label =
+		new wxStaticText(this, +GUI::ControlID::StatusBarLSPStatus, "");
+	sizer->Add(m_lsp_status_label, 0, wxALIGN_CENTER | wxRIGHT, 10);
+
 	SetSizerAndFit(sizer);
 	Bind(wxEVT_PAINT, &StatusBar::OnPaint, this);
 	SetMinSize(wxSize(GetSize().x, 20));
@@ -71,6 +76,10 @@ void StatusBar::UpdateComponents(const wxString &path) {
 		Show();
 		GetParent()->GetSizer()->Layout();
 	}
+
+	codeLocale->Layout();
+	tabSize->Layout();
+	fileExt->Layout();
 
 	Refresh();
 	sizer->Layout();

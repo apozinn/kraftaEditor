@@ -398,13 +398,14 @@ void FilesTree::OnFileLeftClick(wxMouseEvent &event) {
 }
 
 bool FilesTree::OpenFile(const wxString &componentIdentifier, int line) {
-   if(ProjectSettings::Get().GetCurrentlyFileOpen() == componentIdentifier ) {
-       auto editor = (wxStyledTextCtrl*)wxFindWindowByLabel(componentIdentifier+"_codeEditor");
-       if(editor) {
-           editor->GotoLine(line);
-       }
-   }
-    
+	if (ProjectSettings::Get().GetCurrentlyFileOpen() == componentIdentifier) {
+		auto editor = (wxStyledTextCtrl *)wxFindWindowByLabel(
+			componentIdentifier + "_codeEditor");
+		if (editor) {
+			editor->GotoLine(line);
+		}
+	}
+
 	auto mainCode = FindWindowById(+GUI::ControlID::MainCode);
 	auto tabsContainer = ((Tabs *)FindWindowById(+GUI::ControlID::Tabs));
 	auto statusBar = ((StatusBar *)FindWindowById(+GUI::ControlID::StatusBar));

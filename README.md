@@ -68,10 +68,10 @@ git clone https://github.com/apozinn/kraftaEditor.git
 cd kraftaEditor
 
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build --config Release
+cmake --build build
 
 # Run directly after building
-cmake --build build --target run --config Release
+cmake --build build --target run
 
 ```
 

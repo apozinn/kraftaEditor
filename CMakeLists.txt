@@ -66,6 +66,25 @@ endif()
 include(FetchContent)
 include(GNUInstallDirs)
 
+# ------------------------------------------------------------------------------
+# libcurl — fetched from source, no system dependency required
+# ------------------------------------------------------------------------------
+set(CURL_ENABLE_SSL          ON  CACHE BOOL "" FORCE)
+set(BUILD_CURL_EXE           OFF CACHE BOOL "" FORCE)
+set(BUILD_SHARED_LIBS        OFF CACHE BOOL "" FORCE)
+set(CURL_USE_OPENSSL         ON  CACHE BOOL "" FORCE)
+set(HTTP_ONLY                ON  CACHE BOOL "" FORCE)
+set(CURL_DISABLE_TESTS       ON  CACHE BOOL "" FORCE)
+set(CURL_DISABLE_INSTALL     OFF CACHE BOOL "" FORCE)
+
+FetchContent_Declare(
+    curl
+    GIT_REPOSITORY https://github.com/curl/curl.git
+    GIT_TAG        curl-8_8_0
+    GIT_SHALLOW    ON
+)
+FetchContent_MakeAvailable(curl)
+
 # wxWidgets — prefer system 3.3+, fall back to FetchContent if too old or absent
 set(wxWidgets_MIN_VERSION "3.3.2")
 if(USE_SYSTEM_WXWIDGETS)
@@ -183,6 +202,7 @@ target_link_libraries(kraftaEditor PRIVATE
     wx::stc
     wx::base
     nlohmann_json::nlohmann_json
+    CURL::libcurl
 )
 
 # ------------------------------------------------------------------------------

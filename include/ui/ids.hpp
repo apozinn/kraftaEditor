@@ -78,6 +78,7 @@ namespace GUI
         StatusBarFileExt,              ///< Status bar file extension indicator
         StatusBarTabSize,              ///< Status bar tab size indicator
         StatusBarCodeLocale,           ///< Status bar language mode indicator
+        StatusBarLSPStatus,
         MenuBar,                       ///< Application menu bar
         NotifyPanel,                   ///< Notification and alert panel
         ProjectToolsName,              ///< Project name label in tools panel

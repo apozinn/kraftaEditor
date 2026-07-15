@@ -71,7 +71,8 @@ MenuBar::MenuBar() {
 	menuEdit->Append(wxID_PASTE, _("&Paste") + GetSC("shortcut_paste"));
 	menuEdit->AppendSeparator();
 	menuEdit->Append(+Event::Edit::ToggleLineComment,
-					 _("&Toggle Line Comment") + GetSC("shortcut_toggle_comment"));
+					 _("&Toggle Line Comment") +
+						 GetSC("shortcut_toggle_comment"));
 	menuEdit->Append(+Event::Edit::ToggleBlockComment,
 					 _("&Toggle Block Comment") +
 						 GetSC("shortcut_toggle_block_comment"));

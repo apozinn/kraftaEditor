@@ -3,7 +3,8 @@
     "icon_file_name": "python",
     "file_patterns": [
         "py",
-        "pyw"
+        "pyw",
+        "pyi"
     ],
     "lexer_id": 2,
     "lexer_settings": {
@@ -20,5 +21,17 @@
     "fold": {
         "enabled": true,
         "compact": false
+    },
+            "lsp": {
+      "server": {
+        "name": "pylsp",
+        "download": {
+          "urls": {
+            "linux": null,
+            "windows": null,
+            "mac": null
+          }
+        }
+      }
     }
 }

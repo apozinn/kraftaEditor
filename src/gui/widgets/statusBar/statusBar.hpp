@@ -63,6 +63,7 @@ public:
     wxStaticText* codeLocale = nullptr; /**< Displays line and column number (e.g., Ln 10, Col 5). */
     wxStaticText* tabSize = nullptr; /**< Displays tab size and/or indentation type. */
     wxStaticText* fileExt = nullptr; /**< Displays the file extension or programming language name. */
+    wxStaticText* m_lsp_status_label = nullptr;
 
 private:
     wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL); /**< Main sizer for the status bar layout. */

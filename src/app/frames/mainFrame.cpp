@@ -25,6 +25,8 @@ MainFrame::MainFrame(const wxString &title)
 	SetupStatusBar();
 	SetupAccelerators();
 
+	LspManager::Get();
+
 	SetSizer(sizer);
 	SetDropTarget(new FrameFileDropTarget(this));
 }

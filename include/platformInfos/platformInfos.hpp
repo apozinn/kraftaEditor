@@ -48,10 +48,16 @@ namespace PlatformInfos
      * }
      * @endcode
      */
-    inline std::string_view OsNameView() noexcept
+    inline std::string OsNameView() 
     {
-        static const auto name = wxPlatformInfo::Get().GetOperatingSystemFamilyName();
-        static const std::string cached = name.ToStdString();
+        static const std::string cached = []() {
+            auto name = wxPlatformInfo::Get().GetOperatingSystemFamilyName();
+            auto str = name.ToStdString();
+            if (str == "OSX" || str == "Macintosh") {
+                return std::string("OSX");
+            }
+            return str;
+        }();
         return cached;
     }
 

@@ -10,6 +10,7 @@
 
 #include "../frames/mainFrame.hpp"
 #include "appPaths/appPaths.hpp"
+#include <wx/app.h>
 
 /**
  * @class KraftaEditor

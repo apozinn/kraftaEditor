@@ -72,6 +72,8 @@ namespace ApplicationPaths
      * ```
      */
     const wxString &ApplicationPath();
+    
+    const wxString GetLspPath();
 
     /**
      * @brief Checks whether the application is running in a development environment.

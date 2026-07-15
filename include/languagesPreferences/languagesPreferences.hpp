@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <string>
 #include <wx/stc/stc.h>
+#include <functional>  // Para std::function
 
 using json = nlohmann::json; ///< Alias for nlohmann::json namespace
 
@@ -91,6 +92,9 @@ public:
     wxString GetLanguageIconPath(const wxString &path);
 
     std::vector<wxString> GetAutoCompleteWordsList(const languagePreferencesStruct &currentLanguagePreferences);
+    
+    bool VerifyLanguageLsp(const languagePreferencesStruct &currentLanguagePreferences,
+                       std::function<void(bool)> onComplete);
 
 private:
     // Error message constants

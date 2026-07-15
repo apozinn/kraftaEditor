@@ -2,16 +2,31 @@
 
 /**
  * @file Editor.hpp
- * @brief Declaration of the Editor class: a specialized text control for advanced code editing.
+ * @brief Advanced code editor widget with LSP integration, syntax highlighting, and intelligent editing features.
  *
- * This header defines the **Editor** class, which extends **wxStyledTextCtrl** to implement
- * a feature-rich code editor. Key features include:
- * - **Syntax Highlighting** and **Code Folding** (via style-needed events).
- * - Synchronization with an external **MiniMap** control.
- * - **Selection Occurrence Highlighting** (marking all instances of selected text).
- * - **Intelligent Helpers** for auto-pairing, smart indentation, and tag closing.
- * - **Custom Command Handlers** for line manipulation (duplicate, move cursor).
- * - Integration with global **Themes**, **Project Settings**, and **Language Preferences**.
+ * The Editor class extends wxStyledTextCtrl (Scintilla) to provide a professional
+ * code editing experience. It integrates with the Language Server Protocol (LSP)
+ * for intelligent code completion, diagnostics, and symbol information. Additional
+ * features include automatic pair completion, selection occurrence highlighting,
+ * code folding, and extensive customization through theme and language preferences.
+ *
+ * ## Key Features:
+ * - **LSP Integration**: Real-time code completion, diagnostics, hover information, and document symbols
+ * - **Syntax Highlighting**: Language-specific lexer with customizable keyword lists
+ * - **Code Folding**: Configurable fold margin with preprocessor and compact folding support
+ * - **Smart Editing**: Auto-pairing of brackets/quotes, smart indentation, tag closing
+ * - **Selection Highlighting**: Visual marking of all occurrences of selected text
+ * - **Line Manipulation**: Move, duplicate, and remove lines with keyboard shortcuts
+ * - **Theme Integration**: Dynamic styling from application theme system
+ * - **Auto-completion**: Both local keyword-based and LSP-powered completion suggestions
+ * - **Unsaved Changes Indicator**: Visual feedback for modified files in the tab interface
+ *
+ * ## Dependencies:
+ * - wxStyledTextCtrl (Scintilla) for the text editing component
+ * - LspClient for Language Server Protocol communication
+ * - ThemesManager for visual styling
+ * - LanguagesPreferences for language-specific settings
+ * - ProjectSettings for project-level configuration
  */
 
 #include "ui/ids.hpp"
@@ -21,6 +36,7 @@
 #include "gui/widgets/statusBar/statusBar.hpp"
 #include "languagesPreferences/languagesPreferences.hpp"
 #include "userSettings/userSettings.hpp"
+#include "lsp/lspClient/lspClient.hpp"
 
 class CodeContainer;
 
@@ -28,16 +44,30 @@ class CodeContainer;
 using json = nlohmann::json;
 
 #include <wx/stc/stc.h>
+#include <wx/timer.h>
+#include <memory>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
+
+class CodeContainer;
+class LspClient;
 
 namespace
 {
     /**
-     * @brief Map of closing-to-opening pairs for smart deletion logic.
-     *
-     * Used in OnBackspace to automatically delete an entire pair (e.g., "()" or "[]")
-     * when the cursor is between them and Backspace/Delete is pressed.
+     * @brief Mapping of closing characters to their opening counterparts.
+     * 
+     * Used by the smart backspace/delete handler to detect when the cursor
+     * is positioned between a matching pair of brackets, quotes, or other
+     * delimiters. When deleting one character of a pair, both are removed
+     * simultaneously to maintain balanced pairs.
+     * 
+     * Example pairs:
+     * - `"` ↔ `"`
+     * - `]` ↔ `[`
+     * - `}` ↔ `{`
+     * - `)` ↔ `(`
      */
     static const std::unordered_map<wxString, wxString> kPairMap = {
         {"\"", "\""}, {"'", "'"}, {"]", "["}, {"}", "{"}, {")", "("}};
@@ -45,365 +75,297 @@ namespace
 
 namespace EditorConstants
 {
-    /** @brief Margin index reserved for line numbers. */
+    /** @brief Margin index for line numbers display. */
     constexpr int LINE_NUMBER_MARGIN = 0;
-    /** @brief Margin index reserved for code folding symbols. */
+    
+    /** @brief Margin index for code folding symbols (expand/collapse). */
     constexpr int FOLD_MARGIN = 2;
-    /** @brief Fixed width for the fold margin in pixels. */
+    
+    /** @brief Width in pixels of the fold margin area. */
     constexpr int FOLD_MARGIN_WIDTH = 20;
-    /** @brief Default indicator index used primarily for selection occurrence highlighting. */
+    
+    /** @brief Indicator style index used for highlighting text occurrences. */
     constexpr int INDICATOR_DEFAULT = 0;
-    /** @brief The maximum valid indicator index that can be used. */
+    
+    /** @brief Maximum indicator index supported by the editor. */
     constexpr int MAX_INDICATOR = 7;
-    /** @brief Minimum text length required for selection occurrence highlighting to activate. */
+    
+    /** @brief Minimum number of characters required to trigger selection highlighting. */
     constexpr int MIN_SELECTION_LENGTH = 2;
 }
 
 /**
  * @class Editor
- * @brief Custom **wxStyledTextCtrl** for code editing with advanced features.
- *
- * The **Editor** is the central component for displaying and manipulating code.
- * It manages its visual state based on the current theme and project settings,
- * implements custom event handlers for a refined editing experience, and provides
- * core functionality like syntax analysis and code folding.
- *
- * It relies on several singleton managers (ThemesManager, ProjectSettings)
- * and external UI components (StatusBar, MiniMap) for full functionality.
+ * @brief Advanced code editor widget with comprehensive editing and LSP features.
+ * 
+ * The Editor is the primary text editing component of the application. It extends
+ * wxStyledTextCtrl to provide a feature-rich code editing environment with support
+ * for multiple programming languages through LSP integration, syntax highlighting,
+ * and intelligent editing helpers.
+ * 
+ * The editor manages its own LSP client lifecycle, including initialization,
+ * document synchronization, and completion requests. It communicates with the
+ * language server through the LspClient class and processes responses to provide
+ * real-time feedback such as code completion suggestions and diagnostic messages.
+ * 
+ * ## LSP Integration:
+ * The editor can connect to any LSP-compliant language server. The connection
+ * lifecycle follows these stages:
+ * 1. **Initialization**: Start server process and perform LSP handshake
+ * 2. **Document Open**: Send file content and language identifier
+ * 3. **Ready State**: Wait for initial diagnostics (file indexed)
+ * 4. **Active Editing**: Send change notifications and request completions
+ * 
+ * ## Auto-completion:
+ * Two-tier completion system:
+ * - **Local**: Fast keyword-based completion from language preferences
+ * - **LSP**: Context-aware intelligent completion from the language server
+ * 
+ * The LSP completion is debounced (400ms) for efficiency, while immediate
+ * completion is requested when typing identifiers of 2+ characters.
  */
 class Editor : public wxStyledTextCtrl
 {
     /**
-     * @brief The JSON object representing the currently active theme.
-     *
-     * **Initialized from ThemesManager::Get().currentTheme**. Stores theme properties
-     * used to configure the style colours of the control.
-     */
-    const json Theme = ThemesManager::Get().currentTheme;
-
-    /**
-     * @brief Directory path for editor-related icons and assets.
-     *
-     * **Initialized using ApplicationPaths::AssetsPath("icons")**.
-     */
-    const wxString iconsDir = ApplicationPaths::AssetsPath("icons");
-
-    /**
-     * @brief Reference to the global project settings manager.
-     *
-     * Used to read project-specific preferences like tab width, indentation style,
-     * and language settings.
-     */
-    ProjectSettings &projectSettings = ProjectSettings::Get();
-
-    /**
-     * @enum
-     * @brief Style indices used by the Editor for syntax styling.
-     *
-     * These constants map to style numbers used by wxStyledTextCtrl to apply
-     * different visual attributes (foreground, font, etc.) to text tokens.
+     * @enum StyleIndices
+     * @brief Style indices for syntax highlighting.
+     * 
+     * These indices correspond to the style numbers used by the Scintilla
+     * lexer to apply different visual attributes to text tokens. Each
+     * language may define additional style indices.
      */
     enum
     {
-        STYLE_DEFAULT = 0, /**< Default style index (base, unstyled text). */
-        STYLE_KEYWORD = 19 /**< Example: style index for keywords or reserved words. */
+        STYLE_DEFAULT = 0,  /**< Default/base style applied to unstyled text. */
+        STYLE_KEYWORD = 19  /**< Style index for language keywords/reserved words. */
     };
 
 public:
     /**
-     * @brief Constructs an Editor control.
-     * @param parent Pointer to the parent wxWindow (container).
-     *
-     * Initializes the wxStyledTextCtrl, configures appearance (preferences, margins),
-     * and sets up initial event bindings.
+     * @brief Constructs the Editor control.
+     * 
+     * Initializes the wxStyledTextCtrl with the parent container, configures
+     * all visual and behavioral settings from themes and preferences, sets up
+     * margins (line numbers and folding), and binds all event handlers.
+     * 
+     * @param parent Pointer to the parent window, expected to be a CodeContainer.
      */
     Editor(wxWindow *parent);
+    ~Editor();
+    
+    /**
+     * @brief Initializes the Language Server Protocol client.
+     * 
+     * Starts the LSP server process, performs the initialization handshake,
+     * opens the current document for analysis, and registers callbacks for
+     * file readiness and completion requests.
+     * 
+     * The method detects the programming language from the file extension
+     * and selects the appropriate LSP server and language identifier.
+     * 
+     * @note Must be called after the editor content is loaded.
+     * @note Only one LSP client is active per editor instance.
+     */
+    void Lsp();
 
     /**
      * @brief Checks if the document has unsaved modifications.
-     * @return **true** if the document has unsaved changes (**GetModify()** is true) and is not read-only.
+     * @return true if the document is modified and not read-only.
      */
     bool Modified() const;
 
     /**
-     * @brief Sets the list of words used for auto-completion suggestions.
-     * @param words A vector of strings containing all valid auto-completion words.
+     * @brief Sets the list of local auto-completion words.
+     * 
+     * These words are used as a fallback when LSP completion is
+     * unavailable (server not ready or not configured for the language).
+     * 
+     * @param words Vector of completion keywords for the current language.
      */
     void SetAutoCompleteWordsList(const std::vector<wxString> &words) { m_AutoCompleteWordsList = words; }
 
     /**
-     * @brief Sets the language-specific preferences structure for the current file type.
-     * @param languagePreferences The structure containing all language-specific settings (lexer, auto-pairing, etc.).
+     * @brief Sets the language preferences for the current file type.
+     * 
+     * Configures language-specific settings including lexer, auto-pairing
+     * rules, comment styles, and other syntax-related options.
+     * 
+     * @param languagePreferences Structure containing all language-specific configuration.
      */
     void SetLanguagesPreferences(languagePreferencesStruct languagePreferences) { this->m_LanguagePreferences = languagePreferences; }
 
     /**
-     * @brief Moves the selected lines one position up.
-     *
-     * If no full line selection exists, the line where the caret is currently
-     * positioned will be moved instead.
+     * @brief Moves selected lines up by one position.
+     * 
+     * If no selection exists, moves the line containing the caret.
+     * Maintains proper indentation and relative positioning.
      */
     void MoveSelectedLinesUp();
 
     /**
-     * @brief Moves the selected lines one position down.
-     *
-     * If no full line selection exists, the line where the caret is currently
-     * positioned will be moved instead.
+     * @brief Moves selected lines down by one position.
+     * 
+     * If no selection exists, moves the line containing the caret.
+     * Maintains proper indentation and relative positioning.
      */
     void MoveSelectedLinesDown();
 
     /**
-     * @brief Removes the current line or the active selection.
-     *
-     * If there is an active text selection, this function removes only the selected
-     * text. Otherwise, it removes the entire line where the caret is currently placed,
-     * regardless of the caret position within the line.
-     *
-     * The operation is wrapped in a single undo action, ensuring that Undo/Redo
-     * behaves correctly.
-     *
-     * This function is intended to be bound to the keyboard shortcut:
-     * **Ctrl + Delete**.
+     * @brief Removes the current line or selected text.
+     * 
+     * If text is selected, removes only the selection. Otherwise, removes
+     * the entire line where the caret is positioned, regardless of the
+     * caret's column position within the line.
+     * 
+     * The operation is wrapped in a single undo action for proper
+     * Undo/Redo behavior.
+     * 
+     * @note Bound to Ctrl+Delete by default.
      */
     void RemoveCurrentLine();
     
     /**
-     * @brief Handles the copy-to-clipboard event.
-     *
-     * Called when the user triggers a copy operation (e.g., Ctrl+C or via menu).
-     * This handler is invoked regardless of whether there is an active text
-     * selection in the editor.
-     *
-     * If text is selected, the selected content is copied to the clipboard.
-     * If there is no selection, the behavior depends on the implementation
-     * (e.g., copy the current line or do nothing).
-     *
-     * @param event The command event generated by the copy action.
+     * @brief Handles the copy-to-clipboard action.
+     * 
+     * Copies selected text to the clipboard. If no text is selected,
+     * the behavior is determined by the implementation (e.g., copy
+     * the current line or do nothing).
+     * 
+     * @param event Command event from the copy action (Ctrl+C or menu).
      */
     void OnCopy(wxCommandEvent &event);
     
     /**
-     * @brief Handler to duplicate the current line one line below it.
+     * @brief Duplicates the current line below itself.
+     * 
+     * If text is selected, duplicates the selection instead.
+     * Places the caret at the beginning of the duplicated content.
+     * 
+     * @param event Command event triggering the duplication.
      */
     void OnDuplicateLineDown(wxCommandEvent &event);
     
-    void OnToggleLineComment(wxCommandEvent& event) ;
-    void OnToggleBlockComment(wxCommandEvent& event) ;
+    /**
+     * @brief Toggles line comments for the current line or selection.
+     * 
+     * Adds or removes single-line comments (e.g., "//" for C++) based
+     * on whether the line is currently commented.
+     * 
+     * @param event Command event triggering the toggle.
+     */
+    void OnToggleLineComment(wxCommandEvent& event);
+    
+    /**
+     * @brief Toggles block comments for the current selection.
+     * 
+     * Wraps or unwraps the selection with block comment delimiters
+     * (e.g., " / *" and "* /" for C++).
+     * 
+     * @param event Command event triggering the toggle.
+     */
+    void OnToggleBlockComment(wxCommandEvent& event);
 
     /**
-     * @brief Pointer to an optional synchronized minimap view of the document.
-     *
-     * Used to display a small-scale, mirrored overview of the code. May be **nullptr**
-     * if the minimap feature is disabled or not attached.
+     * @brief Pointer to the parent CodeContainer.
+     * 
+     * The CodeContainer manages tabs, file operations, and coordinates
+     * between multiple editor instances. May be nullptr in standalone use.
      */
     CodeContainer *m_linked_container = nullptr;
 
 private:
-    /**
-     * @brief Path of the currently opened file.
-     *
-     * An empty string if the editor content is unsaved or not tied to a file.
-     */
-    wxString currentPath;
+    wxString currentPath;                          ///< Path of the currently opened file (empty if unsaved).
+    StatusBar *statusBar = ((StatusBar *)FindWindowById(+GUI::ControlID::StatusBar));  ///< Application status bar for position info.
 
-    /**
-     * @brief Pointer to the application's status bar control.
-     *
-     * **Resolved via FindWindowById(GUI::ControlID::StatusBar)**. Used to update UI
-     * elements like cursor position, file encoding, and modification status.
-     */
-    StatusBar *statusBar = ((StatusBar *)FindWindowById(+GUI::ControlID::StatusBar));
-
-    /**
-     * @brief Internal flag indicating if the document has been modified since the last save.
-     *
-     * This flag supplements **wxStyledTextCtrl::GetModify()** and is used specifically
-     * to manage the unsaved indicator in the application's tab bar.
-     */
-    bool changedFile = false;
-
-    /**
-     * @brief List of words for context-aware auto-completion.
-     *
-     * Populated by **SetAutoCompleteWordsList** based on the current file's language.
-     */
-    std::vector<wxString> m_AutoCompleteWordsList;
-
-    /**
-     * @brief Language-specific configuration for the current document.
-     *
-     * Contains settings like lexer name, comment styles, and auto-pairing rules.
-     */
-    languagePreferencesStruct m_LanguagePreferences;
-
-    // --- Command Handlers (Bound via Accelerator Table) ---
-
-    /**
-     * @brief Handler to move the current line/selection one line down.
-     *
-     * Typically triggered by an accelerator (e.g., Ctrl+Shift+Down).
-     */
-    void OnMoveCursorDown(wxCommandEvent &event);
-
-    /**
-     * @brief Handler to move the current line/selection one line up.
-     *
-     * Typically triggered by an accelerator (e.g., Ctrl+Shift+Up).
-     */
-    void OnMoveCursorUp(wxCommandEvent &event);
-
-    /**
-     * @brief Handler to duplicate the current line one line above it.
-     */
-    void OnDuplicateLineUp(wxCommandEvent &event);
+    bool changedFile = false;                      ///< Tracks unsaved modifications for the tab indicator.
+    std::vector<wxString> m_AutoCompleteWordsList; ///< Local keywords for fallback auto-completion.
+    languagePreferencesStruct m_LanguagePreferences; ///< Active language-specific configuration.
+    bool m_isDestroyed = false;
     
-    void OnZoomIn(wxCommandEvent &event);
-    
-    void OnZoomOut(wxCommandEvent &event);
+    // --- Line Manipulation Handlers ---
+    void OnMoveCursorDown(wxCommandEvent &event);  ///< Moves current line/selection down.
+    void OnMoveCursorUp(wxCommandEvent &event);    ///< Moves current line/selection up.
+    void OnDuplicateLineUp(wxCommandEvent &event); ///< Duplicates current line above itself.
+    void OnZoomIn(wxCommandEvent &event);           ///< Increases editor font size.
+    void OnZoomOut(wxCommandEvent &event);          ///< Decreases editor font size.
+    void SelectNextOccurrence(wxCommandEvent &event); ///< Selects next occurrence of current selection.
 
-    /**
-     * @brief Searches for and selects the next occurrence of the currently selected text.
-     *
-     * Useful for multi-cursor editing, allowing the user to select the next match.
-     */
-    void SelectNextOccurrence(wxCommandEvent &event);
+    // --- Core Configuration ---
+    void InitializePreferences();  ///< Configures editor appearance and behavior from settings.
+    void ConfigureFoldMargin();    ///< Sets up the code folding margin appearance.
+    void BindEvents();             ///< Binds all event handlers to their respective events.
 
-    // --- Core Editor Configuration ---
-
-    /**
-     * @brief Initializes all editor preferences from global and project settings.
-     *
-     * Configures the control's fundamental behavior, including:
-     * - Tab/indent settings (**SetUseTabs**, **SetTabIndents**).
-     * - Margin settings (line numbers).
-     * - Visual styles (colors, fonts) based on the current **Theme**.
-     * - Accelerator table setup.
-     */
-    void InitializePreferences();
-
-    /**
-     * @brief Configures the appearance and behavior of the fold margin.
-     *
-     * Sets the margin width, type (symbol), mask, sensitivity, and fold colours.
-     */
-    void ConfigureFoldMargin();
-
-    /**
-     * @brief Binds all custom member functions to their respective **wxStyledTextCtrl** and standard wxWidgets events.
-     *
-     * This is where events like **wxEVT_STC_UPDATEUI**, **wxEVT_KEY_DOWN**, and **wxEVT_STC_CHARADDED** are linked.
-     */
-    void BindEvents(); // NOTE: The implementation of BindEvents is missing, but the doc is improved.
-
-    // --- Event Handlers (wxStyledTextCtrl and wxWidgets Events) ---
-
-    /**
-     * @brief Handler called when the editor UI state needs updating.
-     * @param event The styled text event (**wxEVT_STC_UPDATEUI**).
-     *
-     * Used primarily to trigger **HighlightSelectionOccurrences** and update the status bar.
-     */
-    void OnUpdateUI(wxStyledTextEvent &event);
-
-    /**
-     * @brief Handler called after any document content modification.
-     * @param event The styled text event (**wxEVT_STC_CHANGE**).
-     *
-     * Updates the unsaved indicator, the **changedFile** flag, the minimap content, and the status bar.
-     */
-    void OnChange(wxStyledTextEvent &event);
-
-    /**
-     * @brief Handler for clicks on any margin (primarily the fold margin).
-     * @param event The styled text event (**wxEVT_STC_MARGINCLICK**).
-     *
-     * Toggles folding if the fold margin is clicked.
-     */
-    void OnMarginClick(wxStyledTextEvent &event);
-
-    /**
-     * @brief Custom handler for the Backspace and Delete keys.
-     * @param event The key event (**wxEVT_KEY_DOWN**).
-     *
-     * Implements smart deletion logic, such as deleting matching character pairs (e.g., **"|""** to **"|"**).
-     */
-    void OnBackspace(wxKeyEvent &event);
-
-    /**
-     * @brief Handler for cursor movement keys (arrows).
-     * @param event The key event (**wxEVT_KEY_DOWN**).
-     *
-     * Clears indicators and updates the status bar location information.
-     */
-    void OnArrowsPress(wxKeyEvent &event);
-
-    /**
-     * @brief Handler called immediately after a character is inserted.
-     * @param event The styled text event (**wxEVT_STC_CHARADDED**).
-     *
-     * Triggers auto-completion, auto-pairing, smart indentation, and tag closing logic.
-     */
-    void CharAdd(wxStyledTextEvent &event);
-
-    void OnEnterKey(wxStyledTextEvent &event);
-
-    /**
-     * @brief Handler for generic mouse clicks in the text area.
-     * @param event The mouse event (**wxEVT_LEFT_DOWN**).
-     *
-     * Clears active indicators and updates the status bar locale.
-     */
-    void OnClick(wxMouseEvent &event);
-
-    /**
-     * @brief Handler for scroll events (mouse wheel or scrollbar interaction).
-     * @param event The mouse event (**wxEVT_MOUSEWHEEL** or scrollbar events).
-     *
-     * Synchronizes the visible line in the minimap with the editor's scroll position.
-     */
-    void OnScroll(wxMouseEvent &event);
+    // --- wxStyledTextCtrl Event Handlers ---
+    void OnUpdateUI(wxStyledTextEvent &event);   ///< Updates UI state (highlights, status bar).
+    void OnChange(wxStyledTextEvent &event);      ///< Handles content modifications.
+    void OnMarginClick(wxStyledTextEvent &event); ///< Handles fold margin clicks.
+    void OnBackspace(wxKeyEvent &event);           ///< Smart backspace/delete handler.
+    void OnArrowsPress(wxKeyEvent &event);         ///< Cursor movement handler.
+    void CharAdd(wxStyledTextEvent &event);        ///< Character insertion handler (completion triggers).
+    void OnEnterKey(wxStyledTextEvent &event);     ///< Smart indentation on Enter.
+    void OnClick(wxMouseEvent &event);             ///< Mouse click handler.
+    void OnScroll(wxMouseEvent &event);            ///< Scroll synchronization handler.
 
     // --- Utility Methods ---
+    void HighlightSelectionOccurrences();  ///< Marks all instances of selected text.
+    void ClearIndicators();                ///< Clears all visual indicators in the document.
+    void UpdateUnsavedIndicator();         ///< Updates the tab icon for unsaved changes.
+    void HandleAutoPairing(char chr);      ///< Inserts matching closing character.
+    void ShowLocalCompletion(const wxString& word, int len); ///< Shows keyword-based completion.
+    void OnHorizontalScroll(wxMouseEvent &event);           ///< Horizontal scroll with Shift+Wheel.
+    void OnLspSyncTimer(wxTimerEvent& event);               ///< Timer handler for LSP synchronization.
+    void SetupAutoComplete();              ///< Configures auto-completion behavior and appearance.
 
     /**
-     * @brief Highlights all instances of the current selection throughout the document.
-     *
-     * Uses the **INDICATOR_DEFAULT** to visually mark matching text occurrences.
+     * @brief Parses LSP completion response into Scintilla-compatible format.
+     * 
+     * Extracts completion item labels from the JSON response, deduplicates,
+     * limits to 30 items, and formats them as a space-separated string
+     * for display in the auto-completion popup.
+     * 
+     * @param json Raw JSON response from the LSP completion request.
+     * @param prefix Current word prefix being completed.
+     * @return Space-separated list of completion items.
      */
-    void HighlightSelectionOccurrences();
+    wxString ParseCompletionItems(const std::string& json, const wxString& prefix);
 
-    /**
-     * @brief Clears all active visual indicators across the entire document.
-     *
-     * Removes occurrence highlights, custom error markers, etc.
-     */
-    void ClearIndicators();
+    // --- Theme and Paths ---
+    const json Theme = ThemesManager::Get().currentTheme;     ///< Active theme JSON object.
+    const wxString iconsDir = ApplicationPaths::AssetsPath("icons"); ///< Path to editor icons.
+    wxString m_serverPath;                                    ///< Path to the LSP server executable.
 
-    /**
-     * @brief Updates any UI element (e.g., tab icon) that shows the file's unsaved status.
-     *
-     * Looks up the corresponding tab widget and sets a visual indicator (e.g., a small dot).
-     */
-    void UpdateUnsavedIndicator();
+    ProjectSettings &projectSettings = ProjectSettings::Get(); ///< Reference to project settings.
 
-    /**
-     * @brief Inserts the corresponding closing character when an opening character is typed.
-     * @param chr The just-typed opening character (e.g., '(', '"', '{').
-     *
-     * Positions the caret between the newly inserted pair.
-     */
-    void HandleAutoPairing(char chr);
+    // --- LSP Integration ---
+    std::unique_ptr<LspClient> m_lsp;  ///< LSP client instance (nullptr if not active).
+    bool m_lspReady = false;           ///< True when server has indexed the file.
+    int m_docVersion = 0;              ///< Monotonically increasing document version.
+    wxTimer m_lspSyncTimer;            ///< Timer for periodic LSP synchronization.
+    wxTimer m_lspDebounceTimer;        ///< Timer for debouncing change notifications.
+    
+    bool m_documentOpened = false;
+    bool m_lspStarting = false;  // ← ADICIONAR
 
-    /**
-     * @brief Enables horizontal scrolling using Shift + mouse wheel.
-     *
-     * When the Shift key is pressed, the mouse wheel scrolls the view horizontally.
-     * Without Shift, the default vertical scrolling behavior is preserved.
-     *
-     * @param event Mouse wheel event.
-     */
-    void OnHorizontalScroll(wxMouseEvent &event);
+    std::vector<wxString> m_autoCompleteWords; ///< Cached local completion words.
+
+    static constexpr int LSP_SYNC_TIMER_ID = 1001;  ///< Timer ID for LSP sync events.
+    static constexpr int LSP_DEBOUNCE_ID = 1002;    ///< Timer ID for LSP debounce events.
+    
+    int m_lastCompletionLine = 0;
+    int m_lastCompletionCol = 0;
+    wxString m_lastCompletionUri;
+    wxString m_lastSyncedText;
+    int m_completionRequestCount = 0;
+wxStopWatch m_completionRateLimiter;
+
+int m_completionCount = 0;
+wxStopWatch m_completionTimer;
+bool m_lspNeedsReset = false;
+
+    bool m_completionPause = false;
+    wxLongLong m_lastPauseTime = 0;
+    
+    void OnLspDebounceTimer(wxTimerEvent &event);
 
     wxDECLARE_NO_COPY_CLASS(Editor);
     wxDECLARE_EVENT_TABLE();

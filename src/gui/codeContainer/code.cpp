@@ -80,6 +80,18 @@ void CodeContainer::LoadPath(wxString path) {
 
 	GetParent()->Layout();
 	Layout();
+
+	LanguagesPreferences::Get().VerifyLanguageLsp(
+		languagePreferences, [this](bool success) {
+			if (success) {
+				wxTheApp->CallAfter([this]() {
+					auto *editor = dynamic_cast<Editor *>(GetChildren()[0]);
+					if (editor) {
+						editor->Lsp();
+					}
+				});
+			}
+		});
 }
 
 void CodeContainer::OnSave(wxCommandEvent &WXUNUSED(event)) {
@@ -222,14 +234,14 @@ void CodeContainer::OnPaste(wxCommandEvent &WXUNUSED(event)) {
 }
 
 void CodeContainer::ToggleCommentLine(wxCommandEvent &event) {
-		auto currentEditor = ((Editor *)wxFindWindowByLabel(
+	auto currentEditor = ((Editor *)wxFindWindowByLabel(
 		ProjectSettings::Get().GetCurrentlyFileOpen() + "_codeEditor"));
 	if (currentEditor) {
 		currentEditor->OnToggleLineComment(event);
 	}
 }
 
-void CodeContainer::ToggleCommentBlock(wxCommandEvent &event ) {
+void CodeContainer::ToggleCommentBlock(wxCommandEvent &event) {
 	auto currentEditor = ((Editor *)wxFindWindowByLabel(
 		ProjectSettings::Get().GetCurrentlyFileOpen() + "_codeEditor"));
 	if (currentEditor) {

@@ -1,18 +1,61 @@
 #include "./editor.hpp"
+
 #include "appConstants/appConstants.hpp"
 #include "gui/codeContainer/code.hpp"
+#include "lsp/lspClient/lspClient.hpp"
+#include "lsp/lspManager/lspManager.hpp"
+
 #include <algorithm>
 #include <cctype>
-#include <unordered_map>
-#include <vector>
+#include <sstream>
+#include <unordered_set>
+
+static wxCriticalSection g_editorLock;
 
 Editor::Editor(wxWindow *parent)
 	: wxStyledTextCtrl(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize,
-					   wxBORDER_NONE) {
+					   wxBORDER_NONE),
+	  m_lspSyncTimer(this, LSP_SYNC_TIMER_ID),
+	  m_lspDebounceTimer(this, LSP_DEBOUNCE_ID), m_isDestroyed(false) {
+
+	m_linked_container = dynamic_cast<CodeContainer *>(parent);
 	InitializePreferences();
 	ConfigureFoldMargin();
+	SetupAutoComplete();
 
-	m_linked_container = (CodeContainer *)parent;
+	Bind(wxEVT_STC_CHANGE, &Editor::OnChange, this);
+	Bind(wxEVT_STC_CHARADDED, &Editor::CharAdd, this);
+	Bind(wxEVT_LEFT_DOWN, &Editor::OnClick, this);
+	Bind(wxEVT_STC_UPDATEUI, &Editor::OnUpdateUI, this);
+	Bind(wxEVT_TIMER, &Editor::OnLspDebounceTimer, this, LSP_DEBOUNCE_ID);
+}
+
+Editor::~Editor() {
+	m_isDestroyed = true;
+
+	Unbind(wxEVT_STC_CHANGE, &Editor::OnChange, this);
+	Unbind(wxEVT_STC_CHARADDED, &Editor::CharAdd, this);
+	Unbind(wxEVT_LEFT_DOWN, &Editor::OnClick, this);
+	Unbind(wxEVT_STC_UPDATEUI, &Editor::OnUpdateUI, this);
+
+	m_lspSyncTimer.Stop();
+	m_lspDebounceTimer.Stop();
+
+	if (m_lsp) {
+		m_lsp->Stop();
+		m_lsp.reset();
+	}
+}
+
+void Editor::OnLspSyncTimer(wxTimerEvent &) {
+	if (m_isDestroyed)
+		return;
+	if (m_lsp && m_lsp->IsRunning() && m_lspReady && m_documentOpened &&
+		!m_lspDebounceTimer.IsRunning()) {
+		wxString uri = "file://" + GetName();
+		wxString text = GetText();
+		m_lsp->DidChange(uri, text, ++m_docVersion);
+	}
 }
 
 void Editor::InitializePreferences() {
@@ -51,6 +94,12 @@ void Editor::InitializePreferences() {
 	StyleSetBackground(wxSTC_STYLE_INDENTGUIDE, wxColor(backgroundColor));
 	StyleSetForeground(wxSTC_STYLE_INDENTGUIDE, wxColor(secondaryTextColor));
 
+	AutoCompSetSeparator(' ');
+	AutoCompSetIgnoreCase(true);
+	AutoCompSetAutoHide(true);
+	AutoCompSetDropRestOfWord(false);
+	AutoCompSetMaxHeight(8);
+
 	wxAcceleratorEntry entries[] = {
 		{wxACCEL_CTRL, WXK_RETURN,
 		 static_cast<int>(Event::Edit::MoveCursorDown)},
@@ -65,9 +114,11 @@ void Editor::InitializePreferences() {
 		{wxACCEL_CTRL, (int)'C', static_cast<int>(Event::Edit::CopyByKeyboard)},
 		{wxACCEL_CTRL | wxACCEL_SHIFT, (int)'+',
 		 static_cast<int>(Event::View::ZoomIn)},
-        {wxACCEL_CTRL , (int)'-', static_cast<int>(Event::View::ZoomOut)},
-		{wxACCEL_CTRL, (int)'/', static_cast<int>(Event::Edit::ToggleLineComment)},
-        {wxACCEL_CTRL | wxACCEL_SHIFT , (int)'?', static_cast<int>(Event::Edit::ToggleBlockComment)},
+		{wxACCEL_CTRL, (int)'-', static_cast<int>(Event::View::ZoomOut)},
+		{wxACCEL_CTRL, (int)'/',
+		 static_cast<int>(Event::Edit::ToggleLineComment)},
+		{wxACCEL_CTRL | wxACCEL_SHIFT, (int)'?',
+		 static_cast<int>(Event::Edit::ToggleBlockComment)},
 	};
 
 	SetAcceleratorTable(wxAcceleratorTable(WXSIZEOF(entries), entries));
@@ -90,6 +141,164 @@ void Editor::InitializePreferences() {
 	});
 }
 
+void Editor::Lsp() {
+	if (m_lspStarting)
+		return;
+	if (m_lsp && m_lsp->IsRunning())
+		return;
+
+	std::string serverName;
+	if (m_LanguagePreferences.preferences.contains("lsp") &&
+		m_LanguagePreferences.preferences["lsp"].contains("server") &&
+		m_LanguagePreferences.preferences["lsp"]["server"].contains("name")) {
+		auto &nameField =
+			m_LanguagePreferences.preferences["lsp"]["server"]["name"];
+		if (nameField.is_string())
+			serverName = nameField.get<std::string>();
+	}
+
+	if (serverName.empty())
+		return;
+
+	wxString serverPath = LspManager::Get().GetServerPath(serverName);
+	if (serverPath.empty())
+		return;
+
+	m_lspStarting = true;
+	m_lsp.reset();
+	m_lsp = std::make_unique<LspClient>();
+	m_lspReady = false;
+	m_documentOpened = false;
+
+	m_lsp->SetOnConnectionLost([this]() {
+		if (m_isDestroyed)
+			return;
+		m_lspReady = false;
+		m_documentOpened = false;
+		m_lspStarting = false;
+		CallAfter([this]() {
+			if (!m_isDestroyed)
+				Lsp();
+		});
+	});
+
+	wxString extraArgs;
+	wxString languageId;
+
+	if (serverName == "clangd") {
+		wxString projectPath = ProjectSettings::Get().GetProjectPath();
+		extraArgs =
+			"--compile-commands-dir=" + projectPath + " --background-index";
+		languageId = "cpp";
+	} else if (serverName == "pylsp" || serverName == "python-lsp-server") {
+		extraArgs = "";
+		languageId = "python";
+	}
+
+	if (!m_lsp->Start(serverPath, extraArgs)) {
+		m_lsp.reset();
+		m_lspStarting = false;
+		return;
+	}
+
+	wxString root = "file://" + ProjectSettings::Get().GetProjectPath();
+	wxString uri = "file://" + GetName();
+
+	m_lsp->Initialize(root, [this, uri, languageId]() {
+		if (m_isDestroyed) {
+			return;
+		}
+		if (!m_lsp || !m_lsp->IsRunning()) {
+			m_lspStarting = false;
+			return;
+		}
+
+		wxString currentText = GetText();
+		m_lsp->DidOpen(uri, languageId, currentText);
+		m_documentOpened = true;
+		m_lspReady = true;
+		m_lspStarting = false;
+	});
+}
+
+void Editor::CharAdd(wxStyledTextEvent &event) {
+	if (m_isDestroyed)
+		return;
+	const char chr = static_cast<char>(event.GetKey());
+	const int pos = GetCurrentPos();
+	wxString uri = "file://" + GetName();
+
+	if (std::isalnum(static_cast<unsigned char>(chr)) || chr == '_') {
+		const int start = WordStartPosition(pos, true);
+		const int len = pos - start;
+
+		if (len >= 2) {
+			const wxString word = GetTextRange(start, pos);
+
+			if (m_lsp && m_lsp->IsRunning() && m_lspReady && m_documentOpened) {
+				m_lspSyncTimer.Stop();
+				m_lspDebounceTimer.Stop();
+				m_lspDebounceTimer.StartOnce(300);
+
+				m_lastCompletionLine = LineFromPosition(pos);
+				m_lastCompletionCol = GetColumn(pos);
+				m_lastCompletionUri = uri;
+			} else {
+				ShowLocalCompletion(word, len);
+			}
+		}
+	}
+
+	if (chr == '\n')
+		OnEnterKey(event);
+	HandleAutoPairing(chr);
+	event.Skip();
+}
+
+void Editor::OnLspDebounceTimer(wxTimerEvent &event) {
+	if (m_isDestroyed)
+		return;
+
+	if (!m_lsp || !m_lsp->IsRunning() || !m_lspReady || !m_documentOpened)
+		return;
+
+	m_lsp->ReleaseStaleCompletion(8000);
+
+	if (m_lsp->HasPendingCompletion())
+		return;
+
+	const int curPos = GetCurrentPos();
+	const int curStart = WordStartPosition(curPos, true);
+	const int curLen = curPos - curStart;
+
+	if (curLen < 2)
+		return;
+
+	m_lsp->RequestCompletion(
+		m_lastCompletionUri, m_lastCompletionLine, m_lastCompletionCol,
+		[this](const std::string &json) {
+			if (m_isDestroyed)
+				return;
+			if (!m_lsp || !m_lsp->IsRunning() || !m_lspReady)
+				return;
+			if (json.empty() || json == "{}")
+				return;
+
+			const int curPos = GetCurrentPos();
+			const int curStart = WordStartPosition(curPos, true);
+			const int curLen = curPos - curStart;
+			if (curLen <= 0)
+				return;
+
+			wxString curWord = GetTextRange(curStart, curPos);
+			wxString items = ParseCompletionItems(json, curWord);
+
+			if (!items.empty()) {
+				AutoCompShow(curLen, items);
+			}
+		});
+}
+
 void Editor::ConfigureFoldMargin() {
 	const wxString backgroundColor(
 		Theme["secondary"].template get<std::string>());
@@ -109,24 +318,28 @@ void Editor::ConfigureFoldMargin() {
 void Editor::OnUpdateUI(wxStyledTextEvent &event) { event.Skip(); }
 
 void Editor::OnChange(wxStyledTextEvent &event) {
+	if (m_isDestroyed)
+		return;
 	if (!GetModify()) {
 		event.Skip();
 		return;
 	}
 
+	if (m_lsp && m_lsp->IsRunning() && m_lspReady && m_documentOpened) {
+		m_lspSyncTimer.Stop();
+		m_lspSyncTimer.StartOnce(300);
+	}
+
 	if (UserSettingsManager::Get().GetSetting<bool>("editor/autoSave").value &&
 		GetName() != UserSettingsManager::Get().SettingsPath) {
-		m_linked_container->Save(GetName());
+		if (m_linked_container) {
+			m_linked_container->Save(GetName());
+		}
 	} else {
-		changedFile = true;
 		UpdateUnsavedIndicator();
 	}
 
 	ClearIndicators();
-
-	if (statusBar)
-		statusBar->UpdateCodeLocale(this);
-
 	event.Skip();
 }
 
@@ -331,54 +544,41 @@ static wxString ExtractTagName(wxStyledTextCtrl *ctrl, int openPos,
 	return tag;
 }
 
-void Editor::CharAdd(wxStyledTextEvent &event) {
-	const char chr = static_cast<char>(event.GetKey());
-	const int pos = GetCurrentPos();
+void Editor::ShowLocalCompletion(const wxString &word, int len) {
+	wxString list;
+	std::vector<wxString> matches;
 
-	if (std::isalnum(static_cast<unsigned char>(chr)) || chr == '_') {
-		const int start = WordStartPosition(pos, true);
-		const int len = pos - start;
-
-		if (len > 0) {
-			const wxString word = GetTextRange(start, pos);
-			wxString list;
-			list.reserve(256);
-
-			for (const auto &kw : m_AutoCompleteWordsList)
-				if (kw.StartsWith(word))
-					list << kw << ' ';
-
-			if (!list.empty())
-				AutoCompShow(len, list);
-			else
-				AutoCompCancel();
+	for (const auto &kw : m_autoCompleteWords) {
+		if (kw.StartsWith(word)) {
+			matches.push_back(kw);
 		}
 	}
 
-	if (chr == '\n') {
-		OnEnterKey(event);
+	std::sort(matches.begin(), matches.end());
+
+	for (size_t i = 0; i < matches.size() && i < 30; ++i) {
+		if (i > 0)
+			list += " ";
+		list += matches[i];
 	}
 
-	if (chr == '>' && pos > 1) {
-		const auto &prefs = m_LanguagePreferences.preferences;
-
-		if (prefs.contains("syntax") &&
-			prefs["syntax"].value("auto_close_tags", false)) {
-			const int openPos = FindLastCharBeforePos(this, '<', pos - 1);
-
-			if (openPos != -1 && GetCharAt(pos - 2) != '/') {
-				const wxString tag = ExtractTagName(this, openPos, pos - 1);
-
-				if (!tag.empty()) {
-					InsertText(pos, "\n\n</" + tag + ">");
-					GotoPos(pos + 1);
-				}
-			}
-		}
+	if (!list.empty()) {
+		AutoCompShow(len, list);
+	} else {
+		AutoCompCancel();
 	}
+}
 
-	HandleAutoPairing(chr);
-	event.Skip();
+void Editor::SetupAutoComplete() {
+	AutoCompSetSeparator(' ');
+	AutoCompSetIgnoreCase(false);
+	AutoCompSetAutoHide(true);
+	AutoCompSetDropRestOfWord(false);
+	AutoCompSetMaxHeight(8);
+	AutoCompSetTypeSeparator('?');
+
+	m_autoCompleteWords = LanguagesPreferences::Get().GetAutoCompleteWordsList(
+		m_LanguagePreferences);
 }
 
 void Editor::OnEnterKey(wxStyledTextEvent &event) {
@@ -467,28 +667,28 @@ void Editor::OnMoveCursorUp(wxCommandEvent &WXUNUSED(event)) {
 }
 
 void Editor::OnDuplicateLineDown(wxCommandEvent &event) {
-const int selStart = GetSelectionStart();
-const int selEnd = GetSelectionEnd();
+	const int selStart = GetSelectionStart();
+	const int selEnd = GetSelectionEnd();
 
-if (selStart == selEnd) {
-    const int line = GetCurrentLine();
-    const int lineStart = PositionFromLine(line);
-    const int lineEnd = GetLineEndPosition(line);
-    const wxString text = GetTextRange(lineStart, lineEnd);
-    BeginUndoAction();
-    InsertText(lineEnd, "\n" + text);
-    EndUndoAction();
-    GotoLine(line + 1);
-    SetEmptySelection(GetCurrentPos());
-} else {
-    const wxString text = GetTextRange(selStart, selEnd);
-    BeginUndoAction();
-    InsertText(selEnd,  "\n" + text);
-    EndUndoAction();
-    SetSelection(selEnd, selEnd + text.Length());
-}
+	if (selStart == selEnd) {
+		const int line = GetCurrentLine();
+		const int lineStart = PositionFromLine(line);
+		const int lineEnd = GetLineEndPosition(line);
+		const wxString text = GetTextRange(lineStart, lineEnd);
+		BeginUndoAction();
+		InsertText(lineEnd, "\n" + text);
+		EndUndoAction();
+		GotoLine(line + 1);
+		SetEmptySelection(GetCurrentPos());
+	} else {
+		const wxString text = GetTextRange(selStart, selEnd);
+		BeginUndoAction();
+		InsertText(selEnd, "\n" + text);
+		EndUndoAction();
+		SetSelection(selEnd, selEnd + text.Length());
+	}
 
-EnsureCaretVisible();
+	EnsureCaretVisible();
 }
 
 void Editor::OnDuplicateLineUp(wxCommandEvent &event) {
@@ -680,36 +880,32 @@ void Editor::OnZoomIn(wxCommandEvent &event) { ZoomIn(); }
 
 void Editor::OnZoomOut(wxCommandEvent &event) { ZoomOut(); }
 
-void Editor::OnToggleLineComment(wxCommandEvent& event) {
-    int lineStart = 0;
-			if (GetSelectionEnd() -
-					GetSelectionStart() <=
-				0) {
-				lineStart = PositionFromLine(
-					GetCurrentLine());
-			} else {
-				lineStart = GetSelectionStart();
-			}
+void Editor::OnToggleLineComment(wxCommandEvent &event) {
+	int lineStart = 0;
+	if (GetSelectionEnd() - GetSelectionStart() <= 0) {
+		lineStart = PositionFromLine(GetCurrentLine());
+	} else {
+		lineStart = GetSelectionStart();
+	}
 
-			char chr = (char)GetCharAt(lineStart);
+	char chr = (char)GetCharAt(lineStart);
 
-			if (chr == ' ') {
-				while (chr == ' ') {
-					lineStart++;
-					chr = (char)GetCharAt(lineStart);
-				}
-			}
+	if (chr == ' ') {
+		while (chr == ' ') {
+			lineStart++;
+			chr = (char)GetCharAt(lineStart);
+		}
+	}
 
-			if (chr == '/' &&
-				(char)GetCharAt(lineStart + 1) == '/') {
-				DeleteRange(lineStart, 2);
-			} else {
-				InsertText(lineStart, "//");
-			}
+	if (chr == '/' && (char)GetCharAt(lineStart + 1) == '/') {
+		DeleteRange(lineStart, 2);
+	} else {
+		InsertText(lineStart, "//");
+	}
 }
 
-void Editor::OnToggleBlockComment(wxCommandEvent& event) {
-    int selStart = GetSelectionStart();
+void Editor::OnToggleBlockComment(wxCommandEvent &event) {
+	int selStart = GetSelectionStart();
 	int selEnd = GetSelectionEnd();
 	if (selStart > selEnd)
 		std::swap(selStart, selEnd);
@@ -731,11 +927,10 @@ void Editor::OnToggleBlockComment(wxCommandEvent& event) {
 	while (e > s && isSpace(GetCharAt(e - 1)))
 		e--;
 
-	const bool hasOpen = (e - s >= 2) && GetCharAt(s) == '/' &&
-						 GetCharAt(s + 1) == '*';
-	const bool hasClose = (e - s >= 4) &&
-						  GetCharAt(e - 2) == '*' &&
-						  GetCharAt(e - 1) == '/';
+	const bool hasOpen =
+		(e - s >= 2) && GetCharAt(s) == '/' && GetCharAt(s + 1) == '*';
+	const bool hasClose =
+		(e - s >= 4) && GetCharAt(e - 2) == '*' && GetCharAt(e - 1) == '/';
 
 	auto unwrap = [&](wxStyledTextCtrl *ctrl) {
 		ctrl->BeginUndoAction();
@@ -757,5 +952,99 @@ void Editor::OnToggleBlockComment(wxCommandEvent& event) {
 	} else {
 		wrap(this);
 		SetSelection(selStart, selEnd + 4);
+	}
+}
+
+wxString Editor::ParseCompletionItems(const std::string &json,
+									  const wxString &prefix) {
+	if (json.empty() || json == "{}")
+		return wxEmptyString;
+
+	try {
+		auto j = nlohmann::json::parse(json);
+		if (!j.contains("result"))
+			return wxEmptyString;
+
+		const auto &result = j["result"];
+		nlohmann::json items;
+
+		if (result.is_array()) {
+			items = result;
+		} else if (result.is_object() && result.contains("items")) {
+			items = result["items"];
+		} else {
+			return wxEmptyString;
+		}
+
+		if (!items.is_array() || items.empty())
+			return wxEmptyString;
+
+		wxString list;
+		std::unordered_set<std::string> seen;
+		int count = 0;
+
+		for (const auto &item : items) {
+			if (count >= 50)
+				break;
+
+			wxString label;
+
+			if (item.contains("label") && item["label"].is_string()) {
+				label = wxString::FromUTF8(item["label"].get<std::string>());
+			} else if (item.contains("insertText") &&
+					   item["insertText"].is_string()) {
+				label =
+					wxString::FromUTF8(item["insertText"].get<std::string>());
+			} else if (item.contains("filterText") &&
+					   item["filterText"].is_string()) {
+				label =
+					wxString::FromUTF8(item["filterText"].get<std::string>());
+			} else {
+				continue;
+			}
+
+			if (label.empty() || label.Length() > 100)
+				continue;
+
+			label.Trim(true);
+			label.Trim(false);
+
+			wxString clean = label;
+			clean.Replace(" ", "_");
+			clean.Replace("\t", "_");
+			clean.Replace("\n", "_");
+
+			if (clean.empty())
+				continue;
+
+			if (!prefix.empty()) {
+				wxString prefixLower = prefix.Lower();
+				wxString cleanLower = clean.Lower();
+				if (!cleanLower.StartsWith(prefixLower)) {
+					wxString noUnderscore = cleanLower;
+					while (!noUnderscore.empty() && noUnderscore[0] == '_') {
+						noUnderscore = noUnderscore.Mid(1);
+					}
+					if (!noUnderscore.StartsWith(prefixLower)) {
+						continue;
+					}
+				}
+			}
+
+			std::string key = clean.ToStdString();
+			if (seen.find(key) != seen.end())
+				continue;
+			seen.insert(key);
+
+			if (!list.empty())
+				list += " ";
+			list += clean;
+			count++;
+		}
+
+		return list;
+
+	} catch (const std::exception &e) {
+		return wxEmptyString;
 	}
 }
