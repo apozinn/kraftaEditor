@@ -187,8 +187,20 @@ void Editor::Lsp() {
 
 	if (serverName == "clangd") {
 		wxString projectPath = ProjectSettings::Get().GetProjectPath();
-		extraArgs =
-			"--compile-commands-dir=" + projectPath + " --background-index";
+
+		wxString compileCommandsDir = projectPath;
+		wxFileName rootCompileCommands(projectPath, "compile_commands.json");
+
+		if (!rootCompileCommands.FileExists()) {
+			wxFileName buildCompileCommands(projectPath + "build",
+											"compile_commands.json");
+			if (buildCompileCommands.FileExists()) {
+				compileCommandsDir = projectPath + "build";
+			}
+		}
+
+		extraArgs = "--compile-commands-dir=" + compileCommandsDir +
+					" --background-index";
 		languageId = "cpp";
 	} else if (serverName == "pylsp" || serverName == "python-lsp-server") {
 		extraArgs = "";

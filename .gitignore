@@ -3,3 +3,4 @@ out
 concept
 build
 .vscode
+compile_commands.json

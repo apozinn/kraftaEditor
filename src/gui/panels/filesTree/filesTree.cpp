@@ -469,8 +469,16 @@ bool FilesTree::OpenFile(const wxString &componentIdentifier, int line) {
 	} else
 		LoadCodeEditor();
 
-	for (auto &children : tabsContainer->GetChildren())
+	wxWindow *tab = NULL;
+	for (auto &children : tabsContainer->tabsContainer->GetChildren()) {
+		if (children->GetName() == componentIdentifier)
+			tab = children;
 		children->Refresh();
+	}
+
+	if (tab) {
+		tabsContainer->tabsContainer->Scroll(tab->GetPosition());
+	}
 
 	mainCode->Layout();
 
@@ -752,16 +760,30 @@ void FilesTree::OnRenameDirRequested(wxCommandEvent &event) {
 		if (newDirName.IsEmpty())
 			return;
 
-		wxFileName dirPath(ProjectSettings::Get().GetCurrentlyMenuDir(true));
+		wxString currentlyMenuDir =
+			ProjectSettings::Get().GetCurrentlyMenuDir();
+
+		wxFileName dirPath(currentlyMenuDir);
+		dirPath.RemoveLastDir();
+
 		wxString newPath = dirPath.GetFullPath() + newDirName;
-		wxRename(wxString(ProjectSettings::Get().GetCurrentlyMenuDir()),
-				 newPath);
+
+		wxRename(currentlyMenuDir, newPath);
+
 		if (!wxDirExists(newPath)) {
 			wxMessageBox(ErrorMessages::RenameDirRequestedError, "Error",
 						 wxOK | wxICON_ERROR);
 			return;
 		}
+
 		ProjectSettings::Get().SetCurrentlyMenuDir(newPath);
+
+		auto target = wxFindWindowByLabel(currentlyMenuDir + "_dir_container");
+		if (!target)
+			return;
+		wxWindow *parent = target->GetParent();
+		target->Destroy();
+
 	} catch (const std::exception &err) {
 		wxMessageBox(ErrorMessages::RenameDirRequestedError + err.what(),
 					 "Error", wxOK | wxICON_ERROR);

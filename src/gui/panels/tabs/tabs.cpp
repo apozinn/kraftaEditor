@@ -340,6 +340,9 @@ void Tabs::Select() {
 			other_ct->Hide();
 	}
 
+	std::cerr << "tab selected: "
+			  << ProjectSettings::Get().GetCurrentlyFileOpen() << "\n";
+
 	auto codeContainer = ((CodeContainer *)FindWindowByName(
 		ProjectSettings::Get().GetCurrentlyFileOpen() + "_codeContainer"));
 	if (codeContainer)
