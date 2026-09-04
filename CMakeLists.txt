@@ -86,7 +86,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(curl)
 
 # wxWidgets — prefer system 3.3+, fall back to FetchContent if too old or absent
-set(wxWidgets_MIN_VERSION "3.3.2")
+set(wxWidgets_MIN_VERSION "3.3.3")
 if(USE_SYSTEM_WXWIDGETS)
     find_package(wxWidgets ${wxWidgets_MIN_VERSION} QUIET COMPONENTS core base stc)
 

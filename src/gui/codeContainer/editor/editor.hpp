@@ -49,6 +49,7 @@ using json = nlohmann::json;
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+#include <wx/tokenzr.h>
 
 class CodeContainer;
 class LspClient;
@@ -272,6 +273,7 @@ public:
      * between multiple editor instances. May be nullptr in standalone use.
      */
     CodeContainer *m_linked_container = nullptr;
+    wxStyledTextCtrlMiniMap *minimap = nullptr;
 
 private:
     wxString currentPath;                          ///< Path of the currently opened file (empty if unsaved).
@@ -315,6 +317,7 @@ private:
     void OnHorizontalScroll(wxMouseEvent &event);           ///< Horizontal scroll with Shift+Wheel.
     void OnLspSyncTimer(wxTimerEvent& event);               ///< Timer handler for LSP synchronization.
     void SetupAutoComplete();              ///< Configures auto-completion behavior and appearance.
+    void RecreateMinimap();
 
     /**
      * @brief Parses LSP completion response into Scintilla-compatible format.
@@ -356,11 +359,11 @@ private:
     wxString m_lastCompletionUri;
     wxString m_lastSyncedText;
     int m_completionRequestCount = 0;
-wxStopWatch m_completionRateLimiter;
+    wxStopWatch m_completionRateLimiter;
 
-int m_completionCount = 0;
-wxStopWatch m_completionTimer;
-bool m_lspNeedsReset = false;
+    int m_completionCount = 0;
+    wxStopWatch m_completionTimer;
+    bool m_lspNeedsReset = false;
 
     bool m_completionPause = false;
     wxLongLong m_lastPauseTime = 0;
@@ -369,4 +372,7 @@ bool m_lspNeedsReset = false;
 
     wxDECLARE_NO_COPY_CLASS(Editor);
     wxDECLARE_EVENT_TABLE();
+
+    void OnAutoCompCancelled(wxStyledTextEvent &event);
+    void OnAutoCompSelection(wxStyledTextEvent &event);
 };

@@ -59,10 +59,12 @@ void CodeContainer::LoadPath(wxString path) {
 		Save(path);
 		editor->SendMsg(4003, 0, -1);
 
-		wxStyledTextCtrlMiniMap *minimap =
-			new wxStyledTextCtrlMiniMap(this, editor);
+		minimap = new wxStyledTextCtrlMiniMap(this, editor);
+
 		minimap->SetSize(wxSize(100, minimap->GetSize().y));
 		minimap->SetMinSize(wxSize(100, minimap->GetSize().y));
+
+		editor->minimap = minimap;
 
 		sizer->Add(minimap, 0, wxEXPAND);
 

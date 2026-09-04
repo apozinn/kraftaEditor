@@ -37,13 +37,13 @@
             "download": {
                 "urls": {
                     "Windows": "https://github.com/clangd/clangd/releases/download/22.1.6/clangd-windows-22.1.6.zip",
-                    "Unix": "https://github.com/clangd/clangd/releases/download/22.1.6/clangd-linux-22.1.6.zip",
-                    "OSX": "https://github.com/clangd/clangd/releases/download/22.1.6/clangd-mac-22.1.6.zip"
+                    "Linux": "https://github.com/clangd/clangd/releases/download/22.1.6/clangd-linux-22.1.6.zip",
+                    "Mac": "https://github.com/clangd/clangd/releases/download/22.1.6/clangd-mac-22.1.6.zip"
                 },
                 "paths": {
                     "Windows": "clangd_22.1.6/bin/clangd.exe",
-                    "Unix": "clangd/clangd_22.1.6/bin/clangd",
-                    "OSX": "clangd_22.1.6/bin/clangd"
+                    "Linux": "clangd/clangd_22.1.6/bin/clangd",
+                    "Mac": "clangd_22.1.6/bin/clangd"
                 }
             }
         }

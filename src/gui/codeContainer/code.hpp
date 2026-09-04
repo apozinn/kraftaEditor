@@ -23,6 +23,7 @@
 
 #include <wx/stc/stc.h>
 #include <wx/scrolwin.h>
+#include <wx/weakref.h>
 
 /**
  * @class CodeContainer
@@ -149,10 +150,10 @@ public:
 
     wxString currentPath; /**< Currently opened file path. */
     Editor *editor;       /**< Main code editor instance. */
+    wxWeakRef<wxStyledTextCtrlMiniMap> minimap;                                                               /**< Minimap instance. */
 private:
     wxString iconsDir = ApplicationPaths::AssetsPath("icons");                        /**< Directory containing editor icons. */
     wxFont font;                                                                      /**< Editor font. */
-    wxStyledTextCtrlMiniMap* minimap;                                                                 /**< Minimap instance. */
     bool codeMapMouseOver = false;                                                    /**< Indicates if the mouse is over the minimap. */
     languagePreferencesStruct languagePreferences;                                    /**< Language-specific editor preferences. */
     wxPoint codeMapClickPoint = wxPoint(0, 0);                                        /**< Last minimap click position. */

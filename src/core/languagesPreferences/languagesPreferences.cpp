@@ -74,27 +74,11 @@ bool LanguagesPreferences::VerifyLanguageLsp(
 				server["download"].contains("urls")) {
 
 				auto &urls = server["download"]["urls"];
-				auto platformId = wxPlatformInfo::Get().GetOperatingSystemId();
-				std::string platformKey;
 
-				if (platformId == wxOS_WINDOWS_NT) {
-					platformKey = "windows";
-				} else if (platformId == wxOS_MAC) {
-					platformKey = "mac";
-				} else if (platformId == wxOS_UNIX_LINUX) {
-					platformKey = "linux";
-				} else {
-					wxLogError(
-						"The current operating system does not support LSP.");
-					if (onComplete)
-						onComplete(false);
-					return false;
-				}
-
-				if (urls.contains(platformKey) &&
-					!urls[platformKey].is_null()) {
+				if (urls.contains(PlatformInfos::OsNameView()) &&
+					!urls[PlatformInfos::OsNameView()].is_null()) {
 					lspDownloadLink = wxString::FromUTF8(
-						urls[platformKey].get<std::string>());
+						urls[PlatformInfos::OsNameView()].get<std::string>());
 				}
 			}
 		}

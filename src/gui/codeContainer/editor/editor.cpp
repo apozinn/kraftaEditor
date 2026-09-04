@@ -28,6 +28,8 @@ Editor::Editor(wxWindow *parent)
 	Bind(wxEVT_LEFT_DOWN, &Editor::OnClick, this);
 	Bind(wxEVT_STC_UPDATEUI, &Editor::OnUpdateUI, this);
 	Bind(wxEVT_TIMER, &Editor::OnLspDebounceTimer, this, LSP_DEBOUNCE_ID);
+	Bind(wxEVT_STC_AUTOCOMP_CANCELLED, &Editor::OnAutoCompCancelled, this);
+	Bind(wxEVT_STC_AUTOCOMP_SELECTION, &Editor::OnAutoCompSelection, this);
 }
 
 Editor::~Editor() {
@@ -70,6 +72,18 @@ void Editor::InitializePreferences() {
 	SetBackSpaceUnIndents(true);
 	SetIndentationGuides(true);
 	SetEndAtLastLine(true);
+
+	SetIndent(4);
+	SetTabWidth(4);
+	SetIndentationGuides(wxSTC_IV_LOOKBOTH);
+	SetEndAtLastLine(false);
+
+	SetMultipleSelection(true);
+	SetAdditionalSelectionTyping(true);
+	SetMultiPaste(wxSTC_MULTIPASTE_EACH);
+	SetVirtualSpaceOptions(wxSTC_VS_RECTANGULARSELECTION);
+	SetCaretWidth(3);
+
 	SetFocus();
 
 	StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(backgroundColor));
@@ -77,12 +91,6 @@ void Editor::InitializePreferences() {
 	StyleClearAll();
 
 	SetCaretForeground(ThemesManager::Get().GetColor("editorCaret"));
-	SetCaretWidth(3);
-
-	SetMultipleSelection(true);
-	SetAdditionalSelectionTyping(true);
-	SetMultiPaste(wxSTC_MULTIPASTE_EACH);
-	SetVirtualSpaceOptions(wxSTC_VS_RECTANGULARSELECTION);
 
 	SetMarginWidth(EditorConstants::LINE_NUMBER_MARGIN,
 				   TextWidth(wxSTC_STYLE_LINENUMBER, wxT("_99999")));
@@ -93,12 +101,6 @@ void Editor::InitializePreferences() {
 
 	StyleSetBackground(wxSTC_STYLE_INDENTGUIDE, wxColor(backgroundColor));
 	StyleSetForeground(wxSTC_STYLE_INDENTGUIDE, wxColor(secondaryTextColor));
-
-	AutoCompSetSeparator(' ');
-	AutoCompSetIgnoreCase(true);
-	AutoCompSetAutoHide(true);
-	AutoCompSetDropRestOfWord(false);
-	AutoCompSetMaxHeight(8);
 
 	wxAcceleratorEntry entries[] = {
 		{wxACCEL_CTRL, WXK_RETURN,
@@ -126,12 +128,6 @@ void Editor::InitializePreferences() {
 	m_AutoCompleteWordsList =
 		LanguagesPreferences::Get().GetAutoCompleteWordsList(
 			m_LanguagePreferences);
-
-	SetIndent(4);
-	SetTabWidth(4);
-	SetUseTabs(false);
-	SetIndentationGuides(wxSTC_IV_LOOKBOTH);
-	SetEndAtLastLine(false);
 
 	Bind(wxEVT_LEFT_DOWN, [this](wxMouseEvent &event) {
 		if (ProjectSettings::Get().GetCurrentlyFileOpen() != this->GetName()) {
@@ -1060,3 +1056,34 @@ wxString Editor::ParseCompletionItems(const std::string &json,
 		return wxEmptyString;
 	}
 }
+
+void Editor::RecreateMinimap() {
+	CallAfter([this]() {
+		if (m_isDestroyed)
+			return;
+		wxWindow *parent = this->GetParent();
+
+		wxMilliSleep(50);
+		wxTheApp->Yield(true);
+
+		delete minimap;
+
+		minimap = new wxStyledTextCtrlMiniMap(parent, this);
+
+		minimap->SetSize(wxSize(100, minimap->GetSize().y));
+		minimap->SetMinSize(wxSize(100, minimap->GetSize().y));
+
+		parent->GetSizer()->Add(minimap, 0, wxEXPAND);
+
+		parent->Refresh();
+		parent->Update();
+		parent->GetSizer()->Layout();
+	});
+}
+
+void Editor::OnAutoCompCancelled(wxStyledTextEvent &event) {
+	RecreateMinimap();
+	event.Skip();
+}
+
+void Editor::OnAutoCompSelection(wxStyledTextEvent &event) { event.Skip(); }

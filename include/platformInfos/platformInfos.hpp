@@ -48,16 +48,28 @@ namespace PlatformInfos
      * }
      * @endcode
      */
-    inline std::string OsNameView() 
+    inline std::string_view OsNameView() 
     {
-        static const std::string cached = []() {
-            auto name = wxPlatformInfo::Get().GetOperatingSystemFamilyName();
-            auto str = name.ToStdString();
-            if (str == "OSX" || str == "Macintosh") {
-                return std::string("OSX");
-            }
-            return str;
+        using namespace std::string_view_literals;
+        
+        static const std::string_view cached = []() -> std::string_view {
+    #ifdef __linux__
+            return "Linux"sv;
+    #elif defined(_WIN32) || defined(_WIN64)
+            return "Windows"sv;
+    #elif defined(__APPLE__) || defined(__MACH__)
+            return "Mac"sv;
+    #else
+            wxString osName = wxPlatformInfo::Get().GetOperatingSystemIdName();
+            
+            if (osName == "Linux") return "Linux"sv;
+            if (osName == "Windows") return "Windows"sv;
+            if (osName.Contains("Mac")) return "Mac"sv;
+            
+            return "Unknown"sv;
+    #endif
         }();
+        
         return cached;
     }
 

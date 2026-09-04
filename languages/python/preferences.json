@@ -27,9 +27,9 @@
         "name": "pylsp",
         "download": {
           "urls": {
-            "linux": null,
-            "windows": null,
-            "mac": null
+            "Linux": null,
+            "Windows": null,
+            "Mac": null
           }
         }
       }
