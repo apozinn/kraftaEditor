@@ -1086,4 +1086,7 @@ void Editor::OnAutoCompCancelled(wxStyledTextEvent &event) {
 	event.Skip();
 }
 
-void Editor::OnAutoCompSelection(wxStyledTextEvent &event) { event.Skip(); }
+void Editor::OnAutoCompSelection(wxStyledTextEvent &event) {
+	RecreateMinimap();
+	event.Skip();
+}

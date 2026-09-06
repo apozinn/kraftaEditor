@@ -102,7 +102,7 @@ class LspReaderThread : public wxThread {
 };
 
 class LspWorkerThread : public wxThread {
-public:
+  public:
 	LspWorkerThread() : wxThread(wxTHREAD_JOINABLE) {}
 
 	void Enqueue(std::function<void()> task) {
@@ -115,10 +115,10 @@ public:
 
 	void RequestStop() {
 		m_stopRequested.store(true);
-		m_semaphore.Post(); 
+		m_semaphore.Post();
 	}
 
-protected:
+  protected:
 	ExitCode Entry() wxOVERRIDE {
 		while (true) {
 			m_semaphore.Wait();
@@ -141,10 +141,10 @@ protected:
 		return (ExitCode) nullptr;
 	}
 
-private:
+  private:
 	std::deque<std::function<void()>> m_queue;
 	wxCriticalSection m_queueLock;
-	wxSemaphore m_semaphore{0, 0}; 
+	wxSemaphore m_semaphore{0, 0};
 	std::atomic<bool> m_stopRequested{false};
 };
 
@@ -335,7 +335,8 @@ void LspClient::DidOpen(const wxString &fileUri, const wxString &languageId,
 	});
 }
 
-void LspClient::DidOpenImpl(const std::string &uri, const std::string &languageId,
+void LspClient::DidOpenImpl(const std::string &uri,
+							const std::string &languageId,
 							const std::string &content) {
 	std::string uriEsc = EscapeJson(uri);
 	std::string langEsc = EscapeJson(languageId);
@@ -353,7 +354,7 @@ void LspClient::DidOpenImpl(const std::string &uri, const std::string &languageI
 	   << "\"text\":\"" << textEsc << "\""
 	   << "}}}";
 
-	SendRaw(Frame(ss.str())); 
+	SendRaw(Frame(ss.str()));
 }
 
 void LspClient::DidChange(const wxString &fileUri, const wxString &newContent,
@@ -374,8 +375,8 @@ void LspClient::DidChange(const wxString &fileUri, const wxString &newContent,
 	});
 }
 
-void LspClient::DidChangeImpl(const std::string &uri, const std::string &content,
-							  int version) {
+void LspClient::DidChangeImpl(const std::string &uri,
+							  const std::string &content, int version) {
 	std::string uriEsc = EscapeJson(uri);
 	std::string textEsc = EscapeJson(content);
 
