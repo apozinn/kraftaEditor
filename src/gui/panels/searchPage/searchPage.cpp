@@ -10,7 +10,7 @@ SearchPage::SearchPage(wxWindow *parent)
 	wxPanel *backContainer = new wxPanel(this);
 	wxSizer *backContainerSizer = new wxBoxSizer(wxHORIZONTAL);
 
-	wxString arrowPath = ApplicationPaths::GetIconPath("dir_arrow.png");
+	wxString arrowPath = ApplicationPaths::GetIconPath("arrow_left.png");
 	wxBitmap arrowBitmap(arrowPath, wxBITMAP_TYPE_PNG);
 
 	auto CloseSearchPage = [=]() {
