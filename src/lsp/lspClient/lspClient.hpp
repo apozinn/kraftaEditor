@@ -20,9 +20,11 @@
 #include <wx/string.h>
 #include <wx/thread.h>
 
+
 // Forward declarations
 class wxProcess;      /**< Forward declaration for wxWidgets process class */
 class wxInputStream;  /**< Forward declaration for wxWidgets input stream class */
+class LspWorkerThread;
 
 /**
  * @class LspClient
@@ -212,6 +214,10 @@ public:
      */
     void DidOpen(const wxString& fileUri, const wxString& languageId, 
                  const wxString& content);
+                 
+                 void DidOpenImpl(const std::string& uri, const std::string& languageId,
+                      const std::string& content);
+    void DidChangeImpl(const std::string& uri, const std::string& content, int version);
 
     /**
      * @brief Notifies the server about document changes.
@@ -524,6 +530,8 @@ private:
     
     /** @brief Reader thread for processing server output asynchronously */
     wxThread* m_readerThread = nullptr;
+    
+    LspWorkerThread* m_worker = nullptr;
     
     /** @brief Process ID of the running server (0 if not running) */
     long m_pid = 0;

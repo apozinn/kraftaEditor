@@ -1,5 +1,6 @@
 #include "lspClient.hpp"
 #include <algorithm>
+#include <deque>
 #include <sstream>
 #include <thread>
 #include <wx/process.h>
@@ -100,6 +101,53 @@ class LspReaderThread : public wxThread {
 	wxInputStream *m_stream;
 };
 
+class LspWorkerThread : public wxThread {
+public:
+	LspWorkerThread() : wxThread(wxTHREAD_JOINABLE) {}
+
+	void Enqueue(std::function<void()> task) {
+		{
+			wxCriticalSectionLocker lock(m_queueLock);
+			m_queue.push_back(std::move(task));
+		}
+		m_semaphore.Post();
+	}
+
+	void RequestStop() {
+		m_stopRequested.store(true);
+		m_semaphore.Post(); 
+	}
+
+protected:
+	ExitCode Entry() wxOVERRIDE {
+		while (true) {
+			m_semaphore.Wait();
+
+			if (m_stopRequested.load())
+				break;
+
+			std::function<void()> task;
+			{
+				wxCriticalSectionLocker lock(m_queueLock);
+				if (m_queue.empty())
+					continue;
+				task = std::move(m_queue.front());
+				m_queue.pop_front();
+			}
+
+			if (task)
+				task();
+		}
+		return (ExitCode) nullptr;
+	}
+
+private:
+	std::deque<std::function<void()>> m_queue;
+	wxCriticalSection m_queueLock;
+	wxSemaphore m_semaphore{0, 0}; 
+	std::atomic<bool> m_stopRequested{false};
+};
+
 LspClient::LspClient() = default;
 LspClient::~LspClient() { Stop(); }
 
@@ -135,7 +183,6 @@ bool LspClient::Start(const wxString &serverPath, const wxString &extraArgs) {
 	}
 
 	m_running.store(true);
-	wxMilliSleep(200);
 
 	wxInputStream *stream = m_process->GetInputStream();
 	if (!stream) {
@@ -154,6 +201,13 @@ bool LspClient::Start(const wxString &serverPath, const wxString &extraArgs) {
 		delete m_process;
 		m_process = nullptr;
 		return false;
+	}
+
+	m_worker = new LspWorkerThread();
+	if (m_worker->Create() != wxTHREAD_NO_ERROR ||
+		m_worker->Run() != wxTHREAD_NO_ERROR) {
+		delete m_worker;
+		m_worker = nullptr;
 	}
 
 	return true;
@@ -175,6 +229,13 @@ void LspClient::Stop() {
 	{
 		wxCriticalSectionLocker lock(m_notificationLock);
 		m_notificationHandlers.clear();
+	}
+
+	if (m_worker) {
+		m_worker->RequestStop();
+		m_worker->Wait();
+		delete m_worker;
+		m_worker = nullptr;
 	}
 
 	if (m_readerThread) {
@@ -260,9 +321,25 @@ void LspClient::DidOpen(const wxString &fileUri, const wxString &languageId,
 	if (!m_running.load() || !m_initialized.load())
 		return;
 
-	std::string uri = EscapeJson(fileUri.ToStdString());
-	std::string lang = EscapeJson(languageId.ToStdString());
-	std::string text = EscapeJson(std::string(content.utf8_str()));
+	std::string uriStd = fileUri.ToStdString();
+	std::string langStd = languageId.ToStdString();
+	std::string contentStd = std::string(content.utf8_str());
+
+	if (!m_worker) {
+		DidOpenImpl(uriStd, langStd, contentStd);
+		return;
+	}
+
+	m_worker->Enqueue([this, uriStd, langStd, contentStd]() {
+		DidOpenImpl(uriStd, langStd, contentStd);
+	});
+}
+
+void LspClient::DidOpenImpl(const std::string &uri, const std::string &languageId,
+							const std::string &content) {
+	std::string uriEsc = EscapeJson(uri);
+	std::string langEsc = EscapeJson(languageId);
+	std::string textEsc = EscapeJson(content);
 
 	std::ostringstream ss;
 	ss << "{"
@@ -270,13 +347,13 @@ void LspClient::DidOpen(const wxString &fileUri, const wxString &languageId,
 	   << "\"method\":\"textDocument/didOpen\","
 	   << "\"params\":{"
 	   << "\"textDocument\":{"
-	   << "\"uri\":\"" << uri << "\","
-	   << "\"languageId\":\"" << lang << "\","
+	   << "\"uri\":\"" << uriEsc << "\","
+	   << "\"languageId\":\"" << langEsc << "\","
 	   << "\"version\":1,"
-	   << "\"text\":\"" << text << "\""
+	   << "\"text\":\"" << textEsc << "\""
 	   << "}}}";
 
-	SendRaw(Frame(ss.str()));
+	SendRaw(Frame(ss.str())); 
 }
 
 void LspClient::DidChange(const wxString &fileUri, const wxString &newContent,
@@ -284,17 +361,32 @@ void LspClient::DidChange(const wxString &fileUri, const wxString &newContent,
 	if (!m_running.load() || !m_initialized.load())
 		return;
 
-	std::string uri = EscapeJson(fileUri.ToStdString());
-	std::string text = EscapeJson(std::string(newContent.utf8_str()));
+	std::string uriStd = fileUri.ToStdString();
+	std::string contentStd = std::string(newContent.utf8_str());
+
+	if (!m_worker) {
+		DidChangeImpl(uriStd, contentStd, version);
+		return;
+	}
+
+	m_worker->Enqueue([this, uriStd, contentStd, version]() {
+		DidChangeImpl(uriStd, contentStd, version);
+	});
+}
+
+void LspClient::DidChangeImpl(const std::string &uri, const std::string &content,
+							  int version) {
+	std::string uriEsc = EscapeJson(uri);
+	std::string textEsc = EscapeJson(content);
 
 	std::ostringstream ss;
 	ss << "{\"jsonrpc\":\"2.0\","
 	   << "\"method\":\"textDocument/didChange\","
 	   << "\"params\":{"
 	   << "\"textDocument\":{"
-	   << "\"uri\":\"" << uri << "\","
+	   << "\"uri\":\"" << uriEsc << "\","
 	   << "\"version\":" << version << "},"
-	   << "\"contentChanges\":[{\"text\":\"" << text << "\"}]"
+	   << "\"contentChanges\":[{\"text\":\"" << textEsc << "\"}]"
 	   << "}}";
 
 	SendRaw(Frame(ss.str()));
