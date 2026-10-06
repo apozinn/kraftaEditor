@@ -71,15 +71,38 @@ void TextCtrl::SetupLsp() {
 }
 
 TextCtrl::~TextCtrl() {
-	m_isDestroyed = true;
+    m_isDestroyed = true;
+    
+    if (m_lspController) {
+        m_lspController->Stop();
+    }
 
-	Unbind(wxEVT_STC_CHANGE, &TextCtrl::OnChange, this);
-	Unbind(wxEVT_STC_CHARADDED, &TextCtrl::CharAdd, this);
-	Unbind(wxEVT_LEFT_DOWN, &TextCtrl::OnClick, this);
-
-	if (m_lspController) {
-		m_lspController->Stop();
-	}
+    Unbind(wxEVT_STC_MODIFIED, &TextCtrl::OnChange, this);
+    Unbind(wxEVT_STC_MARGINCLICK, &TextCtrl::OnMarginClick, this);
+    Unbind(wxEVT_STC_CHARADDED, &TextCtrl::CharAdd, this);
+    Unbind(wxEVT_KEY_UP, &TextCtrl::OnArrowsPress, this);
+    Unbind(wxEVT_KEY_DOWN, &TextCtrl::OnBackspace, this);
+    Unbind(wxEVT_LEFT_UP, &TextCtrl::OnClick, this);
+    Unbind(wxEVT_MOUSEWHEEL, &TextCtrl::OnScroll, this);
+    
+    Unbind(wxEVT_MENU, &TextCtrl::ToggleLineComment, this, 
+           +Event::Edit::ToggleLineComment);
+    Unbind(wxEVT_MENU, &TextCtrl::ToggleBlockComment, this, 
+           +Event::Edit::ToggleBlockComment);
+    Unbind(wxEVT_MENU, &TextCtrl::DoCopy, this, 
+           +Event::Edit::CopyByKeyboard);
+    Unbind(wxEVT_MENU, &TextCtrl::DoZoomIn, this, 
+           +Event::View::ZoomIn);
+    Unbind(wxEVT_MENU, &TextCtrl::DoZoomOut, this, 
+           +Event::View::ZoomOut);
+    Unbind(wxEVT_MENU, &TextCtrl::MoveCursorDown, this, 
+           +Event::Edit::MoveCursorDown);
+    Unbind(wxEVT_MENU, &TextCtrl::MoveCursorUp, this, 
+           +Event::Edit::MoveCursorUp);
+    Unbind(wxEVT_MENU, &TextCtrl::DuplicateLine, this, 
+           +Event::Edit::DuplicateLineDown);
+    Unbind(wxEVT_MENU, &TextCtrl::SelectNextOccurrence, this, 
+           +Event::Edit::SelectNextOccurrence);
 }
 
 void TextCtrl::InitializePreferences() {

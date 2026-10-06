@@ -286,34 +286,53 @@ void Tabs::Close(wxString tab_path) {
 }
 
 void Tabs::CloseAllFiles() {
-	std::vector<wxWindow *> childrenToRemove;
+    wxWindow* parent = GetParent();
+    if (!parent) return;
 
-	for (auto &&mainCodeChildren : GetParent()->GetChildren()) {
-		if (mainCodeChildren->GetLabel().Find("_editor") != wxNOT_FOUND)
-			childrenToRemove.push_back(mainCodeChildren);
-		else
-			mainCodeChildren->Hide();
-	}
+    const wxWindowList childrenCopy = parent->GetChildren();
 
-	for (auto &&child : childrenToRemove) {
-		child->Destroy();
-	}
+    std::vector<wxWindow*> toDestroy;
+    toDestroy.reserve(childrenCopy.size());
 
-	tabsContainer->DestroyChildren();
-	Hide();
+    for (wxWindow* child : childrenCopy) {
+        if (!child || child->IsBeingDeleted()) continue;
 
-	if (auto emptyWindow = FindWindowById(+GUI::ControlID::EmptyWindow))
-		emptyWindow->Show();
+        if (child->GetLabel().Contains("_editor")) {
+            toDestroy.push_back(child);
+        } else {
+            child->Hide();
+        }
+    }
 
-	ProjectSettings::Get().SetCurrentlyFileOpen(wxEmptyString);
+    for (wxWindow* child : toDestroy) {
+        if (child && !child->IsBeingDeleted()) {
+            child->Destroy();
+        }
+    }
 
-	GetParent()->Layout();
+    if (tabsContainer && !tabsContainer->IsBeingDeleted()) {
+        tabsContainer->DestroyChildren();
+    }
 
-	if (!statusBar)
-		statusBar = ((StatusBar *)FindWindowById(+GUI::ControlID::StatusBar));
+    Hide();
 
-	if (statusBar)
-		statusBar->ClearLabels();
+    if (auto* emptyWindow = FindWindowById(+GUI::ControlID::EmptyWindow)) {
+        if (!emptyWindow->IsBeingDeleted()) {
+            emptyWindow->Show();
+        }
+    }
+
+    ProjectSettings::Get().SetCurrentlyFileOpen(wxEmptyString);
+    parent->Layout();
+
+    if (!statusBar || statusBar->IsBeingDeleted()) {
+        statusBar = dynamic_cast<StatusBar*>(
+            FindWindowById(+GUI::ControlID::StatusBar));
+    }
+
+    if (statusBar && !statusBar->IsBeingDeleted()) {
+        statusBar->ClearLabels();
+    }
 }
 
 void Tabs::Select() {
