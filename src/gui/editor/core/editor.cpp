@@ -29,8 +29,9 @@ bool Editor::Initialize() {
 	if (!SetupTextCtrl())
 		return false;
 
+SetupLanguagePreferences();
 	SetupMinimapCtrl();
-	SetupLanguagePreferences();
+	
 	return true;
 }
 

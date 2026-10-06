@@ -10,7 +10,7 @@ A fast, native code editor built with C++ and wxWidgets.
 No Electron. No Chromium. No web stack.
 Just a lightweight native application focused on speed, responsiveness, and low memory usage.
 
-![Krafta Editor — dark theme](https://i.imgur.com/GM7mMJ6.png)
+![Krafta Editor — dark theme](https://i.imgur.com/zeFhYxi.png)
 
 ## Performance
 
