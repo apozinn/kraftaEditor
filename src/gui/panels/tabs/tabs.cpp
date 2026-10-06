@@ -1,14 +1,4 @@
 #include "tabs.hpp"
-#include "errorMessages/errorMessages.hpp"
-#include "gui/codeContainer/code.hpp"
-#include "gui/panels/filesTree/filesTree.hpp"
-#include "gui/widgets/saveChangesDialog/saveChangesDialog.hpp"
-#include "gui/widgets/statusBar/statusBar.hpp"
-#include "languagesPreferences/languagesPreferences.hpp"
-#include "menus/tabsContainerMenu.hpp"
-
-#include <fileOperations/fileOperations.hpp>
-#include <wx/graphics.h>
 
 Tabs::Tabs(wxPanel *parent, wxWindowID ID) : wxPanel(parent, ID) {
 	auto background_color = Theme["main"].template get<std::string>();
@@ -161,8 +151,8 @@ void Tabs::Add(wxString tab_name, wxString path) {
 }
 
 void Tabs::Close(wxString tab_path) {
-	auto codeContainer =
-		((CodeContainer *)FindWindowByName(tab_path + "_codeContainer"));
+	auto editor = ((Editor *)FindWindowByName(tab_path + "_editor"));
+	auto textCtrl = ((TextCtrl *)FindWindowByName(tab_path + "_textCtrl"));
 	auto imgContainer =
 		((wxPanel *)FindWindowByLabel(tab_path + "_imageContainer"));
 	auto fileContainer =
@@ -173,18 +163,18 @@ void Tabs::Close(wxString tab_path) {
 	if (!tab)
 		return;
 
-	if (codeContainer) {
-		if (codeContainer->editor->Modified()) {
+	if (editor && textCtrl) {
+		if (textCtrl->Modified()) {
 			SaveChangesDialog dlg(
 				NULL,
 				wxString::Format(
 					_("Do you want to save the changes you made to: %s?"),
-					wxFileNameFromPath(codeContainer->currentPath)),
+					wxFileNameFromPath(tab_path)),
 				"Krafta Editor");
 			int result = dlg.ShowModal();
 
 			if (result == wxID_OK) {
-				codeContainer->Save(codeContainer->currentPath);
+				editor->Save(tab_path);
 			}
 			if (result == +Event::Frame::DontSaveChanges) {
 			}
@@ -192,7 +182,7 @@ void Tabs::Close(wxString tab_path) {
 				return;
 			}
 		}
-		codeContainer->Destroy();
+		editor->Destroy();
 	}
 
 	if (imgContainer)
@@ -218,9 +208,8 @@ void Tabs::Close(wxString tab_path) {
 				fileContainer->SetFileHighlight(linkedFile->GetName());
 			}
 
-			auto other_codeContainer = ((CodeContainer *)FindWindowByName(
-				ProjectSettings::Get().GetCurrentlyFileOpen() +
-				"_codeContainer"));
+			auto other_codeContainer = ((Editor *)FindWindowByName(
+				ProjectSettings::Get().GetCurrentlyFileOpen() + "_editor"));
 			if (other_codeContainer)
 				other_codeContainer->Show();
 
@@ -300,7 +289,7 @@ void Tabs::CloseAllFiles() {
 	std::vector<wxWindow *> childrenToRemove;
 
 	for (auto &&mainCodeChildren : GetParent()->GetChildren()) {
-		if (mainCodeChildren->GetLabel().Find("_codeContainer") != wxNOT_FOUND)
+		if (mainCodeChildren->GetLabel().Find("_editor") != wxNOT_FOUND)
 			childrenToRemove.push_back(mainCodeChildren);
 		else
 			mainCodeChildren->Hide();
@@ -340,10 +329,10 @@ void Tabs::Select() {
 			other_ct->Hide();
 	}
 
-	auto codeContainer = ((CodeContainer *)FindWindowByName(
-		ProjectSettings::Get().GetCurrentlyFileOpen() + "_codeContainer"));
-	if (codeContainer)
-		codeContainer->Show();
+	auto editor = ((Editor *)FindWindowByName(
+		ProjectSettings::Get().GetCurrentlyFileOpen() + "_editor"));
+	if (editor)
+		editor->Show();
 	auto imageContainer = ((wxStaticBitmap *)FindWindowByLabel(
 		ProjectSettings::Get().GetCurrentlyFileOpen() + "_imageContainer"));
 	if (imageContainer)
@@ -419,9 +408,9 @@ void Tabs::OnSplitEditorMenuClick(wxMouseEvent &WXUNUSED(event)) {
 void Tabs::OnEnterComp(wxMouseEvent &event) {
 	auto target = ((wxWindow *)event.GetEventObject());
 	if (target) {
-		auto editor = ((wxStyledTextCtrl *)FindWindowByName(
-			target->GetParent()->GetName() + "_codeEditor"));
-		if (!editor)
+		auto textCtrl = ((wxStyledTextCtrl *)FindWindowByName(
+			target->GetParent()->GetName() + "_textCtrl"));
+		if (!textCtrl)
 			return;
 
 		auto icon = ((wxStaticBitmap *)target->GetChildren()[2]);
@@ -445,16 +434,16 @@ void Tabs::OnEnterComp(wxMouseEvent &event) {
 void Tabs::OnLeaveComp(wxMouseEvent &event) {
 	auto target = ((wxWindow *)event.GetEventObject());
 	if (target) {
-		auto editor = ((wxStyledTextCtrl *)FindWindowByName(
-			target->GetParent()->GetName() + "_codeEditor"));
-		if (!editor)
+		auto textCtrl = ((wxStyledTextCtrl *)FindWindowByName(
+			target->GetParent()->GetName() + "_textCtrl"));
+		if (!textCtrl)
 			return;
 
 		auto icon = ((wxStaticBitmap *)target->GetChildren()[2]);
 		if (!icon)
 			return;
 
-		if (editor->GetModify()) {
+		if (textCtrl->GetModify()) {
 			if (icon->GetLabel() == "unsaved_icon")
 				return;
 

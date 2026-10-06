@@ -1,14 +1,14 @@
+#include "gui/editor/controls/textCtrl/textCtrl.hpp"
 #include "mainFrame.hpp"
 
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
 	// // File Operations
 	EVT_MENU(+Event::File::CreateFileEvent, FilesTree::OnCreateFileRequested)
 		EVT_MENU(+Event::File::CreateDir, FilesTree::OnCreateDirRequested)
-			EVT_MENU(+Event::File::Save, CodeContainer::OnSave)
-				EVT_MENU(+Event::File::SaveAs, CodeContainer::OnSaveAs)
-					EVT_MENU(+Event::File::SaveAll, CodeContainer::OnSaveAll)
-						EVT_MENU(+Event::File::CloseFile,
-								 CodeContainer::OnCloseFile)
+			EVT_MENU(+Event::File::Save, TextCtrl::OnSave)
+				EVT_MENU(+Event::File::SaveAs, TextCtrl::SaveAs)
+					EVT_MENU(+Event::File::SaveAll, TextCtrl::SaveAll)
+						EVT_MENU(+Event::File::CloseFile, TextCtrl::CloseFile)
 							EVT_MENU(+Event::File::CloseAll,
 									 MainFrame::CloseAllFiles)
 								EVT_MENU(+Event::File::OpenFile,
@@ -18,27 +18,27 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
 											 MainFrame::ToggleAutosave)
 
 	// Edit Operations
-	EVT_MENU(+Event::Edit::Cut, CodeContainer::OnCut) EVT_MENU(
-		+Event::Edit::Copy,
-		CodeContainer::OnCopy) EVT_MENU(+Event::Edit::Paste,
-										CodeContainer::OnPaste)
-		EVT_MENU(+Event::Edit::Redo, CodeContainer::OnRedo) EVT_MENU(
-			+Event::Edit::Undo,
-			CodeContainer::OnUndo) EVT_MENU(+Event::Edit::ToggleLineComment,
-											CodeContainer::ToggleCommentLine)
-			EVT_MENU(+Event::Edit::ToggleBlockComment,
-					 CodeContainer::ToggleCommentBlock)
-				EVT_MENU(+Event::Edit::SelectLine, CodeContainer::OnSelectLine)
-					EVT_MENU(+Event::Edit::SelectAll,
-							 CodeContainer::OnSelectAll)
-						EVT_MENU(+Event::Edit::DuplicateLineDown,
-								 CodeContainer::OnDuplicateLine)
-							EVT_MENU(+Event::Edit::MoveLineUp,
-									 CodeContainer::OnMoveLineUp)
-								EVT_MENU(+Event::Edit::MoveLineDown,
-										 CodeContainer::OnMoveLineDown)
-									EVT_MENU(+Event::Edit::RemoveCurrentLine,
-											 CodeContainer::OnRemoveCurrentLine)
+	EVT_MENU(+Event::Edit::Cut, TextCtrl::DoCut) EVT_MENU(+Event::Edit::Copy,
+														  TextCtrl::DoCopy)
+		EVT_MENU(+Event::Edit::Paste,
+				 TextCtrl::DoPaste) EVT_MENU(+Event::Edit::Redo,
+											 TextCtrl::DoRedo)
+			EVT_MENU(+Event::Edit::Undo,
+					 TextCtrl::DoUndo) EVT_MENU(+Event::Edit::ToggleLineComment,
+												TextCtrl::ToggleLineComment)
+				EVT_MENU(+Event::Edit::ToggleBlockComment,
+						 TextCtrl::ToggleBlockComment)
+					EVT_MENU(+Event::Edit::SelectLine, TextCtrl::SelectLine)
+						EVT_MENU(+Event::Edit::SelectAll, TextCtrl::DoSelectAll)
+							EVT_MENU(+Event::Edit::DuplicateLineDown,
+									 TextCtrl::DuplicateLine)
+								EVT_MENU(+Event::Edit::MoveLineUp,
+										 TextCtrl::MoveLineUp)
+									EVT_MENU(+Event::Edit::MoveLineDown,
+											 TextCtrl::MoveLineDown)
+										EVT_MENU(
+											+Event::Edit::RemoveCurrentLine,
+											TextCtrl::RemoveCurrentLine)
 
 	// View Operations
 	EVT_MENU(+Event::View::ToggleMiniMap, MainFrame::OnToggleMinimapView)
@@ -57,9 +57,9 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
 										 MainFrame::OnToggleTabBarView)
 
 									EVT_MENU(+Event::View::ZoomIn,
-											 CodeContainer::ZoomIn)
+											 TextCtrl::DoZoomIn)
 										EVT_MENU(+Event::View::ZoomOut,
-												 CodeContainer::ZoomOut)
+												 TextCtrl::DoZoomOut)
 
 	// Project Operations
 	EVT_MENU(+Event::Project::OpenFolder, MainFrame::OnOpenFolderMenu)

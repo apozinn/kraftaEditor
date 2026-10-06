@@ -2,7 +2,34 @@
 
 #include <wx/wx.h>
 #include "projectInfosTools/projectInfosTools.hpp"
+#include "appConstants/appConstants.hpp"
+#include "appPaths/appPaths.hpp"
+#include "errorMessages/errorMessages.hpp"
+#include "fileOperations/fileOperations.hpp"
+#include "languagesPreferences/languagesPreferences.hpp"
+#include "menus/dirContextMenu.hpp"
+#include "menus/fileContextMenu.hpp"
+#include "platformInfos/platformInfos.hpp"
+#include "projectSettings/projectSettings.hpp"
+#include "themesManager/themesManager.hpp"
+#include "ui/ids.hpp"
+#include "userSettings/userSettings.hpp"
 
+#include "gui/editor/core/editor.hpp"
+#include "gui/panels/tabs/tabs.hpp"
+#include "gui/widgets/confirmDialog/confirmDialog.hpp"
+#include "gui/widgets/openFolderButton/openFolderButton.hpp"
+#include "gui/widgets/statusBar/statusBar.hpp"
+
+#include <algorithm>
+#include <vector>
+#include <wx/fswatcher.h>
+#include <wx/graphics.h>
+#include <wx/richtooltip.h>
+#include <wx/scrolwin.h>
+#include <wx/statbmp.h>
+#include <wx/timer.h>
+#include <wx/wfstream.h>
 /**
  * @class FilesTree
  * @brief Represents the project file explorer panel, handling directory and file structure visualization.

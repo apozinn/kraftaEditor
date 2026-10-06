@@ -40,13 +40,12 @@ void CreateSplitedEditor(const wxString &path) {
 	splitEditorTabs->Add(wxFileNameFromPath(path), path);
 
 	auto LoadCodeEditor = [&]() {
-		auto codeEditor =
-			((CodeContainer *)wxFindWindowByLabel(path + "_codeContainer"));
+		auto editor = ((Editor *)wxFindWindowByLabel(path + "_editor"));
 
-		if (codeEditor)
+		if (editor)
 			tabsContainer->Close(path);
 
-		codeEditor = new CodeContainer(CodeContainerBlockRight, path);
+		editor = new Editor(CodeContainerBlockRight, path);
 
 		auto mainCodeParent =
 			(wxSplitterWindow *)CodeContainerBlockRight->GetParent();
@@ -55,11 +54,11 @@ void CreateSplitedEditor(const wxString &path) {
 											CodeContainerBlockRight,
 											mainCodeParent->GetSize().x / 2);
 
-		CodeContainerBlockRight->GetSizer()->Add(codeEditor, 1, wxEXPAND);
+		CodeContainerBlockRight->GetSizer()->Add(editor, 1, wxEXPAND);
 		CodeContainerBlockRight->GetSizer()->Layout();
 		CodeContainerBlockRight->Update();
 
-		hideOtherPanelsOfMainCode(codeEditor);
+		hideOtherPanelsOfMainCode(editor);
 	};
 
 	wxImage fileImage;

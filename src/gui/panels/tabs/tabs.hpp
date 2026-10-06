@@ -12,6 +12,17 @@
 #include "gui/widgets/statusBar/statusBar.hpp"
 #include "ui/ids.hpp"
 
+#include "errorMessages/errorMessages.hpp"
+#include "gui/editor/core/editor.hpp"
+#include "gui/panels/filesTree/filesTree.hpp"
+#include "gui/widgets/saveChangesDialog/saveChangesDialog.hpp"
+#include "gui/widgets/statusBar/statusBar.hpp"
+#include "languagesPreferences/languagesPreferences.hpp"
+#include "menus/tabsContainerMenu.hpp"
+
+#include <fileOperations/fileOperations.hpp>
+#include <wx/graphics.h>
+
 #include "splitEditor/splitEditor.hpp"
 
 #include <nlohmann/json.hpp>
@@ -78,8 +89,6 @@ public:
      */
     void OnDownMenuClick(wxMouseEvent &WXUNUSED(event));
     void OnSplitEditorMenuClick(wxMouseEvent &WXUNUSED(event));
-    
-    
 
     wxString selected_tab;              /**< The file path of the currently selected tab. */
     wxScrolled<wxPanel> *tabsContainer; /**< The container for all individual tabs, enabling horizontal scrolling. */

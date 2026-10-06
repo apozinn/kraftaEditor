@@ -9,7 +9,7 @@
 
 #include "gui/panels/tabs/tabs.hpp"
 #include "gui/widgets/statusBar/statusBar.hpp"
-#include "gui/codeContainer/code.hpp"
+#include "gui/editor/core/editor.hpp"
 
 namespace SplitEditorManager {
     void CreateSplitedEditor(const wxString& path);

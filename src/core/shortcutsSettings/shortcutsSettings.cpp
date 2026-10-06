@@ -11,8 +11,6 @@
 #include <wx/msgdlg.h>
 #include <wx/stdpaths.h>
 
-using json = nlohmann::json;
-
 ShortCutSettingsManager &ShortCutSettingsManager::Get() {
 	static ShortCutSettingsManager instance;
 	return instance;

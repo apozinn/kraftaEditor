@@ -1,262 +1,297 @@
 #include "lspClient.hpp"
-#include <algorithm>
-#include <deque>
-#include <sstream>
-#include <thread>
+
+#include <csignal>
+#include <cstdlib>
+#include <nlohmann/json.hpp>
+#include <wx/app.h>
 #include <wx/process.h>
 #include <wx/utils.h>
 
-static const int MAX_BUFFER_SIZE = 1024 * 1024 * 10;
-static const int READ_TIMEOUT_MS = 100;
+using json = nlohmann::json;
 
-class LspReaderThread : public wxThread {
+static const size_t MAX_MESSAGE_SIZE = 64u * 1024u * 1024u;
+
+class LspProcess : public wxProcess {
   public:
-	LspReaderThread(LspClient *client, wxInputStream *stream)
-		: wxThread(wxTHREAD_JOINABLE), m_client(client), m_stream(stream) {}
+	LspProcess() : wxProcess(wxPROCESS_REDIRECT) {}
 
-  protected:
-	virtual ExitCode Entry() wxOVERRIDE {
-		if (!m_client || !m_stream)
-			return (ExitCode) nullptr;
-
-		std::vector<char> buffer(8192);
-		std::string accumulator;
-
-		while (!TestDestroy() && m_client->IsRunning()) {
-			if (!m_stream->CanRead()) {
-				wxMilliSleep(READ_TIMEOUT_MS);
-				continue;
-			}
-
-			m_stream->Read(buffer.data(), buffer.size());
-			size_t bytesRead = m_stream->LastRead();
-
-			if (bytesRead > 0) {
-				accumulator.append(buffer.data(), bytesRead);
-			} else if (m_stream->Eof()) {
-				if (m_client) {
-					wxTheApp->CallAfter(
-						[client = m_client]() { client->OnConnectionLost(); });
-				}
-				break;
-			} else {
-				wxMilliSleep(READ_TIMEOUT_MS);
-				continue;
-			}
-
-			while (true) {
-				size_t headerEnd = accumulator.find("\r\n\r\n");
-				if (headerEnd == std::string::npos) {
-					if (accumulator.size() > (size_t)MAX_BUFFER_SIZE) {
-						accumulator.clear();
-					}
-					break;
-				}
-
-				int contentLength = -1;
-				std::string headers = accumulator.substr(0, headerEnd);
-				size_t clPos = headers.find("Content-Length: ");
-				if (clPos == std::string::npos)
-					clPos = headers.find("content-length: ");
-
-				if (clPos != std::string::npos) {
-					std::string clStr = headers.substr(clPos + 16);
-					size_t endCL = clStr.find('\r');
-					if (endCL != std::string::npos)
-						clStr = clStr.substr(0, endCL);
-					try {
-						contentLength = std::stoi(clStr);
-					} catch (...) {
-						contentLength = -1;
-					}
-				}
-
-				if (contentLength <= 0 || contentLength > MAX_BUFFER_SIZE) {
-					accumulator.erase(0, headerEnd + 4);
-					continue;
-				}
-
-				size_t bodyStart = headerEnd + 4;
-				if (accumulator.size() < bodyStart + (size_t)contentLength)
-					break;
-
-				std::string body = accumulator.substr(bodyStart, contentLength);
-				accumulator.erase(0, bodyStart + contentLength);
-
-				if (m_client) {
-					std::string captured = std::move(body);
-					wxTheApp->CallAfter(
-						[client = m_client, captured = std::move(captured)]() {
-							if (client && client->IsRunning())
-								client->OnDataReceived(captured);
-						});
-				}
-			}
-		}
-		return (ExitCode) nullptr;
+	void OnTerminate(int, int) override {
+		m_terminated = true;
+		if (m_orphan)
+			delete this;
+	}
+	void Orphan() {
+		if (m_terminated)
+			delete this;
+		else
+			m_orphan = true;
 	}
 
   private:
-	LspClient *m_client;
-	wxInputStream *m_stream;
+	bool m_terminated = false;
+	bool m_orphan = false;
 };
 
-class LspWorkerThread : public wxThread {
-  public:
-	LspWorkerThread() : wxThread(wxTHREAD_JOINABLE) {}
+static std::string Dump(const json &j) {
+	return j.dump(-1, ' ', false, json::error_handler_t::replace);
+}
 
-	void Enqueue(std::function<void()> task) {
-		{
-			wxCriticalSectionLocker lock(m_queueLock);
-			m_queue.push_back(std::move(task));
-		}
-		m_semaphore.Post();
-	}
+static json Pos(int line, int ch) {
+	return json{{"line", line}, {"character", ch}};
+}
 
-	void RequestStop() {
-		m_stopRequested.store(true);
-		m_semaphore.Post();
-	}
-
-  protected:
-	ExitCode Entry() wxOVERRIDE {
-		while (true) {
-			m_semaphore.Wait();
-
-			if (m_stopRequested.load())
-				break;
-
-			std::function<void()> task;
-			{
-				wxCriticalSectionLocker lock(m_queueLock);
-				if (m_queue.empty())
-					continue;
-				task = std::move(m_queue.front());
-				m_queue.pop_front();
-			}
-
-			if (task)
-				task();
-		}
-		return (ExitCode) nullptr;
-	}
-
-  private:
-	std::deque<std::function<void()>> m_queue;
-	wxCriticalSection m_queueLock;
-	wxSemaphore m_semaphore{0, 0};
-	std::atomic<bool> m_stopRequested{false};
-};
+static json TextDoc(const wxString &uri) {
+	return json{{"uri", std::string(uri.utf8_str())}};
+}
 
 LspClient::LspClient() = default;
 LspClient::~LspClient() { Stop(); }
 
-void LspClient::OnConnectionLost() {
-	m_running.store(false);
-	m_initialized.store(false);
-	{
-		wxCriticalSectionLocker lock(m_pendingLock);
-		m_pending.clear();
-	}
-	if (m_onConnectionLost)
-		m_onConnectionLost();
-}
-
 bool LspClient::Start(const wxString &serverPath, const wxString &extraArgs) {
-	if (m_running.load())
+	if (m_running.load() || m_process)
 		return false;
 	if (!wxFileExists(serverPath))
 		return false;
 
-	m_process = new wxProcess(wxPROCESS_REDIRECT);
-	m_process->Redirect();
+	std::signal(SIGPIPE, SIG_IGN);
 
-	wxString command = serverPath;
+	auto *proc = new LspProcess();
+	wxString cmd = "\"" + serverPath + "\"";
 	if (!extraArgs.IsEmpty())
-		command += " " + extraArgs;
+		cmd += " " + extraArgs;
 
-	m_pid = wxExecute(command, wxEXEC_ASYNC, m_process);
-	if (m_pid == 0) {
-		delete m_process;
-		m_process = nullptr;
+	long pid = wxExecute(cmd, wxEXEC_ASYNC, proc);
+	if (pid <= 0) {
+		delete proc;
 		return false;
 	}
 
+	if (!proc->GetInputStream()) {
+		wxProcess::Kill(pid, wxSIGKILL);
+		proc->Orphan();
+		return false;
+	}
+
+	m_self = weak_from_this();
+	m_process = proc;
+	m_pid = pid;
+	{
+		std::lock_guard<std::mutex> lk(m_outMutex);
+		m_stopWriter = false;
+		m_out.clear();
+	}
 	m_running.store(true);
-
-	wxInputStream *stream = m_process->GetInputStream();
-	if (!stream) {
-		m_running.store(false);
-		delete m_process;
-		m_process = nullptr;
-		return false;
-	}
-
-	m_readerThread = new LspReaderThread(this, stream);
-	if (m_readerThread->Create() != wxTHREAD_NO_ERROR ||
-		m_readerThread->Run() != wxTHREAD_NO_ERROR) {
-		delete m_readerThread;
-		m_readerThread = nullptr;
-		m_running.store(false);
-		delete m_process;
-		m_process = nullptr;
-		return false;
-	}
-
-	m_worker = new LspWorkerThread();
-	if (m_worker->Create() != wxTHREAD_NO_ERROR ||
-		m_worker->Run() != wxTHREAD_NO_ERROR) {
-		delete m_worker;
-		m_worker = nullptr;
-	}
-
+	m_reader = std::thread([this] { ReaderLoop(); });
+	m_writer = std::thread([this] { WriterLoop(); });
 	return true;
 }
 
 void LspClient::Stop() {
-	if (!m_running.load())
+	if (!m_process && !m_reader.joinable() && !m_writer.joinable())
 		return;
+
 	m_running.store(false);
+	m_initialized.store(false);
+	m_onConnectionLost = nullptr;
 
 	{
-		wxCriticalSectionLocker lock(m_pendingLock);
+		std::lock_guard<std::mutex> lk(m_pendingMutex);
 		m_pending.clear();
 	}
 	{
-		wxCriticalSectionLocker lock(m_readyLock);
+		std::lock_guard<std::mutex> lk(m_handlerMutex);
+		m_notificationHandlers.clear();
 		m_onDiagnosticsReady.clear();
 	}
 	{
-		wxCriticalSectionLocker lock(m_notificationLock);
-		m_notificationHandlers.clear();
+		std::lock_guard<std::mutex> lk(m_outMutex);
+		m_stopWriter = true;
+		m_out.clear();
 	}
+	m_outCv.notify_all();
 
-	if (m_worker) {
-		m_worker->RequestStop();
-		m_worker->Wait();
-		delete m_worker;
-		m_worker = nullptr;
-	}
-
-	if (m_readerThread) {
-		m_readerThread->Delete();
-		wxStopWatch sw;
-		while (m_readerThread->IsRunning() && sw.Time() < 3000)
-			wxMilliSleep(10);
-		if (m_readerThread->IsRunning())
-			m_readerThread->Wait();
-		delete m_readerThread;
-		m_readerThread = nullptr;
-	}
-
-	if (m_pid > 0) {
+	if (m_pid > 0 && wxProcess::Exists(m_pid))
 		wxProcess::Kill(m_pid, wxSIGKILL);
-		wxMilliSleep(100);
-		m_pid = 0;
-	}
 
-	m_process = nullptr;
+	if (m_writer.joinable())
+		m_writer.join();
+	if (m_reader.joinable())
+		m_reader.join();
+
+	if (m_process) {
+		m_process->Orphan();
+		m_process = nullptr;
+	}
+	m_pid = 0;
+}
+
+void LspClient::OnConnectionLost() {
+	if (!m_running.exchange(false))
+		return;
 	m_initialized.store(false);
+	{
+		std::lock_guard<std::mutex> lk(m_pendingMutex);
+		m_pending.clear();
+	}
+	if (m_onConnectionLost) {
+		auto cb = m_onConnectionLost;
+		cb();
+	}
+}
+
+void LspClient::ReaderLoop() {
+	std::vector<char> buf(64 * 1024);
+	std::string acc;
+	wxInputStream *out = m_process->GetInputStream();
+	wxInputStream *err = m_process->GetErrorStream();
+
+	auto notifyLost = [this] {
+		if (!m_running.load())
+			return;
+		auto weak = m_self;
+		wxTheApp->CallAfter([weak] {
+			if (auto c = weak.lock())
+				c->OnConnectionLost();
+		});
+	};
+
+	while (m_running.load()) {
+		bool any = false;
+
+		if (err && err->CanRead()) {
+			err->Read(buf.data(), buf.size());
+			if (err->LastRead() > 0)
+				any = true;
+		}
+
+		if (out->CanRead()) {
+			out->Read(buf.data(), buf.size());
+			size_t n = out->LastRead();
+			if (n > 0) {
+				any = true;
+				acc.append(buf.data(), n);
+
+				std::vector<std::string> frames;
+				size_t pos = 0;
+				while (true) {
+					size_t he = acc.find("\r\n\r\n", pos);
+					if (he == std::string::npos)
+						break;
+					std::string head = acc.substr(pos, he - pos);
+					for (auto &ch : head)
+						ch = (char)std::tolower((unsigned char)ch);
+					long len = -1;
+					size_t c = head.find("content-length:");
+					if (c != std::string::npos)
+						len = std::strtol(head.c_str() + c + 15, nullptr, 10);
+					if (len <= 0 || (size_t)len > MAX_MESSAGE_SIZE) {
+						pos = he + 4;
+						continue;
+					}
+					size_t bodyStart = he + 4;
+					if (acc.size() < bodyStart + (size_t)len)
+						break;
+					frames.emplace_back(acc, bodyStart, (size_t)len);
+					pos = bodyStart + (size_t)len;
+				}
+				acc.erase(0, pos);
+				if (acc.size() > MAX_MESSAGE_SIZE)
+					acc.clear();
+
+				if (!frames.empty()) {
+					auto weak = m_self;
+					wxTheApp->CallAfter([weak, frames = std::move(frames)] {
+						if (auto c = weak.lock())
+							for (const auto &f : frames)
+								c->OnDataReceived(f);
+					});
+				}
+			} else if (out->Eof()) {
+				notifyLost();
+				return;
+			}
+		}
+
+		if (!any)
+			wxMilliSleep(5);
+	}
+}
+
+void LspClient::WriterLoop() {
+	while (true) {
+		std::string msg;
+		{
+			std::unique_lock<std::mutex> lk(m_outMutex);
+			m_outCv.wait(lk, [this] { return m_stopWriter || !m_out.empty(); });
+			if (m_stopWriter)
+				return;
+			msg = std::move(m_out.front());
+			m_out.pop_front();
+		}
+
+		wxOutputStream *os = m_process ? m_process->GetOutputStream() : nullptr;
+		if (!os)
+			continue;
+
+		size_t written = 0;
+		while (written < msg.size() && m_running.load()) {
+			os->Write(msg.data() + written, msg.size() - written);
+			size_t n = os->LastWrite();
+			if (n == 0) {
+				if (!os->IsOk())
+					break;
+				wxMilliSleep(1);
+				continue;
+			}
+			written += n;
+		}
+	}
+}
+
+void LspClient::Send(const std::string &body) {
+	if (!m_running.load())
+		return;
+	{
+		std::lock_guard<std::mutex> lk(m_outMutex);
+		if (m_stopWriter)
+			return;
+		m_out.push_back(Frame(body));
+	}
+	m_outCv.notify_one();
+}
+
+int LspClient::SendRequest(const char *method, const json &params,
+						   LspResponseCallback cb) {
+	int id = NextId();
+	if (cb) {
+		std::lock_guard<std::mutex> lk(m_pendingMutex);
+		m_pending[id] = std::move(cb);
+	}
+	json msg = {
+		{"jsonrpc", "2.0"}, {"id", id}, {"method", method}, {"params", params}};
+	Send(Dump(msg));
+	return id;
+}
+
+void LspClient::SendNotification(const char *method, const json &params) {
+	json msg = {{"jsonrpc", "2.0"}, {"method", method}, {"params", params}};
+	Send(Dump(msg));
+}
+
+void LspClient::CancelRequest(int id) {
+	{
+		std::lock_guard<std::mutex> lk(m_pendingMutex);
+		m_pending.erase(id);
+	}
+	SendNotification("$/cancelRequest", json{{"id", id}});
+}
+
+bool LspClient::NotReady(const LspResponseCallback &cb) {
+	if (m_running.load() && m_initialized.load())
+		return false;
+	if (cb)
+		cb("{}");
+	return true;
 }
 
 void LspClient::Initialize(const wxString &rootUri,
@@ -267,531 +302,281 @@ void LspClient::Initialize(const wxString &rootUri,
 		return;
 	}
 
-	int id = NextId();
-	std::string rootUriEscaped = EscapeJson(rootUri.ToStdString());
+	std::string root(rootUri.utf8_str());
 
-	std::ostringstream ss;
-	ss << "{"
-	   << "\"jsonrpc\":\"2.0\","
-	   << "\"id\":" << id << ","
-	   << "\"method\":\"initialize\","
-	   << "\"params\":{"
-	   << "\"processId\":" << wxGetProcessId() << ","
-	   << "\"rootUri\":\"" << rootUriEscaped << "\","
-	   << "\"workspaceFolders\":[{"
-	   << "\"uri\":\"" << rootUriEscaped << "\","
-	   << "\"name\":\"workspace\""
-	   << "}],"
-	   << "\"capabilities\":{"
-	   << "\"textDocument\":{"
-	   << "\"synchronization\":{\"didSave\":true},"
-	   << "\"completion\":{"
-	   << "\"completionItem\":{\"snippetSupport\":true},"
-	   << "\"contextSupport\":true"
-	   << "}"
-	   << "}"
-	   << "}"
-	   << "}"
-	   << "}";
+	json caps = {
+		{"general", {{"positionEncodings", json::array({"utf-16"})}}},
+		{"window", {{"workDoneProgress", true}}},
+		{"workspace", {{"workspaceFolders", true}, {"configuration", false}}},
+		{"textDocument",
+		 {{"synchronization",
+		   {{"didSave", true}, {"dynamicRegistration", false}}},
+		  {"completion",
+		   {{"contextSupport", true},
+			{"completionItem",
+			 {{"snippetSupport", false},
+			  {"documentationFormat", json::array({"plaintext"})},
+			  {"labelDetailsSupport", true}}}}},
+		  {"hover", {{"contentFormat", json::array({"plaintext"})}}},
+		  {"publishDiagnostics", json::object()}}}};
 
-	{
-		wxCriticalSectionLocker lock(m_pendingLock);
-		m_pending[id] = [this, onReady](const std::string &response) {
-			if (response.find("\"error\"") != std::string::npos) {
-				if (onReady)
-					onReady();
-				return;
-			}
-			SendInitialized();
-			m_initialized.store(true);
-			if (onReady)
-				onReady();
-		};
-	}
+	json params = {{"processId", (int)wxGetProcessId()},
+				   {"clientInfo", {{"name", "KraftaEditor"}}},
+				   {"rootUri", root},
+				   {"workspaceFolders",
+					json::array({{{"uri", root}, {"name", "workspace"}}})},
+				   {"capabilities", caps}};
 
-	SendRaw(Frame(ss.str()));
+	SendRequest("initialize", params,
+				[this, onReady](const std::string &response) {
+					json j = json::parse(response, nullptr, false);
+					bool ok = !j.is_discarded() && j.is_object() &&
+							  j.contains("result") && !j.contains("error");
+					if (ok) {
+						SendInitialized();
+						m_initialized.store(true);
+					}
+					if (onReady)
+						onReady();
+				});
 }
 
 void LspClient::SendInitialized() {
-	SendRaw(Frame(R"({"jsonrpc":"2.0","method":"initialized","params":{}})"));
+	SendNotification("initialized", json::object());
 }
 
 void LspClient::DidOpen(const wxString &fileUri, const wxString &languageId,
-						const wxString &content) {
+						const wxString &content, int version) {
 	if (!m_running.load() || !m_initialized.load())
 		return;
-
-	std::string uriStd = fileUri.ToStdString();
-	std::string langStd = languageId.ToStdString();
-	std::string contentStd = std::string(content.utf8_str());
-
-	if (!m_worker) {
-		DidOpenImpl(uriStd, langStd, contentStd);
-		return;
-	}
-
-	m_worker->Enqueue([this, uriStd, langStd, contentStd]() {
-		DidOpenImpl(uriStd, langStd, contentStd);
-	});
-}
-
-void LspClient::DidOpenImpl(const std::string &uri,
-							const std::string &languageId,
-							const std::string &content) {
-	std::string uriEsc = EscapeJson(uri);
-	std::string langEsc = EscapeJson(languageId);
-	std::string textEsc = EscapeJson(content);
-
-	std::ostringstream ss;
-	ss << "{"
-	   << "\"jsonrpc\":\"2.0\","
-	   << "\"method\":\"textDocument/didOpen\","
-	   << "\"params\":{"
-	   << "\"textDocument\":{"
-	   << "\"uri\":\"" << uriEsc << "\","
-	   << "\"languageId\":\"" << langEsc << "\","
-	   << "\"version\":1,"
-	   << "\"text\":\"" << textEsc << "\""
-	   << "}}}";
-
-	SendRaw(Frame(ss.str()));
+	SendNotification("textDocument/didOpen",
+					 {{"textDocument",
+					   {{"uri", std::string(fileUri.utf8_str())},
+						{"languageId", std::string(languageId.utf8_str())},
+						{"version", version},
+						{"text", std::string(content.utf8_str())}}}});
 }
 
 void LspClient::DidChange(const wxString &fileUri, const wxString &newContent,
 						  int version) {
 	if (!m_running.load() || !m_initialized.load())
 		return;
-
-	std::string uriStd = fileUri.ToStdString();
-	std::string contentStd = std::string(newContent.utf8_str());
-
-	if (!m_worker) {
-		DidChangeImpl(uriStd, contentStd, version);
-		return;
-	}
-
-	m_worker->Enqueue([this, uriStd, contentStd, version]() {
-		DidChangeImpl(uriStd, contentStd, version);
-	});
+	SendNotification(
+		"textDocument/didChange",
+		{{"textDocument",
+		  {{"uri", std::string(fileUri.utf8_str())}, {"version", version}}},
+		 {"contentChanges",
+		  json::array({{{"text", std::string(newContent.utf8_str())}}})}});
 }
 
-void LspClient::DidChangeImpl(const std::string &uri,
-							  const std::string &content, int version) {
-	std::string uriEsc = EscapeJson(uri);
-	std::string textEsc = EscapeJson(content);
+void LspClient::DidChange(const wxString &fileUri,
+						  const std::vector<LspTextChange> &changes,
+						  int version) {
+	if (!m_running.load() || !m_initialized.load() || changes.empty())
+		return;
 
-	std::ostringstream ss;
-	ss << "{\"jsonrpc\":\"2.0\","
-	   << "\"method\":\"textDocument/didChange\","
-	   << "\"params\":{"
-	   << "\"textDocument\":{"
-	   << "\"uri\":\"" << uriEsc << "\","
-	   << "\"version\":" << version << "},"
-	   << "\"contentChanges\":[{\"text\":\"" << textEsc << "\"}]"
-	   << "}}";
-
-	SendRaw(Frame(ss.str()));
+	json arr = json::array();
+	for (const auto &c : changes) {
+		arr.push_back(json{{"range",
+							{{"start", Pos(c.startLine, c.startChar)},
+							 {"end", Pos(c.endLine, c.endChar)}}},
+						   {"text", c.text}});
+	}
+	SendNotification(
+		"textDocument/didChange",
+		{{"textDocument",
+		  {{"uri", std::string(fileUri.utf8_str())}, {"version", version}}},
+		 {"contentChanges", arr}});
 }
 
 void LspClient::DidClose(const wxString &fileUri) {
 	if (!m_running.load() || !m_initialized.load())
 		return;
-	std::ostringstream ss;
-	ss << R"({"jsonrpc":"2.0","method":"textDocument/didClose","params":{)"
-	   << R"("textDocument":{"uri":")" << EscapeJson(fileUri.ToStdString())
-	   << R"("}}})";
-	SendRaw(Frame(ss.str()));
+	SendNotification("textDocument/didClose",
+					 {{"textDocument", TextDoc(fileUri)}});
 }
 
 void LspClient::DidSave(const wxString &fileUri) {
 	if (!m_running.load() || !m_initialized.load())
 		return;
-	std::ostringstream ss;
-	ss << R"({"jsonrpc":"2.0","method":"textDocument/didSave","params":{)"
-	   << R"("textDocument":{"uri":")" << EscapeJson(fileUri.ToStdString())
-	   << R"("}}})";
-	SendRaw(Frame(ss.str()));
+	SendNotification("textDocument/didSave",
+					 {{"textDocument", TextDoc(fileUri)}});
 }
 
-void LspClient::RequestDocumentSymbols(const wxString &fileUri,
-									   LspResponseCallback cb) {
-	if (!m_running.load() || !m_initialized.load()) {
-		if (cb)
-			cb("{}");
+void LspClient::RequestPositional(const char *method, const wxString &uri,
+								  int line, int col, LspResponseCallback cb) {
+	if (NotReady(cb))
 		return;
-	}
-	int id = NextId();
-	std::ostringstream ss;
-	ss << R"({"jsonrpc":"2.0","id":)" << id
-	   << R"(,"method":"textDocument/documentSymbol","params":{)"
-	   << R"("textDocument":{"uri":")" << EscapeJson(fileUri.ToStdString())
-	   << R"("}}})";
-	{
-		wxCriticalSectionLocker lock(m_pendingLock);
-		m_pending[id] = std::move(cb);
-	}
-	SendRaw(Frame(ss.str()));
+	SendRequest(method,
+				{{"textDocument", TextDoc(uri)}, {"position", Pos(line, col)}},
+				std::move(cb));
 }
 
 void LspClient::RequestCompletion(const wxString &fileUri, int line, int col,
-								  LspResponseCallback cb) {
-	if (!m_running.load() || !m_initialized.load()) {
-		if (cb)
-			cb("{}");
+								  LspResponseCallback cb, int triggerKind,
+								  const std::string &triggerChar) {
+	if (NotReady(cb))
 		return;
-	}
 
-	int id = NextId();
-	m_lastCompletionId = id;
-	m_lastCompletionSentAt.store(wxGetLocalTimeMillis().GetValue());
+	if (m_lastCompletionId != 0)
+		CancelRequest(m_lastCompletionId);
 
-	std::ostringstream ss;
-	ss << R"({"jsonrpc":"2.0","id":)" << id
-	   << R"(,"method":"textDocument/completion","params":{)"
-	   << R"("textDocument":{"uri":")" << EscapeJson(fileUri.ToStdString())
-	   << R"("},)"
-	   << R"("position":{"line":)" << line << R"(,"character":)" << col
-	   << R"(}}})";
+	json ctx = {{"triggerKind", triggerKind}};
+	if (triggerKind == 2 && !triggerChar.empty())
+		ctx["triggerCharacter"] = triggerChar;
 
-	LspResponseCallback wrapped =
-		[this, id, cb = std::move(cb)](const std::string &json) {
-			m_lastCompletionSentAt.store(0);
-			if (m_lastCompletionId.load() != id)
-				return;
-			if (cb)
-				cb(json);
-		};
+	json params = {{"textDocument", TextDoc(fileUri)},
+				   {"position", Pos(line, col)},
+				   {"context", ctx}};
 
-	{
-		wxCriticalSectionLocker lock(m_pendingLock);
-		m_pending[id] = std::move(wrapped);
-	}
-
-	SendRaw(Frame(ss.str()));
+	m_lastCompletionId =
+		SendRequest("textDocument/completion", params, std::move(cb));
 }
 
-bool LspClient::HasPendingCompletion() const {
-	return m_lastCompletionSentAt.load() != 0;
-}
-
-bool LspClient::ReleaseStaleCompletion(long long thresholdMs) {
-	long long sentAt = m_lastCompletionSentAt.load();
-	if (sentAt == 0)
-		return false;
-
-	long long elapsed = wxGetLocalTimeMillis().GetValue() - sentAt;
-	if (elapsed <= thresholdMs)
-		return false;
-
-	int staleId = m_lastCompletionId.load();
-
-	{
-		wxCriticalSectionLocker lock(m_pendingLock);
-		auto it = m_pending.find(staleId);
-		if (it != m_pending.end())
-			m_pending.erase(it);
-	}
-
-	m_lastCompletionSentAt.store(0);
-	return true;
-}
-
-void LspClient::RequestHover(const wxString &fileUri, int line, int col,
+void LspClient::RequestHover(const wxString &u, int l, int c,
 							 LspResponseCallback cb) {
-	if (!m_running.load() || !m_initialized.load()) {
-		if (cb)
-			cb("{}");
-		return;
-	}
-	int id = NextId();
-	std::ostringstream ss;
-	ss << R"({"jsonrpc":"2.0","id":)" << id
-	   << R"(,"method":"textDocument/hover","params":{)"
-	   << R"("textDocument":{"uri":")" << EscapeJson(fileUri.ToStdString())
-	   << R"("},)"
-	   << R"("position":{"line":)" << line << R"(,"character":)" << col
-	   << R"(}}})";
-	{
-		wxCriticalSectionLocker lock(m_pendingLock);
-		m_pending[id] = std::move(cb);
-	}
-	SendRaw(Frame(ss.str()));
+	RequestPositional("textDocument/hover", u, l, c, std::move(cb));
 }
 
-void LspClient::RequestDefinition(const wxString &fileUri, int line, int col,
+void LspClient::RequestDefinition(const wxString &u, int l, int c,
 								  LspResponseCallback cb) {
-	if (!m_running.load() || !m_initialized.load()) {
-		if (cb)
-			cb("{}");
-		return;
-	}
-	int id = NextId();
-	std::ostringstream ss;
-	ss << R"({"jsonrpc":"2.0","id":)" << id
-	   << R"(,"method":"textDocument/definition","params":{)"
-	   << R"("textDocument":{"uri":")" << EscapeJson(fileUri.ToStdString())
-	   << R"("},)"
-	   << R"("position":{"line":)" << line << R"(,"character":)" << col
-	   << R"(}}})";
-	{
-		wxCriticalSectionLocker lock(m_pendingLock);
-		m_pending[id] = std::move(cb);
-	}
-	SendRaw(Frame(ss.str()));
+	RequestPositional("textDocument/definition", u, l, c, std::move(cb));
 }
 
-void LspClient::RequestReferences(const wxString &fileUri, int line, int col,
+void LspClient::RequestReferences(const wxString &u, int l, int c,
 								  LspResponseCallback cb) {
-	if (!m_running.load() || !m_initialized.load()) {
-		if (cb)
-			cb("{}");
+	if (NotReady(cb))
 		return;
-	}
-	int id = NextId();
-	std::ostringstream ss;
-	ss << R"({"jsonrpc":"2.0","id":)" << id
-	   << R"(,"method":"textDocument/references","params":{)"
-	   << R"("textDocument":{"uri":")" << EscapeJson(fileUri.ToStdString())
-	   << R"("},)"
-	   << R"("position":{"line":)" << line << R"(,"character":)" << col
-	   << R"(},)"
-	   << R"("context":{"includeDeclaration":true})"
-	   << R"(}})";
-	{
-		wxCriticalSectionLocker lock(m_pendingLock);
-		m_pending[id] = std::move(cb);
-	}
-	SendRaw(Frame(ss.str()));
+	SendRequest("textDocument/references",
+				{{"textDocument", TextDoc(u)},
+				 {"position", Pos(l, c)},
+				 {"context", {{"includeDeclaration", true}}}},
+				std::move(cb));
 }
 
-void LspClient::RequestFormatting(const wxString &fileUri,
-								  LspResponseCallback cb) {
-	if (!m_running.load() || !m_initialized.load()) {
-		if (cb)
-			cb("{}");
+void LspClient::RequestDocumentSymbols(const wxString &u,
+									   LspResponseCallback cb) {
+	if (NotReady(cb))
 		return;
-	}
-	int id = NextId();
-	std::ostringstream ss;
-	ss << R"({"jsonrpc":"2.0","id":)" << id
-	   << R"(,"method":"textDocument/formatting","params":{)"
-	   << R"("textDocument":{"uri":")" << EscapeJson(fileUri.ToStdString())
-	   << R"("},)"
-	   << R"("options":{"tabSize":4,"insertSpaces":true})"
-	   << R"(}})";
-	{
-		wxCriticalSectionLocker lock(m_pendingLock);
-		m_pending[id] = std::move(cb);
-	}
-	SendRaw(Frame(ss.str()));
+	SendRequest("textDocument/documentSymbol", {{"textDocument", TextDoc(u)}},
+				std::move(cb));
 }
 
-void LspClient::RequestRename(const wxString &fileUri, int line, int col,
+void LspClient::RequestFormatting(const wxString &u, LspResponseCallback cb) {
+	if (NotReady(cb))
+		return;
+	SendRequest("textDocument/formatting",
+				{{"textDocument", TextDoc(u)},
+				 {"options", {{"tabSize", 4}, {"insertSpaces", true}}}},
+				std::move(cb));
+}
+
+void LspClient::RequestRename(const wxString &u, int l, int c,
 							  const wxString &newName, LspResponseCallback cb) {
-	if (!m_running.load() || !m_initialized.load()) {
-		if (cb)
-			cb("{}");
+	if (NotReady(cb))
 		return;
-	}
-	int id = NextId();
-	std::ostringstream ss;
-	ss << R"({"jsonrpc":"2.0","id":)" << id
-	   << R"(,"method":"textDocument/rename","params":{)"
-	   << R"("textDocument":{"uri":")" << EscapeJson(fileUri.ToStdString())
-	   << R"("},)"
-	   << R"("position":{"line":)" << line << R"(,"character":)" << col
-	   << R"(},)"
-	   << R"("newName":")" << EscapeJson(newName.ToStdString()) << R"(")"
-	   << R"(}})";
-	{
-		wxCriticalSectionLocker lock(m_pendingLock);
-		m_pending[id] = std::move(cb);
-	}
-	SendRaw(Frame(ss.str()));
+	SendRequest("textDocument/rename",
+				{{"textDocument", TextDoc(u)},
+				 {"position", Pos(l, c)},
+				 {"newName", std::string(newName.utf8_str())}},
+				std::move(cb));
 }
 
 void LspClient::OnNotification(const wxString &method,
 							   LspNotificationCallback cb) {
-	wxCriticalSectionLocker lock(m_notificationLock);
-	m_notificationHandlers[method.ToStdString()] = std::move(cb);
+	std::lock_guard<std::mutex> lk(m_handlerMutex);
+	m_notificationHandlers[std::string(method.utf8_str())] = std::move(cb);
 }
 
 void LspClient::RemoveNotificationHandler(const wxString &method) {
-	wxCriticalSectionLocker lock(m_notificationLock);
-	auto it = m_notificationHandlers.find(method.ToStdString());
-	if (it != m_notificationHandlers.end())
-		m_notificationHandlers.erase(it);
+	std::lock_guard<std::mutex> lk(m_handlerMutex);
+	m_notificationHandlers.erase(std::string(method.utf8_str()));
 }
 
 void LspClient::OnDiagnosticsReady(const wxString &fileUri,
 								   std::function<void()> cb) {
-	wxCriticalSectionLocker lock(m_readyLock);
-	m_onDiagnosticsReady[fileUri.ToStdString()].push_back(std::move(cb));
+	std::lock_guard<std::mutex> lk(m_handlerMutex);
+	m_onDiagnosticsReady[std::string(fileUri.utf8_str())].push_back(
+		std::move(cb));
 }
 
-void LspClient::OnDataReceived(const std::string &json) {
+void LspClient::OnDataReceived(const std::string &raw) {
 	if (!m_running.load())
 		return;
 
-	int id = -1;
-	bool hasId = false;
-	size_t idPos = json.find("\"id\"");
-	if (idPos != std::string::npos) {
-		size_t colonPos = json.find(':', idPos);
-		if (colonPos != std::string::npos) {
-			std::string idPart = json.substr(colonPos + 1);
-			while (!idPart.empty() && (idPart[0] == ' ' || idPart[0] == '\t'))
-				idPart.erase(0, 1);
+	json j = json::parse(raw, nullptr, false);
+	if (j.is_discarded() || !j.is_object())
+		return;
 
-			if (!idPart.empty()) {
-				if (idPart[0] == '"') {
-					size_t endQuote = idPart.find('"', 1);
-					if (endQuote != std::string::npos) {
-						try {
-							id = std::stoi(idPart.substr(1, endQuote - 1));
-							hasId = true;
-						} catch (...) {
-						}
-					}
-				} else if (isdigit(idPart[0]) || idPart[0] == '-') {
-					try {
-						size_t len;
-						id = std::stoi(idPart, &len);
-						hasId = true;
-					} catch (...) {
-					}
-				}
-			}
-		}
+	const bool hasId = j.contains("id") && !j["id"].is_null();
+	const bool hasMethod = j.contains("method") && j["method"].is_string();
+
+	if (hasMethod && hasId) {
+		json result = nullptr;
+		if (j["method"] == "workspace/configuration" && j.contains("params") &&
+			j["params"].contains("items"))
+			result = json(j["params"]["items"].size(), json(nullptr));
+		json reply = {{"jsonrpc", "2.0"}, {"id", j["id"]}, {"result", result}};
+		Send(Dump(reply));
+		return;
 	}
 
-	bool hasMethod = json.find("\"method\"") != std::string::npos;
+	if (hasMethod) {
+		const std::string method = j["method"].get<std::string>();
+		const json params = j.contains("params") ? j["params"] : json::object();
 
-	if (hasMethod && !hasId) {
-		std::string method = ExtractString(json, "\"method\":");
-
-		if (method == "textDocument/publishDiagnostics") {
-			std::string uri = ExtractString(json, "\"uri\":");
-			std::vector<std::function<void()>> callbacks;
+		if (method == "textDocument/publishDiagnostics" &&
+			params.contains("uri") && params["uri"].is_string()) {
+			std::vector<std::function<void()>> cbs;
 			{
-				wxCriticalSectionLocker lock(m_readyLock);
-				auto it = m_onDiagnosticsReady.find(uri);
+				std::lock_guard<std::mutex> lk(m_handlerMutex);
+				auto it =
+					m_onDiagnosticsReady.find(params["uri"].get<std::string>());
 				if (it != m_onDiagnosticsReady.end()) {
-					callbacks = std::move(it->second);
+					cbs = std::move(it->second);
 					m_onDiagnosticsReady.erase(it);
 				}
 			}
-			for (auto &cb : callbacks)
+			for (auto &cb : cbs)
 				if (cb)
 					cb();
 		}
 
+		LspNotificationCallback handler;
 		{
-			wxCriticalSectionLocker lock(m_notificationLock);
+			std::lock_guard<std::mutex> lk(m_handlerMutex);
 			auto it = m_notificationHandlers.find(method);
-			if (it != m_notificationHandlers.end() && it->second) {
-				std::string params;
-				size_t paramsPos = json.find("\"params\":");
-				if (paramsPos != std::string::npos) {
-					params = json.substr(paramsPos + 9);
-					if (!params.empty() && params.back() == '}')
-						params.pop_back();
-				}
-				it->second(method, params);
-			}
+			if (it != m_notificationHandlers.end())
+				handler = it->second;
 		}
+		if (handler)
+			handler(method, Dump(params));
 		return;
 	}
 
-	if (!hasId || id < 0)
-		return;
-
-	LspResponseCallback cb;
-	{
-		wxCriticalSectionLocker lock(m_pendingLock);
-		auto it = m_pending.find(id);
-		if (it == m_pending.end())
-			return;
-		cb = std::move(it->second);
-		m_pending.erase(it);
+	if (hasId && j["id"].is_number_integer()) {
+		int id = j["id"].get<int>();
+		LspResponseCallback cb;
+		{
+			std::lock_guard<std::mutex> lk(m_pendingMutex);
+			auto it = m_pending.find(id);
+			if (it == m_pending.end())
+				return;
+			cb = std::move(it->second);
+			m_pending.erase(it);
+		}
+		if (id == m_lastCompletionId)
+			m_lastCompletionId = 0;
+		if (cb)
+			cb(raw);
 	}
-
-	if (cb)
-		cb(json);
 }
 
-void LspClient::SendRaw(const std::string &msg) {
-	if (!m_process || !m_process->IsInputOpened() || !m_running.load())
-		return;
-
-	wxOutputStream *stream = m_process->GetOutputStream();
-	if (!stream)
-		return;
-
-	stream->Write(msg.c_str(), msg.size());
-}
-
-std::string LspClient::Frame(const std::string &json) {
-	std::ostringstream ss;
-	ss << "Content-Length: " << json.size() << "\r\n";
-	ss << "\r\n";
-	ss << json;
-	return ss.str();
+std::string LspClient::Frame(const std::string &body) {
+	return "Content-Length: " + std::to_string(body.size()) + "\r\n\r\n" + body;
 }
 
 int LspClient::NextId() {
 	static std::atomic<int> g_nextId{1};
 	return g_nextId.fetch_add(1);
-}
-
-std::string LspClient::EscapeJson(const std::string &s) {
-	std::string result;
-	result.reserve(s.size());
-	for (char c : s) {
-		switch (c) {
-		case '"':
-			result += "\\\"";
-			break;
-		case '\\':
-			result += "\\\\";
-			break;
-		case '\n':
-			result += "\\n";
-			break;
-		case '\r':
-			result += "\\r";
-			break;
-		case '\t':
-			result += "\\t";
-			break;
-		default:
-			result += c;
-		}
-	}
-	return result;
-}
-
-std::string LspClient::ExtractString(const std::string &json,
-									 const std::string &key) {
-	auto pos = json.find(key);
-	if (pos == std::string::npos)
-		return {};
-	pos = json.find('"', pos + key.size());
-	if (pos == std::string::npos)
-		return {};
-	++pos;
-	auto end = pos;
-	while (end < json.size()) {
-		end = json.find('"', end);
-		if (end == std::string::npos)
-			return {};
-		if (end > 0 && json[end - 1] == '\\') {
-			++end;
-			continue;
-		}
-		break;
-	}
-	if (end == std::string::npos)
-		return {};
-	return json.substr(pos, end - pos);
 }

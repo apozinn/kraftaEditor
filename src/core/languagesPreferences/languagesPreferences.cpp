@@ -1,5 +1,7 @@
 #include "languagesPreferences/languagesPreferences.hpp"
 #include "appPaths/appPaths.hpp"
+#include "gui/editor/controls/textCtrl/textCtrl.hpp"
+#include "gui/editor/core/editor.hpp"
 #include "gui/widgets/statusBar/statusBar.hpp"
 #include "platformInfos/platformInfos.hpp"
 #include "ui/ids.hpp"
@@ -18,7 +20,7 @@
 
 #include <nlohmann/json.hpp>
 #include <wx/dir.h>
-using json = nlohmann::json;
+#include <wx/tokenzr.h>
 
 LanguagesPreferences &LanguagesPreferences::Get() {
 	static LanguagesPreferences instance;
@@ -108,17 +110,17 @@ LanguagesPreferences::SetupLanguagesPreferences(wxWindow *codeContainer) {
 
 	try {
 		wxString path = codeContainer->GetName();
-		wxStyledTextCtrl *editor =
+		wxStyledTextCtrl *textCtrl =
 			dynamic_cast<wxStyledTextCtrl *>(codeContainer->GetChildren()[0]);
 
-		if (!editor) {
+		if (!textCtrl) {
 			throw std::runtime_error("Editor not found in container");
 		}
 
 		languagePreferencesStruct currentLanguagePreferences =
 			GetLanguagePreferences(path);
 
-		editor->SetLexer(currentLanguagePreferences.lexer);
+		textCtrl->SetLexer(currentLanguagePreferences.lexer);
 
 		if (currentLanguagePreferences.preferences.contains("lexer_settings")) {
 			auto &settings =
@@ -126,30 +128,30 @@ LanguagesPreferences::SetupLanguagesPreferences(wxWindow *codeContainer) {
 
 			if (settings.contains("tab_width")) {
 				int tabWidth = settings["tab_width"].get<int>();
-				editor->SetTabWidth(tabWidth);
-				editor->SetIndent(tabWidth);
+				textCtrl->SetTabWidth(tabWidth);
+				textCtrl->SetIndent(tabWidth);
 			}
 
 			if (settings.contains("use_spaces")) {
 				bool useSpaces = settings["use_spaces"].get<bool>();
-				editor->SetUseTabs(!useSpaces);
+				textCtrl->SetUseTabs(!useSpaces);
 			}
 		}
 
-		ApplyLexerStyles(currentLanguagePreferences, editor);
-		SetupReservedWords(currentLanguagePreferences, editor);
-		SetupAutoCompleteWords(currentLanguagePreferences, editor);
-		SetupFold(currentLanguagePreferences, editor);
+		ApplyLexerStyles(currentLanguagePreferences, textCtrl);
+		SetupReservedWords(currentLanguagePreferences, textCtrl);
+		SetupAutoCompleteWords(currentLanguagePreferences, textCtrl);
+		SetupFold(currentLanguagePreferences, textCtrl);
 		UpdateStatusBar(currentLanguagePreferences);
 
 		if (currentLanguagePreferences.preferences.contains("lsp")) {
-			Editor *editorPtr = dynamic_cast<Editor *>(editor);
-			if (editorPtr) {
+			TextCtrl *textCtrlPtr = dynamic_cast<TextCtrl *>(textCtrl);
+			if (textCtrlPtr) {
 				VerifyLanguageLsp(currentLanguagePreferences,
-								  [editorPtr](bool success) {
+								  [textCtrlPtr](bool success) {
 									  if (success) {
-										  wxTheApp->CallAfter([editorPtr]() {
-											  editorPtr->Lsp();
+										  wxTheApp->CallAfter([textCtrlPtr]() {
+											  textCtrlPtr->SetupLsp();
 										  });
 									  }
 								  });
@@ -355,15 +357,22 @@ void LanguagesPreferences::SetupReservedWords(
 
 std::vector<wxString> LanguagesPreferences::GetAutoCompleteWordsList(
 	const languagePreferencesStruct &currentLanguagePreferences) {
+
 	std::vector<wxString> autoCompleteWordsList;
+
 	if (currentLanguagePreferences.preferences.contains("syntax")) {
 		auto syntaxPreferences =
 			currentLanguagePreferences.preferences["syntax"];
+
 		if (syntaxPreferences.contains("keyword_lists")) {
+
 			for (auto &[listId, listWords] :
-				 syntaxPreferences["keyword_lists"].items())
-				autoCompleteWordsList.push_back(
-					listWords.template get<std::string>());
+				 syntaxPreferences["keyword_lists"].items()) {
+				for (const auto &word : wxStringTokenize(
+						 listWords.template get<std::string>(), " ")) {
+					autoCompleteWordsList.push_back(wxString(word));
+				}
+			}
 		}
 	}
 	return autoCompleteWordsList;

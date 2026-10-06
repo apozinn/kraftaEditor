@@ -19,8 +19,6 @@
 #define _(s) wxGetTranslation(s)
 #endif
 
-using json = nlohmann::json;
-
 UserSettingsManager &UserSettingsManager::Get() {
 	static UserSettingsManager instance;
 	return instance;

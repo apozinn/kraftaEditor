@@ -1,4 +1,5 @@
 #include "gotoline.hpp"
+#include "gui/editor/controls/textCtrl/textCtrl.hpp"
 #include "ui/ids.hpp"
 #include <wx/splitter.h>
 
@@ -40,8 +41,8 @@ void Gotoline::Close(wxCommandEvent &WXUNUSED(event)) {
 }
 
 void Gotoline::SearchInputModified(wxCommandEvent &WXUNUSED(event)) {
-	auto currentEditor = ((Editor *)wxFindWindowByLabel(
-		ProjectSettings::Get().GetCurrentlyFileOpen() + "_codeEditor"));
+	auto currentEditor = ((TextCtrl *)wxFindWindowByLabel(
+		ProjectSettings::Get().GetCurrentlyFileOpen() + "_textCtrl"));
 	if (currentEditor) {
 		currentEditor->GotoLine(wxAtoi(searchInput->GetValue()));
 	}

@@ -1,5 +1,5 @@
+#pragma once
 #include "wx/string.h"
-
 /**
  * @namespace ErrorMessages
  * @brief Centralized collection of error message strings used across the application.

@@ -1,34 +1,5 @@
 #include "filesTree.hpp"
 
-#include "appConstants/appConstants.hpp"
-#include "appPaths/appPaths.hpp"
-#include "errorMessages/errorMessages.hpp"
-#include "fileOperations/fileOperations.hpp"
-#include "languagesPreferences/languagesPreferences.hpp"
-#include "menus/dirContextMenu.hpp"
-#include "menus/fileContextMenu.hpp"
-#include "platformInfos/platformInfos.hpp"
-#include "projectSettings/projectSettings.hpp"
-#include "themesManager/themesManager.hpp"
-#include "ui/ids.hpp"
-#include "userSettings/userSettings.hpp"
-
-#include "gui/codeContainer/code.hpp"
-#include "gui/panels/tabs/tabs.hpp"
-#include "gui/widgets/confirmDialog/confirmDialog.hpp"
-#include "gui/widgets/openFolderButton/openFolderButton.hpp"
-#include "gui/widgets/statusBar/statusBar.hpp"
-
-#include <algorithm>
-#include <vector>
-#include <wx/fswatcher.h>
-#include <wx/graphics.h>
-#include <wx/richtooltip.h>
-#include <wx/scrolwin.h>
-#include <wx/statbmp.h>
-#include <wx/timer.h>
-#include <wx/wfstream.h>
-
 FilesTree::FilesTree(wxWindow *parent, wxWindowID ID) : wxPanel(parent, ID) {
 	auto *mainSizer = new wxBoxSizer(wxVERTICAL);
 	SetBackgroundColour(ThemesManager::Get().GetColor("main"));
@@ -399,10 +370,10 @@ void FilesTree::OnFileLeftClick(wxMouseEvent &event) {
 
 bool FilesTree::OpenFile(const wxString &componentIdentifier, int line) {
 	if (ProjectSettings::Get().GetCurrentlyFileOpen() == componentIdentifier) {
-		auto editor = (wxStyledTextCtrl *)wxFindWindowByLabel(
-			componentIdentifier + "_codeEditor");
-		if (editor) {
-			editor->GotoLine(line);
+		auto textCtrl = (wxStyledTextCtrl *)wxFindWindowByLabel(
+			componentIdentifier + "_textCtrl");
+		if (textCtrl) {
+			textCtrl->GotoLine(line);
 		}
 	}
 
@@ -431,23 +402,23 @@ bool FilesTree::OpenFile(const wxString &componentIdentifier, int line) {
 	tabsContainer->Add(wxFileNameFromPath(componentIdentifier),
 					   componentIdentifier);
 
-	auto LoadCodeEditor = [&]() {
-		auto codeEditor = ((CodeContainer *)wxFindWindowByLabel(
-			componentIdentifier + "_codeContainer"));
-		if (!codeEditor) {
-			codeEditor = new CodeContainer(mainCode, componentIdentifier);
-			mainCode->GetSizer()->Add(codeEditor, 1, wxEXPAND);
-			codeEditor->Show();
+	auto LoadEditor = [&]() {
+		auto editor =
+			((Editor *)wxFindWindowByLabel(componentIdentifier + "_editor"));
+		if (!editor) {
+			editor = new Editor(mainCode, componentIdentifier);
+			mainCode->GetSizer()->Add(editor, 1, wxEXPAND);
+			editor->Show();
 			mainCode->GetSizer()->Layout();
 			mainCode->Update();
 		} else
-			codeEditor->Show();
+			editor->Show();
 
-		if (codeEditor && line) {
-			((wxStyledTextCtrl *)codeEditor->GetChildren()[0])->GotoLine(line);
+		if (editor && line) {
+			((wxStyledTextCtrl *)editor->GetChildren()[0])->GotoLine(line);
 		}
 
-		hideOtherPanelsOfMainCode(codeEditor);
+		hideOtherPanelsOfMainCode(editor);
 	};
 
 	wxImage fileImage;
@@ -467,7 +438,7 @@ bool FilesTree::OpenFile(const wxString &componentIdentifier, int line) {
 		mainCode->GetSizer()->Add(imageContainer, 1, wxALIGN_CENTER);
 		statusBar->UpdateComponents(componentIdentifier);
 	} else
-		LoadCodeEditor();
+		LoadEditor();
 
 	wxWindow *tab = NULL;
 	for (auto &children : tabsContainer->tabsContainer->GetChildren()) {
@@ -924,8 +895,7 @@ void FilesTree::OnFileSystemEvent(int type, const wxString &oldPath,
 	if (!parentComponent)
 		return;
 
-	auto linkedEditor =
-		((CodeContainer *)FindWindowByName(oldPath + "_codeContainer"));
+	auto linkedEditor = ((Editor *)FindWindowByName(oldPath + "_editor"));
 	auto linkedTab = wxFindWindowByLabel(oldPath + "_tab");
 	bool isFile = !std::filesystem::is_directory(newPath.ToStdString());
 

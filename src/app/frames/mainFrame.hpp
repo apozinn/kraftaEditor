@@ -48,8 +48,8 @@ using json = nlohmann::json;
 
 #include "gui/widgets/menuBar/menuBar.hpp"
 #include "gui/panels/filesTree/filesTree.hpp"
-#include "gui/codeContainer/code.hpp"
-#include "gui/codeContainer/codeSearch/codeSearch.hpp"
+#include "gui/editor/core/editor.hpp"
+#include "gui/editor/features/codeSearch/codeSearch.hpp"
 #include "gui/panels/tabs/tabs.hpp"
 #include "gui/widgets/emptyWindow/emptyWindow.hpp"
 #include "gui/panels/terminal/terminal.hpp"
