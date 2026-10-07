@@ -211,7 +211,8 @@ void MainFrame::SetupStatusBar() {
 void MainFrame::SetupAccelerators() {
 	wxAcceleratorEntry entries[4];
 
-	entries[0].Set(wxACCEL_ALT, WXK_ALT, +Event::View::ToggleMenuBar);
+	entries[0].Set(wxACCEL_CTRL, WXK_SHIFT, +Event::View::ToggleMenuBar);
+	entries[0].FromString("Ctrl+Shift+M");
 
 	entries[1].Set(wxACCEL_CTRL, WXK_SHIFT, +Event::View::ToggleControlPanel);
 	entries[1].FromString("Ctrl+Shift+P");
@@ -535,10 +536,12 @@ void MainFrame::OnToggleSearch(wxCommandEvent &WXUNUSED(event)) {
 }
 
 void MainFrame::OnToggleControlPanel(wxCommandEvent &WXUNUSED(event)) {
-	if (FindWindowById(+GUI::ControlID::ControlPanel))
-		m_controlPanel->Destroy();
-	else
-		m_controlPanel = new ControlPanel(this, +GUI::ControlID::ControlPanel);
+    if (FindWindowById(+GUI::ControlID::ControlPanel)) {
+        m_controlPanel->Destroy();
+        m_controlPanel = nullptr;
+    } else {
+        m_controlPanel = new ControlPanel(this, +GUI::ControlID::ControlPanel);
+    }
 }
 
 void MainFrame::OnToggleQuickOpen(wxCommandEvent &WXUNUSED(event)) {
