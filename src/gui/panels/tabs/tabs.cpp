@@ -286,53 +286,55 @@ void Tabs::Close(wxString tab_path) {
 }
 
 void Tabs::CloseAllFiles() {
-    wxWindow* parent = GetParent();
-    if (!parent) return;
+	wxWindow *parent = GetParent();
+	if (!parent)
+		return;
 
-    const wxWindowList childrenCopy = parent->GetChildren();
+	const wxWindowList childrenCopy = parent->GetChildren();
 
-    std::vector<wxWindow*> toDestroy;
-    toDestroy.reserve(childrenCopy.size());
+	std::vector<wxWindow *> toDestroy;
+	toDestroy.reserve(childrenCopy.size());
 
-    for (wxWindow* child : childrenCopy) {
-        if (!child || child->IsBeingDeleted()) continue;
+	for (wxWindow *child : childrenCopy) {
+		if (!child || child->IsBeingDeleted())
+			continue;
 
-        if (child->GetLabel().Contains("_editor")) {
-            toDestroy.push_back(child);
-        } else {
-            child->Hide();
-        }
-    }
+		if (child->GetLabel().Contains("_editor")) {
+			toDestroy.push_back(child);
+		} else {
+			child->Hide();
+		}
+	}
 
-    for (wxWindow* child : toDestroy) {
-        if (child && !child->IsBeingDeleted()) {
-            child->Destroy();
-        }
-    }
+	for (wxWindow *child : toDestroy) {
+		if (child && !child->IsBeingDeleted()) {
+			child->Destroy();
+		}
+	}
 
-    if (tabsContainer && !tabsContainer->IsBeingDeleted()) {
-        tabsContainer->DestroyChildren();
-    }
+	if (tabsContainer && !tabsContainer->IsBeingDeleted()) {
+		tabsContainer->DestroyChildren();
+	}
 
-    Hide();
+	Hide();
 
-    if (auto* emptyWindow = FindWindowById(+GUI::ControlID::EmptyWindow)) {
-        if (!emptyWindow->IsBeingDeleted()) {
-            emptyWindow->Show();
-        }
-    }
+	if (auto *emptyWindow = FindWindowById(+GUI::ControlID::EmptyWindow)) {
+		if (!emptyWindow->IsBeingDeleted()) {
+			emptyWindow->Show();
+		}
+	}
 
-    ProjectSettings::Get().SetCurrentlyFileOpen(wxEmptyString);
-    parent->Layout();
+	ProjectSettings::Get().SetCurrentlyFileOpen(wxEmptyString);
+	parent->Layout();
 
-    if (!statusBar || statusBar->IsBeingDeleted()) {
-        statusBar = dynamic_cast<StatusBar*>(
-            FindWindowById(+GUI::ControlID::StatusBar));
-    }
+	if (!statusBar || statusBar->IsBeingDeleted()) {
+		statusBar = dynamic_cast<StatusBar *>(
+			FindWindowById(+GUI::ControlID::StatusBar));
+	}
 
-    if (statusBar && !statusBar->IsBeingDeleted()) {
-        statusBar->ClearLabels();
-    }
+	if (statusBar && !statusBar->IsBeingDeleted()) {
+		statusBar->ClearLabels();
+	}
 }
 
 void Tabs::Select() {

@@ -216,27 +216,27 @@ void LspController::NotifySaved() {
 }
 
 void LspController::Stop() {
-    if (m_syncTimer.IsRunning())
-        m_syncTimer.Stop();
-    
-    if (m_completionTimer.IsRunning())
-        m_completionTimer.Stop();
-    
-    if (m_restartTimer.IsRunning())
-        m_restartTimer.Stop();
-    
-    if (m_stc) {
-        m_stc->Unbind(wxEVT_STC_MODIFIED, &LspController::OnTextModified, this);
-        m_stc->Unbind(wxEVT_STC_CHARADDED, &LspController::OnCharAdd, this);
-        m_stc = nullptr;
-    }
-    
-    m_ready = false;
-    
-    if (m_lsp) {
-        m_lsp->Stop();
-        m_lsp.reset();
-    }
+	if (m_syncTimer.IsRunning())
+		m_syncTimer.Stop();
+
+	if (m_completionTimer.IsRunning())
+		m_completionTimer.Stop();
+
+	if (m_restartTimer.IsRunning())
+		m_restartTimer.Stop();
+
+	if (m_stc) {
+		m_stc->Unbind(wxEVT_STC_MODIFIED, &LspController::OnTextModified, this);
+		m_stc->Unbind(wxEVT_STC_CHARADDED, &LspController::OnCharAdd, this);
+		m_stc = nullptr;
+	}
+
+	m_ready = false;
+
+	if (m_lsp) {
+		m_lsp->Stop();
+		m_lsp.reset();
+	}
 }
 
 void LspController::LspPosition(int pos, int &line, int &utf16Col) const {

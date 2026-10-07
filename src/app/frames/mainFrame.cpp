@@ -536,19 +536,21 @@ void MainFrame::OnToggleSearch(wxCommandEvent &WXUNUSED(event)) {
 }
 
 void MainFrame::OnToggleControlPanel(wxCommandEvent &WXUNUSED(event)) {
-    if (FindWindowById(+GUI::ControlID::ControlPanel)) {
-        m_controlPanel->Destroy();
-        m_controlPanel = nullptr;
-    } else {
-        m_controlPanel = new ControlPanel(this, +GUI::ControlID::ControlPanel);
-    }
+	if (FindWindowById(+GUI::ControlID::ControlPanel)) {
+		m_controlPanel->Destroy();
+		m_controlPanel = nullptr;
+	} else {
+		m_controlPanel = new ControlPanel(this, +GUI::ControlID::ControlPanel);
+	}
 }
 
 void MainFrame::OnToggleQuickOpen(wxCommandEvent &WXUNUSED(event)) {
-	if (FindWindowById(+GUI::ControlID::QuickOpen))
+	if (FindWindowById(+GUI::ControlID::QuickOpen)) {
 		m_quickOpen->Destroy();
-	else
+		m_quickOpen = nullptr;
+	} else {
 		m_quickOpen = new QuickOpen(this);
+	}
 }
 
 void MainFrame::OnToggleFileTreeView(wxCommandEvent &WXUNUSED(event)) {
