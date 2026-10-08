@@ -220,7 +220,6 @@ private:
      */
     void AdjustContainerSize(wxWindow *target, bool reduceSize = false);
     
-    wxSize CalculateVisibleSize(wxWindow *container);
     void InvalidateBestSizeRecursive(wxWindow *window);
 
     /**

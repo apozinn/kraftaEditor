@@ -100,6 +100,7 @@ static TextCtrl* GetFocusedTextCtrl();
     void SelectNextOccurrence(wxCommandEvent &event);
     
     bool m_isDestroyed = false;
+    bool changedFile = false;
 
 private:
     
@@ -130,6 +131,5 @@ private:
     AutoCompleteController* m_autocompleteController = nullptr; 
     LspController* m_lspController = nullptr;
     StatusBar *statusBar = ((StatusBar *)FindWindowById(+GUI::ControlID::StatusBar));
-    bool changedFile = false;
     wxDECLARE_NO_COPY_CLASS(TextCtrl);
 };

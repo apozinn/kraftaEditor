@@ -599,13 +599,12 @@ void FilesTree::ToggleDirVisibility(const wxString &componentIdentifier,
 void FilesTree::AdjustContainerSize(wxWindow *target, bool reduceSize) {
     if (!target)
         return;
-
-    const int mainContainerId = +GUI::ControlID::ProjectFilesContainer;
-
-    if (reduceSize)
-        InvalidateBestSizeRecursive(target);
+        
+    InvalidateBestSizeRecursive(target);
 
     wxWindow *current = target;
+    const int mainContainerId = +GUI::ControlID::ProjectFilesContainer;
+
     while (current && current->GetId() != mainContainerId) {
         wxWindow *parent = current->GetParent();
         if (!parent)
@@ -613,33 +612,20 @@ void FilesTree::AdjustContainerSize(wxWindow *target, bool reduceSize) {
 
         if (auto *sizer = parent->GetSizer()) {
             sizer->Layout();
-            parent->InvalidateBestSize();
-
-            wxSize best = parent->GetBestSize();
-            wxSize currentMin = parent->GetMinSize();
-
-            if (best.y != currentMin.y) {
-                parent->SetMinSize(wxSize(currentMin.x, best.y));
-            }
-        } else {
-            parent->Layout();
         }
+        parent->InvalidateBestSize();
 
         current = parent;
     }
 
     if (m_projectFilesContainer) {
-        if (auto *sizer = m_projectFilesContainer->GetSizer()) {
-            sizer->Layout();
-        }
         m_projectFilesContainer->InvalidateBestSize();
-        m_projectFilesContainer->FitInside();
         m_projectFilesContainer->Layout();
+        m_projectFilesContainer->FitInside();
     }
 
-    if (GetSizer()) {
+    if (GetSizer())
         GetSizer()->Layout();
-    }
     Layout();
 }
 
@@ -649,33 +635,6 @@ void FilesTree::InvalidateBestSizeRecursive(wxWindow *window) {
     for (auto *child : window->GetChildren())
         InvalidateBestSizeRecursive(child);
     window->InvalidateBestSize();
-}
-
-wxSize FilesTree::CalculateVisibleSize(wxWindow *container) {
-    if (!container)
-        return wxSize(0, 0);
-
-    wxSize size = container->GetSize();
-    
-    int totalHeight = 0;
-    const int padding = 2;
-
-    for (auto *child : container->GetChildren()) {
-        if (child->IsShown()) {
-            wxSize childSize = child->GetSize();
-            totalHeight += childSize.y + padding;
-        }
-    }
-
-    if (totalHeight == 0) {
-        totalHeight = 20;
-    }
-
-    if (!container->IsShown()) {
-        return wxSize(0, 0);
-    }
-
-    return wxSize(size.x, totalHeight);
 }
 
 void FilesTree::OnPaint(wxPaintEvent &event) {
@@ -930,6 +889,15 @@ void FilesTree::OnFileSystemEvent(int type, const wxString &oldPath,
 
 	wxFileName fullPath(newPath);
 	wxString parentPath;
+    
+        if(type == wxFSW_EVENT_MODIFY) {
+        TextCtrl* textCtrl = dynamic_cast<TextCtrl*>(FindWindowByName(newPath+"_textCtrl"));
+        if(textCtrl) {
+            if(!textCtrl->GetModify() && !textCtrl->changedFile) {
+                textCtrl->LoadFile(newPath);
+            }
+        }
+    }
 
 	if (fullPath.IsDir()) {
 		fullPath.RemoveLastDir();

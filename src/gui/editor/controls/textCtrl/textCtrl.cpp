@@ -216,6 +216,7 @@ void TextCtrl::DoSave(const wxString &path) {
 	try {
 		if (wxFileExists(path)) {
 			SaveFile(path);
+            changedFile = false;
 
 			if (auto tab = FindWindowByLabel(path + "_tab")) {
 				auto icon =
