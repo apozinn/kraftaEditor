@@ -62,7 +62,6 @@ using json = nlohmann::json;
 #include "gui/widgets/pageSwitcher/pageSwitcher.hpp"
 #include "gui/panels/searchPage/searchPage.hpp"
 #include "gui/widgets/kraftaTopLogo/kraftaTopLogo.hpp"
-#include "eventFilters/eventFilters.hpp"
 
 /**
  * @class MainFrame
@@ -81,8 +80,6 @@ public:
      * @param title The title displayed in the frame's title bar.
      */
     MainFrame(const wxString &title = "Krafta Editor");
-    
-    AltKeyFilter* m_altFilter;
 
     /**
      * @brief Destructor.

@@ -219,6 +219,9 @@ private:
      * @param componentIdentifier The unique identifier (path) of the component.
      */
     void AdjustContainerSize(wxWindow *target, bool reduceSize = false);
+    
+    wxSize CalculateVisibleSize(wxWindow *container);
+    void InvalidateBestSizeRecursive(wxWindow *window);
 
     /**
      * @brief Handles a user request to rename a directory.
