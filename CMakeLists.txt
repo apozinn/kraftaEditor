@@ -201,6 +201,7 @@ target_link_libraries(kraftaEditor PRIVATE
     wx::core
     wx::stc
     wx::base
+    wx::aui
     nlohmann_json::nlohmann_json
     CURL::libcurl
 )

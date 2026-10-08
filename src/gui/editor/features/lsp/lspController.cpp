@@ -44,12 +44,6 @@ static bool IsIdentChar(int c) {
 	return c > 0 && c < 128 && (std::isalnum(c) || c == '_');
 }
 
-static std::string Lower(std::string s) {
-	for (auto &c : s)
-		c = (char)std::tolower((unsigned char)c);
-	return s;
-}
-
 static bool StartsWithNoCase(const std::string &s, const std::string &prefix) {
 	if (prefix.size() > s.size())
 		return false;
