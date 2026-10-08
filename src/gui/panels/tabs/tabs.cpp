@@ -1,4 +1,5 @@
 #include "tabs.hpp"
+#include "gui/editor/controls/textCtrl/textCtrl.hpp"
 
 Tabs::Tabs(wxPanel *parent, wxWindowID ID) : wxPanel(parent, ID) {
 	auto background_color = Theme["main"].template get<std::string>();
