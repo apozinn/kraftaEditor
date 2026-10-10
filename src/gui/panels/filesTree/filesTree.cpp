@@ -1,4 +1,5 @@
 #include "filesTree.hpp"
+#include "gui/editor/controls/textCtrl/textCtrl.hpp"
 
 FilesTree::FilesTree(wxWindow *parent, wxWindowID ID) : wxPanel(parent, ID) {
 	auto *mainSizer = new wxBoxSizer(wxVERTICAL);
