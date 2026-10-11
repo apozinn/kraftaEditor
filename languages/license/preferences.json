@@ -1,0 +1,18 @@
+{
+    "name": "license",
+    "icon_file_name": "license",
+    "file_patterns": [
+        "license"
+    ],
+    "lexer_id": 0,
+    "lexer_settings": {
+        "tab_width": 4,
+        "use_spaces": false
+    },
+    "syntax": {
+        "case_sensitive": false
+    },
+    "fold": {
+        "enabled": false
+    }
+}

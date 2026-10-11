@@ -1,9 +1,9 @@
 #pragma once
 
-#include <wx/wx.h>
 #include "appPaths/appPaths.hpp"
+#include <wx/wx.h>
 
 class KraftaTopLogo : public wxPanel {
-    public:
-    KraftaTopLogo(wxWindow* parent);
+  public:
+	KraftaTopLogo(wxWindow *parent);
 };

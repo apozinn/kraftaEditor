@@ -21,26 +21,25 @@ using json = nlohmann::json;
  * (File, Edit, View, etc.), using user settings to configure initial state
  * and behavior when needed.
  */
-class MenuBar : public wxMenuBar
-{
-public:
-    /**
-     * @brief Constructs the application menu bar.
-     *
-     * Initializes all menus and menu items, binding them to their respective
-     * command identifiers and user actions.
-     */
-    MenuBar();
-    wxMenu *recentsWorkspacesMenu = new wxMenu;
+class MenuBar : public wxMenuBar {
+  public:
+	/**
+	 * @brief Constructs the application menu bar.
+	 *
+	 * Initializes all menus and menu items, binding them to their respective
+	 * command identifiers and user actions.
+	 */
+	MenuBar();
+	wxMenu *recentsWorkspacesMenu = new wxMenu;
 
-private:
-    /**
-     * @brief Cached user settings.
-     *
-     * Stores current user preferences such as theme, window behavior,
-     * and UI-related options used during menu initialization.
-     */
-    json UserSettings = UserSettingsManager::Get().currentSettings;
+  private:
+	/**
+	 * @brief Cached user settings.
+	 *
+	 * Stores current user preferences such as theme, window behavior,
+	 * and UI-related options used during menu initialization.
+	 */
+	json UserSettings = UserSettingsManager::Get().currentSettings;
 
-    wxDECLARE_NO_COPY_CLASS(MenuBar);
+	wxDECLARE_NO_COPY_CLASS(MenuBar);
 };

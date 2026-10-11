@@ -172,6 +172,7 @@ languagePreferencesStruct
 LanguagesPreferences::GetLanguagePreferences(const wxString &path) {
 	try {
 		wxFileName fileProps(path);
+		wxString fileName = wxFileNameFromPath(path);
 		wxString fileExt = "." + fileProps.GetExt();
 
 		auto GetLanguagesObjects =
@@ -223,15 +224,26 @@ LanguagesPreferences::GetLanguagePreferences(const wxString &path) {
 		};
 
 		std::string languageNameLocation = "default";
-		auto it = m_extToLang.find(fileExt.ToStdString());
-		if (it != m_extToLang.end()) {
-			std::string languageName = it->second;
+
+		auto it_ext = m_extToLang.find(fileExt.ToStdString());
+		auto it_fullname = m_extToLang.find(fileName.ToStdString());
+
+		if (it_fullname != m_extToLang.end()) {
+			std::string languageName = it_fullname->second;
 			auto languageObject = m_languages.find(languageName);
 
 			if (languageObject != m_languages.end())
 				return languageObject->second;
 			else
-				languageNameLocation = it->second;
+				languageNameLocation = it_fullname->second;
+		} else if (it_ext != m_extToLang.end()) {
+			std::string languageName = it_ext->second;
+			auto languageObject = m_languages.find(languageName);
+
+			if (languageObject != m_languages.end())
+				return languageObject->second;
+			else
+				languageNameLocation = it_ext->second;
 		}
 
 		wxString defaultLanguage =

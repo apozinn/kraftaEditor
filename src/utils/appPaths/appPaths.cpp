@@ -166,13 +166,21 @@ wxString GetLanguageIcon(const wxString &lang) {
 	if (dir.IsEmpty())
 		return wxEmptyString;
 
-	wxFileName icon(dir, lang + ".png");
-	if (!icon.Exists()) {
-		icon.SetName("unknown_ext");
-		if (!icon.Exists())
-			return wxEmptyString;
+	const wxString extensions[] = {"svg", "png"};
+
+	for (const auto &ext : extensions) {
+		wxFileName icon(dir, "file_type_" + lang + "." + ext);
+		if (icon.Exists())
+			return icon.GetFullPath();
 	}
-	return icon.GetFullPath();
+
+	for (const auto &ext : extensions) {
+		wxFileName icon(dir, "default_file." + ext);
+		if (icon.Exists())
+			return icon.GetFullPath();
+	}
+
+	return wxEmptyString;
 }
 
 wxString GetLanguagePreferencesPath(const wxString &lang) {

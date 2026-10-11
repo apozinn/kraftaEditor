@@ -3,8 +3,8 @@
 void TextCtrl::CharAdd(wxStyledTextEvent &event) {
 	if (m_isDestroyed)
 		return;
-        
-        changedFile = true;
+
+	changedFile = true;
 	const char chr = static_cast<char>(event.GetKey());
 
 	if (chr == '\n') {

@@ -1,6 +1,6 @@
 {
     "name": "txt",
-    "icon_file_name": "txt",
+    "icon_file_name": "text",
     "file_patterns": [
         "txt"
     ],

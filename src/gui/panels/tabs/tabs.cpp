@@ -79,19 +79,28 @@ void Tabs::Add(wxString tab_name, wxString path) {
 	wxBoxSizer *tab_infos_sizer = new wxBoxSizer(wxHORIZONTAL);
 
 	wxString iconPath;
-
-	if (FileOperations::IsImageFile(path)) {
+	if (FileOperations::IsImageFile(path))
 		iconPath = ApplicationPaths::GetLanguageIcon("image");
-	} else {
+	else
 		iconPath = LanguagesPreferences::Get().GetLanguageIconPath(path);
-	}
 
-	wxVector<wxBitmap> bitmaps_;
-	bitmaps_.push_back(wxBitmap(iconPath, wxBITMAP_TYPE_PNG));
-	wxStaticBitmap *ico = new wxStaticBitmap(
-		tab_infos, wxID_ANY, wxBitmapBundle::FromBitmaps(bitmaps_));
-	ico->SetName("tab_language_icon");
-	tab_infos_sizer->Add(ico, 0, wxALIGN_CENTER | wxLEFT, 10);
+	if (!iconPath.IsEmpty()) {
+		wxBitmapBundle iconBundle;
+
+		if (iconPath.Lower().EndsWith(".svg")) {
+			iconBundle = wxBitmapBundle::FromSVGFile(iconPath, wxSize(18, 18));
+		} else {
+			wxBitmap bmp(iconPath, wxBITMAP_TYPE_ANY);
+			if (bmp.IsOk())
+				iconBundle = wxBitmapBundle::FromBitmap(bmp);
+		}
+
+		if (iconBundle.IsOk()) {
+			auto *icon = new wxStaticBitmap(tab_infos, wxID_ANY, iconBundle);
+			icon->SetName("tab_language_icon");
+			tab_infos_sizer->Add(icon, 0, wxALIGN_CENTER | wxLEFT, 10);
+		}
+	}
 
 	wxStaticText *name = new wxStaticText(tab_infos, wxID_ANY, tab_name);
 	name->SetToolTip(path);

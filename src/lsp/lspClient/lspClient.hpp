@@ -22,7 +22,7 @@ using LspNotificationCallback =
 struct LspTextChange {
 	int startLine = 0, startChar = 0;
 	int endLine = 0, endChar = 0;
-	std::string text; 
+	std::string text;
 };
 
 class LspClient : public std::enable_shared_from_this<LspClient> {
@@ -59,7 +59,8 @@ class LspClient : public std::enable_shared_from_this<LspClient> {
 						   LspResponseCallback cb);
 	void RequestReferences(const wxString &fileUri, int line, int col,
 						   LspResponseCallback cb);
-	void RequestDocumentSymbols(const wxString &fileUri, LspResponseCallback cb);
+	void RequestDocumentSymbols(const wxString &fileUri,
+								LspResponseCallback cb);
 	void RequestFormatting(const wxString &fileUri, LspResponseCallback cb);
 	void RequestRename(const wxString &fileUri, int line, int col,
 					   const wxString &newName, LspResponseCallback cb);

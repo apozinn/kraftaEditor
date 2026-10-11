@@ -16,7 +16,7 @@ using json = nlohmann::json;
 struct ControlMenu {
 	const char *name;
 	const char *shortcut;
-	int         id;
+	int id;
 };
 
 class ControlPanel : public wxPanel {
@@ -47,9 +47,9 @@ class ControlPanel : public wxPanel {
 	void OnRowLeave(wxMouseEvent &event);
 
 	wxScrolledWindow *m_menusContainer{nullptr};
-	wxPanel          *m_selectedMenu{nullptr};
-	wxTextCtrl       *m_searchInput{nullptr};
-	wxBoxSizer       *m_sizer{nullptr};
+	wxPanel *m_selectedMenu{nullptr};
+	wxTextCtrl *m_searchInput{nullptr};
+	wxBoxSizer *m_sizer{nullptr};
 
 	wxColour m_bgColor;
 	wxColour m_selectedColor;

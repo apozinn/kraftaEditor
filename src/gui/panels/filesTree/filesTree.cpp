@@ -209,7 +209,7 @@ wxWindow *FilesTree::CreateFileContainer(wxWindow *parent,
 	auto *parentSizer = parent->GetSizer();
 	auto *fileContainer = new wxPanel(parent);
 	auto *fileSizer = new wxBoxSizer(wxHORIZONTAL);
-    
+
 	fileContainer->SetToolTip(path);
 
 	fileContainer->Bind(wxEVT_LEFT_UP, &FilesTree::OnFileLeftClick, this);
@@ -225,10 +225,19 @@ wxWindow *FilesTree::CreateFileContainer(wxWindow *parent,
 		iconPath = LanguagesPreferences::Get().GetLanguageIconPath(path);
 
 	if (!iconPath.IsEmpty()) {
-		wxBitmap iconBitmap(iconPath, wxBITMAP_TYPE_PNG);
-		if (iconBitmap.IsOk()) {
+		wxBitmapBundle iconBundle;
+
+		if (iconPath.Lower().EndsWith(".svg")) {
+			iconBundle = wxBitmapBundle::FromSVGFile(iconPath, wxSize(16, 16));
+		} else {
+			wxBitmap bmp(iconPath, wxBITMAP_TYPE_ANY);
+			if (bmp.IsOk())
+				iconBundle = wxBitmapBundle::FromBitmap(bmp);
+		}
+
+		if (iconBundle.IsOk()) {
 			auto *icon =
-				new wxStaticBitmap(fileContainer, wxID_ANY, iconBitmap);
+				new wxStaticBitmap(fileContainer, wxID_ANY, iconBundle);
 			fileSizer->Add(icon, 0, wxALIGN_CENTRE_VERTICAL | wxLEFT, 8);
 		}
 	}
@@ -254,86 +263,86 @@ wxWindow *FilesTree::CreateFileContainer(wxWindow *parent,
 }
 
 wxWindow *FilesTree::CreateDirContainer(wxWindow *parent, wxString path,
-                                        bool withPosition, int pos) {
-    if (wxString(path.Last()) != PlatformInfos::OsPathSeparator())
-        path.Append(PlatformInfos::OsPathSeparator());
+										bool withPosition, int pos) {
+	if (wxString(path.Last()) != PlatformInfos::OsPathSeparator())
+		path.Append(PlatformInfos::OsPathSeparator());
 
-    if (!parent)
-        return nullptr;
-    if (!wxDirExists(path)) {
-        wxMessageBox(ErrorMessages::CannotOpenDirForReadContent, "Error",
-                     wxOK | wxICON_ERROR);
-        return nullptr;
-    }
-    if (FindWindowByLabel(path + "_dir_container"))
-        return nullptr;
+	if (!parent)
+		return nullptr;
+	if (!wxDirExists(path)) {
+		wxMessageBox(ErrorMessages::CannotOpenDirForReadContent, "Error",
+					 wxOK | wxICON_ERROR);
+		return nullptr;
+	}
+	if (FindWindowByLabel(path + "_dir_container"))
+		return nullptr;
 
-    auto *parentSizer = parent->GetSizer();
-    auto *dirContainer = new wxPanel(parent);
+	auto *parentSizer = parent->GetSizer();
+	auto *dirContainer = new wxPanel(parent);
 
-    auto *dirSizer = new wxBoxSizer(wxVERTICAL);
-    dirContainer->SetToolTip(path);
+	auto *dirSizer = new wxBoxSizer(wxVERTICAL);
+	dirContainer->SetToolTip(path);
 
-    dirContainer->Bind(wxEVT_LEFT_UP, &FilesTree::OnDirLeftClick, this);
-    dirContainer->Bind(wxEVT_RIGHT_UP, &FilesTree::OnDirRightClick, this);
+	dirContainer->Bind(wxEVT_LEFT_UP, &FilesTree::OnDirLeftClick, this);
+	dirContainer->Bind(wxEVT_RIGHT_UP, &FilesTree::OnDirRightClick, this);
 
-    dirContainer->SetName(path);
-    dirContainer->SetLabel(path + "_dir_container");
+	dirContainer->SetName(path);
+	dirContainer->SetLabel(path + "_dir_container");
 
-    auto *propsPanel = new wxPanel(dirContainer);
-    auto *propsSizer = new wxBoxSizer(wxHORIZONTAL);
+	auto *propsPanel = new wxPanel(dirContainer);
+	auto *propsSizer = new wxBoxSizer(wxHORIZONTAL);
 
-    propsPanel->SetToolTip(path);
-    propsPanel->SetName(path);
-    propsPanel->SetLabel("dir_props");
-    propsPanel->Bind(wxEVT_LEFT_UP, &FilesTree::OnDirLeftClick, this);
+	propsPanel->SetToolTip(path);
+	propsPanel->SetName(path);
+	propsPanel->SetLabel("dir_props");
+	propsPanel->Bind(wxEVT_LEFT_UP, &FilesTree::OnDirLeftClick, this);
 
-    wxString arrowPath = ApplicationPaths::GetIconPath("dir_arrow.png");
-    if (!arrowPath.IsEmpty()) {
-        wxBitmap arrowBitmap(arrowPath, wxBITMAP_TYPE_PNG);
-        if (arrowBitmap.IsOk()) {
-            auto *arrow = new wxStaticBitmap(propsPanel, wxID_ANY, arrowBitmap);
-            propsSizer->Add(arrow, 0, wxALIGN_CENTRE_VERTICAL);
-        }
-    }
+	wxString arrowPath = ApplicationPaths::GetIconPath("dir_arrow.png");
+	if (!arrowPath.IsEmpty()) {
+		wxBitmap arrowBitmap(arrowPath, wxBITMAP_TYPE_PNG);
+		if (arrowBitmap.IsOk()) {
+			auto *arrow = new wxStaticBitmap(propsPanel, wxID_ANY, arrowBitmap);
+			propsSizer->Add(arrow, 0, wxALIGN_CENTRE_VERTICAL);
+		}
+	}
 
-    auto *dirName = new wxStaticText(
-        propsPanel, wxID_ANY, wxFileNameFromPath(path.Clone().RemoveLast()));
-    dirName->SetName("dir_name");
-    dirName->Bind(wxEVT_LEFT_UP, &FilesTree::OnDirLeftClick, this);
-    dirName->Bind(wxEVT_RIGHT_UP, &FilesTree::OnDirRightClick, this);
+	auto *dirName = new wxStaticText(
+		propsPanel, wxID_ANY, wxFileNameFromPath(path.Clone().RemoveLast()));
+	dirName->SetName("dir_name");
+	dirName->Bind(wxEVT_LEFT_UP, &FilesTree::OnDirLeftClick, this);
+	dirName->Bind(wxEVT_RIGHT_UP, &FilesTree::OnDirRightClick, this);
 
-    propsSizer->Add(dirName, 0, wxEXPAND | wxLEFT, 4);
-    propsPanel->SetSizer(propsSizer);
+	propsSizer->Add(dirName, 0, wxEXPAND | wxLEFT, 4);
+	propsPanel->SetSizer(propsSizer);
 
-    dirSizer->Add(propsPanel, 0, wxEXPAND | wxLEFT, 8);
+	dirSizer->Add(propsPanel, 0, wxEXPAND | wxLEFT, 8);
 
-    auto *childrenPanel = new wxPanel(dirContainer);
-    auto *childrenSizer = new wxBoxSizer(wxVERTICAL);
+	auto *childrenPanel = new wxPanel(dirContainer);
+	auto *childrenSizer = new wxBoxSizer(wxVERTICAL);
 
-    childrenPanel->SetName(path);
-    childrenPanel->SetLabel(path + "_dir_childrens");
-    childrenPanel->Bind(wxEVT_PAINT, &FilesTree::OnDirChildrensPaint, this);
+	childrenPanel->SetName(path);
+	childrenPanel->SetLabel(path + "_dir_childrens");
+	childrenPanel->Bind(wxEVT_PAINT, &FilesTree::OnDirChildrensPaint, this);
 
-    childrenPanel->SetSizer(childrenSizer);  
-    childrenPanel->Hide();           
-    dirSizer->Add(childrenPanel, 0, wxEXPAND | wxLEFT, 10);
+	childrenPanel->SetSizer(childrenSizer);
+	childrenPanel->Hide();
+	dirSizer->Add(childrenPanel, 0, wxEXPAND | wxLEFT, 10);
 
-    dirContainer->SetSizer(dirSizer);    
+	dirContainer->SetSizer(dirSizer);
 
-    if (withPosition)
-        parentSizer->Insert(pos, dirContainer, 0, wxEXPAND);
-    else
-        parentSizer->Add(dirContainer, 0, wxEXPAND);
+	if (withPosition)
+		parentSizer->Insert(pos, dirContainer, 0, wxEXPAND);
+	else
+		parentSizer->Add(dirContainer, 0, wxEXPAND);
 
-    parent->Layout();
+	parent->Layout();
 
-    dirContainer->CallForEachChild([this](wxWindow *win) {
-        win->Bind(wxEVT_ENTER_WINDOW, &FilesTree::OnComponentMouseEnter, this);
-        win->Bind(wxEVT_LEAVE_WINDOW, &FilesTree::OnComponentMouseExit, this);
-    });
+	dirContainer->CallForEachChild([this](wxWindow *win) {
+		win->Bind(wxEVT_ENTER_WINDOW, &FilesTree::OnComponentMouseEnter, this);
+		win->Bind(wxEVT_LEAVE_WINDOW, &FilesTree::OnComponentMouseExit, this);
+	});
 
-    return dirContainer;
+	return dirContainer;
 }
 
 void FilesTree::OnDirChildrensPaint(wxPaintEvent &event) {
@@ -536,106 +545,106 @@ void FilesTree::OnDirRightClick(wxMouseEvent &event) {
 }
 
 void FilesTree::ToggleDirVisibility(const wxString &componentIdentifier,
-                                    bool defaultShow) {
-    auto dirContainer =
-        FindWindowByLabel(componentIdentifier + "_dir_container");
+									bool defaultShow) {
+	auto dirContainer =
+		FindWindowByLabel(componentIdentifier + "_dir_container");
 
-    if (!dirContainer)
-        return;
+	if (!dirContainer)
+		return;
 
-    if (!wxDirExists(componentIdentifier)) {
-        auto parent = dirContainer->GetParent();
-        if (parent) {
-            dirContainer->Destroy();
-            AdjustContainerSize(parent, true);
-        }
-        wxMessageBox(ErrorMessages::CannotOpenDir, "Error",
-                     wxOK | wxICON_ERROR);
-        return;
-    }
+	if (!wxDirExists(componentIdentifier)) {
+		auto parent = dirContainer->GetParent();
+		if (parent) {
+			dirContainer->Destroy();
+			AdjustContainerSize(parent, true);
+		}
+		wxMessageBox(ErrorMessages::CannotOpenDir, "Error",
+					 wxOK | wxICON_ERROR);
+		return;
+	}
 
-    if (dirContainer->GetChildren().size() < 2)
-        return;
+	if (dirContainer->GetChildren().size() < 2)
+		return;
 
-    auto *propsPanel = dirContainer->GetChildren()[0];
-    if (!propsPanel || propsPanel->GetChildren().empty())
-        return;
+	auto *propsPanel = dirContainer->GetChildren()[0];
+	if (!propsPanel || propsPanel->GetChildren().empty())
+		return;
 
-    auto *dirArrowIcon =
-        wxDynamicCast(propsPanel->GetChildren()[0], wxStaticBitmap);
-    auto *dirChildrens = dirContainer->GetChildren()[1];
+	auto *dirArrowIcon =
+		wxDynamicCast(propsPanel->GetChildren()[0], wxStaticBitmap);
+	auto *dirChildrens = dirContainer->GetChildren()[1];
 
-    ProjectSettings::Get().SetCurrentlyMenuDir(componentIdentifier);
+	ProjectSettings::Get().SetCurrentlyMenuDir(componentIdentifier);
 
-    if (!dirArrowIcon || !dirChildrens) {
-        wxMessageBox(ErrorMessages::ToggleDirectoryVisibilityError, "Error",
-                     wxOK | wxICON_ERROR);
-        return;
-    }
+	if (!dirArrowIcon || !dirChildrens) {
+		wxMessageBox(ErrorMessages::ToggleDirectoryVisibilityError, "Error",
+					 wxOK | wxICON_ERROR);
+		return;
+	}
 
-    const bool wasShown = dirChildrens->IsShown();
-    const bool shouldShow = defaultShow ? true : !wasShown;
+	const bool wasShown = dirChildrens->IsShown();
+	const bool shouldShow = defaultShow ? true : !wasShown;
 
-    if (shouldShow == wasShown)
-        return;
+	if (shouldShow == wasShown)
+		return;
 
-    auto arrowBitmap = dirArrowIcon->GetBitmap();
+	auto arrowBitmap = dirArrowIcon->GetBitmap();
 
-    if (shouldShow) {
-        dirArrowIcon->SetBitmap(
-            wxBitmap(arrowBitmap.ConvertToImage().Rotate90(true), -1));
-        dirChildrens->Show();
+	if (shouldShow) {
+		dirArrowIcon->SetBitmap(
+			wxBitmap(arrowBitmap.ConvertToImage().Rotate90(true), -1));
+		dirChildrens->Show();
 
-        if (dirChildrens->GetChildren().empty())
-            CreateDirectoryComponents(dirChildrens, componentIdentifier);
-    } else {
-        dirArrowIcon->SetBitmap(
-            wxBitmap(arrowBitmap.ConvertToImage().Rotate90(false), -1));
-        dirChildrens->Hide();
-    }
+		if (dirChildrens->GetChildren().empty())
+			CreateDirectoryComponents(dirChildrens, componentIdentifier);
+	} else {
+		dirArrowIcon->SetBitmap(
+			wxBitmap(arrowBitmap.ConvertToImage().Rotate90(false), -1));
+		dirChildrens->Hide();
+	}
 
-    AdjustContainerSize(dirChildrens, !shouldShow);
+	AdjustContainerSize(dirChildrens, !shouldShow);
 }
 
 void FilesTree::AdjustContainerSize(wxWindow *target, bool reduceSize) {
-    if (!target)
-        return;
-        
-    InvalidateBestSizeRecursive(target);
+	if (!target)
+		return;
 
-    wxWindow *current = target;
-    const int mainContainerId = +GUI::ControlID::ProjectFilesContainer;
+	InvalidateBestSizeRecursive(target);
 
-    while (current && current->GetId() != mainContainerId) {
-        wxWindow *parent = current->GetParent();
-        if (!parent)
-            break;
+	wxWindow *current = target;
+	const int mainContainerId = +GUI::ControlID::ProjectFilesContainer;
 
-        if (auto *sizer = parent->GetSizer()) {
-            sizer->Layout();
-        }
-        parent->InvalidateBestSize();
+	while (current && current->GetId() != mainContainerId) {
+		wxWindow *parent = current->GetParent();
+		if (!parent)
+			break;
 
-        current = parent;
-    }
+		if (auto *sizer = parent->GetSizer()) {
+			sizer->Layout();
+		}
+		parent->InvalidateBestSize();
 
-    if (m_projectFilesContainer) {
-        m_projectFilesContainer->InvalidateBestSize();
-        m_projectFilesContainer->Layout();
-        m_projectFilesContainer->FitInside();
-    }
+		current = parent;
+	}
 
-    if (GetSizer())
-        GetSizer()->Layout();
-    Layout();
+	if (m_projectFilesContainer) {
+		m_projectFilesContainer->InvalidateBestSize();
+		m_projectFilesContainer->Layout();
+		m_projectFilesContainer->FitInside();
+	}
+
+	if (GetSizer())
+		GetSizer()->Layout();
+	Layout();
 }
 
 void FilesTree::InvalidateBestSizeRecursive(wxWindow *window) {
-    if (!window)
-        return;
-    for (auto *child : window->GetChildren())
-        InvalidateBestSizeRecursive(child);
-    window->InvalidateBestSize();
+	if (!window)
+		return;
+	for (auto *child : window->GetChildren())
+		InvalidateBestSizeRecursive(child);
+	window->InvalidateBestSize();
 }
 
 void FilesTree::OnPaint(wxPaintEvent &event) {
@@ -890,15 +899,16 @@ void FilesTree::OnFileSystemEvent(int type, const wxString &oldPath,
 
 	wxFileName fullPath(newPath);
 	wxString parentPath;
-    
-        if(type == wxFSW_EVENT_MODIFY) {
-        TextCtrl* textCtrl = dynamic_cast<TextCtrl*>(FindWindowByName(newPath+"_textCtrl"));
-        if(textCtrl) {
-            if(!textCtrl->GetModify() && !textCtrl->changedFile) {
-                textCtrl->LoadFile(newPath);
-            }
-        }
-    }
+
+	if (type == wxFSW_EVENT_MODIFY) {
+		TextCtrl *textCtrl =
+			dynamic_cast<TextCtrl *>(FindWindowByName(newPath + "_textCtrl"));
+		if (textCtrl) {
+			if (!textCtrl->GetModify() && !textCtrl->changedFile) {
+				textCtrl->LoadFile(newPath);
+			}
+		}
+	}
 
 	if (fullPath.IsDir()) {
 		fullPath.RemoveLastDir();

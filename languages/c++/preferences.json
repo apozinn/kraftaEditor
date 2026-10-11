@@ -6,7 +6,6 @@
         "hpp",
         "cc",
         "cxx",
-        "h",
         "hh",
         "hxx"
     ],
@@ -15,13 +14,14 @@
         "tab_width": 4,
         "use_spaces": false
     },
-    "syntax": {
-        "keyword_lists": {
-            "0": "alignas alignof and and_eq asm auto bitand bitor bool break case catch char class compl const constexpr const_cast continue decltype default delete do double dynamic_cast else enum explicit export extern false final for friend goto if inline mutable namespace new noexcept not not_eq nullptr operator or or_eq override private protected public register reinterpret_cast requires return static static_assert static_cast struct switch template this thread_local throw true try typedef typeid typename union unsigned using virtual void volatile while xor xor_eq",
-            "1": "#include #define #ifdef #ifndef #endif #else #elif #pragma",
-            "2": "std cout cin endl string vector map"
-        }
-    },
+  "syntax": {
+      "keyword_lists": {
+          "0": "alignas alignof and and_eq asm auto bitand bitor bool break case catch char char8_t char16_t char32_t class compl concept const consteval constexpr constinit const_cast continue co_await co_return co_yield decltype default delete do double dynamic_cast else enum explicit export extern false final for friend goto if inline mutable namespace new noexcept not not_eq nullptr operator or or_eq override private protected public register reinterpret_cast requires return static static_assert static_cast struct switch template this thread_local throw true try typedef typeid typename union unsigned using virtual void volatile wchar_t while xor xor_eq",
+          "1": "define elif endif error if ifdef ifndef include line pragma undef",
+          "2": "std string vector map unordered_map set unordered_set array deque list queue stack pair tuple shared_ptr unique_ptr weak_ptr make_shared make_unique cout cin cerr endl printf scanf malloc free sizeof",
+          "3": "a addindex addtogroup anchor arg attention author b brief bug c class code date def defgroup deprecated dontinclude e em endcode endhtmlonly endif endlatexonly endlink endmanonly endmsc endrtfonly endverbatim example exception f file fn hideinitializer htmlinclude htmlonly if image include ingroup internal invariant interface latexonly li line link mainpage manonly memberof msc mscfile n name namespace nosubgrouping note overload p page par param post pre ref relates remarks return retval sa section see showinitializer since skip skipline struct subsection test throw throws todo tparam typedef union until var verbatim verbinclude version warning weakgroup xmlonly"
+      }
+  },
     "fold": {
         "enabled": true,
         "preprocessor": true,
@@ -33,7 +33,15 @@
         "server": {
             "name": "clangd",
             "executable": "clangd",
-            "args": ["--compile-commands-dir=."],
+            "args": [
+                "--compile-commands-dir=.",
+                "--background-index",
+                "--clang-tidy",
+                "--completion-style=detailed",
+                "--header-insertion=iwyu",
+                "--pch-storage=memory",
+                "--log=error"
+            ],
             "download": {
                 "urls": {
                     "Windows": "https://github.com/clangd/clangd/releases/download/22.1.6/clangd-windows-22.1.6.zip",

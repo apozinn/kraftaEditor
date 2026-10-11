@@ -1,8 +1,8 @@
 #pragma once
 
-#include <wx/wx.h>
-#include <wx/stc/stc.h>
 #include <themesManager/themesManager.hpp>
+#include <wx/stc/stc.h>
+#include <wx/wx.h>
 
 /**
  * @class Search
@@ -20,59 +20,59 @@
  *
  * This class does not own the editor instance.
  */
-class Search : public wxPanel
-{
-public:
-    /**
-     * @brief Constructs the search panel.
-     *
-     * @param parent Parent window.
-     * @param editor Target wxStyledTextCtrl where search is performed.
-     */
-    explicit Search(wxWindow *parent, const wxString &defaultLabel, wxStyledTextCtrl *editor);
+class Search : public wxPanel {
+  public:
+	/**
+	 * @brief Constructs the search panel.
+	 *
+	 * @param parent Parent window.
+	 * @param editor Target wxStyledTextCtrl where search is performed.
+	 */
+	explicit Search(wxWindow *parent, const wxString &defaultLabel,
+					wxStyledTextCtrl *editor);
 
-    /**
-     * @brief Destructor. Clears search indicators.
-     */
-    ~Search() override;
+	/**
+	 * @brief Destructor. Clears search indicators.
+	 */
+	~Search() override;
 
-private:
-    /**
-     * @brief Handles character input events.
-     *
-     * Triggers real-time search and processes ENTER key
-     * to move to the next match.
-     *
-     * @param event Styled text control event.
-     */
-    void OnChar(wxStyledTextEvent &event);
+  private:
+	/**
+	 * @brief Handles character input events.
+	 *
+	 * Triggers real-time search and processes ENTER key
+	 * to move to the next match.
+	 *
+	 * @param event Styled text control event.
+	 */
+	void OnChar(wxStyledTextEvent &event);
 
-    /**
-     * @brief Executes the search and highlights all matches.
-     *
-     * @param forward Direction of navigation when pressing ENTER.
-     */
-    void DoSearch(bool forward);
+	/**
+	 * @brief Executes the search and highlights all matches.
+	 *
+	 * @param forward Direction of navigation when pressing ENTER.
+	 */
+	void DoSearch(bool forward);
 
-    /**
-     * @brief Closes the search panel and clears highlights.
-     *
-     * @param event Command event.
-     */
-    void Close(wxCommandEvent &event);
+	/**
+	 * @brief Closes the search panel and clears highlights.
+	 *
+	 * @param event Command event.
+	 */
+	void Close(wxCommandEvent &event);
 
-    /**
-     * @brief Draws the search panel.
-     *
-     * @param event Paint event.
-     */
-    void OnPaint(wxPaintEvent &event);
+	/**
+	 * @brief Draws the search panel.
+	 *
+	 * @param event Paint event.
+	 */
+	void OnPaint(wxPaintEvent &event);
 
-private:
-    wxStyledTextCtrl *m_input;
-    wxStyledTextCtrl *m_editor;
+  private:
+	wxStyledTextCtrl *m_input;
+	wxStyledTextCtrl *m_editor;
 
-    wxColour m_borderColor = ThemesManager::Get().GetColor("border");
+	wxColour m_borderColor = ThemesManager::Get().GetColor("border");
 
-    static constexpr int SEARCH_INDICATOR = 8;
+	static constexpr int SEARCH_INDICATOR = 8;
 };

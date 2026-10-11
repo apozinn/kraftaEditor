@@ -39,14 +39,14 @@ class QuickOpen : public wxPanel {
 	void OnListLeftDown(wxMouseEvent &event);
 	void OnListSize(wxSizeEvent &event);
 
-	int  HitTestRow(int y) const;
+	int HitTestRow(int y) const;
 	void OpenFileAt(int index);
 
-	wxBoxSizer       *m_sizer{nullptr};
-	wxBoxSizer       *m_topSizer{nullptr};
-	wxPanel          *m_topContainer{nullptr};
+	wxBoxSizer *m_sizer{nullptr};
+	wxBoxSizer *m_topSizer{nullptr};
+	wxPanel *m_topContainer{nullptr};
 	wxScrolledWindow *m_list{nullptr};
-	wxTextCtrl       *m_searchBar{nullptr};
+	wxTextCtrl *m_searchBar{nullptr};
 
 	wxColour m_bgColor;
 	wxColour m_searchBgColor;
@@ -60,9 +60,9 @@ class QuickOpen : public wxPanel {
 	int m_rowHeight{24};
 
 	std::vector<QuickOpenFileStruct> m_files;
-	std::vector<size_t>              m_visibleIndices;
-	int                              m_selectedIndex{-1};
-	int                              m_hoverIndex{-1};
+	std::vector<size_t> m_visibleIndices;
+	int m_selectedIndex{-1};
+	int m_hoverIndex{-1};
 
 	wxDECLARE_NO_COPY_CLASS(QuickOpen);
 };

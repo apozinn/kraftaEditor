@@ -11,16 +11,17 @@ Terminal::Terminal(wxWindow *parent, wxWindowID ID) : wxPanel(parent, ID) {
 	m_bar = new wxPanel(this);
 	auto *barSizer = new wxBoxSizer(wxHORIZONTAL);
 	barSizer->AddStretchSpacer(1);
-	m_newBtn = new wxButton(m_bar, wxID_ANY, "+", wxDefaultPosition, wxDefaultSize,
-							wxBU_EXACTFIT | wxBORDER_NONE);
+	m_newBtn = new wxButton(m_bar, wxID_ANY, "+", wxDefaultPosition,
+							wxDefaultSize, wxBU_EXACTFIT | wxBORDER_NONE);
 	m_newBtn->SetToolTip(_("New terminal"));
 	barSizer->Add(m_newBtn, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, FromDIP(6));
 	m_bar->SetSizer(barSizer);
 
-	m_tabs = new wxAuiNotebook(
-		this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
-		wxAUI_NB_TOP | wxAUI_NB_TAB_MOVE | wxAUI_NB_SCROLL_BUTTONS |
-			wxAUI_NB_CLOSE_ON_ALL_TABS | wxAUI_NB_WINDOWLIST_BUTTON | wxBORDER_NONE);
+	m_tabs = new wxAuiNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
+							   wxAUI_NB_TOP | wxAUI_NB_TAB_MOVE |
+								   wxAUI_NB_SCROLL_BUTTONS |
+								   wxAUI_NB_CLOSE_ON_ALL_TABS |
+								   wxAUI_NB_WINDOWLIST_BUTTON | wxBORDER_NONE);
 
 	root->Add(m_bar, 0, wxEXPAND);
 	root->Add(m_tabs, 1, wxEXPAND);
@@ -28,7 +29,8 @@ Terminal::Terminal(wxWindow *parent, wxWindowID ID) : wxPanel(parent, ID) {
 
 	m_newBtn->Bind(wxEVT_BUTTON, [this](wxCommandEvent &) { NewSession(); });
 	m_tabs->Bind(wxEVT_AUINOTEBOOK_PAGE_CLOSE, &Terminal::OnPageClose, this);
-	m_tabs->Bind(wxEVT_AUINOTEBOOK_PAGE_CHANGED, &Terminal::OnPageChanged, this);
+	m_tabs->Bind(wxEVT_AUINOTEBOOK_PAGE_CHANGED, &Terminal::OnPageChanged,
+				 this);
 
 	ApplyTheme();
 
@@ -48,17 +50,17 @@ Terminal::~Terminal() = default;
 void Terminal::ApplyTheme() {
 	const wxColour bg = ThemesManager::Get().GetColor("main");
 	const wxColour fg = ThemesManager::Get().GetColor("text");
-    
+
 	SetBackgroundColour(bg);
 	m_bar->SetBackgroundColour(bg);
 	m_newBtn->SetBackgroundColour(bg);
 	m_newBtn->SetForegroundColour(fg);
 	m_tabs->SetBackgroundColour(fg);
 	m_tabs->SetForegroundColour(fg);
-if (auto *art = m_tabs->GetArtProvider()) {
-    art->SetColour(fg);
-    art->SetActiveColour(fg); 
-}
+	if (auto *art = m_tabs->GetArtProvider()) {
+		art->SetColour(fg);
+		art->SetActiveColour(fg);
+	}
 	for (size_t i = 0; i < m_tabs->GetPageCount(); ++i)
 		if (auto *v = dynamic_cast<TerminalView *>(m_tabs->GetPage(i)))
 			v->ApplyTheme();
@@ -91,8 +93,9 @@ TerminalView *Terminal::NewSession(const wxString &cwd, const wxString &shell) {
 
 TerminalView *Terminal::Active() const {
 	int sel = m_tabs->GetSelection();
-	return sel == wxNOT_FOUND ? nullptr
-							  : dynamic_cast<TerminalView *>(m_tabs->GetPage((size_t)sel));
+	return sel == wxNOT_FOUND
+			   ? nullptr
+			   : dynamic_cast<TerminalView *>(m_tabs->GetPage((size_t)sel));
 }
 
 int Terminal::SessionCount() const { return (int)m_tabs->GetPageCount(); }
@@ -104,8 +107,9 @@ void Terminal::CloseSession(int index) {
 		return;
 	auto *v = dynamic_cast<TerminalView *>(m_tabs->GetPage((size_t)index));
 	if (v && v->IsBusy() &&
-		wxMessageBox(_("There is a process running in this terminal. Terminate it?"),
-					 _("Close terminal"), wxYES_NO | wxICON_QUESTION, this) != wxYES)
+		wxMessageBox(
+			_("There is a process running in this terminal. Terminate it?"),
+			_("Close terminal"), wxYES_NO | wxICON_QUESTION, this) != wxYES)
 		return;
 	m_tabs->DeletePage((size_t)index);
 }
@@ -129,10 +133,12 @@ void Terminal::ClearActive() {
 }
 
 void Terminal::OnPageClose(wxAuiNotebookEvent &e) {
-	auto *v = dynamic_cast<TerminalView *>(m_tabs->GetPage((size_t)e.GetSelection()));
+	auto *v =
+		dynamic_cast<TerminalView *>(m_tabs->GetPage((size_t)e.GetSelection()));
 	if (v && v->IsBusy() &&
-		wxMessageBox(_("There is a process running in this terminal. Terminate it?"),
-					 _("Close terminal"), wxYES_NO | wxICON_QUESTION, this) != wxYES)
+		wxMessageBox(
+			_("There is a process running in this terminal. Terminate it?"),
+			_("Close terminal"), wxYES_NO | wxICON_QUESTION, this) != wxYES)
 		e.Veto();
 	else
 		e.Skip();

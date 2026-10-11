@@ -4,10 +4,10 @@
 #include <cstring>
 
 static const char32_t DEC_GRAPHICS[31] = {
-	0x25C6, 0x2592, 0x2409, 0x240C, 0x240D, 0x240A, 0xB0,   0xB1,
+	0x25C6, 0x2592, 0x2409, 0x240C, 0x240D, 0x240A, 0xB0,	0xB1,
 	0x2424, 0x240B, 0x2518, 0x2510, 0x250C, 0x2514, 0x253C, 0x23BA,
 	0x23BB, 0x2500, 0x23BC, 0x23BD, 0x251C, 0x2524, 0x2534, 0x252C,
-	0x2502, 0x2264, 0x2265, 0x3C0,  0x2260, 0xA3,   0xB7};
+	0x2502, 0x2264, 0x2265, 0x3C0,	0x2260, 0xA3,	0xB7};
 
 static const size_t MAX_OSC = 64 * 1024;
 
@@ -122,8 +122,9 @@ void TerminalBuffer::Resize(int cols, int rows) {
 		int d = m_rows - rows;
 		while (d > 0 && cy < m_rows - 1) {
 			const TermRow &last = m_main.back();
-			bool blank = std::all_of(last.cells.begin(), last.cells.end(),
-									 [](const TermCell &c) { return c.ch == U' '; });
+			bool blank =
+				std::all_of(last.cells.begin(), last.cells.end(),
+							[](const TermCell &c) { return c.ch == U' '; });
 			if (!blank)
 				break;
 			m_main.pop_back();
@@ -172,7 +173,8 @@ void TerminalBuffer::ScrollUp(int n) {
 				s.pop_front();
 		} else {
 			size_t base = s.size() - (size_t)m_rows;
-			s.insert(s.begin() + (long)(base + (size_t)m_bottom + 1), MakeRow());
+			s.insert(s.begin() + (long)(base + (size_t)m_bottom + 1),
+					 MakeRow());
 			s.erase(s.begin() + (long)(base + (size_t)m_top));
 		}
 	}
@@ -297,8 +299,15 @@ void TerminalBuffer::DeleteChars(int n) {
 
 void TerminalBuffer::SaveCursor() {
 	Saved &s = m_modes.altScreen ? m_savedAlt : m_saved;
-	s = Saved{m_x, m_y, m_fg, m_bg, m_attrs, m_wrapPending, m_modes.originMode,
-			  {m_charset[0], m_charset[1]}, m_gl};
+	s = Saved{m_x,
+			  m_y,
+			  m_fg,
+			  m_bg,
+			  m_attrs,
+			  m_wrapPending,
+			  m_modes.originMode,
+			  {m_charset[0], m_charset[1]},
+			  m_gl};
 }
 
 void TerminalBuffer::RestoreCursor() {
@@ -624,7 +633,8 @@ void TerminalBuffer::OscDispatch() {
 					if (enc[i] == '%' && i + 2 < enc.size() + 0 &&
 						isxdigit((unsigned char)enc[i + 1]) &&
 						isxdigit((unsigned char)enc[i + 2])) {
-						path += (char)std::stoi(enc.substr(i + 1, 2), nullptr, 16);
+						path +=
+							(char)std::stoi(enc.substr(i + 1, 2), nullptr, 16);
 						i += 2;
 					} else {
 						path += enc[i];
@@ -712,29 +722,52 @@ void TerminalBuffer::Sgr() {
 		if (p == 0) {
 			m_attrs = 0;
 			m_fg = m_bg = TermColor();
-		} else if (p == 1) m_attrs |= ATTR_BOLD;
-		else if (p == 2) m_attrs |= ATTR_DIM;
-		else if (p == 3) m_attrs |= ATTR_ITALIC;
-		else if (p == 4) m_attrs |= ATTR_UNDERLINE;
-		else if (p == 5 || p == 6) m_attrs |= ATTR_BLINK;
-		else if (p == 7) m_attrs |= ATTR_INVERSE;
-		else if (p == 8) m_attrs |= ATTR_HIDDEN;
-		else if (p == 9) m_attrs |= ATTR_STRIKE;
-		else if (p == 22) m_attrs &= ~(ATTR_BOLD | ATTR_DIM);
-		else if (p == 23) m_attrs &= ~ATTR_ITALIC;
-		else if (p == 24) m_attrs &= ~ATTR_UNDERLINE;
-		else if (p == 25) m_attrs &= ~ATTR_BLINK;
-		else if (p == 27) m_attrs &= ~ATTR_INVERSE;
-		else if (p == 28) m_attrs &= ~ATTR_HIDDEN;
-		else if (p == 29) m_attrs &= ~ATTR_STRIKE;
-		else if (p >= 30 && p <= 37) idx(m_fg, p - 30);
-		else if (p == 38) setExt(m_fg);
-		else if (p == 39) m_fg = TermColor();
-		else if (p >= 40 && p <= 47) idx(m_bg, p - 40);
-		else if (p == 48) setExt(m_bg);
-		else if (p == 49) m_bg = TermColor();
-		else if (p >= 90 && p <= 97) idx(m_fg, p - 90 + 8);
-		else if (p >= 100 && p <= 107) idx(m_bg, p - 100 + 8);
+		} else if (p == 1)
+			m_attrs |= ATTR_BOLD;
+		else if (p == 2)
+			m_attrs |= ATTR_DIM;
+		else if (p == 3)
+			m_attrs |= ATTR_ITALIC;
+		else if (p == 4)
+			m_attrs |= ATTR_UNDERLINE;
+		else if (p == 5 || p == 6)
+			m_attrs |= ATTR_BLINK;
+		else if (p == 7)
+			m_attrs |= ATTR_INVERSE;
+		else if (p == 8)
+			m_attrs |= ATTR_HIDDEN;
+		else if (p == 9)
+			m_attrs |= ATTR_STRIKE;
+		else if (p == 22)
+			m_attrs &= ~(ATTR_BOLD | ATTR_DIM);
+		else if (p == 23)
+			m_attrs &= ~ATTR_ITALIC;
+		else if (p == 24)
+			m_attrs &= ~ATTR_UNDERLINE;
+		else if (p == 25)
+			m_attrs &= ~ATTR_BLINK;
+		else if (p == 27)
+			m_attrs &= ~ATTR_INVERSE;
+		else if (p == 28)
+			m_attrs &= ~ATTR_HIDDEN;
+		else if (p == 29)
+			m_attrs &= ~ATTR_STRIKE;
+		else if (p >= 30 && p <= 37)
+			idx(m_fg, p - 30);
+		else if (p == 38)
+			setExt(m_fg);
+		else if (p == 39)
+			m_fg = TermColor();
+		else if (p >= 40 && p <= 47)
+			idx(m_bg, p - 40);
+		else if (p == 48)
+			setExt(m_bg);
+		else if (p == 49)
+			m_bg = TermColor();
+		else if (p >= 90 && p <= 97)
+			idx(m_fg, p - 90 + 8);
+		else if (p >= 100 && p <= 107)
+			idx(m_bg, p - 100 + 8);
 	}
 }
 
@@ -743,7 +776,8 @@ void TerminalBuffer::CsiDispatch(uint8_t f) {
 
 	if (!m_inter.empty()) {
 		if (m_inter == " " && f == 'q')
-			m_cursorStyle = std::clamp(m_params.empty() ? 1 : std::max(m_params[0], 0), 0, 6);
+			m_cursorStyle = std::clamp(
+				m_params.empty() ? 1 : std::max(m_params[0], 0), 0, 6);
 		return;
 	}
 	if (m_priv == '>' || m_priv == '=' || m_priv == '<') {
@@ -753,36 +787,91 @@ void TerminalBuffer::CsiDispatch(uint8_t f) {
 	}
 
 	switch (f) {
-	case 'A': m_y = std::max(m_y - Pn(0), m_y >= m_top ? m_top : 0); m_wrapPending = false; break;
-	case 'B': m_y = std::min(m_y + Pn(0), m_y <= m_bottom ? m_bottom : m_rows - 1); m_wrapPending = false; break;
-	case 'C': m_x = std::min(m_x + Pn(0), m_cols - 1); m_wrapPending = false; break;
-	case 'D': m_x = std::max(m_x - Pn(0), 0); m_wrapPending = false; break;
-	case 'E': m_x = 0; m_y = std::min(m_y + Pn(0), m_rows - 1); m_wrapPending = false; break;
-	case 'F': m_x = 0; m_y = std::max(m_y - Pn(0), 0); m_wrapPending = false; break;
+	case 'A':
+		m_y = std::max(m_y - Pn(0), m_y >= m_top ? m_top : 0);
+		m_wrapPending = false;
+		break;
+	case 'B':
+		m_y = std::min(m_y + Pn(0), m_y <= m_bottom ? m_bottom : m_rows - 1);
+		m_wrapPending = false;
+		break;
+	case 'C':
+		m_x = std::min(m_x + Pn(0), m_cols - 1);
+		m_wrapPending = false;
+		break;
+	case 'D':
+		m_x = std::max(m_x - Pn(0), 0);
+		m_wrapPending = false;
+		break;
+	case 'E':
+		m_x = 0;
+		m_y = std::min(m_y + Pn(0), m_rows - 1);
+		m_wrapPending = false;
+		break;
+	case 'F':
+		m_x = 0;
+		m_y = std::max(m_y - Pn(0), 0);
+		m_wrapPending = false;
+		break;
 	case 'G':
-	case '`': m_x = std::clamp(Pn(0) - 1, 0, m_cols - 1); m_wrapPending = false; break;
+	case '`':
+		m_x = std::clamp(Pn(0) - 1, 0, m_cols - 1);
+		m_wrapPending = false;
+		break;
 	case 'H':
-	case 'f': MoveTo(Pn(0) - 1, Pn(1) - 1); break;
-	case 'd': MoveTo(Pn(0) - 1, m_x); break;
-	case 'a': m_x = std::min(m_x + Pn(0), m_cols - 1); m_wrapPending = false; break;
-	case 'e': m_y = std::min(m_y + Pn(0), m_rows - 1); m_wrapPending = false; break;
-	case 'I': for (int n = Pn(0); n > 0; --n) Execute(0x09); break;
+	case 'f':
+		MoveTo(Pn(0) - 1, Pn(1) - 1);
+		break;
+	case 'd':
+		MoveTo(Pn(0) - 1, m_x);
+		break;
+	case 'a':
+		m_x = std::min(m_x + Pn(0), m_cols - 1);
+		m_wrapPending = false;
+		break;
+	case 'e':
+		m_y = std::min(m_y + Pn(0), m_rows - 1);
+		m_wrapPending = false;
+		break;
+	case 'I':
+		for (int n = Pn(0); n > 0; --n)
+			Execute(0x09);
+		break;
 	case 'Z':
 		for (int n = Pn(0); n > 0; --n) {
 			int x = m_x - 1;
-			while (x > 0 && !m_tabs[(size_t)x]) --x;
+			while (x > 0 && !m_tabs[(size_t)x])
+				--x;
 			m_x = std::max(x, 0);
 		}
 		break;
-	case 'J': EraseDisplay(m_params.empty() ? 0 : std::max(m_params[0], 0)); break;
-	case 'K': EraseLine(m_params.empty() ? 0 : std::max(m_params[0], 0)); break;
-	case 'L': InsertLines(Pn(0)); break;
-	case 'M': DeleteLines(Pn(0)); break;
-	case '@': InsertChars(Pn(0)); break;
-	case 'P': DeleteChars(Pn(0)); break;
-	case 'X': EraseCells(m_y, m_x, m_x + Pn(0)); break;
-	case 'S': ScrollUp(Pn(0)); break;
-	case 'T': ScrollDown(Pn(0)); break;
+	case 'J':
+		EraseDisplay(m_params.empty() ? 0 : std::max(m_params[0], 0));
+		break;
+	case 'K':
+		EraseLine(m_params.empty() ? 0 : std::max(m_params[0], 0));
+		break;
+	case 'L':
+		InsertLines(Pn(0));
+		break;
+	case 'M':
+		DeleteLines(Pn(0));
+		break;
+	case '@':
+		InsertChars(Pn(0));
+		break;
+	case 'P':
+		DeleteChars(Pn(0));
+		break;
+	case 'X':
+		EraseCells(m_y, m_x, m_x + Pn(0));
+		break;
+	case 'S':
+		ScrollUp(Pn(0));
+		break;
+	case 'T':
+		ScrollDown(Pn(0));
+		break;
 	case 'b':
 		for (int n = std::min(Pn(0), 65535); n > 0 && m_lastChar; --n)
 			Print(m_lastChar);
@@ -793,7 +882,9 @@ void TerminalBuffer::CsiDispatch(uint8_t f) {
 		else if (m_params.empty() || m_params[0] <= 0)
 			m_tabs[(size_t)m_x] = false;
 		break;
-	case 'm': Sgr(); break;
+	case 'm':
+		Sgr();
+		break;
 	case 'h':
 	case 'l':
 		for (int p : m_params)
@@ -801,7 +892,8 @@ void TerminalBuffer::CsiDispatch(uint8_t f) {
 		break;
 	case 'r': {
 		int t = Pn(0) - 1;
-		int b = (m_params.size() > 1 && m_params[1] > 0 ? m_params[1] : m_rows) - 1;
+		int b =
+			(m_params.size() > 1 && m_params[1] > 0 ? m_params[1] : m_rows) - 1;
 		if (t < b && b < m_rows) {
 			m_top = std::max(t, 0);
 			m_bottom = b;
@@ -809,14 +901,20 @@ void TerminalBuffer::CsiDispatch(uint8_t f) {
 		}
 		break;
 	}
-	case 's': SaveCursor(); break;
-	case 'u': RestoreCursor(); break;
+	case 's':
+		SaveCursor();
+		break;
+	case 'u':
+		RestoreCursor();
+		break;
 	case 'n': {
 		int p = m_params.empty() ? 0 : m_params[0];
-		if (p == 5) Respond("\x1b[0n");
+		if (p == 5)
+			Respond("\x1b[0n");
 		else if (p == 6) {
 			int row = m_y + 1 - (m_modes.originMode ? m_top : 0);
-			Respond("\x1b[" + std::to_string(row) + ";" + std::to_string(m_x + 1) + "R");
+			Respond("\x1b[" + std::to_string(row) + ";" +
+					std::to_string(m_x + 1) + "R");
 		}
 		break;
 	}
@@ -829,9 +927,9 @@ void TerminalBuffer::CsiDispatch(uint8_t f) {
 	}
 }
 
-void TerminalBuffer::Respond(const std::string& s) {
-    if (m_cb.onResponse)
-        m_cb.onResponse(s);
+void TerminalBuffer::Respond(const std::string &s) {
+	if (m_cb.onResponse)
+		m_cb.onResponse(s);
 }
 
 std::string TerminalBuffer::GetText(int l1, int c1, int l2, int c2) const {
@@ -851,7 +949,7 @@ std::string TerminalBuffer::GetText(int l1, int c1, int l2, int c2) const {
 				continue;
 			AppendUtf8(seg, cell.ch);
 		}
-		if (to == m_cols && !row.wrapped) 
+		if (to == m_cols && !row.wrapped)
 			while (!seg.empty() && seg.back() == ' ')
 				seg.pop_back();
 		out += seg;

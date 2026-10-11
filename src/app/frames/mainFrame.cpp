@@ -277,9 +277,24 @@ void MainFrame::OnNewWindow(wxCommandEvent &WXUNUSED(event)) {
 }
 
 void MainFrame::OnAbout(wxCommandEvent &WXUNUSED(event)) {
-	wxMessageBox(_("A fast, lightweight, and cross-platform code editor built "
-				   "with C++ and wxWidgets"),
-				 _("About Krafta Editor"), wxOK | wxICON_INFORMATION, this);
+	wxAboutDialogInfo info;
+	info.SetName("Krafta Editor");
+	info.SetVersion("0.9.2");
+	info.SetDescription("Native. Fast. Lightweight.\n"
+						"No Electron. No Chromium. No web stack.");
+	info.SetCopyright("© 2023–2026 Okarin Softwares");
+	info.SetLicence("GNU LGPLv3");
+	info.SetWebSite("https://github.com/apozinn/kraftaEditor");
+
+	wxIcon logoIcon;
+
+	if (logoIcon.LoadFile(ApplicationPaths::AssetsPath("images") +
+							  "kraftaEditor.ico",
+						  wxBITMAP_TYPE_ICO)) {
+		info.SetIcon(logoIcon);
+	}
+
+	wxAboutBox(info, this);
 }
 
 void MainFrame::OnPaintedComponent(wxPaintEvent &event) {

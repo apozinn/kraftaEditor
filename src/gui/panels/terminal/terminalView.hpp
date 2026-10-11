@@ -2,7 +2,8 @@
 
 /**
  * @file terminalView.hpp
- * @brief A terminal session: shell (PTY) + emulator + rendering/input in wxWidgets.
+ * @brief A terminal session: shell (PTY) + emulator + rendering/input in
+ * wxWidgets.
  */
 
 #include <atomic>
@@ -20,7 +21,7 @@ wxDECLARE_EVENT(EVT_TERMVIEW_TITLE, wxCommandEvent);
 wxDECLARE_EVENT(EVT_TERMVIEW_EXIT, wxCommandEvent);
 
 class TerminalView : public wxPanel {
-public:
+  public:
 	struct Config {
 		wxString shell;
 		wxArrayString args;
@@ -57,7 +58,7 @@ public:
 	wxString GetCwd() const { return m_cwd; }
 	void ApplyTheme();
 
-private:
+  private:
 	struct Pos {
 		int line = 0, col = 0;
 		bool operator<(const Pos &o) const {

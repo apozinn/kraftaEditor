@@ -9,8 +9,8 @@
 #include <wx/weakref.h>
 #include <wx/wx.h>
 
-#include "lsp/lspClient/lspClient.hpp"
 #include "languagesPreferences/languagesPreferences.hpp"
+#include "lsp/lspClient/lspClient.hpp"
 
 class TextCtrl;
 class AutoCompleteController;

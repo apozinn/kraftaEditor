@@ -1,7 +1,7 @@
 #pragma once
 #include "appPaths/appPaths.hpp"
-#include <nlohmann/json.hpp>
 #include <mutex>
+#include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
 
@@ -13,100 +13,102 @@ using json = nlohmann::json;
  *
  * @tparam T Type of the setting (int, bool, std::string, etc.)
  */
-template <typename T>
-struct RequestedSetting
-{
-    T value;    ///< Value of the setting
-    bool found; ///< True if the setting exists and is valid
+template <typename T> struct RequestedSetting {
+	T value;	///< Value of the setting
+	bool found; ///< True if the setting exists and is valid
 };
 
 /**
  * @class UserSettingsManager
- * @brief Singleton class for managing application user settings with JSON persistence
+ * @brief Singleton class for managing application user settings with JSON
+ * persistence
  *
  * Provides thread-safe access to user settings and ensures
  * consistency between in-memory and file-stored configuration.
  */
-class UserSettingsManager
-{
-public:
-    json currentSettings; ///< In-memory copy of current user settings
+class UserSettingsManager {
+  public:
+	json currentSettings; ///< In-memory copy of current user settings
 
-    /**
-     * @brief Gets the singleton instance of UserSettingsManager
-     * @return Reference to the singleton instance
-     * @note Thread-safe in C++11 and later
-     */
-    static UserSettingsManager &Get();
+	/**
+	 * @brief Gets the singleton instance of UserSettingsManager
+	 * @return Reference to the singleton instance
+	 * @note Thread-safe in C++11 and later
+	 */
+	static UserSettingsManager &Get();
 
-    /**
-     * @brief Updates settings with new data and persists to file
-     * @param data New settings data in JSON format
-     * @return true if update succeeded, false otherwise
-     * @note This will overwrite both the in-memory settings and the settings file
-     * @warning Will not update if file write fails (maintains consistency)
-     */
-    bool Update(const json &data);
+	/**
+	 * @brief Updates settings with new data and persists to file
+	 * @param data New settings data in JSON format
+	 * @return true if update succeeded, false otherwise
+	 * @note This will overwrite both the in-memory settings and the settings
+	 * file
+	 * @warning Will not update if file write fails (maintains consistency)
+	 */
+	bool Update(const json &data);
 
-    /**
-     * @brief Gets a typed setting from user settings
-     *
-     * Checks if the setting exists and is of the correct type.
-     *
-     * @tparam T Type of the setting (int, bool, std::string)
-     * @param settingName Name of the setting
-     * @return RequestedSetting<T> Struct containing value and found flag
-     */
-    template <typename T>
-    RequestedSetting<T> GetSetting(const std::string &token);
+	/**
+	 * @brief Gets a typed setting from user settings
+	 *
+	 * Checks if the setting exists and is of the correct type.
+	 *
+	 * @tparam T Type of the setting (int, bool, std::string)
+	 * @param settingName Name of the setting
+	 * @return RequestedSetting<T> Struct containing value and found flag
+	 */
+	template <typename T>
+	RequestedSetting<T> GetSetting(const std::string &token);
 
-    /**
-     * @brief Sets a typed setting in user settings
-     *
-     * @tparam T Type of the setting (int, bool, std::string)
-     * @param settingName Name of the setting
-     * @param value Value to set
-     * @return True if setting was successfully set, false otherwise
-     */
-    template <typename T>
-    bool SetSetting(const std::string &token, const T &value);
+	/**
+	 * @brief Sets a typed setting in user settings
+	 *
+	 * @tparam T Type of the setting (int, bool, std::string)
+	 * @param settingName Name of the setting
+	 * @param value Value to set
+	 * @return True if setting was successfully set, false otherwise
+	 */
+	template <typename T>
+	bool SetSetting(const std::string &token, const T &value);
 
-    /**
-     * @brief Loads settings from file or creates default settings if file doesn't exist
-     * @return json Loaded settings data
-     * @throws std::runtime_error if settings cannot be loaded
-     */
-    json LoadSettingsFromFile();
+	/**
+	 * @brief Loads settings from file or creates default settings if file
+	 * doesn't exist
+	 * @return json Loaded settings data
+	 * @throws std::runtime_error if settings cannot be loaded
+	 */
+	json LoadSettingsFromFile();
 
-    wxString SettingsPath; ///< Path to settings JSON file
-private:
-    json DefaultSettings;    ///< Default settings
-    std::mutex settingsMutex; ///< Mutex for thread safety
-    json EmergencyDefaultSettings = {"window", {"maximized", true, "sizeX", 1000, "sizeY", 700}}; ///< Emergency default settings
+	wxString SettingsPath; ///< Path to settings JSON file
+  private:
+	json DefaultSettings;	  ///< Default settings
+	std::mutex settingsMutex; ///< Mutex for thread safety
+	json EmergencyDefaultSettings = {"window",
+									 {"maximized", true, "sizeX", 1000, "sizeY",
+									  700}}; ///< Emergency default settings
 
-    /**
-     * @brief Private constructor for singleton pattern
-     *
-     * Initializes settings by loading from file or creating default
-     */
-    UserSettingsManager();
+	/**
+	 * @brief Private constructor for singleton pattern
+	 *
+	 * Initializes settings by loading from file or creating default
+	 */
+	UserSettingsManager();
 
-    /**
-     * @brief Saves settings to file
-     * @param data Settings JSON to save
-     * @return True if settings were successfully saved, false otherwise
-     */
-    bool SaveInternal(const nlohmann::json &data);
+	/**
+	 * @brief Saves settings to file
+	 * @param data Settings JSON to save
+	 * @return True if settings were successfully saved, false otherwise
+	 */
+	bool SaveInternal(const nlohmann::json &data);
 
-    /**
-     * @brief Creates a new settings file with default values
-     * @throws std::runtime_error if file creation fails
-     */
-    void CreateDefaultSettingsFile();
+	/**
+	 * @brief Creates a new settings file with default values
+	 * @throws std::runtime_error if file creation fails
+	 */
+	void CreateDefaultSettingsFile();
 
-    /**
-     * @brief Merges loaded settings with default values
-     * @param data Settings JSON to merge into (modified in-place)
-     */
-    json MergeWithDefaults(json &data);
+	/**
+	 * @brief Merges loaded settings with default values
+	 * @param data Settings JSON to merge into (modified in-place)
+	 */
+	json MergeWithDefaults(json &data);
 };

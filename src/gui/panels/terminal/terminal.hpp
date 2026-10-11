@@ -1,7 +1,7 @@
 #pragma once
 
-#include "themesManager/themesManager.hpp"
 #include "terminalView.hpp"
+#include "themesManager/themesManager.hpp"
 
 #include <wx/aui/auibook.h>
 #include <wx/aui/tabart.h>
@@ -14,15 +14,17 @@ class Terminal : public wxPanel {
 
 	TerminalView *NewSession(const wxString &cwd = wxEmptyString,
 							 const wxString &shell = wxEmptyString);
-	void CloseSession(int index = -1); 
+	void CloseSession(int index = -1);
 	TerminalView *Active() const;
 	int SessionCount() const;
-	
-	void RunCommand(const wxString &cmd); 
+
+	void RunCommand(const wxString &cmd);
 	void FocusActive();
 	void ClearActive();
 	void ApplyTheme();
-	void SetDefaultConfig(const TerminalView::Config &cfg) { m_defaultCfg = cfg; }
+	void SetDefaultConfig(const TerminalView::Config &cfg) {
+		m_defaultCfg = cfg;
+	}
 
   private:
 	void OnPageClose(wxAuiNotebookEvent &e);

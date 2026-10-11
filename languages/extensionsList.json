@@ -1,12 +1,23 @@
 {
-	".txt":  "txt",	
+  "CMakeLists.txt": "cmake",
+  "CMakeCache.txt": "cmake",
+  ".gitignore": "git",
+  "LICENSE": "license",
+  "Makefile": "makefile",
+  
+  ".txt":  "txt",	
   ".cmake": "cmake",
 
   ".cpp": "c++",
   ".cc": "c++",
   ".cxx": "c++",
   ".hpp": "c++",
-  ".h": "c++",
+  
+  ".c": "c",
+  ".h": "c",
+  
+  ".git": "git",
+  ".gitignore": "git",  
 
   ".cs": "csharp",
 
