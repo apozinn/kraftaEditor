@@ -11,6 +11,7 @@
 #include <thread>
 #include <unordered_map>
 #include <vector>
+
 #include <wx/string.h>
 
 class LspProcess;
@@ -27,6 +28,9 @@ struct LspTextChange {
 
 class LspClient : public std::enable_shared_from_this<LspClient> {
   public:
+	using ConnectionLostHandler = std::function<void()>;
+	using HandlerId = uint64_t;
+
 	LspClient();
 	~LspClient();
 
@@ -35,9 +39,8 @@ class LspClient : public std::enable_shared_from_this<LspClient> {
 	bool IsRunning() const { return m_running.load(); }
 	bool IsInitialized() const { return m_initialized.load(); }
 
-	void SetOnConnectionLost(std::function<void()> cb) {
-		m_onConnectionLost = std::move(cb);
-	}
+	HandlerId AddConnectionLostHandler(ConnectionLostHandler cb);
+	void RemoveConnectionLostHandler(HandlerId id);
 
 	void Initialize(const wxString &rootUri, std::function<void()> onReady);
 
@@ -76,6 +79,7 @@ class LspClient : public std::enable_shared_from_this<LspClient> {
 	void WriterLoop();
 	void OnConnectionLost();
 	void OnDataReceived(const std::string &raw);
+	void NotifyConnectionLost();
 
 	void Send(const std::string &body);
 	int SendRequest(const char *method, const nlohmann::json &params,
@@ -98,6 +102,7 @@ class LspClient : public std::enable_shared_from_this<LspClient> {
 
 	std::atomic<bool> m_running{false};
 	std::atomic<bool> m_initialized{false};
+	std::atomic<bool> m_initializeCalled{false};
 	bool m_stopWriter = false;
 
 	std::mutex m_outMutex;
@@ -113,6 +118,12 @@ class LspClient : public std::enable_shared_from_this<LspClient> {
 	std::unordered_map<std::string, std::vector<std::function<void()>>>
 		m_onDiagnosticsReady;
 
-	std::function<void()> m_onConnectionLost;
+	std::mutex m_connLostMutex;
+	std::unordered_map<HandlerId, ConnectionLostHandler> m_connLostHandlers;
+	HandlerId m_nextHandlerId = 1;
+
+	std::mutex m_readyCallbacksMutex;
+	std::vector<std::function<void()>> m_pendingReadyCallbacks;
+
 	int m_lastCompletionId = 0;
 };

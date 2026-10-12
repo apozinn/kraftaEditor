@@ -18,7 +18,6 @@
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
-
 using namespace PlatformInfos;
 
 bool KraftaEditor::OnInit() {

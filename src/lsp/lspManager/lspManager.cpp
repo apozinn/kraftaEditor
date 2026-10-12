@@ -1,16 +1,99 @@
 #include "lspManager.hpp"
-#include "userSettings/userSettings.hpp"
-#include <algorithm>
-#include <wx/app.h>
-#include <wx/dir.h>
+
+#include "appPaths/appPaths.hpp"
+#include "lsp/lspClient/lspClient.hpp"
+#include "lsp/lspDownloader/lspDownloader.hpp"
+#include "platformInfos/platformInfos.hpp"
+
+#include <wx/filename.h>
 #include <wx/msgdlg.h>
+#include <wx/utils.h>
+
+LspManager::LspManager() { m_lspFolderPath = LspDownloader::GetLspDir(); }
 
 LspManager &LspManager::Get() {
 	static LspManager instance;
 	return instance;
 }
 
-LspManager::LspManager() { m_lspFolderPath = LspDownloader::GetLspDir(); }
+std::shared_ptr<LspClient>
+LspManager::GetOrCreateClient(const wxString &workspaceRoot,
+							  const wxString &serverPath,
+							  const wxString &extraArgs) {
+	if (workspaceRoot.IsEmpty() || serverPath.IsEmpty())
+		return nullptr;
+
+	wxFileName fn(workspaceRoot);
+	fn.MakeAbsolute();
+	const std::string key = fn.GetFullPath().ToStdString();
+
+	std::lock_guard<std::mutex> lock(m_clientsMutex);
+
+	auto it = m_clients.find(key);
+	if (it != m_clients.end()) {
+		auto &client = it->second;
+		if (client && client->IsRunning())
+			return client;
+		m_clients.erase(it);
+	}
+
+	auto client = std::make_shared<LspClient>();
+	if (!client->Start(serverPath, extraArgs))
+		return nullptr;
+
+	m_clients[key] = client;
+	return client;
+}
+
+std::shared_ptr<LspClient>
+LspManager::GetClient(const wxString &workspaceRoot) const {
+	if (workspaceRoot.IsEmpty())
+		return nullptr;
+
+	wxFileName fn(workspaceRoot);
+	fn.MakeAbsolute();
+	const std::string key = fn.GetFullPath().ToStdString();
+
+	std::lock_guard<std::mutex> lock(m_clientsMutex);
+	auto it = m_clients.find(key);
+	if (it != m_clients.end() && it->second && it->second->IsRunning())
+		return it->second;
+	return nullptr;
+}
+
+void LspManager::ReleaseClient(const wxString &workspaceRoot) {
+	if (workspaceRoot.IsEmpty())
+		return;
+
+	wxFileName fn(workspaceRoot);
+	fn.MakeAbsolute();
+	const std::string key = fn.GetFullPath().ToStdString();
+
+	std::shared_ptr<LspClient> client;
+	{
+		std::lock_guard<std::mutex> lock(m_clientsMutex);
+		auto it = m_clients.find(key);
+		if (it == m_clients.end())
+			return;
+		client = it->second;
+		m_clients.erase(it);
+	}
+
+	if (client)
+		client->Stop();
+}
+
+void LspManager::ShutdownAll() {
+	std::unordered_map<std::string, std::shared_ptr<LspClient>> copy;
+	{
+		std::lock_guard<std::mutex> lock(m_clientsMutex);
+		copy.swap(m_clients);
+	}
+
+	for (auto &[key, client] : copy)
+		if (client)
+			client->Stop();
+}
 
 bool LspManager::IsServerInstalled(const wxString &serverName) {
 	if (serverName == "clangd") {
@@ -169,60 +252,11 @@ void LspManager::VerifyCppLsp(std::function<void(bool)> onComplete) {
 										 .get<std::string>();
 
 		clangdUrl =
-			languagePreferencesObject["lsp"]["server"]["download"]["url"]
+			languagePreferencesObject["lsp"]["server"]["download"]["urls"]
 									 [PlatformInfos::OsNameView()];
 	} catch (const std::exception &e) {
 		wxMessageBox(_("Could not find the C++ LSP path."), e.what());
 	}
 
 	VerifyIfLanguageHasLsp("C++", "clangd", clangdUrl, onComplete);
-}
-
-LspClient *LspManager::GetClient(const wxString &serverName) {
-	auto it = m_clients.find(serverName);
-	if (it != m_clients.end()) {
-		return it->second.get();
-	}
-	return nullptr;
-}
-
-bool LspManager::StartServer(const wxString &serverName,
-							 const wxString &rootUri,
-							 std::function<void()> onReady) {
-	wxString serverPath = GetServerPath(serverName);
-	if (serverPath.empty()) {
-		return false;
-	}
-
-	auto it = m_clients.find(serverName);
-	if (it != m_clients.end() && it->second->IsRunning()) {
-		return true;
-	}
-
-	auto client = std::make_unique<LspClient>();
-	if (!client->Start(serverPath, "")) {
-		return false;
-	}
-
-	LspClient *clientPtr = client.get();
-	m_clients[serverName] = std::move(client);
-
-	clientPtr->Initialize(rootUri, onReady);
-
-	return true;
-}
-
-void LspManager::StopServer(const wxString &serverName) {
-	auto it = m_clients.find(serverName);
-	if (it != m_clients.end()) {
-		it->second->Stop();
-		m_clients.erase(it);
-	}
-}
-
-void LspManager::StopAllServers() {
-	for (auto &pair : m_clients) {
-		pair.second->Stop();
-	}
-	m_clients.clear();
 }

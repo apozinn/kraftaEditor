@@ -143,6 +143,7 @@ void FilesTree::CloseProject() {
 		m_projectInformations->Hide();
 
 	SetFileHighlight(wxEmptyString);
+	LspManager::Get().ReleaseClient(ProjectSettings::Get().GetProjectPath());
 }
 
 void FilesTree::CreateDirectoryComponents(wxWindow *parent,

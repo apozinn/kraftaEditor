@@ -388,6 +388,8 @@ void MainFrame::OnClose(wxCloseEvent &event) {
 		wxDELETE(m_watcher);
 	}
 
+	LspManager::Get().ShutdownAll();
+
 	Destroy();
 	event.Skip(false);
 }

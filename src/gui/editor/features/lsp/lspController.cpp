@@ -122,23 +122,6 @@ void LspController::CreateLspClientInstance() {
 	if (filePath.empty())
 		return;
 
-	m_lsp.reset();
-	m_lsp = std::make_shared<LspClient>();
-	m_starting = true;
-	m_ready = false;
-	m_pending.clear();
-	m_fullSyncPending = false;
-
-	m_lsp->SetOnConnectionLost([this]() {
-		if (!Alive())
-			return;
-		m_ready = false;
-		m_starting = false;
-		m_pending.clear();
-		if (++m_restartCount <= 5)
-			m_restartTimer.StartOnce(500 * m_restartCount);
-	});
-
 	wxString extraArgs;
 	if (serverName == "clangd") {
 		wxString projectPath = ProjectSettings::Get().GetProjectPath();
@@ -164,18 +147,38 @@ void LspController::CreateLspClientInstance() {
 		m_languageId = "plaintext";
 	}
 
-	if (!m_lsp->Start(serverPath, extraArgs)) {
-		m_lsp.reset();
+	const wxString workspaceRoot = ProjectSettings::Get().GetProjectPath();
+
+	m_lsp = LspManager::Get().GetOrCreateClient(workspaceRoot, serverPath,
+												extraArgs);
+
+	if (!m_lsp) {
 		m_starting = false;
 		return;
 	}
 
-	m_uri = PathToUri(filePath, false);
-	const wxString root =
-		PathToUri(ProjectSettings::Get().GetProjectPath(), true);
+	m_starting = true;
+	m_ready = false;
+	m_pending.clear();
+	m_fullSyncPending = false;
 
-	m_lsp->Initialize(root, [this]() {
+	m_connLostHandlerId = m_lsp->AddConnectionLostHandler([this]() {
 		if (!Alive())
+			return;
+		m_ready = false;
+		m_starting = false;
+		m_pending.clear();
+		if (++m_restartCount <= 5)
+			m_restartTimer.StartOnce(500 * m_restartCount);
+	});
+
+	m_uri = PathToUri(filePath, false);
+	const wxString root = PathToUri(workspaceRoot, true);
+
+	auto weakSelf = wxWeakRef<LspController>(this);
+
+	auto afterInit = [this, weakSelf]() {
+		if (!weakSelf || !Alive())
 			return;
 		if (!m_lsp || !m_lsp->IsInitialized()) {
 			m_starting = false;
@@ -187,7 +190,13 @@ void LspController::CreateLspClientInstance() {
 		m_lsp->DidOpen(m_uri, m_languageId, m_stc->GetText(), m_version);
 		m_ready = true;
 		m_starting = false;
-	});
+	};
+
+	if (m_lsp->IsInitialized()) {
+		afterInit();
+	} else {
+		m_lsp->Initialize(root, afterInit);
+	}
 }
 
 void LspController::OnRestartTimer(wxTimerEvent &) {
@@ -225,12 +234,19 @@ void LspController::Stop() {
 		m_stc = nullptr;
 	}
 
-	m_ready = false;
-
 	if (m_lsp) {
-		m_lsp->Stop();
+		if (m_ready)
+			m_lsp->DidClose(m_uri);
+
+		if (m_connLostHandlerId != 0) {
+			m_lsp->RemoveConnectionLostHandler(m_connLostHandlerId);
+			m_connLostHandlerId = 0;
+		}
+
 		m_lsp.reset();
 	}
+
+	m_ready = false;
 }
 
 void LspController::LspPosition(int pos, int &line, int &utf16Col) const {

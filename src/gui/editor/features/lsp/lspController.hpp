@@ -81,4 +81,6 @@ class LspController : public wxEvtHandler {
 	bool m_lastIncomplete = false;
 	int m_trigKind = 1;
 	std::string m_trigChar;
+
+	LspClient::HandlerId m_connLostHandlerId = 0;
 };

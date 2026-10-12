@@ -1,9 +1,12 @@
 #include "lspClient.hpp"
 
+#include <algorithm>
 #include <csignal>
 #include <cstdlib>
 #include <nlohmann/json.hpp>
+
 #include <wx/app.h>
+#include <wx/filefn.h>
 #include <wx/process.h>
 #include <wx/utils.h>
 
@@ -46,6 +49,37 @@ static json TextDoc(const wxString &uri) {
 
 LspClient::LspClient() = default;
 LspClient::~LspClient() { Stop(); }
+
+LspClient::HandlerId
+LspClient::AddConnectionLostHandler(ConnectionLostHandler cb) {
+	if (!cb)
+		return 0;
+
+	std::lock_guard<std::mutex> lk(m_connLostMutex);
+	const HandlerId id = m_nextHandlerId++;
+	m_connLostHandlers[id] = std::move(cb);
+	return id;
+}
+
+void LspClient::RemoveConnectionLostHandler(HandlerId id) {
+	if (id == 0)
+		return;
+	std::lock_guard<std::mutex> lk(m_connLostMutex);
+	m_connLostHandlers.erase(id);
+}
+
+void LspClient::NotifyConnectionLost() {
+	std::vector<ConnectionLostHandler> copy;
+	{
+		std::lock_guard<std::mutex> lk(m_connLostMutex);
+		copy.reserve(m_connLostHandlers.size());
+		for (auto &[id, cb] : m_connLostHandlers)
+			if (cb)
+				copy.push_back(cb);
+	}
+	for (auto &cb : copy)
+		cb();
+}
 
 bool LspClient::Start(const wxString &serverPath, const wxString &extraArgs) {
 	if (m_running.load() || m_process)
@@ -92,16 +126,19 @@ void LspClient::Stop() {
 
 	m_running.store(false);
 	m_initialized.store(false);
-	m_onConnectionLost = nullptr;
 
 	{
-		std::lock_guard<std::mutex> lk(m_pendingMutex);
-		m_pending.clear();
+		std::lock_guard<std::mutex> lk(m_connLostMutex);
+		m_connLostHandlers.clear();
 	}
 	{
 		std::lock_guard<std::mutex> lk(m_handlerMutex);
 		m_notificationHandlers.clear();
 		m_onDiagnosticsReady.clear();
+	}
+	{
+		std::lock_guard<std::mutex> lk(m_readyCallbacksMutex);
+		m_pendingReadyCallbacks.clear();
 	}
 	{
 		std::lock_guard<std::mutex> lk(m_outMutex);
@@ -133,10 +170,7 @@ void LspClient::OnConnectionLost() {
 		std::lock_guard<std::mutex> lk(m_pendingMutex);
 		m_pending.clear();
 	}
-	if (m_onConnectionLost) {
-		auto cb = m_onConnectionLost;
-		cb();
-	}
+	NotifyConnectionLost();
 }
 
 void LspClient::ReaderLoop() {
@@ -302,6 +336,18 @@ void LspClient::Initialize(const wxString &rootUri,
 		return;
 	}
 
+	if (m_initializeCalled.exchange(true)) {
+		if (m_initialized.load()) {
+			if (onReady)
+				onReady();
+		} else {
+			std::lock_guard<std::mutex> lk(m_readyCallbacksMutex);
+			if (onReady)
+				m_pendingReadyCallbacks.push_back(std::move(onReady));
+		}
+		return;
+	}
+
 	std::string root(rootUri.utf8_str());
 
 	json caps = {
@@ -332,12 +378,23 @@ void LspClient::Initialize(const wxString &rootUri,
 					json j = json::parse(response, nullptr, false);
 					bool ok = !j.is_discarded() && j.is_object() &&
 							  j.contains("result") && !j.contains("error");
+
 					if (ok) {
 						SendInitialized();
 						m_initialized.store(true);
 					}
+
 					if (onReady)
 						onReady();
+
+					std::vector<std::function<void()>> pending;
+					{
+						std::lock_guard<std::mutex> lk(m_readyCallbacksMutex);
+						pending.swap(m_pendingReadyCallbacks);
+					}
+					for (auto &cb : pending)
+						if (cb)
+							cb();
 				});
 }
 
