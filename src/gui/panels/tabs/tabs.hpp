@@ -111,13 +111,7 @@ class Tabs : public wxPanel {
 	 * @param event The mouse event.
 	 */
 	void OnLeaveComp(wxMouseEvent &event);
-
-	/**
-	 * @brief Handles paint event for the main Tabs panel.
-	 * @param WXUNUSED(event) The paint event.
-	 */
-	void OnPaint(wxPaintEvent &WXUNUSED(event));
-
+    
 	/**
 	 * @brief Handles paint event for individual tab panels (used for drawing
 	 * separators, etc.).

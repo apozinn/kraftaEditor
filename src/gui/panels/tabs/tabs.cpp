@@ -43,8 +43,6 @@ Tabs::Tabs(wxPanel *parent, wxWindowID ID) : wxPanel(parent, ID) {
 	tabsContainer->SetScrollRate(20, 20);
 	tabsContainer->EnableScrolling(true, false);
 
-	Bind(wxEVT_PAINT, &Tabs::OnPaint, this);
-
 	SetLabel("tabsContainer");
 	Hide();
 }
@@ -493,14 +491,6 @@ void Tabs::OnLeaveComp(wxMouseEvent &event) {
 		}
 		Layout();
 	}
-}
-
-void Tabs::OnPaint(wxPaintEvent &WXUNUSED(event)) {
-	wxPaintDC dc(this);
-	dc.SetBrush(ThemesManager::Get().GetColor("border"));
-	dc.SetPen(wxPen(ThemesManager::Get().GetColor("border"), 0.20));
-	dc.DrawLine(0, GetSize().GetHeight() - 1, GetSize().GetWidth(),
-				GetSize().GetHeight() - 1);
 }
 
 void Tabs::OnTabPaint(wxPaintEvent &event) {
