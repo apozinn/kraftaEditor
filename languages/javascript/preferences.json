@@ -1,6 +1,6 @@
 {
     "name": "javaScript",
-    "icon_file_name": "javascript",
+    "icon_file_name": "js_official",
     "file_patterns": [
         "js",
         "jsx",

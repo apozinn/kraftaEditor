@@ -223,11 +223,10 @@ enum class Shortcuts : wxWindowID {
  * @brief Integrated terminal control and navigation.
  */
 enum class Terminal : wxWindowID {
-	Open = ID_BASE_TERMINAL + 1,
-	Exit = ID_BASE_TERMINAL + 2,
-	ControlUp = ID_BASE_TERMINAL + 3,
-	ControlDown = ID_BASE_TERMINAL + 4,
-	ControlSelect = ID_BASE_TERMINAL + 5
+	ToggleView = ID_BASE_TERMINAL + 1,
+	ControlUp = ID_BASE_TERMINAL + 2,
+	ControlDown = ID_BASE_TERMINAL + 3,
+	ControlSelect = ID_BASE_TERMINAL + 4
 };
 
 /**

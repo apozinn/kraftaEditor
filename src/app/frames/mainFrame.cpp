@@ -210,7 +210,7 @@ void MainFrame::SetupStatusBar() {
 }
 
 void MainFrame::SetupAccelerators() {
-	wxAcceleratorEntry entries[4];
+	wxAcceleratorEntry entries[5];
 
 	entries[0].Set(wxACCEL_CTRL, WXK_SHIFT, +Event::View::ToggleMenuBar);
 	entries[0].FromString("Ctrl+Shift+M");
@@ -224,7 +224,10 @@ void MainFrame::SetupAccelerators() {
 	entries[3].Set(wxACCEL_CTRL, WXK_CONTROL_F, +Event::View::ToggleCodeSearch);
 	entries[3].FromString("Ctrl+F");
 
-	wxAcceleratorTable accel(4, entries);
+	entries[4].Set(wxACCEL_CTRL, WXK_SHIFT, +Event::Terminal::ToggleView);
+	entries[4].FromString("Ctrl+Shift+T");
+
+	wxAcceleratorTable accel(5, entries);
 	SetAcceleratorTable(accel);
 }
 

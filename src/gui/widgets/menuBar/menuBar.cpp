@@ -145,8 +145,8 @@ MenuBar::MenuBar() {
 						  GetSC("shortcut_command_palette"));
 	menuTools->Append(+Event::View::ToggleQuickOpen,
 					  _("&Quick Open") + GetSC("shortcut_quick_open"));
-	menuTools->Append(+Event::Terminal::Open,
-					  _("&Open Terminal") + GetSC("shortcut_open_terminal"));
+	menuTools->Append(+Event::Terminal::ToggleView,
+					  _("&Toggle Terminal") + GetSC("shortcut_open_terminal"));
 	menuTools->AppendSeparator();
 	menuTools->Append(+Event::Edit::GoToLine,
 					  _("&Go to Line") + GetSC("shortcut_go_to_line"));

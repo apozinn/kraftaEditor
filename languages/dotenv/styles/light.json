@@ -1,0 +1,36 @@
+{
+  "font_default": {
+    "size": 12,
+    "family": "JetBrains Mono"
+  },
+  "styles": {
+    "0":  { "name": "Default",                     "foreground": "#1E1E1E" },
+    "1":  { "name": "Comment",                     "foreground": "#008000" },
+    "2":  { "name": "Comment Line",                "foreground": "#008000" },
+    "3":  { "name": "Comment Doc",                 "foreground": "#008000" },
+    "4":  { "name": "Number",                      "foreground": "#098658" },
+    "5":  { "name": "Keyword",                     "foreground": "#0000FF" },
+    "6":  { "name": "String",                      "foreground": "#A31515" },
+    "7":  { "name": "Character",                   "foreground": "#A31515" },
+    "8":  { "name": "UUID",                        "foreground": "#2B91AF" },
+    "9":  { "name": "Preprocessor",                "foreground": "#800000" },
+    "10": { "name": "Operator",                    "foreground": "#000000" },
+    "11": { "name": "Identifier",                  "foreground": "#1E1E1E" },
+    "12": { "name": "String EOL",                  "foreground": "#A31515" },
+    "13": { "name": "Verbatim",                    "foreground": "#A31515" },
+    "14": { "name": "Regex",                       "foreground": "#811F3F" },
+    "15": { "name": "Comment Line Doc",            "foreground": "#008000" },
+    "16": { "name": "Keyword 2",                   "foreground": "#AF00DB" },
+    "17": { "name": "Comment Doc Keyword",         "foreground": "#0451A5" },
+    "18": { "name": "Comment Doc Keyword Error",   "foreground": "#FF0000" },
+    "19": { "name": "Global Class",                "foreground": "#2B91AF" },
+    "20": { "name": "Raw String",                  "foreground": "#A31515" },
+    "21": { "name": "Triple Verbatim String",      "foreground": "#A31515" },
+    "22": { "name": "Hash Quoted String",          "foreground": "#A31515" },
+    "23": { "name": "Preprocessor Comment",        "foreground": "#008000" },
+    "24": { "name": "Preprocessor Comment Doc",    "foreground": "#008000" },
+    "25": { "name": "User Literal",                "foreground": "#098658" },
+    "26": { "name": "Task Marker",                 "foreground": "#811F3F" },
+    "27": { "name": "Escape Sequence",             "foreground": "#A31515" }
+  }
+}

@@ -35,7 +35,7 @@ bool KraftaEditor::OnInit() {
 		LoadTranslations();
 
 		SetupThemeManager();
-        VerifyIfSytemIsDarkMode();
+		VerifyIfSytemIsDarkMode();
 		SetupUserSettings();
 
 		if (!SetupApplicationDirectories())

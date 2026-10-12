@@ -162,7 +162,9 @@ wxPanel *ControlPanel::CreateMenuRow(const ControlMenu &menu) {
 
 	auto *rowSizer = new wxBoxSizer(wxHORIZONTAL);
 
-	auto *nameText = new wxStaticText(row, wxID_ANY, menu.name);
+	wxString translated = wxGetTranslation(menu.name);
+
+	auto *nameText = new wxStaticText(row, wxID_ANY, translated);
 	nameText->SetName(wxString::Format("%d", menu.id));
 	nameText->SetFont(MakeMonospaceFont(10));
 	nameText->SetForegroundColour(m_textColor);
@@ -306,13 +308,11 @@ void ControlPanel::Select(const wxString &id) {
 
 	switch (commandId) {
 	case 1: {
-		auto *splitter = dynamic_cast<wxSplitterWindow *>(
-			FindWindowById(+GUI::ControlID::MainContainerSplitter));
-		auto *content = FindWindowById(+GUI::ControlID::CenteredContent);
-		auto *terminal = FindWindowById(+GUI::ControlID::Terminal);
-
-		if (splitter && content && terminal)
-			splitter->SplitHorizontally(content, terminal, 0);
+		if (auto *mainFrame =
+				dynamic_cast<MainFrame *>(wxTheApp->GetTopWindow())) {
+			wxCommandEvent evt(wxEVT_MENU, +Event::Terminal::ToggleView);
+			wxPostEvent(mainFrame, evt);
+		}
 	} break;
 
 	case 2: {

@@ -74,7 +74,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
 					EVT_MENU(+Event::Edit::GoToLine, MainFrame::OnGotoline)
 
 	// Terminal
-	EVT_MENU(+Event::Terminal::Open, MainFrame::OnOpenTerminal)
+	EVT_MENU(+Event::Terminal::ToggleView, MainFrame::OnOpenTerminal)
 
 	// Settings
 	EVT_MENU(+Event::UserSettings::Edit, MainFrame::OnEditSettings)

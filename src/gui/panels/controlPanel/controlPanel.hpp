@@ -61,7 +61,7 @@ class ControlPanel : public wxPanel {
 	wxString m_iconsDir;
 
 	const std::vector<ControlMenu> m_menus{
-		{"Open Terminal", "Ctrl+Shift+T", 1},
+		{"Toggle Terminal", "Ctrl+Shift+T", 1},
 		{"Toggle Menu Bar", "Ctrl+Shift+M", 2},
 		{"Select Application Theme", "", 3},
 	};
