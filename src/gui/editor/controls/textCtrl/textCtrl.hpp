@@ -116,11 +116,11 @@ class TextCtrl : public wxStyledTextCtrl {
 	void OnHorizontalScroll(wxMouseEvent &event);
 
 	ProjectSettings &projectSettings = ProjectSettings::Get();
-	wxStyledTextCtrlMiniMap *minimap = nullptr;
 	wxString currentPath;
 	languagePreferencesStruct m_languagePreferences;
 	AutoCompleteController *m_autocompleteController = nullptr;
 	LspController *m_lspController = nullptr;
+	wxStyledTextCtrlMiniMap *minimap = nullptr;
 	StatusBar *statusBar =
 		((StatusBar *)FindWindowById(+GUI::ControlID::StatusBar));
 	wxDECLARE_NO_COPY_CLASS(TextCtrl);

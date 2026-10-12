@@ -33,7 +33,8 @@ wxFont MakeMonospaceFont(int size, wxFontWeight weight = wxFONTWEIGHT_NORMAL) {
 } // namespace
 
 ControlPanel::ControlPanel(wxFrame *parent, wxWindowID id)
-	: wxPanel(parent, id, wxDefaultPosition, wxSize(kPanelWidth, kPanelHeight),
+	: m_frameParent(parent),
+	  wxPanel(parent, id, wxDefaultPosition, wxSize(kPanelWidth, kPanelHeight),
 			  wxBORDER_SIMPLE | wxTAB_TRAVERSAL) {
 	if (!parent) {
 		wxLogError("ControlPanel: parent frame is null");
@@ -320,6 +321,10 @@ void ControlPanel::Select(const wxString &id) {
 			wxCommandEvent evt(wxEVT_MENU, +Event::View::ToggleMenuBar);
 			wxPostEvent(mainFrame, evt);
 		}
+	} break;
+
+	case 3: {
+		OpenThemeSelectionPanel();
 	} break;
 
 	default:

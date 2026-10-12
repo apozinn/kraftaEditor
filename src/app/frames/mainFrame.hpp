@@ -45,6 +45,7 @@ using json = nlohmann::json;
 #include "platformInfos/platformInfos.hpp"
 #include "projectSettings/projectSettings.hpp"
 #include "shortcutsSettings/shortcutsSettings.hpp"
+#include "themesManager/themeApplier.hpp"
 #include "themesManager/themesManager.hpp"
 #include "ui/ids.hpp"
 #include "userSettings/userSettings.hpp"

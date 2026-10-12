@@ -29,6 +29,7 @@ MainFrame::MainFrame(const wxString &title)
 
 	SetSizer(sizer);
 	SetDropTarget(new FrameFileDropTarget(this));
+	ThemeApplier::ApplyTheme(this, ThemesManager::Get().currentTheme);
 }
 
 MainFrame::~MainFrame() { delete m_watcher; }

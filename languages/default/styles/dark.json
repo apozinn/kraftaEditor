@@ -14,7 +14,7 @@
     "7":  { "name": "Character",                   "foreground": "#D7BA7D" },
     "8":  { "name": "UUID",                        "foreground": "#4EC9B0" },
     "9":  { "name": "Preprocessor",                "foreground": "#C586C0" },
-    "10": { "name": "Operator",                    "foreground": "#4EC9B0" },
+    "10": { "name": "Operator",                    "foreground": "#D4D4D4" },
     "11": { "name": "Identifier",                  "foreground": "#D4D4D4" },
     "12": { "name": "String EOL",                  "foreground": "#CE9178" },
     "13": { "name": "Verbatim",                    "foreground": "#CE9178" },
@@ -30,7 +30,7 @@
     "23": { "name": "Preprocessor Comment",        "foreground": "#6A9955" },
     "24": { "name": "Preprocessor Comment Doc",    "foreground": "#6A9955" },
     "25": { "name": "User Literal",                "foreground": "#B5CEA8" },
-    "26": { "name": "Task Marker",                 "foreground": "#D16969" },
+    "26": { "name": "Task Marker",                 "foreground": "#C586C0" },
     "27": { "name": "Escape Sequence",             "foreground": "#D7BA7D" }
   }
 }

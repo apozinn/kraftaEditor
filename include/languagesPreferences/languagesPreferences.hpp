@@ -52,6 +52,7 @@ class LanguagesPreferences {
 	 * @note Thread-safe in C++11 and later (magic static)
 	 */
 	static LanguagesPreferences &Get();
+	void Reload();
 
 	/**
 	 * @brief Configures editor components for a specific language

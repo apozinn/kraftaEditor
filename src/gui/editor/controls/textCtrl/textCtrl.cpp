@@ -7,7 +7,6 @@ TextCtrl::TextCtrl(wxWindow *parent)
 
 	BindEvents();
 	InitializePreferences();
-	SetupStyles();
 	ConfigureFoldMargin();
 	SetupAcceleratorTable();
 }
@@ -121,29 +120,6 @@ void TextCtrl::InitializePreferences() {
 	SetFocus();
 }
 
-void TextCtrl::SetupStyles() {
-	auto backgroundColor = ThemesManager::Get().GetColor("secondary");
-	auto textColor = ThemesManager::Get().GetColor("text");
-	auto secondaryTextColor = ThemesManager::Get().GetColor("secondaryText");
-	auto caretColor = ThemesManager::Get().GetColor("editorCaret");
-
-	StyleSetBackground(wxSTC_STYLE_DEFAULT, wxColor(backgroundColor));
-	StyleSetForeground(wxSTC_STYLE_DEFAULT, wxColor(textColor));
-	StyleClearAll();
-
-	SetCaretForeground(caretColor);
-
-	SetMarginWidth(EditorConstants::LINE_NUMBER_MARGIN,
-				   TextWidth(wxSTC_STYLE_LINENUMBER, wxT("_99999")));
-	SetMarginType(EditorConstants::LINE_NUMBER_MARGIN, wxSTC_MARGIN_NUMBER);
-
-	StyleSetForeground(wxSTC_STYLE_LINENUMBER, wxColor(secondaryTextColor));
-	StyleSetBackground(wxSTC_STYLE_LINENUMBER, wxColor(backgroundColor));
-
-	StyleSetBackground(wxSTC_STYLE_INDENTGUIDE, wxColor(backgroundColor));
-	StyleSetForeground(wxSTC_STYLE_INDENTGUIDE, wxColor(secondaryTextColor));
-}
-
 void TextCtrl::SetupAcceleratorTable() {
 	wxAcceleratorEntry entries[] = {
 		{wxACCEL_CTRL, WXK_RETURN,
@@ -173,18 +149,11 @@ void TextCtrl::SetupAcceleratorTable() {
 }
 
 void TextCtrl::ConfigureFoldMargin() {
-	auto backgroundColor = ThemesManager::Get().GetColor("secondary");
-
 	SetMarginWidth(EditorConstants::FOLD_MARGIN,
 				   EditorConstants::FOLD_MARGIN_WIDTH);
 	SetMarginType(EditorConstants::FOLD_MARGIN, wxSTC_MARGIN_SYMBOL);
 	SetMarginMask(EditorConstants::FOLD_MARGIN, wxSTC_MASK_FOLDERS);
 	SetMarginSensitive(EditorConstants::FOLD_MARGIN, true);
-
-	SetFoldMarginColour(true, wxColor(backgroundColor));
-	SetFoldMarginHiColour(true, wxColor(backgroundColor));
-	SetFoldFlags(wxSTC_FOLDFLAG_LINEAFTER_CONTRACTED |
-				 wxSTC_FOLDFLAG_LINEBEFORE_EXPANDED);
 }
 
 TextCtrl *TextCtrl::GetFocusedTextCtrl() {
@@ -564,7 +533,10 @@ void TextCtrl::RecreateMinimap() {
 		wxMilliSleep(50);
 		wxTheApp->Yield(true);
 
-		delete minimap;
+		if (auto minimap = parent->GetChildren()[1]) {
+			minimap->Destroy();
+			minimap = nullptr;
+		}
 
 		minimap = new wxStyledTextCtrlMiniMap(parent, this);
 

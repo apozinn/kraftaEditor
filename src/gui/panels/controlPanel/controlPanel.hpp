@@ -41,6 +41,7 @@ class ControlPanel : public wxPanel {
 	void ClearRowHighlight(wxPanel *row);
 	void UpdateSelectionVisual(wxPanel *oldRow, wxPanel *newRow);
 	void ScrollSelectionIntoView(wxWindow *row);
+	void OpenThemeSelectionPanel();
 
 	void OnSearchKeyDown(wxKeyEvent &event);
 	void OnRowEnter(wxMouseEvent &event);
@@ -50,6 +51,7 @@ class ControlPanel : public wxPanel {
 	wxPanel *m_selectedMenu{nullptr};
 	wxTextCtrl *m_searchInput{nullptr};
 	wxBoxSizer *m_sizer{nullptr};
+	wxWeakRef<wxFrame> m_frameParent = nullptr;
 
 	wxColour m_bgColor;
 	wxColour m_selectedColor;
@@ -61,6 +63,7 @@ class ControlPanel : public wxPanel {
 	const std::vector<ControlMenu> m_menus{
 		{"Open Terminal", "Ctrl+Shift+T", 1},
 		{"Toggle Menu Bar", "Ctrl+Shift+M", 2},
+		{"Select Application Theme", "", 3},
 	};
 
 	wxDECLARE_NO_COPY_CLASS(ControlPanel);

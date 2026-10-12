@@ -19,5 +19,8 @@
         "confirmFileDelete": true,
         "confirmDirDelete": true,
         "dontAskForInstallLspList": []
+    },
+    "theme": {
+      "themeFilePath": ""
     }
 }

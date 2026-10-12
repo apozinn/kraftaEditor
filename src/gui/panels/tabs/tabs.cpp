@@ -11,7 +11,7 @@ Tabs::Tabs(wxPanel *parent, wxWindowID ID) : wxPanel(parent, ID) {
 	tabsContainerSizer = new wxBoxSizer(wxHORIZONTAL);
 	tabsContainer->SetSizerAndFit(tabsContainerSizer);
 
-	sizer->Add(tabsContainer, 1, wxEXPAND | wxTOP | wxBOTTOM, 5);
+	sizer->Add(tabsContainer, 1, wxEXPAND);
 
 	if (ID != (+GUI::ControlID::SplitEditorTabs)) {
 		wxPanel *rightMenus = new wxPanel(this);
@@ -44,9 +44,6 @@ Tabs::Tabs(wxPanel *parent, wxWindowID ID) : wxPanel(parent, ID) {
 	tabsContainer->EnableScrolling(true, false);
 
 	Bind(wxEVT_PAINT, &Tabs::OnPaint, this);
-
-	SetMinSize(wxSize(parent->GetSize().x, 50));
-	SetSize(wxSize(parent->GetSize().x, 50));
 
 	SetLabel("tabsContainer");
 	Hide();
@@ -106,7 +103,7 @@ void Tabs::Add(wxString tab_name, wxString path) {
 	name->SetToolTip(path);
 	name->SetName(path);
 	name->Bind(wxEVT_LEFT_UP, &Tabs::OnTabClick, this);
-	tab_infos_sizer->Add(name, 1, wxEXPAND | wxLEFT | wxRIGHT, 6);
+	tab_infos_sizer->Add(name, 1, wxEXPAND | wxLEFT | wxRIGHT, 15);
 
 	wxVector<wxBitmap> bitmaps;
 	bitmaps.push_back(
@@ -121,19 +118,18 @@ void Tabs::Add(wxString tab_name, wxString path) {
 	tab_infos->Bind(wxEVT_LEAVE_WINDOW, &Tabs::OnLeaveComp, this);
 
 	tab_infos->SetSizerAndFit(tab_infos_sizer);
-	new_tab_sizer->Add(tab_infos, 1, wxEXPAND | wxTOP | wxBOTTOM, 6);
+	new_tab_sizer->Add(tab_infos, 1, wxTOP | wxBOTTOM, 12);
 
 	wxPanel *active_bar = new wxPanel(new_tab);
 	new_tab_sizer->Add(active_bar, 0, wxEXPAND);
 
 	new_tab->SetSizerAndFit(new_tab_sizer);
-	tabsContainerSizer->Add(new_tab, 0, wxALIGN_CENTER | wxLEFT, 5);
+	tabsContainerSizer->Add(new_tab, 0, wxEXPAND);
 	tabsContainer->FitInside();
 	tabsContainer->Scroll(1000, 0);
 	new_tab->Bind(wxEVT_PAINT, &Tabs::OnTabPaint, this);
 
-	SetMinSize(
-		wxSize(GetSize().GetWidth(), new_tab->GetSize().GetHeight() + 10));
+	SetMinSize(wxSize(GetSize().GetWidth(), new_tab->GetSize().GetHeight()));
 
 	for (auto &&tab : tabsContainer->GetChildren())
 		tab->Refresh();
@@ -501,9 +497,8 @@ void Tabs::OnLeaveComp(wxMouseEvent &event) {
 
 void Tabs::OnPaint(wxPaintEvent &WXUNUSED(event)) {
 	wxPaintDC dc(this);
-	dc.SetBrush(wxColor(Theme["border"].template get<std::string>()));
-	dc.SetPen(
-		wxPen(wxColor(Theme["border"].template get<std::string>()), 0.20));
+	dc.SetBrush(ThemesManager::Get().GetColor("border"));
+	dc.SetPen(wxPen(ThemesManager::Get().GetColor("border"), 0.20));
 	dc.DrawLine(0, GetSize().GetHeight() - 1, GetSize().GetWidth(),
 				GetSize().GetHeight() - 1);
 }
@@ -516,19 +511,29 @@ void Tabs::OnTabPaint(wxPaintEvent &event) {
 		return;
 
 	if (ProjectSettings::Get().GetCurrentlyFileOpen() == target->GetName()) {
-		auto background = Theme["highlight"].template get<std::string>();
-		gc->SetPen(wxColor(background));
-		gc->SetBrush(wxColor(background));
+		auto background = ThemesManager::Get().GetColor("highlight");
+		gc->SetPen(background);
+		gc->SetBrush(background);
 		gc->DrawRoundedRectangle(
 			0.0, 0.0, static_cast<double>(target->GetSize().GetWidth()) - 1.0,
 			1.0, 10);
+
+		target->SetBackgroundColour(ThemesManager::Get().GetColor("secondary"));
+		target->CallForEachChild([this](wxWindow *child) {
+			child->SetBackgroundColour(
+				ThemesManager::Get().GetColor("secondary"));
+		});
 	} else {
-		auto background = Theme["main"].template get<std::string>();
-		gc->SetPen(wxColor(background));
-		gc->SetBrush(wxColor(background));
+		auto background = ThemesManager::Get().GetColor("main");
+		gc->SetPen(background);
+		gc->SetBrush(background);
 		gc->DrawRoundedRectangle(
 			0.0, 0.0, static_cast<double>(target->GetSize().GetWidth()),
 			static_cast<double>(target->GetSize().GetHeight()), 10);
+		target->SetBackgroundColour(ThemesManager::Get().GetColor("main"));
+		target->CallForEachChild([this](wxWindow *child) {
+			child->SetBackgroundColour(ThemesManager::Get().GetColor("main"));
+		});
 	}
 
 	delete gc;

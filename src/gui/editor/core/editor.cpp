@@ -75,8 +75,6 @@ bool Editor::SetupMinimapCtrl() {
 	m_minimapCtrl->SetMinSize(wxSize(100, m_minimapCtrl->GetSize().y));
 	m_sizer->Add(m_minimapCtrl, 0, wxEXPAND);
 
-	//	m_textCtrl->SetMinimapCtrl(m_minimapCtrl);
-
 	if (!UserSettingsManager::Get()
 			 .GetSetting<bool>("editor/showMinimap")
 			 .value)

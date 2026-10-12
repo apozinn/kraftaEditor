@@ -1,5 +1,7 @@
 #include "themesManager/themesManager.hpp"
 #include "appPaths/appPaths.hpp"
+#include "themesManager/themeApplier.hpp"
+#include "userSettings/userSettings.hpp"
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include <wx/colour.h>
@@ -50,21 +52,37 @@ bool ThemesManager::Reload() {
 }
 
 nlohmann::json ThemesManager::LoadThemeFile() const {
-	const wxString themePath =
-		ApplicationPaths::AssetsPath("themes") + "standard_theme.json";
+	std::string userSettingsThemeFilePath =
+		UserSettingsManager::Get()
+			.GetSetting<std::string>("theme/themeFilePath")
+			.value;
+	wxString themePath;
 
-	if (!wxFileExists(themePath)) {
-		wxLogError(_("Failed to load theme"));
-		throw std::runtime_error("Theme file not found");
+	if (wxFileExists(userSettingsThemeFilePath)) {
+		themePath = userSettingsThemeFilePath;
+	} else {
+		if (wxSystemSettings::GetAppearance().IsSystemDark()) {
+			themePath =
+				ApplicationPaths::AssetsPath("themes") + "standard_dark.json";
+		} else {
+			themePath =
+				ApplicationPaths::AssetsPath("themes") + "standard_light.json";
+		}
+
+		if (!wxFileExists(themePath)) {
+			wxLogError(_("Failed to load theme"));
+			throw std::runtime_error("Theme file not found");
+		} else {
+			UserSettingsManager::Get().SetSetting("theme/themeFilePath",
+												  themePath);
+		}
 	}
 
 	try {
 		std::ifstream file(themePath.ToStdString());
 		nlohmann::json themeData = nlohmann::json::parse(file);
 
-		return wxSystemSettings::GetAppearance().IsSystemDark()
-				   ? themeData["dark"]
-				   : themeData["light"];
+		return themeData;
 	} catch (const std::exception &e) {
 		wxLogError(wxString::Format(_("Failed to load theme: %s"), e.what()));
 		throw std::runtime_error("Theme file not found");
@@ -72,5 +90,10 @@ nlohmann::json ThemesManager::LoadThemeFile() const {
 }
 
 bool ThemesManager::IsDarkTheme() const {
+
+	if (currentTheme.contains("isDark")) {
+		return currentTheme["isDark"].get<bool>();
+	}
+
 	return wxSystemSettings::GetAppearance().IsSystemDark();
 }

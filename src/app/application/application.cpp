@@ -34,8 +34,8 @@ bool KraftaEditor::OnInit() {
 		wxInitAllImageHandlers();
 		LoadTranslations();
 
-		VerifyIfSytemIsDarkMode();
 		SetupThemeManager();
+        VerifyIfSytemIsDarkMode();
 		SetupUserSettings();
 
 		if (!SetupApplicationDirectories())
@@ -58,8 +58,7 @@ bool KraftaEditor::OnInit() {
 
 void KraftaEditor::VerifyIfSytemIsDarkMode() {
 	try {
-		auto systemInfo = wxSystemSettings::GetAppearance();
-		if (systemInfo.IsSystemDark()) {
+		if (ThemesManager::Get().IsDarkTheme()) {
 			SetAppearance(wxApp::Appearance::Dark);
 #if __WXMSW__
 			MSWEnableDarkMode(DarkMode_Always);
