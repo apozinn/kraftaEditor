@@ -1,7 +1,7 @@
 # <img src="https://raw.githubusercontent.com/apozinn/kraftaEditor/refs/heads/main/assets/images/kraftaEditor.png" alt="Krafta Editor" width="54" align="middle"> &nbsp; Krafta Editor
 
 ![Version](https://img.shields.io/badge/Version-0.9.2-orange)
-![License](https://img.shields.io/badge/License-LGPLv3-blue)
+![License](https://img.shields.io/badge/License-Apache_2.0-blue)
 ![C++20](https://img.shields.io/badge/C++-20-00599C?logo=cplusplus)
 ![Platforms](https://img.shields.io/badge/Platforms-Windows%20%7C%20Linux%20%7C%20macOS-success)
 
@@ -267,7 +267,7 @@ For bug reports and feature requests, use:
 
 ## License
 
-Krafta Editor is licensed under the GNU LGPLv3 license. See the `LICENSE` file for details.
+Krafta Editor is licensed under the Apache License 2.0. See the `LICENSE` file for details.
 
 ---
 
