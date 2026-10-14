@@ -98,6 +98,12 @@ class LspDownloader {
 	 */
 	static bool IsClangdInstalled();
 
+	void InstallTypescriptLanguageServer();
+
+	static bool IsTypescriptLanguageServerInstalled();
+	static wxString GetTypescriptLanguageServerPath();
+	static wxString FindNpm();
+
   private:
 	CURL *m_curl = nullptr;
 	ProgressCallback m_onProgress;
@@ -136,4 +142,6 @@ class LspDownloader {
 	 * @return Exit code of the command
 	 */
 	long RunCommand(const wxString &cmd, wxArrayString &output);
+
+	void NotifyComplete(bool success, const wxString &msg);
 };

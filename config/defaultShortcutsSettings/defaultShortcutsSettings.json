@@ -30,7 +30,7 @@
     "shortcut_go_to_line": "Ctrl+G",
     "shortcut_zoom_in": "Ctrl++",
     "shortcut_zoom_out": "Ctrl+-",
-    "shortcut_toggle_file_tree": "Ctrl+Shift+E",
+    "shortcut_toggle_file_tree": "Ctrl+B",
     "shortcut_toggle_status_bar": "Ctrl+Shift+B",
     "shortcut_toggle_tab_bar": "Ctrl+Shift+T",
     "shortcut_toggle_menu_bar": "Ctrl+Shift+M",
@@ -47,5 +47,5 @@
     "shortcut_quick_open": "Ctrl+P",
     "shortcut_open_terminal": "Ctrl+J",
     "shortcut_open_settings": "Ctrl+,",
-    "shortcut_open_shortcuts": "Ctrl+alt+,"
+    "shortcut_open_shortcuts": "Ctrl+alt+,",
 }

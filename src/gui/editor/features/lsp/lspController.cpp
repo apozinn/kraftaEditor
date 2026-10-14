@@ -143,6 +143,18 @@ void LspController::CreateLspClientInstance() {
 		m_languageId = filePath.Lower().EndsWith(".c") ? "c" : "cpp";
 	} else if (serverName == "pylsp" || serverName == "python-lsp-server") {
 		m_languageId = "python";
+	} else if (serverName == "typescript-language-server") {
+		extraArgs = "--stdio";
+		if (filePath.Lower().EndsWith(".tsx"))
+			m_languageId = "typescriptreact";
+		else if (filePath.Lower().EndsWith(".jsx"))
+			m_languageId = "javascriptreact";
+		else if (filePath.Lower().EndsWith(".ts") ||
+				 filePath.Lower().EndsWith(".mts") ||
+				 filePath.Lower().EndsWith(".cts"))
+			m_languageId = "typescript";
+		else
+			m_languageId = "javascript";
 	} else {
 		m_languageId = "plaintext";
 	}

@@ -14,7 +14,7 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
-#ifdef _WIN32
+#ifdef __WXMSW__
 #include <shellapi.h>
 #include <windows.h>
 #else
@@ -47,15 +47,15 @@ int LspDownloader::ProgressCallback_(void *userdata, curl_off_t total,
 		return 0;
 
 	int percent = (int)((now * 100) / total);
-	wxString status = wxString::Format("Downloading... %lld / %lld MB",
-									   (long long)(now / (1024 * 1024)),
-									   (long long)(total / (1024 * 1024)));
+	wxString status =
+		wxString::Format("Downloading... %llu / %llu MB",
+						 (unsigned long long)(now / (1024 * 1024)),
+						 (unsigned long long)(total / (1024 * 1024)));
 
 	if (wxTheApp) {
 		wxTheApp->CallAfter(
 			[self, percent, status]() { self->m_onProgress(percent, status); });
 	}
-
 	return 0;
 }
 
@@ -158,7 +158,7 @@ bool LspDownloader::Extract(const wxString &zipPath, const wxString &destDir) {
 
 		zip.Read(fileOut);
 
-#ifndef _WIN32
+#ifndef __WXMSW__
 		if (entry->GetExternalAttributes() & 0x00010000)
 			chmod(entryPath.ToStdString().c_str(), 0755);
 #endif
@@ -172,7 +172,7 @@ wxString LspDownloader::FindPython3() {
 
 	for (const auto &cmd : pythonCommands) {
 		wxString command;
-#ifdef _WIN32
+#ifdef __WXMSW__
 		command = "where " + cmd + " 2>nul";
 		FILE *pipe = _popen(command.ToStdString().c_str(), "r");
 #else
@@ -188,7 +188,7 @@ wxString LspDownloader::FindPython3() {
 			result += buffer;
 		}
 
-#ifdef _WIN32
+#ifdef __WXMSW__
 		_pclose(pipe);
 #else
 		pclose(pipe);
@@ -204,9 +204,10 @@ wxString LspDownloader::FindPython3() {
 }
 
 long LspDownloader::RunCommand(const wxString &cmd, wxArrayString &output) {
+	wxLogDebug("RunCommand: %s", cmd);
 	std::string command = cmd.ToStdString() + " 2>&1";
 
-#ifdef _WIN32
+#ifdef __WXMSW__
 	FILE *pipe = _popen(command.c_str(), "r");
 #else
 	FILE *pipe = popen(command.c_str(), "r");
@@ -219,16 +220,17 @@ long LspDownloader::RunCommand(const wxString &cmd, wxArrayString &output) {
 	while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
 		wxString line = wxString::FromUTF8(buffer);
 		line.Trim();
-		if (!line.empty()) {
+		if (!line.empty())
 			output.push_back(line);
-		}
 	}
 
-#ifdef _WIN32
+#ifdef __WXMSW__
 	int status = _pclose(pipe);
-	return status;
+	return (status == -1) ? -1 : status;
 #else
 	int status = pclose(pipe);
+	if (status == -1)
+		return -1;
 	return WEXITSTATUS(status);
 #endif
 }
@@ -412,7 +414,7 @@ void LspDownloader::DownloadClangd() {
 
 	try {
 		clangdUrl =
-			languagePreferencesObject["lsp"]["server"]["download"]["url"]
+			languagePreferencesObject["lsp"]["server"]["download"]["urls"]
 									 [PlatformInfos::OsNameView()];
 	} catch (const std::exception &e) {
 		wxMessageBox(_("Unable to find the download link for the C++ LSP."),
@@ -479,3 +481,145 @@ wxString LspDownloader::GetClangdPath() {
 }
 
 bool LspDownloader::IsClangdInstalled() { return !GetClangdPath().empty(); }
+
+void LspDownloader::NotifyComplete(bool success, const wxString &msg) {
+	if (!wxTheApp)
+		return;
+	wxTheApp->CallAfter([this, success, msg]() {
+		if (m_onComplete)
+			m_onComplete(success, msg);
+	});
+}
+
+wxString LspDownloader::FindNpm() {
+	std::vector<wxString> commands;
+#ifdef __WXMSW__
+	commands = {"npm.cmd", "npm"};
+#else
+	commands = {"npm"};
+#endif
+
+	for (const auto &cmd : commands) {
+		wxString command;
+#ifdef __WXMSW__
+		command = "where " + cmd + " 2>nul";
+		FILE *pipe = _popen(command.ToStdString().c_str(), "r");
+#else
+		command = "which " + cmd + " 2>/dev/null";
+		FILE *pipe = popen(command.ToStdString().c_str(), "r");
+#endif
+		if (!pipe)
+			continue;
+
+		char buffer[256];
+		std::string result;
+		while (fgets(buffer, sizeof(buffer), pipe) != nullptr)
+			result += buffer;
+
+#ifdef __WXMSW__
+		_pclose(pipe);
+#else
+		pclose(pipe);
+#endif
+
+		if (!result.empty()) {
+			result.erase(result.find_last_not_of("\n\r") + 1);
+			return wxString(result);
+		}
+	}
+	return "";
+}
+
+wxString LspDownloader::GetTypescriptLanguageServerPath() {
+	const wxString base = GetLspDir() + "/typescript/node_modules/.bin/";
+
+	std::vector<wxString> paths = {
+#ifdef __WXMSW__
+		base + "typescript-language-server.cmd",
+		base + "typescript-language-server",
+#else
+		base + "typescript-language-server",
+#endif
+		"/usr/bin/typescript-language-server",
+		"/usr/local/bin/typescript-language-server",
+	};
+
+	for (const auto &p : paths)
+		if (wxFileExists(p))
+			return p;
+
+	return "";
+}
+
+bool LspDownloader::IsTypescriptLanguageServerInstalled() {
+	return !GetTypescriptLanguageServerPath().empty();
+}
+
+void LspDownloader::InstallTypescriptLanguageServer() {
+	std::thread([this]() {
+		const wxString destDir = GetLspDir() + "/typescript";
+
+		if (!wxDirExists(destDir))
+			wxFileName::Mkdir(destDir, wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
+
+		wxString npm = FindNpm();
+		if (npm.empty()) {
+			NotifyComplete(false,
+						   "Node.js / npm not found. Install Node.js first.");
+			return;
+		}
+
+		const wxString packageJsonPath = destDir + "/package.json";
+		if (!wxFileExists(packageJsonPath)) {
+			std::ofstream pkg(packageJsonPath.ToStdString());
+			pkg << "{\n"
+				   "  \"name\": \"krafta-ts-lsp\",\n"
+				   "  \"version\": \"1.0.0\",\n"
+				   "  \"private\": true\n"
+				   "}\n";
+			pkg.close();
+		}
+
+		if (wxTheApp) {
+			wxTheApp->CallAfter([this]() {
+				if (m_onProgress)
+					m_onProgress(40,
+								 "Installing typescript-language-server...");
+			});
+		}
+
+		wxArrayString output;
+		wxString installCmd;
+#ifdef __WXMSW__
+		installCmd = "cmd /c \"cd /d \"" + destDir + "\" && \"" + npm +
+					 "\" install typescript-language-server typescript\"";
+#else
+		installCmd = "cd \"" + destDir + "\" && \"" + npm +
+					 "\" install typescript-language-server typescript";
+#endif
+		long result = RunCommand(installCmd, output);
+
+		if (result != 0) {
+			wxString errDetail =
+				output.IsEmpty() ? "unknown error" : output.Last();
+			NotifyComplete(false, "npm install failed: " + errDetail);
+			return;
+		}
+
+		wxString serverPath = GetTypescriptLanguageServerPath();
+		if (serverPath.empty()) {
+			NotifyComplete(false,
+						   "Installation finished but binary not found.");
+			return;
+		}
+
+		if (wxTheApp) {
+			wxTheApp->CallAfter([this]() {
+				if (m_onProgress)
+					m_onProgress(100, "Installation complete!");
+			});
+		}
+
+		NotifyComplete(true, "Installed successfully at: " + serverPath);
+	}).detach();
+}

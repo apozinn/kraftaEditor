@@ -14,8 +14,8 @@
 using json = nlohmann::json;
 
 struct ControlMenu {
-	const char *name;
-	const char *shortcut;
+	wxString name;
+	wxString shortcut;
 	int id;
 };
 
@@ -33,6 +33,7 @@ class ControlPanel : public wxPanel {
 	void Select(const wxString &id);
 
   private:
+	void BuildMenusList();
 	void BuildLayout();
 	void PopulateMenus();
 	wxPanel *CreateMenuRow(const ControlMenu &menu);
@@ -60,11 +61,7 @@ class ControlPanel : public wxPanel {
 
 	wxString m_iconsDir;
 
-	const std::vector<ControlMenu> m_menus{
-		{"Toggle Terminal", "Ctrl+Shift+T", 1},
-		{"Toggle Menu Bar", "Ctrl+Shift+M", 2},
-		{"Select Application Theme", "", 3},
-	};
+	std::vector<ControlMenu> m_menus;
 
 	wxDECLARE_NO_COPY_CLASS(ControlPanel);
 };

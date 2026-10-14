@@ -94,9 +94,10 @@ MenuBar::MenuBar() {
 
 	wxMenu *menuView = new wxMenu;
 
-	wxMenuItem *toggleFileTreeView =
-		new wxMenuItem(menuView, +Event::View::ToggleFileTree, _("File Tree"),
-					   wxEmptyString, wxITEM_CHECK);
+	wxMenuItem *toggleFileTreeView = new wxMenuItem(
+		menuView, +Event::View::ToggleFileTree,
+		_("File Tree") + "\t" + GetSC("shortcut_toggle_file_tree"),
+		"cuzinho preto", wxITEM_CHECK);
 	menuView->Append(toggleFileTreeView);
 	toggleFileTreeView->Check(
 		settings.GetSetting<bool>("view/showFilesTree").value);

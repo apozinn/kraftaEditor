@@ -4,6 +4,12 @@
 #include <wx/dcbuffer.h>
 #include <wx/splitter.h>
 
+#include "shortcutsSettings/shortcutsSettings.hpp"
+
+#ifndef _
+#define _(s) wxGetTranslation(s)
+#endif
+
 namespace {
 
 constexpr int kPanelWidth = 480;
@@ -41,6 +47,8 @@ ControlPanel::ControlPanel(wxFrame *parent, wxWindowID id)
 		return;
 	}
 
+	BuildMenusList();
+
 	const auto &theme = ThemesManager::Get().currentTheme;
 	m_bgColor = GetThemeColor(theme, "main", wxColour(30, 30, 30));
 	m_selectedColor =
@@ -74,6 +82,31 @@ ControlPanel::ControlPanel(wxFrame *parent, wxWindowID id)
 							this);
 		m_searchInput->SetFocus();
 	}
+}
+
+void ControlPanel::BuildMenusList() {
+	auto &sc = ShortCutSettingsManager::Get();
+
+	auto GetSC = [&](const std::string &key) -> wxString {
+		auto s = sc.GetSetting<std::string>(key);
+		return s.found ? wxString("\t") + s.value : wxString("");
+	};
+
+	m_menus = {
+		{"Toggle Terminal", "Ctrl+Shift+T", +Event::Terminal::ToggleView},
+		{"Toggle Menu Bar", "Ctrl+Shift+M", +Event::View::ToggleMenuBar},
+		{"Select Application Theme", "", +Event::ControlPanel::SelectTheme},
+		{"Create New File", GetSC("shortcut_new_file"),
+		 +Event::File::CreateFileEvent},
+		{"Create New Dir", GetSC("shortcut_new_dir"), +Event::File::CreateDir},
+
+		{"Toggle Minimap", "", +Event::View::ToggleMiniMap},
+		{"Toggle Code Search", "", +Event::View::ToggleCodeSearch},
+		{"Toggle Quick Open", "", +Event::View::ToggleQuickOpen},
+		{"Toggle File Tree", GetSC("shortcut_toggle_file_tree"),
+		 +Event::View::ToggleFileTree},
+		{"Toggle Status Bar", "", +Event::View::ToggleStatusBar},
+		{"Toggle Tab Bar", "", +Event::View::ToggleTabBar}};
 }
 
 void ControlPanel::BuildLayout() {
@@ -307,24 +340,84 @@ void ControlPanel::Select(const wxString &id) {
 	const int commandId = wxAtoi(id);
 
 	switch (commandId) {
-	case 1: {
+	case +Event::View::ToggleMiniMap: {
 		if (auto *mainFrame =
 				dynamic_cast<MainFrame *>(wxTheApp->GetTopWindow())) {
-			wxCommandEvent evt(wxEVT_MENU, +Event::Terminal::ToggleView);
+			wxCommandEvent evt(wxEVT_MENU, +Event::View::ToggleMiniMap);
 			wxPostEvent(mainFrame, evt);
 		}
 	} break;
 
-	case 2: {
+	case +Event::View::ToggleCodeSearch: {
 		if (auto *mainFrame =
 				dynamic_cast<MainFrame *>(wxTheApp->GetTopWindow())) {
-			wxCommandEvent evt(wxEVT_MENU, +Event::View::ToggleMenuBar);
+			wxCommandEvent evt(wxEVT_MENU, +Event::View::ToggleCodeSearch);
 			wxPostEvent(mainFrame, evt);
 		}
 	} break;
 
-	case 3: {
-		OpenThemeSelectionPanel();
+	case +Event::View::ToggleControlPanel: {
+		if (auto *mainFrame =
+				dynamic_cast<MainFrame *>(wxTheApp->GetTopWindow())) {
+			wxCommandEvent evt(wxEVT_MENU, +Event::View::ToggleControlPanel);
+			wxPostEvent(mainFrame, evt);
+		}
+	} break;
+
+	case +Event::View::ToggleQuickOpen: {
+		if (auto *mainFrame =
+				dynamic_cast<MainFrame *>(wxTheApp->GetTopWindow())) {
+			wxCommandEvent evt(wxEVT_MENU, +Event::View::ToggleQuickOpen);
+			wxPostEvent(mainFrame, evt);
+		}
+	} break;
+
+	case +Event::View::ToggleFileTree: {
+		if (auto *mainFrame =
+				dynamic_cast<MainFrame *>(wxTheApp->GetTopWindow())) {
+			wxCommandEvent evt(wxEVT_MENU, +Event::View::ToggleFileTree);
+			wxPostEvent(mainFrame, evt);
+		}
+	} break;
+
+	case +Event::View::ToggleStatusBar: {
+		if (auto *mainFrame =
+				dynamic_cast<MainFrame *>(wxTheApp->GetTopWindow())) {
+			wxCommandEvent evt(wxEVT_MENU, +Event::View::ToggleStatusBar);
+			wxPostEvent(mainFrame, evt);
+		}
+	} break;
+
+	case +Event::View::ToggleTabBar: {
+		if (auto *mainFrame =
+				dynamic_cast<MainFrame *>(wxTheApp->GetTopWindow())) {
+			wxCommandEvent evt(wxEVT_MENU, +Event::View::ToggleTabBar);
+			wxPostEvent(mainFrame, evt);
+		}
+	} break;
+
+	case +Event::View::ZoomIn: {
+		if (auto *mainFrame =
+				dynamic_cast<MainFrame *>(wxTheApp->GetTopWindow())) {
+			wxCommandEvent evt(wxEVT_MENU, +Event::View::ZoomIn);
+			wxPostEvent(mainFrame, evt);
+		}
+	} break;
+
+	case +Event::View::ZoomOut: {
+		if (auto *mainFrame =
+				dynamic_cast<MainFrame *>(wxTheApp->GetTopWindow())) {
+			wxCommandEvent evt(wxEVT_MENU, +Event::View::ZoomOut);
+			wxPostEvent(mainFrame, evt);
+		}
+	} break;
+
+	case +Event::File::CreateDir: {
+		if (auto *mainFrame =
+				dynamic_cast<MainFrame *>(wxTheApp->GetTopWindow())) {
+			wxCommandEvent evt(wxEVT_MENU, +Event::File::CreateDir);
+			wxPostEvent(mainFrame->GetMenuBar(), evt);
+		}
 	} break;
 
 	default:
@@ -426,12 +519,10 @@ void ControlPanel::ScrollSelectionIntoView(wxWindow *row) {
 	const wxRect rowRect = row->GetRect();
 	const wxSize clientSize = m_menusContainer->GetClientSize();
 
-	int scrollX = 0;
-	int scrollY = 0;
+	int scrollX = 0, scrollY = 0;
 	m_menusContainer->GetViewStart(&scrollX, &scrollY);
 
-	int ppuX = 0;
-	int ppuY = 0;
+	int ppuX = 0, ppuY = 0;
 	m_menusContainer->GetScrollPixelsPerUnit(&ppuX, &ppuY);
 
 	if (ppuY <= 0)
@@ -440,9 +531,22 @@ void ControlPanel::ScrollSelectionIntoView(wxWindow *row) {
 	const int topPx = scrollY * ppuY;
 	const int bottomPx = topPx + clientSize.y;
 
-	if (rowRect.GetTop() < topPx)
-		m_menusContainer->Scroll(-1, rowRect.GetTop() / ppuY);
-	else if (rowRect.GetBottom() > bottomPx)
-		m_menusContainer->Scroll(-1,
-								 (rowRect.GetBottom() - clientSize.y) / ppuY);
+	const int rowTop = rowRect.GetTop();
+	const int rowBottom = rowRect.GetBottom();
+
+	if (rowTop >= topPx && rowBottom <= bottomPx)
+		return;
+
+	int newScrollY = scrollY;
+
+	if (rowTop < topPx)
+		newScrollY = rowTop / ppuY;
+	else if (rowBottom > bottomPx)
+		newScrollY = (rowBottom - clientSize.y + ppuY - 1) / ppuY;
+
+	if (newScrollY != scrollY) {
+		m_menusContainer->Scroll(0, newScrollY + 10);
+		m_menusContainer->Refresh();
+		m_menusContainer->Update();
+	}
 }

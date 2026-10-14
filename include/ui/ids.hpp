@@ -237,7 +237,8 @@ enum class ControlPanel : wxWindowID {
 	Exit = ID_BASE_CONTROL + 1,
 	Up = ID_BASE_CONTROL + 2,
 	Down = ID_BASE_CONTROL + 3,
-	Select = ID_BASE_CONTROL + 4
+	Select = ID_BASE_CONTROL + 4,
+	SelectTheme = ID_BASE_CONTROL + 5,
 };
 
 enum class Gotoline : wxWindowID {

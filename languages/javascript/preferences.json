@@ -22,5 +22,17 @@
     "fold": {
         "enabled": true,
         "html": true
+    },
+    "lsp": {
+    "server": {
+        "name": "typescript-language-server",
+        "download": {
+            "urls": {
+                "Linux": null,
+                "Windows": null,
+                "Mac": null
+            }
+        }
     }
+}
 }

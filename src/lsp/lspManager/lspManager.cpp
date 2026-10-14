@@ -100,6 +100,8 @@ bool LspManager::IsServerInstalled(const wxString &serverName) {
 		return LspDownloader::IsClangdInstalled();
 	} else if (serverName == "pylsp" || serverName == "python-lsp-server") {
 		return LspDownloader::IsPylspInstalled();
+	} else if (serverName == "typescript-language-server") {
+		return LspDownloader::IsTypescriptLanguageServerInstalled();
 	}
 
 	wxString serverDir = m_lspFolderPath + serverName;
@@ -131,6 +133,8 @@ wxString LspManager::GetServerPath(const wxString &serverName) {
 		return LspDownloader::GetClangdPath();
 	} else if (serverName == "pylsp" || serverName == "python-lsp-server") {
 		return LspDownloader::GetPylspPath();
+	} else if (serverName == "typescript-language-server") {
+		return LspDownloader::GetTypescriptLanguageServerPath();
 	}
 
 	return "";
@@ -181,21 +185,22 @@ void LspManager::VerifyIfLanguageHasLsp(const wxString &languageName,
 
 				downloader->SetOnProgress([](int percent, wxString status) {});
 
-				downloader->SetOnComplete(
-					[this, downloader, languageLspName,
-					 onComplete](bool success, wxString message) {
-						if (success) {
-							wxMessageBox(message, "LSP Installed",
-										 wxOK | wxICON_INFORMATION);
-						} else {
-							wxMessageBox("Failed: " + message, "Error",
-										 wxOK | wxICON_ERROR);
-						}
+				downloader->SetOnComplete([this, downloader, languageLspName,
+										   onComplete](bool success,
+													   wxString message) {
+					if (success) {
+						wxMessageBox(message, "LSP Installed",
+									 wxOK | wxICON_INFORMATION);
+					} else {
+						wxMessageBox("Failed: " + message, "Error",
+									 wxOK | wxICON_ERROR);
+					}
 
-						delete downloader;
-						if (onComplete)
-							onComplete(success);
-					});
+					wxTheApp->CallAfter([downloader]() { delete downloader; });
+
+					if (onComplete)
+						onComplete(success);
+				});
 
 				wxString destDir = m_lspFolderPath + languageLspName;
 
@@ -203,6 +208,8 @@ void LspManager::VerifyIfLanguageHasLsp(const wxString &languageName,
 					languageLspName == "python-lsp-server") {
 					downloader->InstallPythonPackage("python-lsp-server",
 													 destDir);
+				} else if (languageLspName == "typescript-language-server") {
+					downloader->InstallTypescriptLanguageServer();
 				} else if (lspDownloadLink.empty() ||
 						   lspDownloadLink.StartsWith("pip:")) {
 					wxString packageName = languageLspName;
