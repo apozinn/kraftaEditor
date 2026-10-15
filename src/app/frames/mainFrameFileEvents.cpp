@@ -54,11 +54,15 @@ void MainFrame::OpenFolderDialog() {
 }
 
 void MainFrame::LoadPath(wxString path) {
+
 	if (!m_tabs || !m_filesTree) {
 		wxMessageBox(
 			_("Critical UI components (Tabs/FilesTree) not initialized"));
 		return;
 	}
+
+	if (!wxDirExists(path) || path.size() <= 2)
+		return;
 
 	wxFileName fn;
 	fn.AssignDir(path);
@@ -113,15 +117,21 @@ void MainFrame::LoadPath(wxString path) {
 	}
 }
 
-void MainFrame::OnOpenFile(wxCommandEvent &WXUNUSED(event)) {
+void MainFrame::OnOpenFileDialog(wxCommandEvent &WXUNUSED(event)) {
 	wxFileDialog *dlg =
 		new wxFileDialog(NULL, "Choose a file", "", "", "",
 						 wxFD_DEFAULT_STYLE | wxFD_FILE_MUST_EXIST);
 	dlg->ShowModal();
 	wxString path = dlg->GetPath();
 	if (path.size()) {
-		m_filesTree->OpenFile(path);
-		AddEntry(wxFSWPath_File, path);
+		OpenFile(path);
+	}
+}
+
+void MainFrame::OpenFile(const wxString &filePath) {
+	if (wxFileExists(filePath) && m_filesTree) {
+		m_filesTree->OpenFile(filePath);
+		AddEntry(wxFSWPath_File, filePath);
 	}
 }
 

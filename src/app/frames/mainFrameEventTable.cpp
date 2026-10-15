@@ -12,7 +12,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
 							EVT_MENU(+Event::File::CloseAll,
 									 MainFrame::CloseAllFiles)
 								EVT_MENU(+Event::File::OpenFile,
-										 MainFrame::OnOpenFile)
+										 MainFrame::OnOpenFileDialog)
 
 									EVT_MENU(+Event::File::ToggleAutosave,
 											 MainFrame::ToggleAutosave)

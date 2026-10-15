@@ -391,6 +391,7 @@ bool FilesTree::OpenFile(const wxString &componentIdentifier, int line) {
 					 wxOK | wxICON_ERROR);
 		return false;
 	}
+
 	if (!wxFileExists(componentIdentifier)) {
 		wxMessageBox(ErrorMessages::FileNotFound, "Error", wxOK | wxICON_ERROR);
 		return false;
@@ -468,6 +469,7 @@ bool FilesTree::OpenFile(const wxString &componentIdentifier, int line) {
 
 	return true;
 }
+
 void FilesTree::OnFileRightClick(wxMouseEvent &event) {
 	auto target = ((wxWindow *)event.GetEventObject());
 	if (!target)

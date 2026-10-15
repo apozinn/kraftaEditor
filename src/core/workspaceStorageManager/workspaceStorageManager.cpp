@@ -94,11 +94,9 @@ void WorkspaceStorageManager::CreateDefaultStorageFile() {
 }
 
 json WorkspaceStorageManager::MergeWithDefaults(json &data) {
-	// bool changed = false;
 	for (const auto &[key, value] : DefaultData.items()) {
 		if (!data.contains(key)) {
 			data[key] = value;
-			// changed = true;
 		}
 	}
 	return data;

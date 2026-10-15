@@ -147,7 +147,9 @@ class MainFrame : public wxFrame {
 	 * @brief Handler for the "Open File" command.
 	 * @param WXUNUSED(event) The command event.
 	 */
-	void OnOpenFile(wxCommandEvent &WXUNUSED(event));
+	void OnOpenFileDialog(wxCommandEvent &WXUNUSED(event));
+
+	void OpenFile(const wxString &filePath);
 
 	/**
 	 * @brief Closes the currently open project folder (clears file tree and

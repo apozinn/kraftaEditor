@@ -44,6 +44,24 @@ bool KraftaEditor::OnInit() {
 		CreateMainWindow();
 		LoadLanguagesPreferences();
 
+		for (int i = 1; i < argc; ++i) {
+			const wxString arg = argv[i];
+			if (arg.StartsWith("-"))
+				continue;
+
+			if (wxDirExists(arg)) {
+				wxFileName dir = wxFileName::DirName(arg);
+				dir.MakeAbsolute();
+				dir.Normalize(wxPATH_NORM_DOTS | wxPATH_NORM_TILDE);
+				frame->LoadPath(dir.GetPath());
+			} else if (wxFileExists(arg)) {
+				wxFileName file(arg);
+				file.MakeAbsolute();
+				file.Normalize(wxPATH_NORM_DOTS | wxPATH_NORM_TILDE);
+				frame->OpenFile(file.GetFullPath());
+			}
+		}
+
 		return true;
 	} catch (const nlohmann::json::type_error &e) {
 		wxMessageBox(e.what());

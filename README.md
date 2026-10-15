@@ -239,16 +239,6 @@ Removes all installed files and refreshes desktop/icon caches.
 
 ---
 
-## Roadmap
-
-* [ ] LSP integration (Language Server Protocol)
-* [ ] Integrated terminal
-* [ ] Plugin API
-* [ ] Git integration
-* [ ] Multi-cursor editing
-
----
-
 ## Contributing
 
 ### Guidelines

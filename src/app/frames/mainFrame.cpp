@@ -287,7 +287,7 @@ void MainFrame::OnAbout(wxCommandEvent &WXUNUSED(event)) {
 	info.SetDescription("Native. Fast. Lightweight.\n"
 						"No Electron. No Chromium. No web stack.");
 	info.SetCopyright("© 2023–2026 Okarin Softwares");
-	info.SetLicence("GNU LGPLv3");
+	info.SetLicence("APACHE 2.0");
 	info.SetWebSite("https://github.com/apozinn/kraftaEditor");
 
 	wxIcon logoIcon;
