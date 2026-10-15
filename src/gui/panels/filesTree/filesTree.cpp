@@ -903,16 +903,6 @@ void FilesTree::OnFileSystemEvent(int type, const wxString &oldPath,
 	wxFileName fullPath(newPath);
 	wxString parentPath;
 
-	if (type == wxFSW_EVENT_MODIFY) {
-		TextCtrl *textCtrl =
-			dynamic_cast<TextCtrl *>(FindWindowByName(newPath + "_textCtrl"));
-		if (textCtrl) {
-			if (!textCtrl->GetModify() && !textCtrl->changedFile) {
-				textCtrl->LoadFile(newPath);
-			}
-		}
-	}
-
 	if (fullPath.IsDir()) {
 		fullPath.RemoveLastDir();
 		parentPath = fullPath.GetPath() + PlatformInfos::OsPathSeparator();

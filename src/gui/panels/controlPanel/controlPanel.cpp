@@ -339,85 +339,61 @@ void ControlPanel::Select(const wxString &id) {
 
 	const int commandId = wxAtoi(id);
 
+	auto *mainFrame = dynamic_cast<MainFrame *>(wxTheApp->GetTopWindow());
+	if (!mainFrame) {
+		wxMessageBox(_("Unable to find the application's main window"));
+		return;
+	}
+
+	auto PostEventInMainFrame = ([this, mainFrame](const int &eventId) {
+		wxCommandEvent evt(wxEVT_MENU, eventId);
+		wxPostEvent(mainFrame, evt);
+	});
+
 	switch (commandId) {
-	case +Event::View::ToggleMiniMap: {
-		if (auto *mainFrame =
-				dynamic_cast<MainFrame *>(wxTheApp->GetTopWindow())) {
-			wxCommandEvent evt(wxEVT_MENU, +Event::View::ToggleMiniMap);
-			wxPostEvent(mainFrame, evt);
-		}
+
+	case +Event::Terminal::ToggleView: {
+		PostEventInMainFrame(+Event::Terminal::ToggleView);
 	} break;
 
-	case +Event::View::ToggleCodeSearch: {
-		if (auto *mainFrame =
-				dynamic_cast<MainFrame *>(wxTheApp->GetTopWindow())) {
-			wxCommandEvent evt(wxEVT_MENU, +Event::View::ToggleCodeSearch);
-			wxPostEvent(mainFrame, evt);
-		}
+	case +Event::View::ToggleMenuBar: {
+		PostEventInMainFrame(+Event::View::ToggleMenuBar);
 	} break;
 
-	case +Event::View::ToggleControlPanel: {
-		if (auto *mainFrame =
-				dynamic_cast<MainFrame *>(wxTheApp->GetTopWindow())) {
-			wxCommandEvent evt(wxEVT_MENU, +Event::View::ToggleControlPanel);
-			wxPostEvent(mainFrame, evt);
-		}
+	case +Event::ControlPanel::SelectTheme: {
+		OpenThemeSelectionPanel();
 	} break;
 
-	case +Event::View::ToggleQuickOpen: {
-		if (auto *mainFrame =
-				dynamic_cast<MainFrame *>(wxTheApp->GetTopWindow())) {
-			wxCommandEvent evt(wxEVT_MENU, +Event::View::ToggleQuickOpen);
-			wxPostEvent(mainFrame, evt);
-		}
-	} break;
-
-	case +Event::View::ToggleFileTree: {
-		if (auto *mainFrame =
-				dynamic_cast<MainFrame *>(wxTheApp->GetTopWindow())) {
-			wxCommandEvent evt(wxEVT_MENU, +Event::View::ToggleFileTree);
-			wxPostEvent(mainFrame, evt);
-		}
-	} break;
-
-	case +Event::View::ToggleStatusBar: {
-		if (auto *mainFrame =
-				dynamic_cast<MainFrame *>(wxTheApp->GetTopWindow())) {
-			wxCommandEvent evt(wxEVT_MENU, +Event::View::ToggleStatusBar);
-			wxPostEvent(mainFrame, evt);
-		}
-	} break;
-
-	case +Event::View::ToggleTabBar: {
-		if (auto *mainFrame =
-				dynamic_cast<MainFrame *>(wxTheApp->GetTopWindow())) {
-			wxCommandEvent evt(wxEVT_MENU, +Event::View::ToggleTabBar);
-			wxPostEvent(mainFrame, evt);
-		}
-	} break;
-
-	case +Event::View::ZoomIn: {
-		if (auto *mainFrame =
-				dynamic_cast<MainFrame *>(wxTheApp->GetTopWindow())) {
-			wxCommandEvent evt(wxEVT_MENU, +Event::View::ZoomIn);
-			wxPostEvent(mainFrame, evt);
-		}
-	} break;
-
-	case +Event::View::ZoomOut: {
-		if (auto *mainFrame =
-				dynamic_cast<MainFrame *>(wxTheApp->GetTopWindow())) {
-			wxCommandEvent evt(wxEVT_MENU, +Event::View::ZoomOut);
-			wxPostEvent(mainFrame, evt);
-		}
+	case +Event::File::CreateFileEvent: {
+		PostEventInMainFrame(+Event::File::CreateFileEvent);
 	} break;
 
 	case +Event::File::CreateDir: {
-		if (auto *mainFrame =
-				dynamic_cast<MainFrame *>(wxTheApp->GetTopWindow())) {
-			wxCommandEvent evt(wxEVT_MENU, +Event::File::CreateDir);
-			wxPostEvent(mainFrame->GetMenuBar(), evt);
-		}
+		PostEventInMainFrame(+Event::File::CreateDir);
+	} break;
+
+	case +Event::View::ToggleMiniMap: {
+		PostEventInMainFrame(+Event::View::ToggleMiniMap);
+	} break;
+
+	case +Event::View::ToggleCodeSearch: {
+		PostEventInMainFrame(+Event::View::ToggleCodeSearch);
+	} break;
+
+	case +Event::View::ToggleQuickOpen: {
+		PostEventInMainFrame(+Event::View::ToggleQuickOpen);
+	} break;
+
+	case +Event::View::ToggleFileTree: {
+		PostEventInMainFrame(+Event::View::ToggleFileTree);
+	} break;
+
+	case +Event::View::ToggleStatusBar: {
+		PostEventInMainFrame(+Event::View::ToggleStatusBar);
+	} break;
+
+	case +Event::View::ToggleTabBar: {
+		PostEventInMainFrame(+Event::View::ToggleTabBar);
 	} break;
 
 	default:

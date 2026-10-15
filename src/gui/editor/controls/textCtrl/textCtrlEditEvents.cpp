@@ -18,10 +18,6 @@ void TextCtrl::CharAdd(wxStyledTextEvent &event) {
 void TextCtrl::OnChange(wxStyledTextEvent &event) {
 	if (m_isDestroyed)
 		return;
-	if (!GetModify() || !changedFile) {
-		event.Skip();
-		return;
-	}
 
 	if (UserSettingsManager::Get().GetSetting<bool>("editor/autoSave").value &&
 		GetName() != UserSettingsManager::Get().SettingsPath) {

@@ -62,6 +62,8 @@ bool Editor::SetupTextCtrl() {
 
 bool Editor::SetupMinimapCtrl() {
 	m_minimapCtrl = new MinimapCtrl(this, m_textCtrl);
+	m_minimapCtrl->SetWindowStyleFlag(wxBORDER_NONE);
+
 	if (!m_minimapCtrl) {
 		wxMessageBox(
 			_("An error occurred while initializing the minimap component."));

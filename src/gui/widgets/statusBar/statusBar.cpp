@@ -17,19 +17,36 @@ StatusBar::StatusBar(wxWindow *parent)
 	// code locale
 	codeLocale =
 		new wxStaticText(this, +GUI::ControlID::StatusBarCodeLocale, "");
+	auto font = codeLocale->GetFont();
+	font.SetPixelSize(wxSize(18, 18));
+
+	codeLocale->SetFont(font);
+	codeLocale->Refresh();
+
 	sizer->Add(codeLocale, 0, wxALIGN_CENTER | wxRIGHT, 10);
 
 	// tab size
 	tabSize = new wxStaticText(this, +GUI::ControlID::StatusBarTabSize, "");
+
+	tabSize->SetFont(font);
+	tabSize->Refresh();
+
 	sizer->Add(tabSize, 0, wxALIGN_CENTER | wxRIGHT, 10);
 
 	// file extension
 	fileExt = new wxStaticText(this, +GUI::ControlID::StatusBarFileExt, "");
+
+	fileExt->SetFont(font);
+	fileExt->Refresh();
+
 	sizer->Add(fileExt, 0, wxALIGN_CENTER | wxRIGHT, 10);
 
 	// LSP status
 	m_lsp_status_label =
 		new wxStaticText(this, +GUI::ControlID::StatusBarLSPStatus, "");
+
+	m_lsp_status_label->SetFont(font);
+	m_lsp_status_label->Refresh();
 	sizer->Add(m_lsp_status_label, 0, wxALIGN_CENTER | wxRIGHT, 10);
 
 	SetSizerAndFit(sizer);
