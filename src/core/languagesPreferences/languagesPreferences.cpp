@@ -383,15 +383,6 @@ void LanguagesPreferences::SetupAutoCompleteWords(
 
 	if (!syntaxPreferences.contains("keyword_lists"))
 		return;
-
-	editor->AutoCompSetIgnoreCase(true);
-	editor->AutoCompSetAutoHide(false);
-	editor->AutoCompSetChooseSingle(true);
-	editor->AutoCompSetFillUps("()[]{}.,:;+-*/%&|^~=<>!?\\\"'");
-	editor->AutoCompSetDropRestOfWord(true);
-	editor->AutoCompSetSeparator(' ');
-	editor->AutoCompSetMaxHeight(10);
-	editor->AutoCompSetMaxWidth(400);
 }
 
 std::vector<wxString> LanguagesPreferences::GetAutoCompleteWordsList(

@@ -509,6 +509,10 @@ void LspController::OnCompletionResponse(uint64_t serial, int wordStart,
 		return;
 
 	const int curLen = curPos - wordStart;
+	if(curLen == 2) {
+		m_textCtrl->RecreateMinimap();
+	}
+	
 	const std::string prefix = ToUtf8(m_stc->GetTextRange(wordStart, curPos));
 
 	bool incomplete = false;

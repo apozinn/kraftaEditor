@@ -1,5 +1,5 @@
 #pragma once
-
+#include "languagesPreferences/languagesPreferences.hpp"
 #include <wx/weakref.h>
 
 class TextCtrl;
@@ -20,8 +20,7 @@ class AutoCompleteController {
 						   languagePreferencesStruct languagePreferences);
 
 	void BindEvents();
-	void OnAutoCompCancelled(wxStyledTextEvent &event);
-	void OnAutoCompSelection(wxStyledTextEvent &event);
+void OnAutoCompEvent(wxStyledTextEvent& event);	
 
 	wxWeakRef<TextCtrl> m_textCtrl;
 	std::vector<wxString> m_standardWordsList;

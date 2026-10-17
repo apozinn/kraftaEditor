@@ -1,5 +1,6 @@
 #pragma once
 #include <wx/stc/minimap.h>
+#include <wx/weakref.h>
 
 class TextCtrl;
 

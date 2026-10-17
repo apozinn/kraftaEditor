@@ -11,6 +11,48 @@
 #include <wx/msgdlg.h>
 #include <wx/settings.h>
 
+using json = nlohmann::json;
+
+json DarkTheme = {
+    {"themeName", "Standard Krafta Dark Theme"},
+    {"isDark", true},
+    {"main", "#292929"},
+    {"secondary", "#1C1C1C"},
+    {"colorThree", "#454545"},
+    {"highlight", "#008ff5"},
+    {"border", "#5F5F5F"},
+    {"tint", "#00b5cc"},
+    {"selectedFile", "#3c3c3c"},
+    {"text", "#e7e7e7"},
+    {"secondaryText", "#797979"},
+    {"indicator", {
+        {"foreground", "#89cde8"}
+    }},
+    {"editorCaret", "#dedede"},
+    {"minimapViewport", "#757575"},
+    {"minimapCaretPosition", "#c3dde0"}
+};
+
+json LightTheme = {
+    {"themeName", "Standard Krafta Light Theme"},
+    {"isDark", false},
+    {"main", "#ffffff"},
+    {"secondary", "#f3f3f3"},
+    {"colorThree", "#e8e8e8"},
+    {"highlight", "#0066cc"},
+    {"border", "#e0e0e0"},
+    {"tint", "#0090b8"},
+    {"selectedFile", "#e4e6f1"},
+    {"text", "#1f1f1f"},
+    {"secondaryText", "#6a6a6a"},
+    {"indicator", {
+        {"foreground", "#4fa8d8"}
+    }},
+    {"editorCaret", "#333333"},
+    {"minimapViewport", "#c8c8c8"},
+    {"minimapCaretPosition", "#7fc4d0"}
+};
+
 ThemesManager &ThemesManager::Get() {
 	static ThemesManager instance;
 	return instance;
@@ -52,41 +94,49 @@ bool ThemesManager::Reload() {
 }
 
 nlohmann::json ThemesManager::LoadThemeFile() const {
-	std::string userSettingsThemeFilePath =
-		UserSettingsManager::Get()
-			.GetSetting<std::string>("theme/themeFilePath")
-			.value;
-	wxString themePath;
+    const bool isSystemDark = wxSystemSettings::GetAppearance().IsSystemDark();
+    const wxString defaultThemeFile =
+        ApplicationPaths::AssetsPath("themes") +
+        (isSystemDark ? "standard_dark.json" : "standard_light.json");
 
-	if (wxFileExists(userSettingsThemeFilePath)) {
-		themePath = userSettingsThemeFilePath;
-	} else {
-		if (wxSystemSettings::GetAppearance().IsSystemDark()) {
-			themePath =
-				ApplicationPaths::AssetsPath("themes") + "standard_dark.json";
-		} else {
-			themePath =
-				ApplicationPaths::AssetsPath("themes") + "standard_light.json";
-		}
+    wxString themePath;
 
-		if (!wxFileExists(themePath)) {
-			wxLogError(_("Failed to load theme"));
-			throw std::runtime_error("Theme file not found");
-		} else {
-			UserSettingsManager::Get().SetSetting("theme/themeFilePath",
-												  themePath);
-		}
-	}
+    auto userSetting = UserSettingsManager::Get()
+                           .GetSetting<std::string>("theme/themeFilePath");
 
-	try {
-		std::ifstream file(themePath.ToStdString());
-		nlohmann::json themeData = nlohmann::json::parse(file);
+    if (userSetting.found && wxFileExists(userSetting.value)) {
+        themePath = userSetting.value;
+    } else {
+        if (userSetting.found) {
+            wxLogError(_("Saved theme file not found, falling back to default."));
+        }
 
-		return themeData;
-	} catch (const std::exception &e) {
-		wxLogError(wxString::Format(_("Failed to load theme: %s"), e.what()));
-		throw std::runtime_error("Theme file not found");
-	}
+        themePath = defaultThemeFile;
+
+        if (!wxFileExists(themePath)) {
+            std::ofstream fileStream(themePath.ToStdString());
+            if (!fileStream) {
+                wxLogError(wxString::Format(
+                    _("Failed to create theme file at: %s"), themePath));
+                return isSystemDark ? DarkTheme : LightTheme;
+            }
+
+            fileStream << std::setw(4)
+                       << (isSystemDark ? DarkTheme : LightTheme)
+                       << std::endl;
+        }
+
+        UserSettingsManager::Get().SetSetting("theme/themeFilePath",
+                                              themePath);
+    }
+
+    try {
+        std::ifstream file(themePath.ToStdString());
+        return nlohmann::json::parse(file);
+    } catch (const std::exception &e) {
+        wxLogError(wxString::Format(_("Failed to load theme: %s"), e.what()));
+        return isSystemDark ? DarkTheme : LightTheme;
+    }
 }
 
 bool ThemesManager::IsDarkTheme() const {
