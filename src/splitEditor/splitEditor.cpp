@@ -97,9 +97,8 @@ void CreateSplitedEditor(const wxString &path) {
 			ProjectSettings::Get().GetFirstSplittedEditorPath() + "_tab")) {
 		auto icon = ((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[2]);
 		if (icon) {
-			icon->SetBitmap(wxBitmapBundle::FromBitmap(
-				wxBitmap(ApplicationPaths::AssetsPath("icons") + "close.png",
-						 wxBITMAP_TYPE_PNG)));
+			icon->SetBitmap(UiUtils::CreateIcon(
+    ApplicationPaths::GetIconPath("close.svg")));
 			icon->SetLabel("saved_icon");
 			tab->Layout();
 		}

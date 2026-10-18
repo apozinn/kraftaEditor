@@ -115,13 +115,9 @@ void ControlPanel::BuildLayout() {
 
 	auto *topSizer = new wxBoxSizer(wxHORIZONTAL);
 
-	wxBitmap searchBmp;
-	if (wxFileExists(m_iconsDir + "search_gray.png")) {
-		searchBmp.LoadFile(m_iconsDir + "search_gray.png", wxBITMAP_TYPE_PNG);
-	}
-
 	auto *searchIcon = new wxStaticBitmap(
-		topContainer, wxID_ANY, wxBitmapBundle::FromBitmap(searchBmp));
+		topContainer, wxID_ANY, UiUtils::CreateIcon(
+    ApplicationPaths::GetIconPath("search.svg")));
 	searchIcon->SetBackgroundColour(m_bgColor);
 	topSizer->Add(searchIcon, 0, wxALIGN_CENTER_VERTICAL | wxLEFT | wxRIGHT,
 				  kSearchPadding);

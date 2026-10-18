@@ -11,6 +11,7 @@
 #include "projectSettings/projectSettings.hpp"
 #include "themesManager/themesManager.hpp"
 #include "ui/ids.hpp"
+#include "ui/utils.hpp"
 
 #include "errorMessages/errorMessages.hpp"
 #include "gui/editor/core/editor.hpp"

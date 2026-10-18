@@ -12,6 +12,7 @@
 #include "projectSettings/projectSettings.hpp"
 #include "themesManager/themesManager.hpp"
 #include "ui/ids.hpp"
+#include "ui/utils.hpp"
 #include "userSettings/userSettings.hpp"
 #include <wx/wx.h>
 

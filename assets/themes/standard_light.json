@@ -4,6 +4,8 @@
     "main": "#ffffff",
     "secondary": "#f3f3f3",
     "colorThree": "#e8e8e8",
+    "icon": "#1f1f1f",
+    "unsavedIcon": "#F8F8F2",
     "highlight": "#0066cc",
     "border": "#e0e0e0",
     "tint": "#0090b8",

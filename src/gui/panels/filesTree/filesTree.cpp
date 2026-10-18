@@ -14,18 +14,15 @@ FilesTree::FilesTree(wxWindow *parent, wxWindowID ID) : wxPanel(parent, ID) {
 	m_projectInformations->Bind(
 		wxEVT_ENTER_WINDOW, &FilesTree::OnProjectInformationsHoverEnter, this);
 
-	wxString arrowPath = ApplicationPaths::GetIconPath("dir_arrow.png");
-	if (!arrowPath.IsEmpty()) {
-		wxBitmap arrowBitmap(arrowPath, wxBITMAP_TYPE_PNG);
-		if (arrowBitmap.IsOk()) {
-			m_projectInformationsNameArrow = new wxStaticBitmap(
+m_projectInformationsNameArrow = new wxStaticBitmap(
 				m_projectInformations, +GUI::ControlID::ProjectToolsArrow,
-				arrowBitmap);
-			projectInfoSizer->Add(m_projectInformationsNameArrow, 0, wxEXPAND);
+				UiUtils::CreateIcon(
+    ApplicationPaths::GetIconPath("dir_arrow.svg"),
+    wxSize(20, 20)));
+				
+			projectInfoSizer->Add(m_projectInformationsNameArrow, 0);
 			m_projectInformationsNameArrow->Bind(
 				wxEVT_RIGHT_UP, &FilesTree::OnDirRightClick, this);
-		}
-	}
 
 	m_projectInformationsName = new wxStaticText(
 		m_projectInformations, +GUI::ControlID::ProjectToolsName,
@@ -298,14 +295,10 @@ wxWindow *FilesTree::CreateDirContainer(wxWindow *parent, wxString path,
 	propsPanel->SetLabel("dir_props");
 	propsPanel->Bind(wxEVT_LEFT_UP, &FilesTree::OnDirLeftClick, this);
 
-	wxString arrowPath = ApplicationPaths::GetIconPath("dir_arrow.png");
-	if (!arrowPath.IsEmpty()) {
-		wxBitmap arrowBitmap(arrowPath, wxBITMAP_TYPE_PNG);
-		if (arrowBitmap.IsOk()) {
-			auto *arrow = new wxStaticBitmap(propsPanel, wxID_ANY, arrowBitmap);
+auto *arrow = new wxStaticBitmap(propsPanel, wxID_ANY, UiUtils::CreateIcon(
+    ApplicationPaths::GetIconPath("dir_arrow.svg"),
+    wxSize(16, 16)));
 			propsSizer->Add(arrow, 0, wxALIGN_CENTRE_VERTICAL);
-		}
-	}
 
 	auto *dirName = new wxStaticText(
 		propsPanel, wxID_ANY, wxFileNameFromPath(path.Clone().RemoveLast()));

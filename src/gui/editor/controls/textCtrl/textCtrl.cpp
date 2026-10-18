@@ -196,9 +196,8 @@ void TextCtrl::DoSave(const wxString &path) {
 				auto icon =
 					((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[2]);
 				if (icon) {
-					icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(
-						ApplicationPaths::AssetsPath("icons") + "close.png",
-						wxBITMAP_TYPE_PNG)));
+					icon->SetBitmap(UiUtils::CreateIcon(
+    ApplicationPaths::GetIconPath("close.svg")));
 					icon->SetLabel("saved_icon");
 					tab->Layout();
 				}
@@ -428,10 +427,8 @@ void TextCtrl::UpdateUnsavedIndicator() {
 		}
 	}
 
-	icon->SetBitmap(wxBitmapBundle::FromBitmap(wxBitmap(
-		ApplicationPaths::AssetsPath("icons") + "unsaved" +
-			(ThemesManager::Get().IsDarkTheme() ? "_light" : "_dark") + ".png",
-		wxBITMAP_TYPE_PNG)));
+	icon->SetBitmap(UiUtils::CreateIcon(
+    ApplicationPaths::GetIconPath("unsaved.svg"), wxSize(9, 9), ThemesManager::Get().GetColor("unsavedIcon")));
 
 	tab->Layout();
 }
