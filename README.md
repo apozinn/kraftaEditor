@@ -12,7 +12,7 @@ A native code editor, written in C++.
 ![Platforms](https://img.shields.io/badge/Platforms-Windows%20%7C%20Linux%20%7C%20macOS-success)
 
 <p align="center">
-  <img src="assets/screenshots/dark.png" alt="Krafta Editor with LSP completion, dark theme">
+  <img src="assets/images/screenshots/dark.png" alt="Krafta Editor with LSP completion, dark theme">
   <br>
   <em>LSP completion in C++ with clangd</em>
 </p>
@@ -48,9 +48,9 @@ Three built-in themes, plus your own through JSON.
 
 <table>
   <tr>
-    <td><img src="assets/screenshots/light.png" alt="Light theme"></td>
-    <td><img src="assets/screenshots/dark.png" alt="Dark theme"></td>
-    <td><img src="assets/screenshots/dracula.png" alt="Dracula theme"></td>
+    <td><img src="assets/images/screenshots/light.png" alt="Light theme"></td>
+    <td><img src="assets/images/screenshots/dark.png" alt="Dark theme"></td>
+    <td><img src="assets/images/screenshots/dracula.png" alt="Dracula theme"></td>
   </tr>
   <tr align="center">
     <td>Light</td>
