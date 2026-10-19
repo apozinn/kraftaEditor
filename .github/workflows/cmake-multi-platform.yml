@@ -1,0 +1,129 @@
+name: Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-unity:
+    name: Build (Unity)
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        build_type: [Release]
+        c_compiler: [gcc, clang, cl]
+        include:
+          - os: windows-latest
+            c_compiler: cl
+            cpp_compiler: cl
+          - os: ubuntu-latest
+            c_compiler: gcc
+            cpp_compiler: g++
+          - os: ubuntu-latest
+            c_compiler: clang
+            cpp_compiler: clang++
+          - os: macos-latest
+            c_compiler: clang
+            cpp_compiler: clang++
+        exclude:
+          - os: windows-latest
+            c_compiler: gcc
+          - os: windows-latest
+            c_compiler: clang
+          - os: ubuntu-latest
+            c_compiler: cl
+          - os: macos-latest
+            c_compiler: gcc
+          - os: macos-latest
+            c_compiler: cl
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Linux dependencies
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          libgtk-3-dev libgl1-mesa-dev libglu1-mesa-dev \
+          libsecret-1-dev libnotify-dev libsm-dev \
+          libxext-dev libx11-dev libxkbcommon-dev libxkbcommon-x11-dev
+
+    - name: Set reusable strings
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Cache FetchContent
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.strings.outputs.build-output-dir }}/_deps
+        key: ${{ runner.os }}-${{ matrix.c_compiler }}-fetchcontent-${{ hashFiles('CMakeLists.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ matrix.c_compiler }}-fetchcontent-
+
+    - name: Configure CMake
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DENABLE_UNITY_BUILD=ON
+        -DENABLE_WERROR=ON
+        -S ${{ github.workspace }}
+
+    - name: Build
+      run: >
+        cmake --build ${{ steps.strings.outputs.build-output-dir }}
+        --config ${{ matrix.build_type }}
+        --parallel
+
+  build-strict:
+    name: Build (no Unity, strict includes)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Linux dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          libgtk-3-dev libgl1-mesa-dev libglu1-mesa-dev \
+          libsecret-1-dev libnotify-dev libsm-dev \
+          libxext-dev libx11-dev libxkbcommon-dev libxkbcommon-x11-dev
+
+    - name: Set reusable strings
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Cache FetchContent
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.strings.outputs.build-output-dir }}/_deps
+        key: ${{ runner.os }}-gcc-fetchcontent-${{ hashFiles('CMakeLists.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-gcc-fetchcontent-
+
+    - name: Configure CMake (no Unity)
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_CXX_COMPILER=g++
+        -DCMAKE_C_COMPILER=gcc
+        -DCMAKE_BUILD_TYPE=Release
+        -DENABLE_UNITY_BUILD=OFF
+        -DENABLE_WERROR=OFF
+        -S ${{ github.workspace }}
+
+    - name: Build (no Unity)
+      run: >
+        cmake --build ${{ steps.strings.outputs.build-output-dir }}
+        --config Release
+        --parallel
