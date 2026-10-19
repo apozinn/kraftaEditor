@@ -212,7 +212,7 @@ target_link_libraries(kraftaEditor PRIVATE
 if(APPLE)
     set_target_properties(kraftaEditor PROPERTIES
         MACOSX_BUNDLE                      TRUE
-        MACOSX_BUNDLE_INFO_PLIST           "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist"
+        MACOSX_BUNDLE_INFO_PLIST           "${CMAKE_CURRENT_SOURCE_DIR}/resources/Info.plist"
         MACOSX_BUNDLE_BUNDLE_NAME          "Krafta Editor"
         MACOSX_BUNDLE_ICON_FILE            "AppIcon.icns"
         MACOSX_BUNDLE_GUI_IDENTIFIER       "com.krafta.editor"
