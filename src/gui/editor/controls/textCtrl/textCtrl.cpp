@@ -548,6 +548,7 @@ void TextCtrl::RecreateMinimap() {
 		}
 
 		minimap = new wxStyledTextCtrlMiniMap(parent, this);
+		minimap->SetWindowStyleFlag(wxBORDER_NONE);
 
 		minimap->SetSize(wxSize(100, minimap->GetSize().y));
 		minimap->SetMinSize(wxSize(100, minimap->GetSize().y));

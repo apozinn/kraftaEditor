@@ -5,7 +5,7 @@
     "secondary": "#21222C",
     "colorThree": "#44475A",
     "icon": "#F8F8F2",
-    "unsavedIcon": "#F8F8F2",
+    "unsavedIcon": "#FFF",
     "highlight": "#BD93F9",
     "border": "#6272A4",
     "tint": "#8BE9FD",
