@@ -816,7 +816,7 @@ void TerminalView::OnMouse(wxMouseEvent &e) {
 				out += k;
 			WriteToPty(out);
 		} else {
-			ScrollLines(up ? n * 3 : -n * 3);
+			ScrollByLines(up ? n * 3 : -n * 3);
 		}
 		return;
 	}

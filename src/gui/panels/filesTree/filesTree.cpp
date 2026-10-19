@@ -351,7 +351,7 @@ void FilesTree::OnDirChildrensPaint(wxPaintEvent &event) {
 
 	dc.SetPen(wxPen(wxColor(color), 1.25, wxPENSTYLE_DOT));
 	dc.SetBrush(color);
-	dc.DrawLine(wxPoint(5, 5), wxPoint(5, target->GetSize().y+5));
+	dc.DrawLine(wxPoint(5, 5), wxPoint(5, target->GetSize().y + 5));
 }
 
 void FilesTree::OnFileLeftClick(wxMouseEvent &event) {

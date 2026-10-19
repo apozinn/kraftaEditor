@@ -286,7 +286,7 @@ class MainFrame : public wxFrame {
 	void ToggleAutosave(wxCommandEvent &WXUNUSED(event));
 
 	void OnGotoline(wxCommandEvent &event);
-	
+
 	void ToggleSearchPage(wxCommandEvent &event);
 
   private:

@@ -101,7 +101,7 @@ void ControlPanel::BuildMenusList() {
 		{"Create New Dir", GetSC("shortcut_new_dir"), +Event::File::CreateDir},
 
 		{"Toggle Search Page", "", +Event::View::ToggleSearchPage},
-{"Toggle Minimap", "", +Event::View::ToggleMiniMap},
+		{"Toggle Minimap", "", +Event::View::ToggleMiniMap},
 		{"Toggle Code Search", "", +Event::View::ToggleCodeSearch},
 		{"Toggle Quick Open", "", +Event::View::ToggleQuickOpen},
 		{"Toggle File Tree", GetSC("shortcut_toggle_file_tree"),
@@ -372,8 +372,8 @@ void ControlPanel::Select(const wxString &id) {
 	case +Event::View::ToggleSearchPage: {
 		PostEventInMainFrame(+Event::View::ToggleSearchPage);
 	} break;
-	
-case +Event::View::ToggleMiniMap: {
+
+	case +Event::View::ToggleMiniMap: {
 		PostEventInMainFrame(+Event::View::ToggleMiniMap);
 	} break;
 
