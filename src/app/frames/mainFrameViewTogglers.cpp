@@ -118,15 +118,32 @@ void MainFrame::OnToggleMinimapView(wxCommandEvent &WXUNUSED(event)) {
 	}
 }
 
-void MainFrame::OpenCodeSearch(wxCommandEvent &event) {
+void MainFrame::ToggleSearchPage(wxCommandEvent &event) {
 	auto *sizer = m_applicationLeftMainContainer->GetSizer();
-	for (wxWindow *child : m_applicationLeftMainContainer->GetChildren()) {
-		const int id = child->GetId();
-
-		if (id == +GUI::ControlID::PageSwitcher)
-			continue;
-
-		child->Show(id == +GUI::ControlID::SearchPage);
+	
+	auto k_codeSearch = FindWindowById(+GUI::ControlID::SearchPage);
+	if(!k_codeSearch) {
+		SetupSearchPage();
+		return;
+	}
+	
+	if(k_codeSearch->IsShown()) {
+		for (wxWindow *child : m_applicationLeftMainContainer->GetChildren()) {
+			const int id = child->GetId();
+			
+			if(id == +GUI::ControlID::SearchPage) {
+				child->Hide();
+			} else child->Show();
+		}
+	} else {
+		for (wxWindow *child : m_applicationLeftMainContainer->GetChildren()) {
+			const int id = child->GetId();
+			
+			if(id == +GUI::ControlID::SearchPage) {
+				child->Show();
+			} else child->Hide();
+			
+		}
 	}
 
 	if (sizer)

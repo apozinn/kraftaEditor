@@ -248,7 +248,7 @@ wxWindow *FilesTree::CreateFileContainer(wxWindow *parent,
 	fileSizer->Add(fileName, 0, wxALIGN_CENTRE_VERTICAL | wxLEFT, 5);
 	fileContainer->SetSizer(fileSizer);
 
-	parentSizer->Add(fileContainer, 0, wxEXPAND | wxLEFT, 5);
+	parentSizer->Add(fileContainer, 0, wxEXPAND | wxLEFT, 10);
 	parentSizer->Layout();
 
 	fileContainer->CallForEachChild([this](wxWindow *win) {
@@ -351,7 +351,7 @@ void FilesTree::OnDirChildrensPaint(wxPaintEvent &event) {
 
 	dc.SetPen(wxPen(wxColor(color), 1.25, wxPENSTYLE_DOT));
 	dc.SetBrush(color);
-	dc.DrawLine(wxPoint(0, 0), wxPoint(0, target->GetSize().y));
+	dc.DrawLine(wxPoint(5, 5), wxPoint(5, target->GetSize().y+5));
 }
 
 void FilesTree::OnFileLeftClick(wxMouseEvent &event) {

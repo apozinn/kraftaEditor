@@ -140,7 +140,7 @@ MenuBar::MenuBar() {
 					 _("&Zoom Out") + GetSC("shortcut_zoom_out"));
 
 	wxMenu *menuTools = new wxMenu;
-	menuTools->Append(+Event::CodeSearch::OpenCodeSearchTab, _("&Search Page"));
+	menuTools->Append(+Event::View::ToggleSearchPage, _("&Search Page"));
 	menuTools->Append(+Event::View::ToggleControlPanel,
 					  _("&Command Palette") +
 						  GetSC("shortcut_command_palette"));

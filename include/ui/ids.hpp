@@ -29,7 +29,7 @@ constexpr wxWindowID ID_BASE_CONTROL =
 	15000; ///< Command/control panel navigation
 constexpr wxWindowID ID_BASE_QUICK_OPEN =
 	15500; ///< Quick Open navigation and actions
-constexpr wxWindowID ID_BASE_SEARCH =
+constexpr wxWindowID ID_BASE_SEARCH_PAGE =
 	16000; ///< Search panels and search actions
 constexpr wxWindowID ID_BASE_SETTINGS =
 	17000; ///< User preferences and settings
@@ -189,7 +189,8 @@ enum class View : wxWindowID {
 	SplitEditor = ID_BASE_VIEW + 11,
 	ZoomIn = ID_BASE_VIEW + 12,
 	ZoomOut = ID_BASE_VIEW + 13,
-	ZoomReset = ID_BASE_VIEW + 14
+	ZoomReset = ID_BASE_VIEW + 14,
+	ToggleSearchPage = ID_BASE_VIEW + 15,
 };
 
 /**
@@ -254,16 +255,6 @@ enum class QuickOpen : wxWindowID {
 	Up = ID_BASE_QUICK_OPEN + 2,
 	Down = ID_BASE_QUICK_OPEN + 3,
 	Select = ID_BASE_QUICK_OPEN + 4,
-};
-
-/**
- * @enum CodeSearch
- * @brief Workspace and editor search panel actions.
- */
-enum class CodeSearch : wxWindowID {
-	Open = ID_BASE_SEARCH + 1,
-	Close = ID_BASE_SEARCH + 2,
-	OpenCodeSearchTab = ID_BASE_SEARCH + 3,
 };
 
 /**

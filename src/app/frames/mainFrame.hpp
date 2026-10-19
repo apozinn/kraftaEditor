@@ -286,6 +286,8 @@ class MainFrame : public wxFrame {
 	void ToggleAutosave(wxCommandEvent &WXUNUSED(event));
 
 	void OnGotoline(wxCommandEvent &event);
+	
+	void ToggleSearchPage(wxCommandEvent &event);
 
   private:
 	// --- UI Component Pointers ---
@@ -519,8 +521,6 @@ class MainFrame : public wxFrame {
 	 * @param WXUNUSED(event) The maximize event.
 	 */
 	void OnFrameMaximized(wxMaximizeEvent &WXUNUSED(event));
-
-	void OpenCodeSearch(wxCommandEvent &event);
 
 	wxDECLARE_NO_COPY_CLASS(MainFrame);
 	wxDECLARE_EVENT_TABLE();

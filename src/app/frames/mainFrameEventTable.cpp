@@ -83,6 +83,6 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
 	EVT_MENU(+Event::Shortcuts::Edit, MainFrame::OnEditShortcuts)
 
 	// Code Search
-	EVT_MENU(+Event::CodeSearch::OpenCodeSearchTab, MainFrame::OpenCodeSearch)
+	EVT_MENU(+Event::View::ToggleSearchPage, MainFrame::ToggleSearchPage)
 
 		wxEND_EVENT_TABLE()
