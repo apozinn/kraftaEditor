@@ -204,7 +204,6 @@ wxString LspDownloader::FindPython3() {
 }
 
 long LspDownloader::RunCommand(const wxString &cmd, wxArrayString &output) {
-	wxLogDebug("RunCommand: %s", cmd);
 	std::string command = cmd.ToStdString() + " 2>&1";
 
 #ifdef __WXMSW__

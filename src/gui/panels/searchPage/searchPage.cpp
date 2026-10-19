@@ -33,8 +33,9 @@ void SearchPage::SetupUI() {
 	auto *backContainer = new wxPanel(this);
 	auto *backSizer = new wxBoxSizer(wxHORIZONTAL);
 
-	auto *arrow = new wxStaticBitmap(backContainer, wxID_ANY, UiUtils::CreateIcon(
-    ApplicationPaths::GetIconPath("arrow_left.svg")));
+	auto *arrow = new wxStaticBitmap(
+		backContainer, wxID_ANY,
+		UiUtils::CreateIcon(ApplicationPaths::GetIconPath("arrow_left.svg")));
 	backSizer->Add(arrow, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
 
 	auto *backLabel = new wxStaticText(backContainer, wxID_ANY, _("Back"));

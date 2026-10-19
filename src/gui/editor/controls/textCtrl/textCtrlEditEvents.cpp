@@ -81,65 +81,65 @@ void TextCtrl::OnEnterKey(wxStyledTextEvent &event) {
 }
 
 void TextCtrl::DoCopy(wxCommandEvent &e) {
-    TextCtrl *focusedTextCtrl = GetFocusedTextCtrl();
-    if (!focusedTextCtrl)
-        return;
+	TextCtrl *focusedTextCtrl = GetFocusedTextCtrl();
+	if (!focusedTextCtrl)
+		return;
 
-    if (focusedTextCtrl->GetSelectionStart() ==
-        focusedTextCtrl->GetSelectionEnd()) {
-        const int line = focusedTextCtrl->GetCurrentLine();
-        const int lineCount = focusedTextCtrl->GetLineCount();
+	if (focusedTextCtrl->GetSelectionStart() ==
+		focusedTextCtrl->GetSelectionEnd()) {
+		const int line = focusedTextCtrl->GetCurrentLine();
+		const int lineCount = focusedTextCtrl->GetLineCount();
 
-        if (line < lineCount - 1) {
-            const int start = focusedTextCtrl->PositionFromLine(line);
-            const int end = focusedTextCtrl->GetLineEndPosition(line) + 1;
-            focusedTextCtrl->SetSelection(start, end);
-        } else {
-            int start = focusedTextCtrl->PositionFromLine(line);
-            const int end = focusedTextCtrl->GetLineEndPosition(line);
+		if (line < lineCount - 1) {
+			const int start = focusedTextCtrl->PositionFromLine(line);
+			const int end = focusedTextCtrl->GetLineEndPosition(line) + 1;
+			focusedTextCtrl->SetSelection(start, end);
+		} else {
+			int start = focusedTextCtrl->PositionFromLine(line);
+			const int end = focusedTextCtrl->GetLineEndPosition(line);
 
-            if (line > 0)
-                start--;
+			if (line > 0)
+				start--;
 
-            focusedTextCtrl->SetSelection(start, end);
-        }
-    }
+			focusedTextCtrl->SetSelection(start, end);
+		}
+	}
 
-    if (!focusedTextCtrl->CanCopy())
-        return;
+	if (!focusedTextCtrl->CanCopy())
+		return;
 
-    focusedTextCtrl->Copy();
+	focusedTextCtrl->Copy();
 }
 
 void TextCtrl::DoCut(wxCommandEvent &e) {
-    TextCtrl *focusedTextCtrl = GetFocusedTextCtrl();
-    if (!focusedTextCtrl)
-        return;
+	TextCtrl *focusedTextCtrl = GetFocusedTextCtrl();
+	if (!focusedTextCtrl)
+		return;
 
-    if (focusedTextCtrl->GetSelectionStart() ==
-        focusedTextCtrl->GetSelectionEnd()) {
-        const int line = focusedTextCtrl->GetCurrentLine();
-        const int lineCount = focusedTextCtrl->GetLineCount();
+	if (focusedTextCtrl->GetSelectionStart() ==
+		focusedTextCtrl->GetSelectionEnd()) {
+		const int line = focusedTextCtrl->GetCurrentLine();
+		const int lineCount = focusedTextCtrl->GetLineCount();
 
-        if (line < lineCount - 1) {
-            const int start = focusedTextCtrl->PositionFromLine(line);
-            const int end = focusedTextCtrl->GetLineEndPosition(line) + 1;
-            focusedTextCtrl->SetSelection(start, end);
-        } else {
-            int start = focusedTextCtrl->PositionFromLine(line);
-            const int end = focusedTextCtrl->GetLineEndPosition(line);
+		if (line < lineCount - 1) {
+			const int start = focusedTextCtrl->PositionFromLine(line);
+			const int end = focusedTextCtrl->GetLineEndPosition(line) + 1;
+			focusedTextCtrl->SetSelection(start, end);
+		} else {
+			int start = focusedTextCtrl->PositionFromLine(line);
+			const int end = focusedTextCtrl->GetLineEndPosition(line);
 
-            if (line > 0)
-                start--;
+			if (line > 0)
+				start--;
 
-            focusedTextCtrl->SetSelection(start, end);
-        }
-    }
+			focusedTextCtrl->SetSelection(start, end);
+		}
+	}
 
-    if (!focusedTextCtrl->CanCut())
-        return;
+	if (!focusedTextCtrl->CanCut())
+		return;
 
-    focusedTextCtrl->Cut();
+	focusedTextCtrl->Cut();
 }
 
 void TextCtrl::DoPaste(wxCommandEvent &e) {

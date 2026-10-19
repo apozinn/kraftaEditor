@@ -17,17 +17,18 @@ Tabs::Tabs(wxPanel *parent, wxWindowID ID) : wxPanel(parent, ID) {
 		wxPanel *rightMenus = new wxPanel(this);
 		auto rightMenusSizer = new wxBoxSizer(wxHORIZONTAL);
 
-		auto splittEditor =
-			new wxStaticBitmap(rightMenus, wxID_ANY,
-							   UiUtils::CreateIcon(
-    ApplicationPaths::GetIconPath("split_editor.svg")));
+		auto splittEditor = new wxStaticBitmap(
+			rightMenus, wxID_ANY,
+			UiUtils::CreateIcon(
+				ApplicationPaths::GetIconPath("split_editor.svg")));
 		splittEditor->Bind(wxEVT_LEFT_UP, &Tabs::OnSplitEditorMenuClick, this);
 		rightMenusSizer->Add(splittEditor, 0, wxEXPAND | wxRIGHT, 10);
-		
+
 		auto menuDown = new wxStaticBitmap(
-			rightMenus, wxID_ANY, UiUtils::CreateIcon(
-    ApplicationPaths::GetIconPath("menu_down.svg")));
-			
+			rightMenus, wxID_ANY,
+			UiUtils::CreateIcon(
+				ApplicationPaths::GetIconPath("menu_down.svg")));
+
 		menuDown->Bind(wxEVT_LEFT_UP, &Tabs::OnDownMenuClick, this);
 		rightMenusSizer->Add(menuDown, 0);
 
@@ -99,8 +100,10 @@ void Tabs::Add(wxString tab_name, wxString path) {
 	name->SetName(path);
 	name->Bind(wxEVT_LEFT_UP, &Tabs::OnTabClick, this);
 	tab_infos_sizer->Add(name, 1, wxEXPAND | wxLEFT | wxRIGHT, 15);
-	
-	wxStaticBitmap *close_icon = new wxStaticBitmap(tab_infos, wxID_ANY, UiUtils::CreateIcon(ApplicationPaths::GetIconPath("close.svg")));
+
+	wxStaticBitmap *close_icon = new wxStaticBitmap(
+		tab_infos, wxID_ANY,
+		UiUtils::CreateIcon(ApplicationPaths::GetIconPath("close.svg")));
 	close_icon->SetName("tab_icon_close_or_unsaved");
 	close_icon->Bind(wxEVT_LEFT_UP, &Tabs::OnCloseTab, this);
 	tab_infos_sizer->Add(close_icon, 0, wxALIGN_CENTER | wxRIGHT, 10);
@@ -438,8 +441,8 @@ void Tabs::OnEnterComp(wxMouseEvent &event) {
 		if (icon->GetLabel() == "saved_icon")
 			return;
 
-		auto closeIcon = UiUtils::CreateIcon(
-    ApplicationPaths::GetIconPath("close.svg"));
+		auto closeIcon =
+			UiUtils::CreateIcon(ApplicationPaths::GetIconPath("close.svg"));
 		if (!closeIcon.IsOk())
 			return;
 
@@ -466,9 +469,9 @@ void Tabs::OnLeaveComp(wxMouseEvent &event) {
 			if (icon->GetLabel() == "unsaved_icon")
 				return;
 
-			auto unsavedIcon =
-				UiUtils::CreateIcon(
-    ApplicationPaths::GetIconPath("unsaved.svg"), wxSize(9, 9), ThemesManager::Get().GetColor("unsavedIcon"));
+			auto unsavedIcon = UiUtils::CreateIcon(
+				ApplicationPaths::GetIconPath("unsaved.svg"), wxSize(9, 9),
+				ThemesManager::Get().GetColor("unsavedIcon"));
 			if (!unsavedIcon.IsOk())
 				return;
 			icon->SetBitmap(unsavedIcon);
@@ -477,8 +480,8 @@ void Tabs::OnLeaveComp(wxMouseEvent &event) {
 			if (icon->GetLabel() == "saved_icon")
 				return;
 
-			auto closeIcon = UiUtils::CreateIcon(
-    ApplicationPaths::GetIconPath("close.svg"));
+			auto closeIcon =
+				UiUtils::CreateIcon(ApplicationPaths::GetIconPath("close.svg"));
 			if (!closeIcon.IsOk())
 				return;
 			icon->SetBitmap(closeIcon);

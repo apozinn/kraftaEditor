@@ -20,14 +20,14 @@ ProjectInfosTools::ProjectInfosTools(wxPanel *parent, wxWindowID ID)
 }
 
 void ProjectInfosTools::CreateCollapseButton() {
-m_collapse_button = new wxStaticBitmap(
-				this, +GUI::ControlID::ProjectToolsArrow, UiUtils::CreateIcon(
-    ApplicationPaths::GetIconPath("collapse.svg"), wxSize(20, 20)));
-				
-			m_sizer->Add(m_collapse_button, 0,
-						 wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
-			m_collapse_button->Bind(
-				wxEVT_LEFT_UP, &ProjectInfosTools::OnCollapseButtonClick, this);
+	m_collapse_button = new wxStaticBitmap(
+		this, +GUI::ControlID::ProjectToolsArrow,
+		UiUtils::CreateIcon(ApplicationPaths::GetIconPath("collapse.svg"),
+							wxSize(20, 20)));
+
+	m_sizer->Add(m_collapse_button, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+	m_collapse_button->Bind(wxEVT_LEFT_UP,
+							&ProjectInfosTools::OnCollapseButtonClick, this);
 }
 
 void ProjectInfosTools::OnCollapseButtonClick(wxMouseEvent &event) {

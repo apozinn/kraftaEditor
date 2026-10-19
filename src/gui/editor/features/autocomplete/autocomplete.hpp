@@ -20,7 +20,7 @@ class AutoCompleteController {
 						   languagePreferencesStruct languagePreferences);
 
 	void BindEvents();
-void OnAutoCompEvent(wxStyledTextEvent& event);	
+	void OnAutoCompEvent(wxStyledTextEvent &event);
 
 	wxWeakRef<TextCtrl> m_textCtrl;
 	std::vector<wxString> m_standardWordsList;

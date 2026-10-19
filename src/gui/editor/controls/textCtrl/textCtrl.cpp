@@ -15,26 +15,32 @@ TextCtrl::TextCtrl(wxWindow *parent)
 void TextCtrl::BindEvents() {
 	Bind(wxEVT_STC_CHANGE, &TextCtrl::OnChange, this);
 	Bind(wxEVT_STC_CHARADDED, &TextCtrl::CharAdd, this);
-	Bind(wxEVT_LEFT_DOWN, &TextCtrl::OnClick, this);	
+	Bind(wxEVT_LEFT_DOWN, &TextCtrl::OnClick, this);
 	Bind(wxEVT_STC_MARGINCLICK, &TextCtrl::OnMarginClick, this);
 	Bind(wxEVT_KEY_UP, &TextCtrl::OnArrowsPress, this);
 	Bind(wxEVT_KEY_DOWN, &TextCtrl::OnBackspace, this);
 	Bind(wxEVT_LEFT_UP, &TextCtrl::OnClick, this);
 	Bind(wxEVT_MOUSEWHEEL, &TextCtrl::OnScroll, this);
-	Bind(wxEVT_MENU, &TextCtrl::SelectNextOccurrence, this, +Event::Edit::SelectNextOccurrence);
+	Bind(wxEVT_MENU, &TextCtrl::SelectNextOccurrence, this,
+		 +Event::Edit::SelectNextOccurrence);
 	Bind(wxEVT_MENU, &TextCtrl::OnSave, this, +Event::File::Save);
 	Bind(wxEVT_MENU, &TextCtrl::SaveAs, this, +Event::File::SaveAs);
 	Bind(wxEVT_MENU, &TextCtrl::SaveAll, this, +Event::File::SaveAll);
 	Bind(wxEVT_MENU, &TextCtrl::CloseFile, this, +Event::File::CloseFile);
-	Bind(wxEVT_MENU, &TextCtrl::ToggleLineComment, this, +Event::Edit::ToggleLineComment);
-	Bind(wxEVT_MENU, &TextCtrl::ToggleBlockComment, this, +Event::Edit::ToggleBlockComment);
+	Bind(wxEVT_MENU, &TextCtrl::ToggleLineComment, this,
+		 +Event::Edit::ToggleLineComment);
+	Bind(wxEVT_MENU, &TextCtrl::ToggleBlockComment, this,
+		 +Event::Edit::ToggleBlockComment);
 	Bind(wxEVT_MENU, &TextCtrl::SelectLine, this, +Event::Edit::SelectLine);
-	Bind(wxEVT_MENU, &TextCtrl::DuplicateLine, this, +Event::Edit::DuplicateLineUp);
+	Bind(wxEVT_MENU, &TextCtrl::DuplicateLine, this,
+		 +Event::Edit::DuplicateLineUp);
 	Bind(wxEVT_MENU, &TextCtrl::MoveCursorUp, this, +Event::Edit::MoveCursorUp);
-	Bind(wxEVT_MENU, &TextCtrl::MoveCursorDown, this, +Event::Edit::MoveCursorDown);
+	Bind(wxEVT_MENU, &TextCtrl::MoveCursorDown, this,
+		 +Event::Edit::MoveCursorDown);
 	Bind(wxEVT_MENU, &TextCtrl::MoveLineUp, this, +Event::Edit::MoveLineUp);
 	Bind(wxEVT_MENU, &TextCtrl::MoveLineDown, this, +Event::Edit::MoveLineDown);
-	Bind(wxEVT_MENU, &TextCtrl::RemoveCurrentLine, this, +Event::Edit::RemoveCurrentLine);
+	Bind(wxEVT_MENU, &TextCtrl::RemoveCurrentLine, this,
+		 +Event::Edit::RemoveCurrentLine);
 
 	Bind(wxEVT_LEFT_DOWN, [this](wxMouseEvent &event) {
 		if (ProjectSettings::Get().GetCurrentlyFileOpen() != this->GetName()) {
@@ -137,10 +143,10 @@ void TextCtrl::SetupAcceleratorTable() {
 		 static_cast<int>(Event::Edit::DuplicateLineUp)},
 		{wxACCEL_CTRL, (int)'D',
 		 static_cast<int>(Event::Edit::SelectNextOccurrence)},
-		 
+
 		{wxACCEL_CTRL, (int)'C', static_cast<int>(+Event::Edit::Copy)},
 		{wxACCEL_CTRL, (int)'X', static_cast<int>(+Event::Edit::Cut)},
-		
+
 		{wxACCEL_CTRL | wxACCEL_SHIFT, (int)'+',
 		 static_cast<int>(Event::View::ZoomIn)},
 		{wxACCEL_CTRL, (int)'-', static_cast<int>(Event::View::ZoomOut)},
@@ -197,7 +203,7 @@ void TextCtrl::DoSave(const wxString &path) {
 					((wxStaticBitmap *)tab->GetChildren()[0]->GetChildren()[2]);
 				if (icon) {
 					icon->SetBitmap(UiUtils::CreateIcon(
-    ApplicationPaths::GetIconPath("close.svg")));
+						ApplicationPaths::GetIconPath("close.svg")));
 					icon->SetLabel("saved_icon");
 					tab->Layout();
 				}
@@ -359,8 +365,6 @@ void TextCtrl::OnClick(wxMouseEvent &event) {
 }
 
 void TextCtrl::OnScroll(wxMouseEvent &event) {
-	wxLogDebug("scroll");
-	
 	if (event.ShiftDown()) {
 		OnHorizontalScroll(event);
 	} else {
@@ -428,7 +432,8 @@ void TextCtrl::UpdateUnsavedIndicator() {
 	}
 
 	icon->SetBitmap(UiUtils::CreateIcon(
-    ApplicationPaths::GetIconPath("unsaved.svg"), wxSize(9, 9), ThemesManager::Get().GetColor("unsavedIcon")));
+		ApplicationPaths::GetIconPath("unsaved.svg"), wxSize(9, 9),
+		ThemesManager::Get().GetColor("unsavedIcon")));
 
 	tab->Layout();
 }
@@ -509,8 +514,6 @@ void TextCtrl::SelectNextOccurrence(wxCommandEvent &WXUNUSED(event)) {
 void TextCtrl::OnHorizontalScroll(wxMouseEvent &event) {
 	int rotation = event.GetWheelRotation();
 	int delta = event.GetWheelDelta();
-	
-	wxLogDebug("horizontal scroll");
 
 	if (delta == 0)
 		return;

@@ -17,16 +17,16 @@ AutoCompleteController::Create(TextCtrl *textCtrl,
 }
 
 void AutoCompleteController::BindEvents() {
-    if (auto *stc = dynamic_cast<wxStyledTextCtrl *>(m_textCtrl.get())) {
-        stc->Bind(wxEVT_STC_AUTOCOMP_CANCELLED,
-                  &AutoCompleteController::OnAutoCompEvent, this);
-        stc->Bind(wxEVT_STC_AUTOCOMP_SELECTION,
-                  &AutoCompleteController::OnAutoCompEvent, this);
-        stc->Bind(wxEVT_STC_AUTOCOMP_COMPLETED,
-                  &AutoCompleteController::OnAutoCompEvent, this);
-        stc->Bind(wxEVT_STC_AUTOCOMP_CHAR_DELETED,
-                  &AutoCompleteController::OnAutoCompEvent, this);
-    }
+	if (auto *stc = dynamic_cast<wxStyledTextCtrl *>(m_textCtrl.get())) {
+		stc->Bind(wxEVT_STC_AUTOCOMP_CANCELLED,
+				  &AutoCompleteController::OnAutoCompEvent, this);
+		stc->Bind(wxEVT_STC_AUTOCOMP_SELECTION,
+				  &AutoCompleteController::OnAutoCompEvent, this);
+		stc->Bind(wxEVT_STC_AUTOCOMP_COMPLETED,
+				  &AutoCompleteController::OnAutoCompEvent, this);
+		stc->Bind(wxEVT_STC_AUTOCOMP_CHAR_DELETED,
+				  &AutoCompleteController::OnAutoCompEvent, this);
+	}
 }
 
 void AutoCompleteController::Initialize() {
@@ -45,17 +45,17 @@ void AutoCompleteController::Initialize() {
 }
 
 void AutoCompleteController::SetupConfigs() {
-    m_textCtrl->AutoCompSetSeparator(' ');
-    m_textCtrl->AutoCompSetIgnoreCase(false);
-    m_textCtrl->AutoCompSetAutoHide(true);      
-    m_textCtrl->AutoCompSetDropRestOfWord(false);
-    m_textCtrl->AutoCompSetMaxHeight(8);        
-    m_textCtrl->AutoCompSetTypeSeparator('?');
-    m_textCtrl->AutoCompSetChooseSingle(false); 
-    m_textCtrl->AutoCompSetOrder(wxSTC_ORDER_PRESORTED);
-    m_textCtrl->AutoCompSetCancelAtStart(false); 
-    m_textCtrl->AutoCompSetFillUps("([{");      
-    m_textCtrl->AutoCompStops(" \t()[]{};,\"'`."); 
+	m_textCtrl->AutoCompSetSeparator(' ');
+	m_textCtrl->AutoCompSetIgnoreCase(false);
+	m_textCtrl->AutoCompSetAutoHide(true);
+	m_textCtrl->AutoCompSetDropRestOfWord(false);
+	m_textCtrl->AutoCompSetMaxHeight(8);
+	m_textCtrl->AutoCompSetTypeSeparator('?');
+	m_textCtrl->AutoCompSetChooseSingle(false);
+	m_textCtrl->AutoCompSetOrder(wxSTC_ORDER_PRESORTED);
+	m_textCtrl->AutoCompSetCancelAtStart(false);
+	m_textCtrl->AutoCompSetFillUps("([{");
+	m_textCtrl->AutoCompStops(" \t()[]{};,\"'`.");
 }
 
 wxString AutoCompleteController::RequestStandardWordsList(wxString word) {
@@ -181,7 +181,7 @@ wxString AutoCompleteController::ParseCompletionItems(const std::string &json,
 	}
 }
 
-void AutoCompleteController::OnAutoCompEvent(wxStyledTextEvent& event) {	
-    event.Skip();
-		m_textCtrl->RecreateMinimap();
+void AutoCompleteController::OnAutoCompEvent(wxStyledTextEvent &event) {
+	event.Skip();
+	m_textCtrl->RecreateMinimap();
 }
