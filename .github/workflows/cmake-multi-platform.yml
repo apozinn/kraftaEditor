@@ -54,13 +54,16 @@ jobs:
           libsecret-1-dev libnotify-dev libsm-dev \
           libxext-dev libx11-dev libxkbcommon-dev libxkbcommon-x11-dev
 
-    - name: Add swap space (Linux)
+    - name: Add extra swap space (Linux)
       if: runner.os == 'Linux'
       run: |
-        sudo fallocate -l 4G /swapfile
-        sudo chmod 600 /swapfile
-        sudo mkswap /swapfile
-        sudo swapon /swapfile
+        sudo fallocate -l 4G /mnt/extra-swapfile 2>/dev/null \
+          || sudo dd if=/dev/zero of=/mnt/extra-swapfile bs=1M count=4096 2>/dev/null
+        sudo chmod 600 /mnt/extra-swapfile
+        sudo mkswap /mnt/extra-swapfile
+        sudo swapon /mnt/extra-swapfile
+        echo "--- Swap ativo ---"
+        swapon --show
 
     - name: Set reusable strings
       id: strings
@@ -109,12 +112,14 @@ jobs:
           libsecret-1-dev libnotify-dev libsm-dev \
           libxext-dev libx11-dev libxkbcommon-dev libxkbcommon-x11-dev
 
-    - name: Add swap space
+    - name: Add extra swap space (Linux)
       run: |
-        sudo fallocate -l 4G /swapfile
-        sudo chmod 600 /swapfile
-        sudo mkswap /swapfile
-        sudo swapon /swapfile
+        sudo fallocate -l 4G /mnt/extra-swapfile 2>/dev/null \
+          || sudo dd if=/dev/zero of=/mnt/extra-swapfile bs=1M count=4096 2>/dev/null
+        sudo chmod 600 /mnt/extra-swapfile
+        sudo mkswap /mnt/extra-swapfile
+        sudo swapon /mnt/extra-swapfile
+        swapon --show
 
     - name: Set reusable strings
       id: strings
