@@ -4,10 +4,13 @@
 #include "lsp/lspClient/lspClient.hpp"
 #include "lsp/lspDownloader/lspDownloader.hpp"
 #include "platformInfos/platformInfos.hpp"
+#include "userSettings/userSettings.hpp"
+#include "lsp/lspInstallDialog/lspInstallDialog.hpp"
 
 #include <wx/filename.h>
 #include <wx/msgdlg.h>
 #include <wx/utils.h>
+#include <wx/dir.h>
 
 LspManager::LspManager() { m_lspFolderPath = LspDownloader::GetLspDir(); }
 

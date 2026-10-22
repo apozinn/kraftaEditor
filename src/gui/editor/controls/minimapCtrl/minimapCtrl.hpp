@@ -1,8 +1,7 @@
 #pragma once
 #include <wx/stc/minimap.h>
 #include <wx/weakref.h>
-
-class TextCtrl;
+#include "gui/editor/controls/textCtrl/textCtrl.hpp"
 
 class MinimapCtrl : public wxStyledTextCtrlMiniMap {
   public:
@@ -10,6 +9,4 @@ class MinimapCtrl : public wxStyledTextCtrlMiniMap {
 	void RecreateMinimap();
 
   private:
-	wxWeakRef<wxWindow> m_parent;
-	wxWeakRef<TextCtrl> m_textCtrl;
 };

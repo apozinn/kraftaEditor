@@ -219,8 +219,8 @@ void TextCtrl::DoSave(const wxString &path) {
 		} else {
 			throw _("This file does not exist");
 		}
-	} catch (std::exception error) {
-		wxMessageBox(error.what());
+	} catch (const std::exception &e) {
+		wxMessageBox(e.what());
 	}
 }
 
@@ -459,28 +459,6 @@ void TextCtrl::HandleAutoPairing(char chr) {
 
 	if (!pair.empty())
 		InsertText(GetCurrentPos(), pair);
-}
-
-static int FindLastCharBeforePos(wxStyledTextCtrl *ctrl, int ch, int pos) {
-	for (int i = pos; i >= 0; --i)
-		if (ctrl->GetCharAt(i) == ch)
-			return i;
-
-	return -1;
-}
-
-static wxString ExtractTagName(wxStyledTextCtrl *ctrl, int openPos,
-							   int closePos) {
-	wxString tag;
-
-	for (int i = openPos + 1; i < closePos; ++i) {
-		const char c = static_cast<char>(ctrl->GetCharAt(i));
-		if (c == '/' || std::isspace(static_cast<unsigned char>(c)) || c == '>')
-			break;
-		tag += c;
-	}
-
-	return tag;
 }
 
 void TextCtrl::SelectNextOccurrence(wxCommandEvent &WXUNUSED(event)) {

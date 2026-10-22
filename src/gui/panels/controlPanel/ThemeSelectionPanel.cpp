@@ -43,8 +43,8 @@ void ControlPanel::OpenThemeSelectionPanel() {
 					std::ifstream file(files.Item(opt.id).ToStdString());
 					nlohmann::json themeData = nlohmann::json::parse(file);
 					ThemesManager::Get().currentTheme = themeData;
-					UserSettingsManager::Get().SetSetting("theme/themeFilePath",
-														  files.Item(opt.id));
+					UserSettingsManager::Get().SetSetting<std::string>("theme/themeFilePath",
+														  files.Item(opt.id).ToStdString());
 					LanguagesPreferences::Get().Reload();
 
 					ThemeApplier::ApplyTheme(mainFrame, themeData);

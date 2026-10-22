@@ -4,7 +4,7 @@
 #include "gui/editor/controls/textCtrl/textCtrl.hpp"
 
 Editor::Editor(wxWindow *parent, wxString path)
-	: m_path(path), wxPanel(parent) {
+	: wxPanel(parent), m_path(path) {
 	SetName(m_path);
 	SetLabel(m_path + "_editor");
 

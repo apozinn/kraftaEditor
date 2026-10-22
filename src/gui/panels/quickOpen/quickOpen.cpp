@@ -6,13 +6,15 @@
 #include <wx/dcbuffer.h>
 
 namespace {
-
+constexpr int kPanelWidth = 480;
+constexpr int kPanelHeight = 280;
 constexpr int kRowHeight = 24;
 constexpr int kRowPaddingX = 8;
 constexpr int kNameFontSize = 10;
 constexpr int kPathFontSize = 8;
 constexpr int kSearchFontSize = 11;
 constexpr int kMaxFiles = 5000;
+constexpr int kSearchPadding = 8;
 
 const std::unordered_set<std::string> kIgnoredDirs = {
 	".git",
@@ -36,6 +38,12 @@ wxColour GetThemeColor(const ThemesManager &theme, const char *key,
 	} catch (...) {
 		return fallback;
 	}
+}
+
+wxFont MakeMonospaceFont(int size, wxFontWeight weight = wxFONTWEIGHT_NORMAL) {
+	wxFont font(size, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, weight);
+	font.SetFaceName("Monospace");
+	return font;
 }
 
 } // namespace

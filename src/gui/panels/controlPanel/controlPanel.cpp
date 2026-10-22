@@ -39,9 +39,8 @@ wxFont MakeMonospaceFont(int size, wxFontWeight weight = wxFONTWEIGHT_NORMAL) {
 } // namespace
 
 ControlPanel::ControlPanel(wxFrame *parent, wxWindowID id)
-	: m_frameParent(parent),
-	  wxPanel(parent, id, wxDefaultPosition, wxSize(kPanelWidth, kPanelHeight),
-			  wxBORDER_SIMPLE | wxTAB_TRAVERSAL) {
+	: wxPanel(parent, id, wxDefaultPosition, wxSize(kPanelWidth, kPanelHeight),
+			  wxBORDER_SIMPLE | wxTAB_TRAVERSAL), m_frameParent(parent) {
 	if (!parent) {
 		wxLogError("ControlPanel: parent frame is null");
 		return;

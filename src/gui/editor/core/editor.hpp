@@ -16,6 +16,7 @@ class Editor : public wxPanel {
 	void Save(wxString path);
 
   private:
+  wxString m_path;
 	bool Initialize();
 	void UpdateStatusBarComponents() {
 		if (m_statusBar)
@@ -26,7 +27,6 @@ class Editor : public wxPanel {
 	bool SetupMinimapCtrl();
 	void SetupLanguagePreferences();
 
-	wxString m_path;
 	wxWeakRef<TextCtrl> m_textCtrl;
 	wxWeakRef<MinimapCtrl> m_minimapCtrl;
 	wxBoxSizer *m_sizer = new wxBoxSizer(wxHORIZONTAL);

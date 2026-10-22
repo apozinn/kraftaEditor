@@ -23,8 +23,8 @@ option(USE_SYSTEM_WXWIDGETS "Use the system-installed wxWidgets"       OFF)
 option(ENABLE_TESTS         "Build the test suite"                      OFF)
 option(ENABLE_CLANG_TIDY    "Enable clang-tidy static analysis"         OFF)
 option(ENABLE_COVERAGE      "Enable code coverage instrumentation"       OFF)
-option(ENABLE_WERROR        "Treat all warnings as errors"               OFF)
-option(ENABLE_UNITY_BUILD   "Merge source files to speed up compilation" ON)
+option(ENABLE_WERROR        "Treat all warnings as errors"               ON)
+option(ENABLE_UNITY_BUILD   "Merge source files to speed up compilation" OFF)
 
 # ------------------------------------------------------------------------------
 # Output directories per build configuration
@@ -94,7 +94,6 @@ if(USE_SYSTEM_WXWIDGETS)
         include(${wxWidgets_USE_FILE})
         message(STATUS "Using system wxWidgets v${wxWidgets_VERSION}")
     else()
-        # System version is absent or older than 3.3 — fall back to FetchContent
         message(STATUS "System wxWidgets >= ${wxWidgets_MIN_VERSION} not found, fetching from source")
         set(USE_SYSTEM_WXWIDGETS OFF CACHE BOOL "" FORCE)
     endif()
@@ -170,9 +169,11 @@ target_compile_options(kraftaEditor PRIVATE
         -Wall -Wextra -Wpedantic
         -Wno-unused-variable -Wno-unused-parameter
         -fdiagnostics-color=always>
-    # -Werror is opt-in to keep CI strict without breaking local builds
-    $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<BOOL:${ENABLE_WERROR}>>:/WX>
-    $<$<AND:$<NOT:$<CXX_COMPILER_ID:MSVC>>,$<BOOL:${ENABLE_WERROR}>>:-Werror>
+)
+
+# -Werror via propriedade nativa (mais limpo que generator expression)
+set_target_properties(kraftaEditor PROPERTIES
+    COMPILE_WARNING_AS_ERROR ${ENABLE_WERROR}
 )
 
 if(ENABLE_COVERAGE)
@@ -219,14 +220,13 @@ if(APPLE)
         MACOSX_BUNDLE_BUNDLE_VERSION       "${PROJECT_VERSION}"
         MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}"
     )
-    # Inside a .app bundle, Resources sit one level above the MacOS binary
     set(KRAFTA_ASSET_PATH "../Resources")
 
 elseif(WIN32)
     target_compile_definitions(kraftaEditor PRIVATE wxUSE_NO_MANIFEST=0)
     set_target_properties(kraftaEditor PROPERTIES WIN32_EXECUTABLE TRUE)
     set(KRAFTA_ASSET_PATH "assets")
-else() # Linux / BSD
+else()
     set(KRAFTA_ASSET_PATH "/usr/share/kraftaEditor")
 endif()
 
@@ -346,7 +346,6 @@ elseif(APPLE)
     set(CPACK_GENERATOR "DragNDrop")
 else()
     set(CPACK_GENERATOR "DEB;TGZ")
-    # SHLIBDEPS disabled: wxWidgets is statically linked, no shared-lib deps to resolve
     set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS  OFF)
     set(CPACK_DEBIAN_PACKAGE_SECTION    "development")
     set(CPACK_DEBIAN_PACKAGE_PRIORITY   "optional")
