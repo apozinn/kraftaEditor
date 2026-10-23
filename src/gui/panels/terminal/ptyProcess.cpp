@@ -206,7 +206,11 @@ void PtyProcess::Resize(int cols, int rows) {
 #else
 
 #include <fcntl.h>
+#ifdef __APPLE__
+#include <util.h>
+#else
 #include <pty.h>
+#endif
 #include <signal.h>
 #include <spawn.h>
 #include <sys/ioctl.h>
