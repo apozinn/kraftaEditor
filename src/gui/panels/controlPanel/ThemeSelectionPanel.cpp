@@ -57,8 +57,8 @@ void ControlPanel::OpenThemeSelectionPanel() {
 					try {
 						if (ThemesManager::Get().IsDarkTheme()) {
 							wxTheApp->SetAppearance(wxApp::Appearance::Dark);
-#if __WXMSW__
-							MSWEnableDarkMode(DarkMode_Always);
+#ifdef __WXMSW__
+    wxTheApp->MSWEnableDarkMode(wxApp::DarkMode_Always);
 #endif
 						} else {
 							wxTheApp->SetAppearance(wxApp::Appearance::Light);

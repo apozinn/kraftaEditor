@@ -125,7 +125,7 @@ wxString InstalledBasePath(const wxString &subdir) {
 #ifdef __WXOSX__
 	// macOS: path is relative to the binary inside the .app bundle
 	wxFileName base(ApplicationPath() + assetRoot);
-	base.Normalize();
+	base.Normalize(wxPATH_NORM_DOTS | wxPATH_NORM_ABSOLUTE | wxPATH_NORM_TILDE);
 	return base.GetPathWithSep() + subdir + "/";
 #elif defined(__WXMSW__)
 	// Windows: path is relative to the directory containing the .exe

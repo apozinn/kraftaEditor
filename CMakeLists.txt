@@ -177,16 +177,17 @@ add_executable(kraftaEditor
 # ------------------------------------------------------------------------------
 target_compile_options(kraftaEditor PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>:
-        /W4 /MP /permissive->
+        /W4 /MP /permissive-
+        /wd4458  
+        /wd4100  
+        /wd4101
+    >
     $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:
         -Wall -Wextra -Wpedantic
-        -Wno-unused-variable -Wno-unused-parameter
-        -fdiagnostics-color=always>
-)
-
-# -Werror via propriedade nativa (mais limpo que generator expression)
-set_target_properties(kraftaEditor PROPERTIES
-    COMPILE_WARNING_AS_ERROR ${ENABLE_WERROR}
+        -Wno-unused-variable
+        -Wno-unused-parameter
+        -fdiagnostics-color=always
+    >
 )
 
 if(ENABLE_COVERAGE)

@@ -405,7 +405,7 @@ void Tabs::OnSplitEditorMenuClick(wxMouseEvent &WXUNUSED(event)) {
 	int TabsLength = tabsContainer->GetChildren().size();
 
 	if (TabsLength > 1) {
-		auto GetOtherTabPath = [this]() {
+		auto GetOtherTabPath = []() {
 			auto currentlyOpenTab = wxFindWindowByLabel(
 				ProjectSettings::Get().GetCurrentlyFileOpen() + "_tab");
 			if (currentlyOpenTab) {
@@ -506,7 +506,7 @@ void Tabs::OnTabPaint(wxPaintEvent &event) {
 			1.0, 10);
 
 		target->SetBackgroundColour(ThemesManager::Get().GetColor("secondary"));
-		target->CallForEachChild([this](wxWindow *child) {
+		target->CallForEachChild([](wxWindow *child) {
 			child->SetBackgroundColour(
 				ThemesManager::Get().GetColor("secondary"));
 		});
@@ -518,7 +518,7 @@ void Tabs::OnTabPaint(wxPaintEvent &event) {
 			0.0, 0.0, static_cast<double>(target->GetSize().GetWidth()),
 			static_cast<double>(target->GetSize().GetHeight()), 10);
 		target->SetBackgroundColour(ThemesManager::Get().GetColor("main"));
-		target->CallForEachChild([this](wxWindow *child) {
+		target->CallForEachChild([](wxWindow *child) {
 			child->SetBackgroundColour(ThemesManager::Get().GetColor("main"));
 		});
 	}
