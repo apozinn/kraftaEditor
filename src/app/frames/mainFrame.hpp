@@ -287,7 +287,7 @@ class MainFrame : public wxFrame {
 
 	void OnGotoline(wxCommandEvent &event);
 
-	void ToggleSearchPage(wxCommandEvent &event);
+	void ToggleSearchPage(wxCommandEvent &WXUNUSED(event));
 
   private:
 	// --- UI Component Pointers ---
@@ -323,7 +323,7 @@ class MainFrame : public wxFrame {
 	wxTimer
 		*m_saveSettingsTimer; /**< Timer for saving settings periodically. */
 	void OnSaveSettingsTimer(
-		wxTimerEvent &event); /**< Handler for the save settings timer. */
+		wxTimerEvent &WXUNUSED(event)); /**< Handler for the save settings timer. */
 	ProjectSettings &projectSettings =
 		ProjectSettings::Get(); /**< Reference to global project settings. */
 	wxSplitterWindow *m_codeContainersBlock;

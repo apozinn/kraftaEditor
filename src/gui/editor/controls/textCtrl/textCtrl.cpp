@@ -323,9 +323,9 @@ void TextCtrl::OnBackspace(wxKeyEvent &event) {
 		return;
 	}
 
-	const wxString prevChar = pos > 0 ? GetTextRange(pos - 1, pos) : "";
+	const wxString prevChar = pos > 0 ? GetTextRange(pos - 1, pos) : wxString("");
 	const wxString nextChar =
-		pos < GetLength() ? GetTextRange(pos, pos + 1) : "";
+		pos < GetLength() ? GetTextRange(pos, pos + 1) : wxString("");
 
 	if (key == WXK_BACK) {
 		auto it = kPairMap.find(nextChar);

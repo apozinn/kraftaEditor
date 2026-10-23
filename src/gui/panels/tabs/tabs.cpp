@@ -359,7 +359,6 @@ void Tabs::Select() {
 	if (imageContainer)
 		imageContainer->Show();
 
-	auto statusBar = ((StatusBar *)FindWindowById(+GUI::ControlID::StatusBar));
 	if (statusBar)
 		statusBar->UpdateComponents(
 			ProjectSettings::Get().GetCurrentlyFileOpen());

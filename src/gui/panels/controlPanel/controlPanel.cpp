@@ -1,45 +1,18 @@
 #include "controlPanel.hpp"
 #include "app/frames/mainFrame.hpp"
-
 #include <wx/dcbuffer.h>
 #include <wx/splitter.h>
-
 #include "shortcutsSettings/shortcutsSettings.hpp"
+
+#include "appConstants/widgetConstants.hpp"
+using namespace widgetConstants;
 
 #ifndef _
 #define _(s) wxGetTranslation(s)
 #endif
 
-namespace {
-
-constexpr int kPanelWidth = 480;
-constexpr int kPanelHeight = 280;
-constexpr int kRowPadding = 8;
-constexpr int kRowSpacing = 2;
-constexpr int kSearchPadding = 8;
-
-wxColour GetThemeColor(const json &theme, const char *key,
-					   const wxColour &fallback) {
-	if (!theme.contains(key) || !theme[key].is_string())
-		return fallback;
-
-	try {
-		return wxColour(wxString::FromUTF8(theme[key].get<std::string>()));
-	} catch (...) {
-		return fallback;
-	}
-}
-
-wxFont MakeMonospaceFont(int size, wxFontWeight weight = wxFONTWEIGHT_NORMAL) {
-	wxFont font(size, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, weight);
-	font.SetFaceName("Monospace");
-	return font;
-}
-
-} // namespace
-
 ControlPanel::ControlPanel(wxFrame *parent, wxWindowID id)
-	: wxPanel(parent, id, wxDefaultPosition, wxSize(kPanelWidth, kPanelHeight),
+	: wxPanel(parent, id, wxDefaultPosition, wxSize(widgetConstants::kPanelWidth, widgetConstants::kPanelHeight),
 			  wxBORDER_SIMPLE | wxTAB_TRAVERSAL), m_frameParent(parent) {
 	if (!parent) {
 		wxLogError("ControlPanel: parent frame is null");
@@ -60,7 +33,7 @@ ControlPanel::ControlPanel(wxFrame *parent, wxWindowID id)
 	SetMinSize(wxSize(kPanelWidth, kPanelHeight));
 
 	const wxSize parentSize = parent->GetClientSize();
-	SetPosition(wxPoint((parentSize.x - kPanelWidth) / 2, 60));
+	SetPosition(wxPoint((parentSize.x - widgetConstants::kPanelWidth) / 2, 60));
 
 	m_sizer = new wxBoxSizer(wxVERTICAL);
 
@@ -74,7 +47,7 @@ ControlPanel::ControlPanel(wxFrame *parent, wxWindowID id)
 	SetAcceleratorTable(wxAcceleratorTable(entries.size(), entries.data()));
 
 	SetSizer(m_sizer);
-	SetSize(wxSize(kPanelWidth, kPanelHeight));
+	SetSize(wxSize(widgetConstants::kPanelWidth, widgetConstants::kPanelHeight));
 
 	if (m_searchInput) {
 		m_searchInput->Bind(wxEVT_KEY_DOWN, &ControlPanel::OnSearchKeyDown,
@@ -167,7 +140,7 @@ void ControlPanel::PopulateMenus() {
 		if (!row)
 			continue;
 
-		containerSizer->Add(row, 0, wxEXPAND | wxTOP | wxBOTTOM, kRowSpacing);
+		containerSizer->Add(row, 0, wxEXPAND | wxTOP | wxBOTTOM, widgetConstants::kRowSpacing);
 
 		if (!firstSelected) {
 			HighlightRow(row);

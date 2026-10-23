@@ -241,15 +241,15 @@ void MainFrame::OnFrameMaximized(wxMaximizeEvent &event) {
 	event.Skip();
 }
 
-void MainFrame::OnSaveSettingsTimer(wxTimerEvent &event) {
+void MainFrame::OnSaveSettingsTimer(wxTimerEvent &WXUNUSED(event)) {
 	UserSettingsManager &settings = UserSettingsManager::Get();
 
 	bool isMaximized = IsMaximized();
 	settings.SetSetting("window/maximized", isMaximized);
 
-	wxSize size = GetSize();
-	settings.SetSetting("window/sizeX", size.x);
-	settings.SetSetting("window/sizeY", size.y);
+	wxSize k_size = GetSize();
+	settings.SetSetting("window/sizeX", k_size.x);
+	settings.SetSetting("window/sizeY", k_size.y);
 }
 
 void MainFrame::WindowResizeFunctions() {

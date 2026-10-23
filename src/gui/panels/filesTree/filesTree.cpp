@@ -920,16 +920,16 @@ void FilesTree::OnFileSystemEvent(int type, const wxString &oldPath,
 		int position = 0;
 		const std::filesystem::path pd{
 			wxFileName(parentPath).GetPath().ToStdString()};
-		for (auto const &entry : std::filesystem::directory_iterator{pd}) {
+		for (auto &entry : std::filesystem::directory_iterator{pd}) {
 			if (entry.is_directory()) {
 				std::string dir_path =
-					std::string(entry.path()) +
+					entry.path().string() +
 					PlatformInfos::OsPathSeparator().ToStdString();
 				if (dir_path == newPath.ToStdString())
 					CreateDirContainer(parentComponent, newPath, true,
 									   position);
 			} else {
-				std::string file_path = std::string(entry.path());
+				std::string file_path = entry.path().string();
 				if (file_path == newPath.ToStdString())
 					CreateFileContainer(parentComponent, newPath);
 			}

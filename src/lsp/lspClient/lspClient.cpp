@@ -10,6 +10,11 @@
 #include <wx/process.h>
 #include <wx/utils.h>
 
+#if __WXMSW__
+#include <wx/msw/darkmode.h>
+#include <wx/msw/private.h>
+#endif
+
 using json = nlohmann::json;
 
 static const size_t MAX_MESSAGE_SIZE = 64u * 1024u * 1024u;
@@ -86,8 +91,10 @@ bool LspClient::Start(const wxString &serverPath, const wxString &extraArgs) {
 		return false;
 	if (!wxFileExists(serverPath))
 		return false;
-
-	std::signal(SIGPIPE, SIG_IGN);
+		
+		#ifndef _WIN32
+    std::signal(SIGPIPE, SIG_IGN);
+#endif
 
 	auto *proc = new LspProcess();
 	wxString cmd = "\"" + serverPath + "\"";

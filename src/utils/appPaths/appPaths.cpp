@@ -153,12 +153,12 @@ wxString AssetsPath(const wxString &target) {
 			_("Warning"), wxICON_WARNING);
 		warned = true;
 	}
-	return wxDirExists(base) ? base : "";
+	return wxDirExists(base) ? base : wxString("");
 }
 
 wxString GetIconPath(const wxString &name) {
 	wxString path = AssetsPath("icons") + name;
-	return wxFileExists(path) ? path : "";
+	return wxFileExists(path) ? path : wxString("");
 }
 
 wxString GetLanguageIcon(const wxString &lang) {
@@ -197,7 +197,7 @@ wxString GetLanguagePreferencesPath(const wxString &lang) {
 		return path;
 
 	wxString fallback = base + "default";
-	return wxDirExists(fallback) ? fallback : "";
+	return wxDirExists(fallback) ? fallback : wxString("");
 }
 
 wxString GetConfigPath(const wxString &name) {
@@ -210,7 +210,7 @@ wxString GetConfigPath(const wxString &name) {
 		return base;
 
 	wxString path = base + name + PlatformInfos::OsPathSeparator();
-	return wxDirExists(path) ? path : "";
+	return wxDirExists(path) ? path : wxString("");
 }
 
 wxString GetI18nLanguagePath() {

@@ -14,6 +14,11 @@
 
 #include <wx/string.h>
 
+#if __WXMSW__
+#include <wx/msw/darkmode.h>
+#include <wx/msw/private.h>
+#endif
+
 class LspProcess;
 
 using LspResponseCallback = std::function<void(const std::string &)>;

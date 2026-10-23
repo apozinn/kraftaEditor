@@ -1,52 +1,18 @@
 #include "quickOpen.hpp"
 #include "gui/panels/filesTree/filesTree.hpp"
 #include "projectSettings/projectSettings.hpp"
-
 #include <algorithm>
 #include <wx/dcbuffer.h>
 
-namespace {
-constexpr int kPanelWidth = 480;
-constexpr int kPanelHeight = 280;
-constexpr int kRowHeight = 24;
-constexpr int kRowPaddingX = 8;
-constexpr int kNameFontSize = 10;
-constexpr int kPathFontSize = 8;
-constexpr int kSearchFontSize = 11;
-constexpr int kMaxFiles = 5000;
-constexpr int kSearchPadding = 8;
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
 
-const std::unordered_set<std::string> kIgnoredDirs = {
-	".git",
-	".svn",
-	".hg",
-	"build",
-	"dist",
-	"out",
-	"node_modules",
-	".vscode",
-	".idea",
-	"__pycache__",
-	"cmake-build-debug",
-	"cmake-build-release",
-};
+#include "appConstants/widgetConstants.hpp"
+using namespace widgetConstants;
 
-wxColour GetThemeColor(const ThemesManager &theme, const char *key,
-					   const wxColour &fallback) {
-	try {
-		return wxColour(theme.GetColor(key));
-	} catch (...) {
-		return fallback;
-	}
-}
-
-wxFont MakeMonospaceFont(int size, wxFontWeight weight = wxFONTWEIGHT_NORMAL) {
-	wxFont font(size, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, weight);
-	font.SetFaceName("Monospace");
-	return font;
-}
-
-} // namespace
+#ifndef _
+#define _(s) wxGetTranslation(s)
+#endif
 
 QuickOpen::QuickOpen(wxFrame *parent)
 	: wxPanel(parent, +GUI::ControlID::QuickOpen, wxDefaultPosition,
@@ -55,7 +21,7 @@ QuickOpen::QuickOpen(wxFrame *parent)
 	if (!parent)
 		return;
 
-	const auto &theme = ThemesManager::Get();
+	const auto &theme = ThemesManager::Get().currentTheme;
 	m_bgColor = GetThemeColor(theme, "colorThree", wxColour(30, 30, 30));
 	m_searchBgColor = GetThemeColor(theme, "secondary", wxColour(40, 40, 40));
 	m_textColor = GetThemeColor(theme, "text", *wxWHITE);

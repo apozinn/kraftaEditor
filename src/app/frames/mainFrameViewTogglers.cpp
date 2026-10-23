@@ -118,8 +118,8 @@ void MainFrame::OnToggleMinimapView(wxCommandEvent &WXUNUSED(event)) {
 	}
 }
 
-void MainFrame::ToggleSearchPage(wxCommandEvent &event) {
-	auto *sizer = m_applicationLeftMainContainer->GetSizer();
+void MainFrame::ToggleSearchPage(wxCommandEvent &WXUNUSED(event)) {
+	auto *k_sizer = m_applicationLeftMainContainer->GetSizer();
 
 	auto k_codeSearch = FindWindowById(+GUI::ControlID::SearchPage);
 	if (!k_codeSearch) {
@@ -147,8 +147,8 @@ void MainFrame::ToggleSearchPage(wxCommandEvent &event) {
 		}
 	}
 
-	if (sizer)
-		sizer->Layout();
+	if (k_sizer)
+		k_sizer->Layout();
 
 	wxCommandEvent evt(EVT_PAGE_SWITCH_SEARCH);
 	wxPostEvent(this, evt);

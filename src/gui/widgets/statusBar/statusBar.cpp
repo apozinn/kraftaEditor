@@ -142,7 +142,7 @@ void StatusBar::OnPaint(wxPaintEvent &WXUNUSED(event)) {
 	wxColour borderColor = ThemesManager::Get().GetColor("border");
 
 	dc.SetBrush(borderColor);
-	dc.SetPen(wxPen(borderColor, 0.20));
+	dc.SetPen(wxPen(borderColor, 1));
 	dc.DrawLine(0, 0, GetSize().GetWidth(), 0);
 }
 

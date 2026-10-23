@@ -383,6 +383,8 @@ void LanguagesPreferences::SetupAutoCompleteWords(
 
 	if (!syntaxPreferences.contains("keyword_lists"))
 		return;
+		
+	editor->Update();
 }
 
 std::vector<wxString> LanguagesPreferences::GetAutoCompleteWordsList(

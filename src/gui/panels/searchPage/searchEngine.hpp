@@ -34,7 +34,6 @@ class SearchEngine {
 					const ResultCallback &onResult);
 
   private:
-	friend class SearchDirTraverser;
 	bool ShouldIgnoreDirectory(const wxString &name) const;
 
 	std::set<wxString> BuildIgnoredSet() const;

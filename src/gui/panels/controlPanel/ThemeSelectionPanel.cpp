@@ -6,6 +6,11 @@
 #include <wx/arrstr.h>
 #include <wx/dir.h>
 
+#if __WXMSW__
+#include <wx/msw/darkmode.h>
+#include <wx/msw/private.h>
+#endif
+
 void ControlPanel::OpenThemeSelectionPanel() {
 	if (!m_frameParent) {
 		wxMessageBox(_("A critical GUI component could not be found."));

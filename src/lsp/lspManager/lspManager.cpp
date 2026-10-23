@@ -188,7 +188,7 @@ void LspManager::VerifyIfLanguageHasLsp(const wxString &languageName,
 
 				downloader->SetOnProgress([](int percent, wxString status) {});
 
-				downloader->SetOnComplete([this, downloader, languageLspName,
+				downloader->SetOnComplete([downloader, languageLspName,
 										   onComplete](bool success,
 													   wxString message) {
 					if (success) {
