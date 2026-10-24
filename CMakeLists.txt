@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.27.7)
 
 project(KraftaEditor
-    VERSION 1.0.0
+    VERSION 0.9.3
     DESCRIPTION "A fast, lightweight, and cross-platform code editor built with C++ and wxWidgets"
     LANGUAGES CXX
     HOMEPAGE_URL "https://github.com/apozinn/kraftaEditor"
