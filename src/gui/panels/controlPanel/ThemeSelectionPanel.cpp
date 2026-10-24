@@ -43,32 +43,32 @@ void ControlPanel::OpenThemeSelectionPanel() {
 				}
 			}
 
-			themeSelection->ShowList(
-				m_list, [this, files, mainFrame](const OptionsListStruct &opt) {
-					std::ifstream file(files.Item(opt.id).ToStdString());
-					nlohmann::json themeData = nlohmann::json::parse(file);
-					ThemesManager::Get().currentTheme = themeData;
-					UserSettingsManager::Get().SetSetting<std::string>("theme/themeFilePath",
-														  files.Item(opt.id).ToStdString());
-					LanguagesPreferences::Get().Reload();
+			themeSelection->ShowList(m_list, [this, files, mainFrame](
+												 const OptionsListStruct &opt) {
+				std::ifstream file(files.Item(opt.id).ToStdString());
+				nlohmann::json themeData = nlohmann::json::parse(file);
+				ThemesManager::Get().currentTheme = themeData;
+				UserSettingsManager::Get().SetSetting<std::string>(
+					"theme/themeFilePath", files.Item(opt.id).ToStdString());
+				LanguagesPreferences::Get().Reload();
 
-					ThemeApplier::ApplyTheme(mainFrame, themeData);
+				ThemeApplier::ApplyTheme(mainFrame, themeData);
 
-					try {
-						if (ThemesManager::Get().IsDarkTheme()) {
-							wxTheApp->SetAppearance(wxApp::Appearance::Dark);
+				try {
+					if (ThemesManager::Get().IsDarkTheme()) {
+						wxTheApp->SetAppearance(wxApp::Appearance::Dark);
 #ifdef __WXMSW__
-    wxTheApp->MSWEnableDarkMode(wxApp::DarkMode_Always);
+						wxTheApp->MSWEnableDarkMode(wxApp::DarkMode_Always);
 #endif
-						} else {
-							wxTheApp->SetAppearance(wxApp::Appearance::Light);
-						}
-					} catch (const std::exception &e) {
-						wxMessageBox(e.what());
-						std::cerr << "Standard Exception: " << e.what()
-								  << std::endl;
+					} else {
+						wxTheApp->SetAppearance(wxApp::Appearance::Light);
 					}
-				});
+				} catch (const std::exception &e) {
+					wxMessageBox(e.what());
+					std::cerr << "Standard Exception: " << e.what()
+							  << std::endl;
+				}
+			});
 		}
 	}
 }

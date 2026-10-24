@@ -1,7 +1,7 @@
 #pragma once
+#include "gui/editor/controls/textCtrl/textCtrl.hpp"
 #include <wx/stc/minimap.h>
 #include <wx/weakref.h>
-#include "gui/editor/controls/textCtrl/textCtrl.hpp"
 
 class MinimapCtrl : public wxStyledTextCtrlMiniMap {
   public:

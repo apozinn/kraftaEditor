@@ -1,9 +1,9 @@
 #pragma once
 #include "themesManager/themeApplier.hpp"
+#include <nlohmann/json.hpp>
 #include <wx/colour.h>
 #include <wx/font.h>
 #include <wx/string.h>
-#include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
 
@@ -37,21 +37,21 @@ inline const std::unordered_set<std::string> kIgnoredDirs = {
 };
 
 inline wxColour GetThemeColor(const nlohmann::json &theme, const char *key,
-                              const wxColour &fallback) {
-    if (!theme.contains(key) || !theme[key].is_string())
-        return fallback;
-    try {
-        return wxColour(wxString::FromUTF8(theme[key].get<std::string>()));
-    } catch (...) {
-        return fallback;
-    }
+							  const wxColour &fallback) {
+	if (!theme.contains(key) || !theme[key].is_string())
+		return fallback;
+	try {
+		return wxColour(wxString::FromUTF8(theme[key].get<std::string>()));
+	} catch (...) {
+		return fallback;
+	}
 }
 
 inline wxFont MakeMonospaceFont(int size,
-                                wxFontWeight weight = wxFONTWEIGHT_NORMAL) {
-    wxFont font(size, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, weight);
-    font.SetFaceName("Monospace");
-    return font;
+								wxFontWeight weight = wxFONTWEIGHT_NORMAL) {
+	wxFont font(size, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, weight);
+	font.SetFaceName("Monospace");
+	return font;
 }
 
 } // namespace widgetConstants

@@ -383,7 +383,7 @@ void LanguagesPreferences::SetupAutoCompleteWords(
 
 	if (!syntaxPreferences.contains("keyword_lists"))
 		return;
-		
+
 	editor->Update();
 }
 

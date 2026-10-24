@@ -322,8 +322,8 @@ class MainFrame : public wxFrame {
 		wxVERTICAL); /**< The main sizer managing the frame layout. */
 	wxTimer
 		*m_saveSettingsTimer; /**< Timer for saving settings periodically. */
-	void OnSaveSettingsTimer(
-		wxTimerEvent &WXUNUSED(event)); /**< Handler for the save settings timer. */
+	void OnSaveSettingsTimer(wxTimerEvent &WXUNUSED(
+		event)); /**< Handler for the save settings timer. */
 	ProjectSettings &projectSettings =
 		ProjectSettings::Get(); /**< Reference to global project settings. */
 	wxSplitterWindow *m_codeContainersBlock;

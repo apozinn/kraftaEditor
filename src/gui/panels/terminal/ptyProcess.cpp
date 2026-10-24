@@ -248,8 +248,8 @@ bool PtyProcess::Start(const Options &opts, DataCallback onData,
 	if (pid == 0) {
 		if (!opts.cwd.empty())
 			if (chdir(opts.cwd.c_str()) != 0) {
-    return false; 
-}
+				return false;
+			}
 
 		std::string prog = opts.program;
 		if (prog.empty()) {

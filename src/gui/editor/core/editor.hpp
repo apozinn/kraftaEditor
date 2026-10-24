@@ -16,7 +16,7 @@ class Editor : public wxPanel {
 	void Save(wxString path);
 
   private:
-  wxString m_path;
+	wxString m_path;
 	bool Initialize();
 	void UpdateStatusBarComponents() {
 		if (m_statusBar)

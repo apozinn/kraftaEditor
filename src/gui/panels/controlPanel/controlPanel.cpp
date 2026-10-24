@@ -1,8 +1,8 @@
 #include "controlPanel.hpp"
 #include "app/frames/mainFrame.hpp"
+#include "shortcutsSettings/shortcutsSettings.hpp"
 #include <wx/dcbuffer.h>
 #include <wx/splitter.h>
-#include "shortcutsSettings/shortcutsSettings.hpp"
 
 #include "appConstants/widgetConstants.hpp"
 using namespace widgetConstants;
@@ -12,8 +12,11 @@ using namespace widgetConstants;
 #endif
 
 ControlPanel::ControlPanel(wxFrame *parent, wxWindowID id)
-	: wxPanel(parent, id, wxDefaultPosition, wxSize(widgetConstants::kPanelWidth, widgetConstants::kPanelHeight),
-			  wxBORDER_SIMPLE | wxTAB_TRAVERSAL), m_frameParent(parent) {
+	: wxPanel(
+		  parent, id, wxDefaultPosition,
+		  wxSize(widgetConstants::kPanelWidth, widgetConstants::kPanelHeight),
+		  wxBORDER_SIMPLE | wxTAB_TRAVERSAL),
+	  m_frameParent(parent) {
 	if (!parent) {
 		wxLogError("ControlPanel: parent frame is null");
 		return;
@@ -47,7 +50,8 @@ ControlPanel::ControlPanel(wxFrame *parent, wxWindowID id)
 	SetAcceleratorTable(wxAcceleratorTable(entries.size(), entries.data()));
 
 	SetSizer(m_sizer);
-	SetSize(wxSize(widgetConstants::kPanelWidth, widgetConstants::kPanelHeight));
+	SetSize(
+		wxSize(widgetConstants::kPanelWidth, widgetConstants::kPanelHeight));
 
 	if (m_searchInput) {
 		m_searchInput->Bind(wxEVT_KEY_DOWN, &ControlPanel::OnSearchKeyDown,
@@ -140,7 +144,8 @@ void ControlPanel::PopulateMenus() {
 		if (!row)
 			continue;
 
-		containerSizer->Add(row, 0, wxEXPAND | wxTOP | wxBOTTOM, widgetConstants::kRowSpacing);
+		containerSizer->Add(row, 0, wxEXPAND | wxTOP | wxBOTTOM,
+							widgetConstants::kRowSpacing);
 
 		if (!firstSelected) {
 			HighlightRow(row);
@@ -462,40 +467,16 @@ void ControlPanel::OnRowEnter(wxMouseEvent &event) {
 void ControlPanel::OnRowLeave(wxMouseEvent &event) { event.Skip(); }
 
 void ControlPanel::ScrollSelectionIntoView(wxWindow *row) {
-	if (!m_menusContainer || !row)
-		return;
+	int scrollUnitsX = 0;
+	int scrollUnitsY = 0;
 
-	const wxRect rowRect = row->GetRect();
-	const wxSize clientSize = m_menusContainer->GetClientSize();
+	m_menusContainer->GetScrollPixelsPerUnit(&scrollUnitsX, &scrollUnitsY);
 
-	int scrollX = 0, scrollY = 0;
-	m_menusContainer->GetViewStart(&scrollX, &scrollY);
+	wxPoint childPos = row->GetPosition();
+	wxPoint absolutePos = m_menusContainer->CalcUnscrolledPosition(childPos);
 
-	int ppuX = 0, ppuY = 0;
-	m_menusContainer->GetScrollPixelsPerUnit(&ppuX, &ppuY);
+	int scrollToX = (scrollUnitsX > 0) ? (absolutePos.x / scrollUnitsX) : -1;
+	int scrollToY = (scrollUnitsY > 0) ? (absolutePos.y / scrollUnitsY) : -1;
 
-	if (ppuY <= 0)
-		return;
-
-	const int topPx = scrollY * ppuY;
-	const int bottomPx = topPx + clientSize.y;
-
-	const int rowTop = rowRect.GetTop();
-	const int rowBottom = rowRect.GetBottom();
-
-	if (rowTop >= topPx && rowBottom <= bottomPx)
-		return;
-
-	int newScrollY = scrollY;
-
-	if (rowTop < topPx)
-		newScrollY = rowTop / ppuY;
-	else if (rowBottom > bottomPx)
-		newScrollY = (rowBottom - clientSize.y + ppuY - 1) / ppuY;
-
-	if (newScrollY != scrollY) {
-		m_menusContainer->Scroll(0, newScrollY + 10);
-		m_menusContainer->Refresh();
-		m_menusContainer->Update();
-	}
+	m_menusContainer->Scroll(scrollToX, scrollToY);
 }

@@ -122,7 +122,8 @@ nlohmann::json ThemesManager::LoadThemeFile() const {
 					   << (isSystemDark ? DarkTheme : LightTheme) << std::endl;
 		}
 
-		UserSettingsManager::Get().SetSetting<std::string>("theme/themeFilePath", themePath.ToStdString());
+		UserSettingsManager::Get().SetSetting<std::string>(
+			"theme/themeFilePath", themePath.ToStdString());
 	}
 
 	try {

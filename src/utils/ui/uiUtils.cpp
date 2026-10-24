@@ -1,6 +1,6 @@
+#include "themesManager/themesManager.hpp"
 #include "ui/utils.hpp"
 #include <wx/mstream.h>
-#include "themesManager/themesManager.hpp"
 
 namespace UiUtils {
 

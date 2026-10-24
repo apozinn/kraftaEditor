@@ -154,11 +154,11 @@ void TextCtrl::SetupAcceleratorTable() {
 		 static_cast<int>(Event::Edit::ToggleLineComment)},
 		{wxACCEL_CTRL | wxACCEL_SHIFT, (int)'?',
 		 static_cast<int>(Event::Edit::ToggleBlockComment)},
-		 
-		 {wxACCEL_CTRL | wxACCEL_ALT, WXK_UP,
- static_cast<int>(+Event::Edit::MoveLineUp)},
- {wxACCEL_CTRL | wxACCEL_ALT, WXK_DOWN,
- static_cast<int>(+Event::Edit::MoveLineDown)},
+
+		{wxACCEL_CTRL | wxACCEL_ALT, WXK_UP,
+		 static_cast<int>(+Event::Edit::MoveLineUp)},
+		{wxACCEL_CTRL | wxACCEL_ALT, WXK_DOWN,
+		 static_cast<int>(+Event::Edit::MoveLineDown)},
 	};
 
 	SetAcceleratorTable(wxAcceleratorTable(WXSIZEOF(entries), entries));
@@ -328,7 +328,8 @@ void TextCtrl::OnBackspace(wxKeyEvent &event) {
 		return;
 	}
 
-	const wxString prevChar = pos > 0 ? GetTextRange(pos - 1, pos) : wxString("");
+	const wxString prevChar =
+		pos > 0 ? GetTextRange(pos - 1, pos) : wxString("");
 	const wxString nextChar =
 		pos < GetLength() ? GetTextRange(pos, pos + 1) : wxString("");
 

@@ -91,9 +91,9 @@ bool LspClient::Start(const wxString &serverPath, const wxString &extraArgs) {
 		return false;
 	if (!wxFileExists(serverPath))
 		return false;
-		
-		#ifndef _WIN32
-    std::signal(SIGPIPE, SIG_IGN);
+
+#ifndef _WIN32
+	std::signal(SIGPIPE, SIG_IGN);
 #endif
 
 	auto *proc = new LspProcess();

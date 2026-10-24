@@ -600,7 +600,7 @@ void LspDownloader::InstallTypescriptLanguageServer() {
 
 		if (result != 0) {
 			wxString errDetail =
-    output.IsEmpty() ? wxString("unknown error") : output.Last();
+				output.IsEmpty() ? wxString("unknown error") : output.Last();
 			NotifyComplete(false, "npm install failed: " + errDetail);
 			return;
 		}

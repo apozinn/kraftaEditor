@@ -81,9 +81,7 @@ class ThemesManager {
 	 * @brief Private constructor for singleton pattern
 	 * @param themeData Initial theme data to load
 	 */
-	ThemesManager() {
-    currentTheme = LoadThemeFile();
-}
+	ThemesManager() { currentTheme = LoadThemeFile(); }
 
 	/**
 	 * @brief Loads theme data from JSON file

@@ -1,6 +1,6 @@
 #pragma once
-#include <wx/intl.h>
 #include "wx/string.h"
+#include <wx/intl.h>
 
 /**
  * @namespace ErrorMessages
