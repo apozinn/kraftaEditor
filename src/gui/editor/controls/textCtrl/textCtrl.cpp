@@ -154,6 +154,11 @@ void TextCtrl::SetupAcceleratorTable() {
 		 static_cast<int>(Event::Edit::ToggleLineComment)},
 		{wxACCEL_CTRL | wxACCEL_SHIFT, (int)'?',
 		 static_cast<int>(Event::Edit::ToggleBlockComment)},
+		 
+		 {wxACCEL_CTRL | wxACCEL_ALT, WXK_UP,
+ static_cast<int>(+Event::Edit::MoveLineUp)},
+ {wxACCEL_CTRL | wxACCEL_ALT, WXK_DOWN,
+ static_cast<int>(+Event::Edit::MoveLineDown)},
 	};
 
 	SetAcceleratorTable(wxAcceleratorTable(WXSIZEOF(entries), entries));
