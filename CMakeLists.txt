@@ -239,9 +239,9 @@ if(APPLE)
 elseif(WIN32)
     target_compile_definitions(kraftaEditor PRIVATE wxUSE_NO_MANIFEST=0)
     set_target_properties(kraftaEditor PROPERTIES WIN32_EXECUTABLE TRUE)
-    set(KRAFTA_ASSET_PATH "assets")
+    set(KRAFTA_ASSET_PATH "")
 else()
-    set(KRAFTA_ASSET_PATH "/usr/share/kraftaEditor")
+    set(KRAFTA_ASSET_PATH "${CMAKE_INSTALL_FULL_DATAROOTDIR}/kraftaEditor")
 endif()
 
 target_compile_definitions(kraftaEditor PRIVATE
@@ -291,10 +291,12 @@ if(APPLE)
 
 elseif(WIN32)
     install(TARGETS kraftaEditor RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-    install(DIRECTORY assets/    DESTINATION ${CMAKE_INSTALL_DATADIR}/kraftaEditor/assets)
-    install(DIRECTORY languages/ DESTINATION ${CMAKE_INSTALL_DATADIR}/kraftaEditor/languages)
-    install(DIRECTORY i18n/ DESTINATION ${CMAKE_INSTALL_DATADIR}/kraftaEditor/i18n)
-    install(DIRECTORY config/    DESTINATION ${CMAKE_INSTALL_DATADIR}/kraftaEditor/config)
+    install(DIRECTORY assets/    DESTINATION ${CMAKE_INSTALL_BINDIR}/assets)
+    install(DIRECTORY languages/ DESTINATION ${CMAKE_INSTALL_BINDIR}/languages)
+    install(DIRECTORY i18n/      DESTINATION ${CMAKE_INSTALL_BINDIR}/i18n)
+    install(DIRECTORY config/    DESTINATION ${CMAKE_INSTALL_BINDIR}/config)
+    install(FILES "${CMAKE_SOURCE_DIR}/resources/.installed"
+            DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 else() # Linux / BSD
     install(TARGETS kraftaEditor RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

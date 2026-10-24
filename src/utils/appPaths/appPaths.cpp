@@ -19,7 +19,7 @@
 // KRAFTA_ASSET_RELATIVE_PATH is injected by CMake via
 // target_compile_definitions. Values per platform:
 //   macOS   → "../Resources"          (inside .app bundle)
-//   Windows → "assets"                (next to the .exe)
+//   Windows → ""                (next to the .exe)
 //   Linux   → "/usr/share/kraftaEditor" (absolute, honours
 //   CMAKE_INSTALL_PREFIX)
 #ifndef KRAFTA_ASSET_RELATIVE_PATH
@@ -59,14 +59,16 @@ const wxString GetLspPath() {
 bool IsRunningInDevelopmentEnvironment() {
 	static const bool isDev = [] {
 		const wxString path = ApplicationPath().Lower();
+
 		const wxArrayString patterns = {"debug",	   "release", "build",
 										"cmake-build", "x64",	  "x86"};
-
 		for (const auto &p : patterns)
 			if (path.Contains(p))
 				return true;
 
 #ifdef __WXMSW__
+		if (wxFileExists(ApplicationPath() + ".installed"))
+			return false;
 		return !(path.Contains("program files") ||
 				 path.Contains("program files (x86)"));
 #elif defined(__WXGTK__)

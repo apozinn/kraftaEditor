@@ -109,28 +109,67 @@ kraftaEditor ./file.txt    # open a file
 kraftaEditor .             # open the current directory
 ```
 
-## Linux installation
+## Install
 
-Both methods install the executable, assets, desktop entry and icon, and refresh the desktop and icon caches. System-wide installation needs root.
+Pre-built packages are attached to every [release](https://github.com/apozinn/kraftaEditor/releases). Pick the one for your platform.
 
-**Install script**
+### Linux
+
+Download the `.deb` package from the latest release and install it:
+
+```bash
+sudo dpkg -i kraftaEditor-*.deb
+sudo apt-get install -f   # resolve missing dependencies, if any
+```
+
+The installer places:
+
+```text
+/usr/bin/kraftaEditor
+/usr/share/kraftaEditor/{assets,languages,config,i18n}
+/usr/share/icons/hicolor/256x256/apps/kraftaEditor.png
+/usr/share/applications/krafta-editor.desktop
+```
+
+Krafta Editor will appear in your application menu. Alternatively, download the `.tar.gz` archive for a portable install — extract it anywhere and run `bin/kraftaEditor`.
+
+### Windows
+
+Download the installer (`kraftaEditor-*-win64.exe`) and run it. The wizard installs the editor under `Program Files` and adds shortcuts to the Start Menu and Desktop.
+
+For a portable setup, download the `.zip`, extract it anywhere and run `kraftaEditor.exe`.
+
+### macOS
+
+Download the `.dmg`, open it, and drag **Krafta Editor** into your **Applications** folder.
+
+The app is unsigned, so the first launch will be blocked by Gatekeeper. To open it:
+
+1. Right-click the app in Finder and choose **Open**.
+2. Click **Open** again in the dialog.
+3. Alternatively, go to **System Settings → Privacy & Security** and click **Open Anyway**.
+
+macOS support is currently **experimental**.
+
+## Build from source
+
+### Linux
 
 ```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release
-
-chmod +x scripts/install.sh
-sudo ./scripts/install.sh
-```
-
-**CMake install**
-
-```bash
 sudo cmake --install build                    # system-wide
 cmake --install build --prefix ~/.local       # current user, no sudo
 ```
 
-**Uninstall**
+Or use the helper scripts:
+
+```bash
+chmod +x scripts/install.sh
+sudo ./scripts/install.sh
+```
+
+Uninstall:
 
 ```bash
 chmod +x scripts/uninstall.sh
@@ -150,6 +189,22 @@ sudo ./scripts/uninstall.sh
 </details>
 
 > The install scripts are meant for source installs, not as a replacement for a package manager. For `.deb`, `.rpm` or Arch packaging, use `cmake --install` with the appropriate prefix.
+
+### Windows
+
+```cmd
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release
+cmake --install build --config Release
+```
+
+### macOS
+
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release
+cmake --install build
+```
 
 ## Build reference
 
