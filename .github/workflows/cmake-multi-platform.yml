@@ -7,6 +7,9 @@ on:
     types: [published]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-unity:
     name: Build (Unity)
@@ -104,6 +107,10 @@ jobs:
         --config ${{ matrix.build_type }}
         --parallel 2
 
+    - name: Package (CPack)
+      working-directory: ${{ steps.strings.outputs.build-output-dir }}
+      run: cpack --config CPackConfig.cmake -C ${{ matrix.build_type }}
+
     - name: Upload binary
       uses: actions/upload-artifact@v4
       with:
@@ -114,6 +121,20 @@ jobs:
           build/bin/${{ matrix.build_type }}/Krafta Editor.app
         if-no-files-found: ignore
         retention-days: 7
+
+    - name: Attach packages to GitHub Release
+      if: github.event_name == 'release'
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          build/*.deb
+          build/*.rpm
+          build/*.tar.gz
+          build/*.exe
+          build/*.zip
+          build/*.dmg
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-strict:
     name: Build (no Unity, strict includes)
