@@ -107,6 +107,22 @@ jobs:
         --config ${{ matrix.build_type }}
         --parallel 2
 
+    - name: Install NSIS (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        choco install nsis --no-progress -y
+        $candidates = @(
+          "${env:ProgramFiles(x86)}\NSIS\makensis.exe",
+          "$env:ProgramFiles\NSIS\makensis.exe"
+        )
+        $makensis = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+        if (-not $makensis) {
+          Write-Error "makensis.exe not found after NSIS install"
+          exit 1
+        }
+        & $makensis /VERSION
+
     - name: Package (CPack)
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
       run: cpack --config CPackConfig.cmake -C ${{ matrix.build_type }}
