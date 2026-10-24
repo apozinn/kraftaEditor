@@ -1,10 +1,11 @@
 name: Build
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  release:
+    types: [published]
+  workflow_dispatch:
 
 jobs:
   build-unity:
@@ -79,6 +80,14 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-${{ matrix.c_compiler }}-fetchcontent-
 
+    - name: Cache build artifacts
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.strings.outputs.build-output-dir }}
+        key: ${{ runner.os }}-${{ matrix.c_compiler }}-${{ matrix.build_type }}-build-${{ hashFiles('CMakeLists.txt', 'src/**', 'include/**') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ matrix.c_compiler }}-${{ matrix.build_type }}-build-
+
     - name: Configure CMake
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
@@ -95,8 +104,20 @@ jobs:
         --config ${{ matrix.build_type }}
         --parallel 2
 
+    - name: Upload binary
+      uses: actions/upload-artifact@v4
+      with:
+        name: kraftaEditor-${{ runner.os }}-${{ matrix.c_compiler }}
+        path: |
+          build/bin/${{ matrix.build_type }}/kraftaEditor
+          build/bin/${{ matrix.build_type }}/kraftaEditor.exe
+          build/bin/${{ matrix.build_type }}/Krafta Editor.app
+        if-no-files-found: ignore
+        retention-days: 7
+
   build-strict:
     name: Build (no Unity, strict includes)
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     continue-on-error: true
     timeout-minutes: 90
