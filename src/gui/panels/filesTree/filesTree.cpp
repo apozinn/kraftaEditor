@@ -872,7 +872,6 @@ void FilesTree::OnRenameDirRequested(wxCommandEvent &event) {
 		auto target = wxFindWindowByLabel(currentlyMenuDir + "_dir_container");
 		if (!target)
 			return;
-		wxWindow *parent = target->GetParent();
 		target->Destroy();
 
 	} catch (const std::exception &err) {

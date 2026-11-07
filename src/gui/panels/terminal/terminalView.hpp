@@ -112,7 +112,7 @@ class TerminalView : public wxPanel {
 	int m_exitCode = 0;
 
 	wxFont m_fonts[4];
-	int m_cw = 8, m_ch = 16, m_ascentPad = 0;
+	int m_cw = 8, m_ch = 16;
 	bool m_perGlyph = false;
 	int m_cols = 80, m_rows = 24;
 	int m_padding = 4, m_sbWidth = 10;
@@ -126,9 +126,7 @@ class TerminalView : public wxPanel {
 	bool m_hasSel = false, m_selecting = false, m_draggingBar = false;
 	Pos m_selAnchor, m_selCaret;
 	wxPoint m_lastMouse;
-	int m_clickCount = 0;
 	wxString m_title, m_cwd;
-	bool m_bell = false;
 
 	int m_generation = 0;
 	bool m_reporting = false;

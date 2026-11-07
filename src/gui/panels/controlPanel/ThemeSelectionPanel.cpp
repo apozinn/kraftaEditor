@@ -22,8 +22,7 @@ void ControlPanel::OpenThemeSelectionPanel() {
 		if (themeSelection) {
 
 			wxArrayString files;
-			size_t count =
-				wxDir::GetAllFiles(ApplicationPaths::AssetsPath("themes"),
+			wxDir::GetAllFiles(ApplicationPaths::AssetsPath("themes"),
 								   &files, "*.json", wxDIR_FILES);
 
 			std::vector<OptionsListStruct> m_list;
