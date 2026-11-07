@@ -10,28 +10,28 @@ class TextCtrl;
 class MinimapCtrl;
 
 class Editor : public wxPanel {
-  public:
-	Editor(wxWindow *parent, wxString path);
-	void LoadPath(wxString path);
-	void Save(wxString path);
+public:
+    Editor(wxWindow *parent, wxString path);
+    void LoadPath(wxString path);
+    void Save(wxString path);
 
-  private:
-	wxString m_path;
-	bool Initialize();
-	void UpdateStatusBarComponents() {
-		if (m_statusBar)
-			m_statusBar->UpdateComponents(m_path);
-	}
-	bool VerifyFilePath();
-	bool SetupTextCtrl();
-	bool SetupMinimapCtrl();
-	void SetupLanguagePreferences();
+private:
+    wxString m_path;
+    bool Initialize();
+    void UpdateStatusBarComponents() {
+        if (m_statusBar)
+            m_statusBar->UpdateComponents(m_path);
+    }
+    bool VerifyFilePath();
+    bool SetupTextCtrl();
+    bool SetupMinimapCtrl();
+    void SetupLanguagePreferences();
 
-	wxWeakRef<TextCtrl> m_textCtrl;
-	wxWeakRef<MinimapCtrl> m_minimapCtrl;
-	wxBoxSizer *m_sizer = new wxBoxSizer(wxHORIZONTAL);
-	StatusBar *m_statusBar =
-		((StatusBar *)FindWindowById(+GUI::ControlID::StatusBar));
-	json UserSettings = UserSettingsManager::Get().currentSettings;
-	languagePreferencesStruct m_languagePreferences;
+    wxWeakRef<TextCtrl> m_textCtrl;
+    wxWeakRef<MinimapCtrl> m_minimapCtrl;
+    wxBoxSizer *m_sizer = new wxBoxSizer(wxHORIZONTAL);
+    StatusBar *m_statusBar =
+        ((StatusBar *)FindWindowById(+GUI::ControlID::StatusBar));
+    json UserSettings = UserSettingsManager::Get().currentSettings;
+    languagePreferencesStruct m_languagePreferences;
 };

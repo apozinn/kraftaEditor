@@ -7,148 +7,148 @@
 #include <wx/filename.h>
 
 StatusBar::StatusBar(wxWindow *parent)
-	: wxPanel(parent, +GUI::ControlID::StatusBar) {
-	// setting the background color
-	auto background_color = ThemesManager::Get().GetColor("secondary");
-	SetBackgroundColour(background_color);
+    : wxPanel(parent, +GUI::ControlID::StatusBar) {
+    // setting the background color
+    auto background_color = ThemesManager::Get().GetColor("secondary");
+    SetBackgroundColour(background_color);
 
-	sizer->AddStretchSpacer();
+    sizer->AddStretchSpacer();
 
-	// code locale
-	codeLocale =
-		new wxStaticText(this, +GUI::ControlID::StatusBarCodeLocale, "");
-	auto font = codeLocale->GetFont();
-	font.SetPixelSize(wxSize(18, 18));
+    // code locale
+    codeLocale =
+        new wxStaticText(this, +GUI::ControlID::StatusBarCodeLocale, "");
+    auto font = codeLocale->GetFont();
+    font.SetWeight(wxFONTWEIGHT_MEDIUM);
 
-	codeLocale->SetFont(font);
-	codeLocale->Refresh();
+    codeLocale->SetFont(font);
+    codeLocale->Refresh();
 
-	sizer->Add(codeLocale, 0, wxALIGN_CENTER | wxRIGHT, 10);
+    sizer->Add(codeLocale, 0, wxALIGN_CENTER | wxRIGHT, 10);
 
-	// tab size
-	tabSize = new wxStaticText(this, +GUI::ControlID::StatusBarTabSize, "");
+    // tab size
+    tabSize = new wxStaticText(this, +GUI::ControlID::StatusBarTabSize, "");
 
-	tabSize->SetFont(font);
-	tabSize->Refresh();
+    tabSize->SetFont(font);
+    tabSize->Refresh();
 
-	sizer->Add(tabSize, 0, wxALIGN_CENTER | wxRIGHT, 10);
+    sizer->Add(tabSize, 0, wxALIGN_CENTER | wxRIGHT, 10);
 
-	// file extension
-	fileExt = new wxStaticText(this, +GUI::ControlID::StatusBarFileExt, "");
+    // file extension
+    fileExt = new wxStaticText(this, +GUI::ControlID::StatusBarFileExt, "");
 
-	fileExt->SetFont(font);
-	fileExt->Refresh();
+    fileExt->SetFont(font);
+    fileExt->Refresh();
 
-	sizer->Add(fileExt, 0, wxALIGN_CENTER | wxRIGHT, 10);
+    sizer->Add(fileExt, 0, wxALIGN_CENTER | wxRIGHT, 10);
 
-	// LSP status
-	m_lsp_status_label =
-		new wxStaticText(this, +GUI::ControlID::StatusBarLSPStatus, "");
+    // LSP status
+    m_lsp_status_label =
+        new wxStaticText(this, +GUI::ControlID::StatusBarLSPStatus, "");
 
-	m_lsp_status_label->SetFont(font);
-	m_lsp_status_label->Refresh();
-	sizer->Add(m_lsp_status_label, 0, wxALIGN_CENTER | wxRIGHT, 10);
+    m_lsp_status_label->SetFont(font);
+    m_lsp_status_label->Refresh();
+    sizer->Add(m_lsp_status_label, 0, wxALIGN_CENTER | wxRIGHT, 10);
 
-	SetSizerAndFit(sizer);
-	Bind(wxEVT_PAINT, &StatusBar::OnPaint, this);
-	SetMinSize(wxSize(GetSize().x, 20));
+    SetSizerAndFit(sizer);
+    Bind(wxEVT_PAINT, &StatusBar::OnPaint, this);
+    SetMinSize(wxSize(GetSize().x, codeLocale->GetSize().y+5));
 }
 
 void StatusBar::UpdateComponents(const wxString &path) {
-	if (path.empty() || !wxFileExists(path)) {
-		ClearLabels();
-		return;
-	}
+    if (path.empty() || !wxFileExists(path)) {
+        ClearLabels();
+        return;
+    }
 
-	wxFileName fileProps = wxFileName(path);
-	wxImage fileImage = wxImage();
+    wxFileName fileProps = wxFileName(path);
+    wxImage fileImage = wxImage();
 
-	wxString languageName =
-		LanguagesPreferences::Get().GetLanguagePreferences(path).name;
+    wxString languageName =
+        LanguagesPreferences::Get().GetLanguagePreferences(path).name;
 
-	if (!languageName.empty()) {
-		languageName[0] = wxToupper(languageName[0]);
-	}
+    if (!languageName.empty()) {
+        languageName[0] = wxToupper(languageName[0]);
+    }
 
-	if (FileOperations::IsImageFile(path)) {
-		wxImage *image = new wxImage(path);
+    if (FileOperations::IsImageFile(path)) {
+        wxImage *image = new wxImage(path);
 
-		codeLocale->SetLabel(std::to_string(image->GetHeight()) + "x" +
-							 std::to_string(image->GetWidth()) + " pixels");
+        codeLocale->SetLabel(std::to_string(image->GetHeight()) + "x" +
+                             std::to_string(image->GetWidth()) + " pixels");
 
-		tabSize->SetLabel(
-			wxString(Format::FormatBytes(fileProps.GetSize().ToULong())));
+        tabSize->SetLabel(
+            wxString(Format::FormatBytes(fileProps.GetSize().ToULong())));
 
-		if (fileProps.HasExt())
-			fileExt->SetLabel(fileProps.GetExt());
-		else
-			fileExt->SetLabel("Unknown");
-	} else {
-		fileExt->SetLabel(languageName);
-	}
+        if (fileProps.HasExt())
+            fileExt->SetLabel(fileProps.GetExt());
+        else
+            fileExt->SetLabel("Unknown");
+    } else {
+        fileExt->SetLabel(languageName);
+    }
 
-	if (!IsShown() && UserSettingsManager::Get()
-						  .GetSetting<bool>("view/showStatusBar")
-						  .value) {
-		Show();
-		GetParent()->GetSizer()->Layout();
-	}
+    if (!IsShown() && UserSettingsManager::Get()
+            .GetSetting<bool>("view/showStatusBar")
+            .value) {
+        Show();
+        GetParent()->GetSizer()->Layout();
+    }
 
-	codeLocale->Layout();
-	tabSize->Layout();
-	fileExt->Layout();
+    codeLocale->Layout();
+    tabSize->Layout();
+    fileExt->Layout();
 
-	Refresh();
-	sizer->Layout();
+    Refresh();
+    sizer->Layout();
 }
 
 void StatusBar::UpdateCodeLocale(wxStyledTextCtrl *codeEditor) {
-	if (!IsShown() && UserSettingsManager::Get()
-						  .GetSetting<bool>("view/showStatusBar")
-						  .value) {
-		Show();
-		GetParent()->GetSizer()->Layout();
-	}
+    if (!IsShown() && UserSettingsManager::Get()
+            .GetSetting<bool>("view/showStatusBar")
+            .value) {
+        Show();
+        GetParent()->GetSizer()->Layout();
+    }
 
-	if (tabSize)
-		tabSize->SetLabel(wxString::Format(
-			_("Tab Size: %S"), std::to_string(codeEditor->GetTabWidth())));
+    if (tabSize)
+        tabSize->SetLabel(wxString::Format(
+                              _("Tab Size: %S"), std::to_string(codeEditor->GetTabWidth())));
 
-	if (codeLocale)
-		codeLocale->SetLabel(
-			wxString::Format(_("Line: %S Column: %S"),
-							 std::to_string(codeEditor->GetCurrentLine() + 1),
-							 std::to_string(codeEditor->GetColumn(
-								 codeEditor->GetCurrentPos()))));
+    if (codeLocale)
+        codeLocale->SetLabel(
+            wxString::Format(_("Line: %S Column: %S"),
+                             std::to_string(codeEditor->GetCurrentLine() + 1),
+                             std::to_string(codeEditor->GetColumn(
+                                                codeEditor->GetCurrentPos()))));
 
-	Refresh();
-	sizer->Layout();
+    Refresh();
+    sizer->Layout();
 }
 
 void StatusBar::ClearLabels() {
-	Hide();
-	GetParent()->GetSizer()->Layout();
+    Hide();
+    GetParent()->GetSizer()->Layout();
 
-	codeLocale->SetLabel("");
-	tabSize->SetLabel("");
-	fileExt->SetLabel("");
+    codeLocale->SetLabel("");
+    tabSize->SetLabel("");
+    fileExt->SetLabel("");
 
-	Refresh();
-	sizer->Layout();
+    Refresh();
+    sizer->Layout();
 }
 
 void StatusBar::OnPaint(wxPaintEvent &WXUNUSED(event)) {
-	wxPaintDC dc(this);
-	wxColour borderColor = ThemesManager::Get().GetColor("border");
+    wxPaintDC dc(this);
+    wxColour borderColor = ThemesManager::Get().GetColor("border");
 
-	dc.SetBrush(borderColor);
-	dc.SetPen(wxPen(borderColor, 1));
-	dc.DrawLine(0, 0, GetSize().GetWidth(), 0);
+    dc.SetBrush(borderColor);
+    dc.SetPen(wxPen(borderColor, 1));
+    dc.DrawLine(0, 0, GetSize().GetWidth(), 0);
 }
 
 void StatusBar::UpdateLanguage(const languagePreferencesStruct &language) {
-	fileExt->SetLabel(
-		wxString(language.preferences["name"].template get<std::string>()));
-	Refresh();
-	sizer->Layout();
+    fileExt->SetLabel(
+        wxString(language.preferences["name"].template get<std::string>()));
+    Refresh();
+    sizer->Layout();
 }

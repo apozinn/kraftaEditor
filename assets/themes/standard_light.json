@@ -1,21 +1,33 @@
 {
-    "themeName": "Standard Krafta Light Theme",
-    "isDark": false,
-    "main": "#ffffff",
-    "secondary": "#f3f3f3",
-    "colorThree": "#e8e8e8",
-    "icon": "#1f1f1f",
-    "unsavedIcon": "#000",
-    "highlight": "#0066cc",
-    "border": "#e0e0e0",
-    "tint": "#0090b8",
-    "selectedFile": "#e4e6f1",
-    "text": "#1f1f1f",
-    "secondaryText": "#6a6a6a",
-    "indicator": {
-        "foreground": "#4fa8d8"
-    },
-    "editorCaret": "#333333",
-    "minimapViewport": "#c8c8c8",
-    "minimapCaretPosition": "#7fc4d0"
+  "themeName": "Standard Krafta Light Theme",
+  "isDark": false,
+  "main": "#ffffff",
+  "secondary": "#f3f3f3",
+  "colorThree": "#e8e8e8",
+  "icon": "#1f1f1f",
+  "unsavedIcon": "#cbcbcb",
+  "highlight": "#0066cc",
+  "border": "#e0e0e0",
+  "tint": "#0090b8",
+  "selectedFile": "#e4e6f1",
+  "text": "#1f1f1f",
+  "secondaryText": "#6a6a6a",
+  "indicator": {
+    "foreground": "#4fa8d8"
+  },
+  "editorCaret": "#333333",
+  "minimapViewport": "#c8c8c8",
+  "minimapCaretPosition": "#7fc4d0",
+  "editor": {
+    "font": {
+      "family": {
+        "windows": "Consolas",
+        "linux": "DejaVu Sans Mono",
+        "macos": "Menlo"
+      },
+      "size": 14,
+      "weight": 400,
+      "lineHeight": 1.5
+    }
+  }
 }

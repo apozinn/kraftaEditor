@@ -22,184 +22,200 @@ using json = nlohmann::json;
 using namespace PlatformInfos;
 
 bool KraftaEditor::OnInit() {
-	try {
-		if (!wxApp::OnInit())
-			return false;
+    try {
+        if (!wxApp::OnInit())
+            return false;
 
-		SetVendorName("Krafta-editor");
-		SetAppName("krafta-editor");
+        SetVendorName("Krafta-editor");
+        SetAppName("krafta-editor");
 
-		wxConfig::Set(new wxConfig(GetAppName(), GetVendorName()));
+        wxConfig::Set(new wxConfig(GetAppName(), GetVendorName()));
 
-		wxInitAllImageHandlers();
-		LoadTranslations();
+        wxInitAllImageHandlers();
+        LoadTranslations();
 
-		SetupThemeManager();
-		VerifyIfSytemIsDarkMode();
-		SetupUserSettings();
+        SetupThemeManager();
+        VerifyIfSytemIsDarkMode();
+        SetupUserSettings();
 
-		if (!SetupApplicationDirectories())
-			return false;
+        if (!SetupApplicationDirectories())
+            return false;
 
-		CreateMainWindow();
-		LoadLanguagesPreferences();
+        CreateMainWindow();
+        LoadLanguagesPreferences();
 
-		for (int i = 1; i < argc; ++i) {
-			const wxString arg = argv[i];
-			if (arg.StartsWith("-"))
-				continue;
+        for (int i = 1; i < argc; ++i) {
+            const wxString arg = argv[i];
+            if (arg.StartsWith("-"))
+                continue;
 
-			if (wxDirExists(arg)) {
-				wxFileName dir = wxFileName::DirName(arg);
-				dir.MakeAbsolute();
-				dir.Normalize(wxPATH_NORM_DOTS | wxPATH_NORM_TILDE);
-				frame->LoadPath(dir.GetPath());
-			} else if (wxFileExists(arg)) {
-				wxFileName file(arg);
-				file.MakeAbsolute();
-				file.Normalize(wxPATH_NORM_DOTS | wxPATH_NORM_TILDE);
-				frame->OpenFile(file.GetFullPath());
-			}
-		}
+            if (wxDirExists(arg)) {
+                wxFileName dir = wxFileName::DirName(arg);
+                dir.MakeAbsolute();
+                dir.Normalize(wxPATH_NORM_DOTS | wxPATH_NORM_TILDE);
+                frame->LoadPath(dir.GetPath());
+            } else if (wxFileExists(arg)) {
+                wxFileName file(arg);
+                file.MakeAbsolute();
+                file.Normalize(wxPATH_NORM_DOTS | wxPATH_NORM_TILDE);
+                frame->OpenFile(file.GetFullPath());
+            }
+        }
 
-		return true;
-	} catch (const nlohmann::json::type_error &e) {
-		wxMessageBox(e.what());
-		std::cerr << "JSON Type Error: " << e.what() << std::endl;
-	} catch (const std::exception &e) {
-		wxMessageBox(e.what());
-		std::cerr << "Standard Exception: " << e.what() << std::endl;
-	}
+        return true;
+    } catch (const nlohmann::json::type_error &e) {
+        wxMessageBox(e.what());
+        std::cerr << "JSON Type Error: " << e.what() << std::endl;
+    } catch (const std::exception &e) {
+        wxMessageBox(e.what());
+        std::cerr << "Standard Exception: " << e.what() << std::endl;
+    }
 
-	return false;
+    return false;
 }
 
 void KraftaEditor::VerifyIfSytemIsDarkMode() {
-	try {
-		if (ThemesManager::Get().IsDarkTheme()) {
-			SetAppearance(wxApp::Appearance::Dark);
+    try {
+        if (ThemesManager::Get().IsDarkTheme()) {
+            SetAppearance(wxApp::Appearance::Dark);
 #if __WXMSW__
-			MSWEnableDarkMode(DarkMode_Always);
+            MSWEnableDarkMode(DarkMode_Always);
 #endif
-		} else {
-			SetAppearance(wxApp::Appearance::Light);
-		}
-	} catch (const std::exception &e) {
-		wxMessageBox(e.what());
-		std::cerr << "Standard Exception: " << e.what() << std::endl;
-	}
+        } else {
+            SetAppearance(wxApp::Appearance::Light);
+        }
+    } catch (const std::exception &e) {
+        wxMessageBox(e.what());
+        std::cerr << "Standard Exception: " << e.what() << std::endl;
+    }
 }
 
-void KraftaEditor::SetupThemeManager() { ThemesManager::Get(); }
+void KraftaEditor::SetupThemeManager() {
+    ThemesManager::Get();
+}
 
-void KraftaEditor::SetupUserSettings() { UserSettingsManager::Get(); }
+void KraftaEditor::SetupUserSettings() {
+    UserSettingsManager::Get();
+}
 
-void KraftaEditor::SetupShortcutsSettings() { ShortCutSettingsManager::Get(); }
+void KraftaEditor::SetupShortcutsSettings() {
+    ShortCutSettingsManager::Get();
+}
 
 bool KraftaEditor::SetupApplicationDirectories() {
-	struct AppPathWithErrorMessage {
-		wxString path;
-		const char *errorMessage;
-	};
+    struct AppPathWithErrorMessage {
+        wxString path;
+        const char *errorMessage;
+    };
 
-	std::vector<AppPathWithErrorMessage> appPathsWithErrorMessage = {
-		{ApplicationPaths::ApplicationPath(),
-		 _("Failed to locate the application executable path.")},
-		{ApplicationPaths::AssetsPath(wxEmptyString),
-		 _("UI Error: The application assets directory was not found.")},
-		{ApplicationPaths::AssetsPath("icons"),
-		 _("UI Error: The application icons directory was not found.")},
-		{ApplicationPaths::AssetsPath("themes"),
-		 _("UI Error: Missing application themes directory.")},
-		{ApplicationPaths::AssetsPath("images"),
-		 _("UI Error: Missing application directory.")},
-		{ApplicationPaths::AssetsPath("file_ext"),
-		 _("Language Support Error: Missing file extension icons directory.")},
-		{ApplicationPaths::DevelopmentEnvironmentPath(),
-		 _("Configuration Error: Failed to determine the application root "
-		   "directory.")}};
+    std::vector<AppPathWithErrorMessage> appPathsWithErrorMessage = {
+        {   ApplicationPaths::ApplicationPath(),
+            _("Failed to locate the application executable path.")
+        },
+        {   ApplicationPaths::AssetsPath(wxEmptyString),
+            _("UI Error: The application assets directory was not found.")
+        },
+        {   ApplicationPaths::AssetsPath("icons"),
+            _("UI Error: The application icons directory was not found.")
+        },
+        {   ApplicationPaths::AssetsPath("themes"),
+            _("UI Error: Missing application themes directory.")
+        },
+        {   ApplicationPaths::AssetsPath("images"),
+            _("UI Error: Missing application directory.")
+        },
+        {   ApplicationPaths::AssetsPath("file_ext"),
+            _("Language Support Error: Missing file extension icons directory.")
+        },
+        {   ApplicationPaths::DevelopmentEnvironmentPath(),
+            _("Configuration Error: Failed to determine the application root "
+              "directory.")
+        }
+    };
 
-	bool allPathsOk = true;
-	for (const auto &AppPath : appPathsWithErrorMessage) {
-		if (!wxDirExists(AppPath.path)) {
-			allPathsOk = false;
-			wxLogError(AppPath.errorMessage);
-			break;
-		}
-	}
-	return allPathsOk;
+    bool allPathsOk = true;
+    for (const auto &AppPath : appPathsWithErrorMessage) {
+        if (!wxDirExists(AppPath.path)) {
+            allPathsOk = false;
+            wxLogError(AppPath.errorMessage);
+            break;
+        }
+    }
+    return allPathsOk;
 }
 
 bool KraftaEditor::CreateMainWindow() {
-	frame = new MainFrame("Krafta Editor");
-	frame->Show();
-	wxApp::SetTopWindow(frame);
+    frame = new MainFrame("Krafta Editor");
+    frame->Show();
+    wxApp::SetTopWindow(frame);
 
-	return frame != nullptr;
+    return frame != nullptr;
 }
 
 void KraftaEditor::OnEventLoopEnter(wxEventLoopBase *WXUNUSED(loop)) {
-	static bool s_watcherInitialized = false;
-	if (s_watcherInitialized) {
-		return;
-	}
+    static bool s_watcherInitialized = false;
+    if (s_watcherInitialized) {
+        return;
+    }
 
-	if (!frame || frame->IsBeingDeleted())
-		return;
+    if (!frame || frame->IsBeingDeleted())
+        return;
 
-	if (!frame->CreateWatcherIfNecessary())
-		return;
+    if (!frame->CreateWatcherIfNecessary())
+        return;
 
-	s_watcherInitialized = true;
+    s_watcherInitialized = true;
 
-	wxConfig config("krafta-editor");
-	wxString str;
+    wxConfig config("krafta-editor");
+    wxString str;
 
-	if (!m_dirToWatch.empty()) {
-		frame->LoadPath(m_dirToWatch);
-	} else if (config.Read("workspace", &str)) {
-		frame->LoadPath(str);
-	}
+    if (!m_dirToWatch.empty()) {
+        frame->LoadPath(m_dirToWatch);
+    } else if (config.Read("workspace", &str)) {
+        frame->LoadPath(str);
+    }
 }
 
 void KraftaEditor::OnInitCmdLine(wxCmdLineParser &parser) {
-	wxApp::OnInitCmdLine(parser);
-	parser.AddParam("directory to watch", wxCMD_LINE_VAL_STRING,
-					wxCMD_LINE_PARAM_OPTIONAL);
+    wxApp::OnInitCmdLine(parser);
+    parser.AddParam("directory to watch", wxCMD_LINE_VAL_STRING,
+                    wxCMD_LINE_PARAM_OPTIONAL);
 }
 
 bool KraftaEditor::OnCmdLineParsed(wxCmdLineParser &parser) {
-	if (!wxApp::OnCmdLineParsed(parser))
-		return false;
-	if (parser.GetParamCount())
-		m_dirToWatch = parser.GetParam();
-	return true;
+    if (!wxApp::OnCmdLineParsed(parser))
+        return false;
+    if (parser.GetParamCount())
+        m_dirToWatch = parser.GetParam();
+    return true;
 }
 
-void KraftaEditor::LoadLanguagesPreferences() { LanguagesPreferences::Get(); }
+void KraftaEditor::LoadLanguagesPreferences() {
+    LanguagesPreferences::Get();
+}
 
 void KraftaEditor::LoadTranslations() {
-	wxTranslations *trans = new wxTranslations();
-	wxTranslations::Set(trans);
+    wxTranslations *trans = new wxTranslations();
+    wxTranslations::Set(trans);
 
-	wxFileTranslationsLoader::AddCatalogLookupPathPrefix(
-		ApplicationPaths::GetI18nLanguagePath());
+    wxFileTranslationsLoader::AddCatalogLookupPathPrefix(
+        ApplicationPaths::GetI18nLanguagePath());
 
-	trans->AddStdCatalog();
+    trans->AddStdCatalog();
 
-	auto sysLang = wxLocale::GetSystemLanguage();
+    auto sysLang = wxLocale::GetSystemLanguage();
 
-	wxLocale locale;
+    wxLocale locale;
 
-	if (!locale.Init(sysLang)) {
-		wxMessageBox("The system language (%s) is not fully supported. Using "
-					 "the default language.",
-					 wxLocale::GetLanguageName(sysLang));
-	}
+    if (!locale.Init(sysLang)) {
+        wxMessageBox("The system language (%s) is not fully supported. Using "
+                     "the default language.",
+                     wxLocale::GetLanguageName(sysLang));
+    }
 
-	if (!trans->AddCatalog("kraftaeditor")) {
-		wxMessageBox(
-			"Failed to load translation catalog '%s'. Check the .mo file.",
-			"kraftaeditor");
-	}
+    if (!trans->AddCatalog("kraftaeditor")) {
+        wxMessageBox(
+            "Failed to load translation catalog '%s'. Check the .mo file.",
+            "kraftaeditor");
+    }
 }

@@ -26,23 +26,23 @@ constexpr wxWindowID ID_BASE_PROJECT = 12000; ///< Project lifecycle actions
 constexpr wxWindowID ID_BASE_VIEW = 13000; ///< UI visibility and layout toggles
 constexpr wxWindowID ID_BASE_TERMINAL = 14000; ///< Integrated terminal controls
 constexpr wxWindowID ID_BASE_CONTROL =
-	15000; ///< Command/control panel navigation
+    15000; ///< Command/control panel navigation
 constexpr wxWindowID ID_BASE_QUICK_OPEN =
-	15500; ///< Quick Open navigation and actions
+    15500; ///< Quick Open navigation and actions
 constexpr wxWindowID ID_BASE_SEARCH_PAGE =
-	16000; ///< Search panels and search actions
+    16000; ///< Search panels and search actions
 constexpr wxWindowID ID_BASE_SETTINGS =
-	17000; ///< User preferences and settings
+    17000; ///< User preferences and settings
 constexpr wxWindowID ID_BASE_EDIT =
-	18000; ///< Text editing and code manipulation
+    18000; ///< Text editing and code manipulation
 constexpr wxWindowID ID_TABS_CONTAINER =
-	19000; ///< Editor tab container actions
+    19000; ///< Editor tab container actions
 constexpr wxWindowID ID_BASE_SHORTCUTS = 20000; ///< Keyboard shortcuts
 constexpr wxWindowID ID_BASE_GOTOLINE = 21000;	///< Gotoline
 constexpr wxWindowID ID_OPEN_RECENT_WORKSPACE_BASE =
-	30000; ///< ase ID for the first recent workspace item.
+    30000; ///< ase ID for the first recent workspace item.
 constexpr wxWindowID ID_OPEN_RECENT_WORKSPACE_MAX =
-	40000; ///< Maximum ID threshold for the recent workspace range.
+    40000; ///< Maximum ID threshold for the recent workspace range.
 
 /* -------------------------------------------------------------------------- */
 /* GUI CONTROL IDS */
@@ -57,51 +57,51 @@ namespace GUI {
  * buttons, splitters and custom controls.
  */
 enum class ControlID : wxWindowID {
-	MainFrame = wxID_ANY, ///< Main application window
-	ProjectToggler,		  ///< Button that shows/hides the project tree
-	Tabs,				  ///< Main editor tabs control
-	SplitEditorTabs,
-	TabsContainer,				   ///< Container holding all editor tabs
-	CodeEditor,					   ///< Primary source code editor widget
-	MiniMap,					   ///< Code minimap view
-	CodeSearchPanel,			   ///< In-editor text search panel
-	FileSearchPanel,			   ///< Workspace-wide file search panel
-	ApplicationLeftMainContainer,  ///< Left side of the main layout
-	ApplicationRightMainContainer, ///< Right side of the main layout
-	CenteredContent,			   ///< Central editor/content area
-	EmptyWindow,				   ///< Placeholder window (no file open)
-	MainSplitter,				   ///< Root splitter dividing main layout
-	MainContainerSplitter,		   ///< Secondary splitter for nested containers
-	Terminal,					   ///< Embedded terminal widget
-	TerminalCommandInput,		   ///< Terminal command input field
-	ControlPanel,				   ///< Command palette / control panel
-	MainContainer,				   ///< Root container for main UI
-	FilesTree,					   ///< Project file tree view
-	ProjectFiles,				   ///< Flat list of project files
-	ProjectFilesContainer,		   ///< Container for project files view
-	MainCode,					   ///< Main code editing area
-	StatusBar,					   ///< Application status bar
-	StatusBarFileExt,			   ///< Status bar file extension indicator
-	StatusBarTabSize,			   ///< Status bar tab size indicator
-	StatusBarCodeLocale,		   ///< Status bar language mode indicator
-	StatusBarLSPStatus,
-	MenuBar,				///< Application menu bar
-	NotifyPanel,			///< Notification and alert panel
-	ProjectToolsName,		///< Project name label in tools panel
-	ProjectToolsArrow,		///< Expand/collapse arrow for project tools
-	QuickOpenSearchBar,		///< Input field for Quick Open
-	OpenFolderButton,		///< Button to open a project folder
-	QuickOpen,				///< Quick Open overlay panel
-	ProjectInfosTools,		///< Project information tools panel
-	PageSwitcher,			///< Sidebar page switcher (Files/Search)
-	OpenFileFromDrop,		///< Drag-and-drop file open handler
-	FilesPage,				///< Files page inside page switcher
-	PageSwitcherSearchPage, ///< Search page inside page switcher
-	SearchPage,				///< Full search results page
-	CodeSearch,				/// < In-editor text search panel,
-	CodeContainersBlock,
-	CodeContainerBlockLeft,
-	CodeContainerBlockRight,
+    MainFrame = wxID_ANY, ///< Main application window
+    ProjectToggler,		  ///< Button that shows/hides the project tree
+    Tabs,				  ///< Main editor tabs control
+    SplitEditorTabs,
+    TabsContainer,				   ///< Container holding all editor tabs
+    CodeEditor,					   ///< Primary source code editor widget
+    MiniMap,					   ///< Code minimap view
+    CodeSearchPanel,			   ///< In-editor text search panel
+    FileSearchPanel,			   ///< Workspace-wide file search panel
+    ApplicationLeftMainContainer,  ///< Left side of the main layout
+    ApplicationRightMainContainer, ///< Right side of the main layout
+    CenteredContent,			   ///< Central editor/content area
+    EmptyWindow,				   ///< Placeholder window (no file open)
+    MainSplitter,				   ///< Root splitter dividing main layout
+    MainContainerSplitter,		   ///< Secondary splitter for nested containers
+    Terminal,					   ///< Embedded terminal widget
+    TerminalCommandInput,		   ///< Terminal command input field
+    ControlPanel,				   ///< Command palette / control panel
+    MainContainer,				   ///< Root container for main UI
+    FilesTree,					   ///< Project file tree view
+    ProjectFiles,				   ///< Flat list of project files
+    ProjectFilesContainer,		   ///< Container for project files view
+    MainCode,					   ///< Main code editing area
+    StatusBar,					   ///< Application status bar
+    StatusBarFileExt,			   ///< Status bar file extension indicator
+    StatusBarTabSize,			   ///< Status bar tab size indicator
+    StatusBarCodeLocale,		   ///< Status bar language mode indicator
+    StatusBarLSPStatus,
+    MenuBar,				///< Application menu bar
+    NotifyPanel,			///< Notification and alert panel
+    ProjectToolsName,		///< Project name label in tools panel
+    ProjectToolsArrow,		///< Expand/collapse arrow for project tools
+    QuickOpenSearchBar,		///< Input field for Quick Open
+    OpenFolderButton,		///< Button to open a project folder
+    QuickOpen,				///< Quick Open overlay panel
+    ProjectInfosTools,		///< Project information tools panel
+    PageSwitcher,			///< Sidebar page switcher (Files/Search)
+    OpenFileFromDrop,		///< Drag-and-drop file open handler
+    FilesPage,				///< Files page inside page switcher
+    PageSwitcherSearchPage, ///< Search page inside page switcher
+    SearchPage,				///< Full search results page
+    CodeSearch,				/// < In-editor text search panel,
+    CodeContainersBlock,
+    CodeContainerBlockLeft,
+    CodeContainerBlockRight,
 };
 } // namespace GUI
 
@@ -115,20 +115,20 @@ namespace Event {
  * @brief Events related to file and directory operations.
  */
 enum class File : wxWindowID {
-	New = ID_BASE_FILE + 1,
-	OpenFile = ID_BASE_FILE + 2,
-	CreateFileEvent = ID_BASE_FILE + 3,
-	RenameFile = ID_BASE_FILE + 4,
-	DeleteFileEvent = ID_BASE_FILE + 5,
-	CloseFile = ID_BASE_FILE + 6,
-	Save = ID_BASE_FILE + 7,
-	SaveAll = ID_BASE_FILE + 8,
-	SaveAs = ID_BASE_FILE + 9,
-	CloseAll = ID_BASE_FILE + 10,
-	CreateDir = ID_BASE_FILE + 11,
-	RenameDir = ID_BASE_FILE + 12,
-	DeleteDir = ID_BASE_FILE + 13,
-	ToggleAutosave = ID_BASE_FILE + 14,
+    New = ID_BASE_FILE + 1,
+    OpenFile = ID_BASE_FILE + 2,
+    CreateFileEvent = ID_BASE_FILE + 3,
+    RenameFile = ID_BASE_FILE + 4,
+    DeleteFileEvent = ID_BASE_FILE + 5,
+    CloseFile = ID_BASE_FILE + 6,
+    Save = ID_BASE_FILE + 7,
+    SaveAll = ID_BASE_FILE + 8,
+    SaveAs = ID_BASE_FILE + 9,
+    CloseAll = ID_BASE_FILE + 10,
+    CreateDir = ID_BASE_FILE + 11,
+    RenameDir = ID_BASE_FILE + 12,
+    DeleteDir = ID_BASE_FILE + 13,
+    ToggleAutosave = ID_BASE_FILE + 14,
 };
 
 /**
@@ -136,28 +136,28 @@ enum class File : wxWindowID {
  * @brief Text editing and code manipulation commands.
  */
 enum class Edit : wxWindowID {
-	Undo = wxID_UNDO,
-	Redo = wxID_REDO,
-	ToggleLineComment = ID_BASE_EDIT + 1,
-	ToggleBlockComment = ID_BASE_EDIT + 2,
-	SelectAll = ID_BASE_EDIT + 3,
-	SelectLine = ID_BASE_EDIT + 4,
-	Cut = wxID_CUT,
-	Copy = wxID_COPY,
-	Paste = wxID_PASTE,
-	MoveCursorDown = ID_BASE_EDIT + 5,
-	MoveCursorUp = ID_BASE_EDIT + 6,
-	DuplicateLineDown = ID_BASE_EDIT + 7,
-	DuplicateLineUp = ID_BASE_EDIT + 8,
-	SelectNextOccurrence = ID_BASE_EDIT + 9,
-	AutoComplete = ID_BASE_EDIT + 10,
-	MoveLineUp = ID_BASE_EDIT + 11,
-	MoveLineDown = ID_BASE_EDIT + 12,
-	RemoveCurrentLine = ID_BASE_EDIT + 13,
-	GoToLine = ID_BASE_EDIT + 14,
-	GoToSymbol = ID_BASE_EDIT + 15,
-	GoToDefinition = ID_BASE_EDIT + 16,
-	CopyByKeyboard = ID_BASE_EDIT + 17,
+    Undo = wxID_UNDO,
+    Redo = wxID_REDO,
+    ToggleLineComment = ID_BASE_EDIT + 1,
+    ToggleBlockComment = ID_BASE_EDIT + 2,
+    SelectAll = ID_BASE_EDIT + 3,
+    SelectLine = ID_BASE_EDIT + 4,
+    Cut = wxID_CUT,
+    Copy = wxID_COPY,
+    Paste = wxID_PASTE,
+    MoveCursorDown = ID_BASE_EDIT + 5,
+    MoveCursorUp = ID_BASE_EDIT + 6,
+    DuplicateLineDown = ID_BASE_EDIT + 7,
+    DuplicateLineUp = ID_BASE_EDIT + 8,
+    SelectNextOccurrence = ID_BASE_EDIT + 9,
+    AutoComplete = ID_BASE_EDIT + 10,
+    MoveLineUp = ID_BASE_EDIT + 11,
+    MoveLineDown = ID_BASE_EDIT + 12,
+    RemoveCurrentLine = ID_BASE_EDIT + 13,
+    GoToLine = ID_BASE_EDIT + 14,
+    GoToSymbol = ID_BASE_EDIT + 15,
+    GoToDefinition = ID_BASE_EDIT + 16,
+    CopyByKeyboard = ID_BASE_EDIT + 17,
 };
 
 /**
@@ -165,10 +165,10 @@ enum class Edit : wxWindowID {
  * @brief Application-level window actions.
  */
 enum class Frame : wxWindowID {
-	Exit = ID_BASE_FRAME + 1,
-	NewWindow = ID_BASE_FRAME + 2,
-	About = ID_BASE_FRAME + 3,
-	DontSaveChanges = ID_BASE_FRAME + 4
+    Exit = ID_BASE_FRAME + 1,
+    NewWindow = ID_BASE_FRAME + 2,
+    About = ID_BASE_FRAME + 3,
+    DontSaveChanges = ID_BASE_FRAME + 4
 };
 
 /**
@@ -176,21 +176,21 @@ enum class Frame : wxWindowID {
  * @brief UI layout and visibility toggles.
  */
 enum class View : wxWindowID {
-	ToggleMenuBar = ID_BASE_VIEW + 1,
-	ToggleStatusBar = ID_BASE_VIEW + 2,
-	ToggleFileTree = ID_BASE_VIEW + 3,
-	ToggleMiniMap = ID_BASE_VIEW + 4,
-	ToggleControlPanel = ID_BASE_VIEW + 5,
-	ToggleTabBar = ID_BASE_VIEW + 6,
-	ToggleCodeSearch = ID_BASE_VIEW + 7,
-	FocusMode = ID_BASE_VIEW + 8,
-	ToggleQuickOpen = ID_BASE_VIEW + 9,
-	ToggleFullScreen = ID_BASE_VIEW + 10,
-	SplitEditor = ID_BASE_VIEW + 11,
-	ZoomIn = ID_BASE_VIEW + 12,
-	ZoomOut = ID_BASE_VIEW + 13,
-	ZoomReset = ID_BASE_VIEW + 14,
-	ToggleSearchPage = ID_BASE_VIEW + 15,
+    ToggleMenuBar = ID_BASE_VIEW + 1,
+    ToggleStatusBar = ID_BASE_VIEW + 2,
+    ToggleFileTree = ID_BASE_VIEW + 3,
+    ToggleMiniMap = ID_BASE_VIEW + 4,
+    ToggleControlPanel = ID_BASE_VIEW + 5,
+    ToggleTabBar = ID_BASE_VIEW + 6,
+    ToggleCodeSearch = ID_BASE_VIEW + 7,
+    FocusMode = ID_BASE_VIEW + 8,
+    ToggleQuickOpen = ID_BASE_VIEW + 9,
+    ToggleFullScreen = ID_BASE_VIEW + 10,
+    SplitEditor = ID_BASE_VIEW + 11,
+    ZoomIn = ID_BASE_VIEW + 12,
+    ZoomOut = ID_BASE_VIEW + 13,
+    ZoomReset = ID_BASE_VIEW + 14,
+    ToggleSearchPage = ID_BASE_VIEW + 15,
 };
 
 /**
@@ -198,9 +198,9 @@ enum class View : wxWindowID {
  * @brief Project open/close lifecycle events.
  */
 enum class Project : wxWindowID {
-	OpenFolder = ID_BASE_PROJECT + 1,
-	CloseFolder = ID_BASE_PROJECT + 2,
-	OpenRecentWorspace = ID_BASE_PROJECT + 3
+    OpenFolder = ID_BASE_PROJECT + 1,
+    CloseFolder = ID_BASE_PROJECT + 2,
+    OpenRecentWorspace = ID_BASE_PROJECT + 3
 };
 
 /**
@@ -214,9 +214,9 @@ enum class UserSettings : wxWindowID { Edit = ID_BASE_SETTINGS + 1 };
  * @brief Shortcuts preferences and configuration actions.
  */
 enum class Shortcuts : wxWindowID {
-	Edit = ID_BASE_SHORTCUTS + 1,
-	ZoomIn = ID_BASE_SHORTCUTS + 2,
-	ZoomOut = ID_BASE_SHORTCUTS + 3,
+    Edit = ID_BASE_SHORTCUTS + 1,
+    ZoomIn = ID_BASE_SHORTCUTS + 2,
+    ZoomOut = ID_BASE_SHORTCUTS + 3,
 };
 
 /**
@@ -224,10 +224,10 @@ enum class Shortcuts : wxWindowID {
  * @brief Integrated terminal control and navigation.
  */
 enum class Terminal : wxWindowID {
-	ToggleView = ID_BASE_TERMINAL + 1,
-	ControlUp = ID_BASE_TERMINAL + 2,
-	ControlDown = ID_BASE_TERMINAL + 3,
-	ControlSelect = ID_BASE_TERMINAL + 4
+    ToggleView = ID_BASE_TERMINAL + 1,
+    ControlUp = ID_BASE_TERMINAL + 2,
+    ControlDown = ID_BASE_TERMINAL + 3,
+    ControlSelect = ID_BASE_TERMINAL + 4
 };
 
 /**
@@ -235,15 +235,15 @@ enum class Terminal : wxWindowID {
  * @brief Command palette navigation events.
  */
 enum class ControlPanel : wxWindowID {
-	Exit = ID_BASE_CONTROL + 1,
-	Up = ID_BASE_CONTROL + 2,
-	Down = ID_BASE_CONTROL + 3,
-	Select = ID_BASE_CONTROL + 4,
-	SelectTheme = ID_BASE_CONTROL + 5,
+    Exit = ID_BASE_CONTROL + 1,
+    Up = ID_BASE_CONTROL + 2,
+    Down = ID_BASE_CONTROL + 3,
+    Select = ID_BASE_CONTROL + 4,
+    SelectTheme = ID_BASE_CONTROL + 5,
 };
 
 enum class Gotoline : wxWindowID {
-	Exit = ID_BASE_GOTOLINE + 1,
+    Exit = ID_BASE_GOTOLINE + 1,
 };
 
 /**
@@ -251,10 +251,10 @@ enum class Gotoline : wxWindowID {
  * @brief Quick Open navigation and selection events.
  */
 enum class QuickOpen : wxWindowID {
-	Exit = ID_BASE_QUICK_OPEN + 1,
-	Up = ID_BASE_QUICK_OPEN + 2,
-	Down = ID_BASE_QUICK_OPEN + 3,
-	Select = ID_BASE_QUICK_OPEN + 4,
+    Exit = ID_BASE_QUICK_OPEN + 1,
+    Up = ID_BASE_QUICK_OPEN + 2,
+    Down = ID_BASE_QUICK_OPEN + 3,
+    Select = ID_BASE_QUICK_OPEN + 4,
 };
 
 /**
@@ -262,9 +262,9 @@ enum class QuickOpen : wxWindowID {
  * @brief Editor tab container navigation and management.
  */
 enum class TabsContainer : wxWindowID {
-	OpenFirstTab = ID_TABS_CONTAINER + 1,
-	OpenLastTab = ID_TABS_CONTAINER + 2,
-	CloseAllSavedTabs = ID_TABS_CONTAINER + 3,
+    OpenFirstTab = ID_TABS_CONTAINER + 1,
+    OpenLastTab = ID_TABS_CONTAINER + 2,
+    CloseAllSavedTabs = ID_TABS_CONTAINER + 3,
 };
 } // namespace Event
 
@@ -273,11 +273,11 @@ enum class TabsContainer : wxWindowID {
 /* -------------------------------------------------------------------------- */
 
 constexpr wxWindowID operator+(GUI::ControlID id) {
-	return static_cast<wxWindowID>(id);
+    return static_cast<wxWindowID>(id);
 }
 
 template <typename T> constexpr wxWindowID operator+(T id) {
-	return static_cast<wxWindowID>(id);
+    return static_cast<wxWindowID>(id);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -285,6 +285,6 @@ template <typename T> constexpr wxWindowID operator+(T id) {
 /* -------------------------------------------------------------------------- */
 
 static_assert(+Event::File::New != +Event::Project::OpenFolder,
-			  "ID conflict detected");
+              "ID conflict detected");
 static_assert(+Event::Frame::Exit != +Event::Project::OpenFolder,
-			  "ID conflict detected");
+              "ID conflict detected");

@@ -31,29 +31,29 @@
  * @date 2022-01-01
  */
 class ConfirmDialog : public wxDialog {
-  public:
-	/**
-	 * @brief Constructor for the ConfirmDialog class.
-	 *
-	 * @param parent The parent window.
-	 * @param message The message to display in the dialog.
-	 * @param title The title of the dialog.
-	 */
-	ConfirmDialog(wxWindow *parent, const wxString &message,
-				  const wxString &title);
+public:
+    /**
+     * @brief Constructor for the ConfirmDialog class.
+     *
+     * @param parent The parent window.
+     * @param message The message to display in the dialog.
+     * @param title The title of the dialog.
+     */
+    ConfirmDialog(wxWindow *parent, const wxString &message,
+                  const wxString &title);
 
-	/**
-	 * @brief Checks if the user has opted not to be asked again in the future.
-	 *
-	 * @return True if the user has opted not to be asked again, false
-	 * otherwise.
-	 */
-	bool DontAskAgain() const;
+    /**
+     * @brief Checks if the user has opted not to be asked again in the future.
+     *
+     * @return True if the user has opted not to be asked again, false
+     * otherwise.
+     */
+    bool DontAskAgain() const;
 
-  private:
-	/**
-	 * @brief The checkbox for the user to opt out of future confirmation
-	 * dialogs.
-	 */
-	wxCheckBox *m_checkBox;
+private:
+    /**
+     * @brief The checkbox for the user to opt out of future confirmation
+     * dialogs.
+     */
+    wxCheckBox *m_checkBox;
 };

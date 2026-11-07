@@ -48,30 +48,30 @@ namespace PlatformInfos {
  * @endcode
  */
 inline std::string_view OsNameView() {
-	using namespace std::string_view_literals;
+    using namespace std::string_view_literals;
 
-	static const std::string_view cached = []() -> std::string_view {
+    static const std::string_view cached = []() -> std::string_view {
 #ifdef __linux__
-		return "Linux"sv;
+        return "Linux"sv;
 #elif defined(_WIN32) || defined(_WIN64)
-		return "Windows"sv;
+        return "Windows"sv;
 #elif defined(__APPLE__) || defined(__MACH__)
-		return "Mac"sv;
+        return "Mac"sv;
 #else
-		wxString osName = wxPlatformInfo::Get().GetOperatingSystemIdName();
+        wxString osName = wxPlatformInfo::Get().GetOperatingSystemIdName();
 
-		if (osName == "Linux")
-			return "Linux"sv;
-		if (osName == "Windows")
-			return "Windows"sv;
-		if (osName.Contains("Mac"))
-			return "Mac"sv;
+        if (osName == "Linux")
+            return "Linux"sv;
+        if (osName == "Windows")
+            return "Windows"sv;
+        if (osName.Contains("Mac"))
+            return "Mac"sv;
 
-		return "Unknown"sv;
+        return "Unknown"sv;
 #endif
-	}();
+    }();
 
-	return cached;
+    return cached;
 }
 
 /**
@@ -86,7 +86,7 @@ inline std::string_view OsNameView() {
  * @endcode
  */
 inline bool IsWindows() noexcept {
-	return wxPlatformInfo::Get().GetOperatingSystemId() == wxOS_WINDOWS_NT;
+    return wxPlatformInfo::Get().GetOperatingSystemId() == wxOS_WINDOWS_NT;
 }
 
 /**
@@ -104,9 +104,9 @@ inline bool IsWindows() noexcept {
  * @endcode
  */
 inline wxString OsPathSeparator() noexcept {
-	static const wxFileName file;
-	static const std::string separator(1, file.GetPathSeparator());
-	return separator;
+    static const wxFileName file;
+    static const std::string separator(1, file.GetPathSeparator());
+    return separator;
 }
 
 } // namespace PlatformInfos

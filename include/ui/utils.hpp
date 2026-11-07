@@ -10,7 +10,7 @@
 namespace UiUtils {
 
 wxBitmapBundle CreateIcon(const wxString &iconPath,
-						  const wxSize &iconSize = wxDefaultSize,
-						  wxColour iconColour = wxNullColour);
+                          const wxSize &iconSize = wxDefaultSize,
+                          wxColour iconColour = wxNullColour);
 
 } // namespace UiUtils

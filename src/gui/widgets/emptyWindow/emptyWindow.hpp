@@ -23,27 +23,27 @@ using json = nlohmann::json;
  * "Create New File".
  */
 class EmptyWindow : public wxPanel {
-  public:
-	/**
-	 * @brief Constructs the EmptyWindow panel.
-	 * @param parent The parent window.
-	 * @param id The unique ID for the panel.
-	 */
-	EmptyWindow(wxWindow *parent, wxWindowID id);
+public:
+    /**
+     * @brief Constructs the EmptyWindow panel.
+     * @param parent The parent window.
+     * @param id The unique ID for the panel.
+     */
+    EmptyWindow(wxWindow *parent, wxWindowID id);
 
-  private:
-	/**
-	 * @brief Configures the graphical layout and content of the empty window.
-	 */
-	void SetupLayout();
+private:
+    /**
+     * @brief Configures the graphical layout and content of the empty window.
+     */
+    void SetupLayout();
 
-  private:
-	wxBoxSizer *sizer{nullptr}; /**< Main sizer for the panel layout. */
-	json Theme =
-		ThemesManager::Get()
-			.currentTheme; /**< Cached copy of the current theme settings. */
-	wxString assetsDir = ApplicationPaths::AssetsPath(
-		"images"); /**< Cached path to the application assets directory. */
+private:
+    wxBoxSizer *sizer{nullptr}; /**< Main sizer for the panel layout. */
+    json Theme =
+        ThemesManager::Get()
+        .currentTheme; /**< Cached copy of the current theme settings. */
+    wxString assetsDir = ApplicationPaths::AssetsPath(
+                             "images"); /**< Cached path to the application assets directory. */
 
-	wxDECLARE_NO_COPY_CLASS(EmptyWindow);
+    wxDECLARE_NO_COPY_CLASS(EmptyWindow);
 };

@@ -11,8 +11,8 @@
  * events.
  */
 struct NotifyInteractions {
-	const char *label; ///< Display text for the interaction element
-	const char *id;	   ///< Unique identifier for the interaction element
+    const char *label; ///< Display text for the interaction element
+    const char *id;	   ///< Unique identifier for the interaction element
 };
 
 /**
@@ -31,7 +31,7 @@ constexpr int TYPES_COUNT = 32; ///< Maximum number of supported style types
  * This is particularly useful for error reporting in file operations.
  */
 struct AppPathWithErrorMessage {
-	const wxString path; ///< The filesystem path being referenced
-	const wxString
-		errorMessage; ///< Description of any error related to this path
+    const wxString path; ///< The filesystem path being referenced
+    const wxString
+    errorMessage; ///< Description of any error related to this path
 };

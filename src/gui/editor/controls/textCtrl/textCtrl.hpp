@@ -39,7 +39,8 @@ using json = nlohmann::json;
 
 namespace {
 static const std::unordered_map<wxString, wxString> kPairMap = {
-	{"\"", "\""}, {"'", "'"}, {"]", "["}, {"}", "{"}, {")", "("}};
+    {"\"", "\""}, {"'", "'"}, {"]", "["}, {"}", "{"}, {")", "("}
+};
 }
 
 namespace EditorConstants {
@@ -52,76 +53,76 @@ constexpr int MIN_SELECTION_LENGTH = 2;
 } // namespace EditorConstants
 
 class TextCtrl : public wxStyledTextCtrl {
-	enum { STYLE_DEFAULT = 0, STYLE_KEYWORD = 19 };
+    enum { STYLE_DEFAULT = 0, STYLE_KEYWORD = 19 };
 
-  public:
-	static TextCtrl *GetFocusedTextCtrl();
-	TextCtrl(wxWindow *parent);
-	~TextCtrl();
+public:
+    static TextCtrl *GetFocusedTextCtrl();
+    TextCtrl(wxWindow *parent);
+    ~TextCtrl();
 
-	bool Modified() const;
-	void BindEvents();
-	void SetLanguagePreferences(languagePreferencesStruct languagePreferences);
-	void SetupAutocomplete();
-	void SetupLsp();
-	void RecreateMinimap();
-	void OnSave(wxCommandEvent &e);
-	void DoSave(const wxString &path);
-	void SaveAs(wxCommandEvent &e);
-	void SaveAll(wxCommandEvent &e);
-	void CloseFile(wxCommandEvent &e);
-	void DoCopy(wxCommandEvent &e);
-	void DoCut(wxCommandEvent &e);
-	void DoPaste(wxCommandEvent &e);
-	void DoRedo(wxCommandEvent &e);
-	void DoUndo(wxCommandEvent &e);
-	void SelectLine(wxCommandEvent &e);
-	void DoSelectAll(wxCommandEvent &e);
-	void DoZoomIn(wxCommandEvent &e);
-	void DoZoomOut(wxCommandEvent &e);
-	void ToggleLineComment(wxCommandEvent &e);
-	void ToggleBlockComment(wxCommandEvent &event);
-	void DuplicateLine(wxCommandEvent &e);
-	void MoveLineUp(wxCommandEvent &e);
-	void MoveLineDown(wxCommandEvent &e);
-	void MoveCursorUp(wxCommandEvent &e);
-	void MoveCursorDown(wxCommandEvent &e);
-	void RemoveCurrentLine(wxCommandEvent &e);
-	void OnZoomIn(wxCommandEvent &event);
-	void OnZoomOut(wxCommandEvent &event);
-	void SelectNextOccurrence(wxCommandEvent &event);
+    bool Modified() const;
+    void BindEvents();
+    void SetLanguagePreferences(languagePreferencesStruct languagePreferences);
+    void SetupAutocomplete();
+    void SetupLsp();
+    void RecreateMinimap();
+    void OnSave(wxCommandEvent &e);
+    void DoSave(const wxString &path);
+    void SaveAs(wxCommandEvent &e);
+    void SaveAll(wxCommandEvent &e);
+    void CloseFile(wxCommandEvent &e);
+    void DoCopy(wxCommandEvent &e);
+    void DoCut(wxCommandEvent &e);
+    void DoPaste(wxCommandEvent &e);
+    void DoRedo(wxCommandEvent &e);
+    void DoUndo(wxCommandEvent &e);
+    void SelectLine(wxCommandEvent &e);
+    void DoSelectAll(wxCommandEvent &e);
+    void DoZoomIn(wxCommandEvent &e);
+    void DoZoomOut(wxCommandEvent &e);
+    void ToggleLineComment(wxCommandEvent &e);
+    void ToggleBlockComment(wxCommandEvent &event);
+    void DuplicateLine(wxCommandEvent &e);
+    void MoveLineUp(wxCommandEvent &e);
+    void MoveLineDown(wxCommandEvent &e);
+    void MoveCursorUp(wxCommandEvent &e);
+    void MoveCursorDown(wxCommandEvent &e);
+    void RemoveCurrentLine(wxCommandEvent &e);
+    void OnZoomIn(wxCommandEvent &event);
+    void OnZoomOut(wxCommandEvent &event);
+    void SelectNextOccurrence(wxCommandEvent &event);
 
-	bool m_isDestroyed = false;
-	bool changedFile = false;
+    bool m_isDestroyed = false;
+    bool changedFile = false;
 
-  private:
-	void SetupAcceleratorTable();
-	void SetupStyles();
-	void InitializePreferences();
-	void ConfigureFoldMargin();
+private:
+    void SetupAcceleratorTable();
+    void SetupStyles();
+    void InitializePreferences();
+    void ConfigureFoldMargin();
 
-	void OnChange(wxStyledTextEvent &event);
-	void OnMarginClick(wxStyledTextEvent &event);
-	void OnBackspace(wxKeyEvent &event);
-	void OnArrowsPress(wxKeyEvent &event);
-	void CharAdd(wxStyledTextEvent &event);
-	void OnEnterKey(wxStyledTextEvent &event);
-	void OnClick(wxMouseEvent &event);
-	void OnScroll(wxMouseEvent &event);
+    void OnChange(wxStyledTextEvent &event);
+    void OnMarginClick(wxStyledTextEvent &event);
+    void OnBackspace(wxKeyEvent &event);
+    void OnArrowsPress(wxKeyEvent &event);
+    void CharAdd(wxStyledTextEvent &event);
+    void OnEnterKey(wxStyledTextEvent &event);
+    void OnClick(wxMouseEvent &event);
+    void OnScroll(wxMouseEvent &event);
 
-	void HighlightSelectionOccurrences();
-	void ClearIndicators();
-	void UpdateUnsavedIndicator();
-	void HandleAutoPairing(char chr);
-	void OnHorizontalScroll(wxMouseEvent &event);
+    void HighlightSelectionOccurrences();
+    void ClearIndicators();
+    void UpdateUnsavedIndicator();
+    void HandleAutoPairing(char chr);
+    void OnHorizontalScroll(wxMouseEvent &event);
 
-	ProjectSettings &projectSettings = ProjectSettings::Get();
-	wxString currentPath;
-	languagePreferencesStruct m_languagePreferences;
-	AutoCompleteController *m_autocompleteController = nullptr;
-	LspController *m_lspController = nullptr;
-	wxStyledTextCtrlMiniMap *minimap = nullptr;
-	StatusBar *statusBar =
-		((StatusBar *)FindWindowById(+GUI::ControlID::StatusBar));
-	wxDECLARE_NO_COPY_CLASS(TextCtrl);
+    ProjectSettings &projectSettings = ProjectSettings::Get();
+    wxString currentPath;
+    languagePreferencesStruct m_languagePreferences;
+    AutoCompleteController *m_autocompleteController = nullptr;
+    LspController *m_lspController = nullptr;
+    wxStyledTextCtrlMiniMap *minimap = nullptr;
+    StatusBar *statusBar =
+        ((StatusBar *)FindWindowById(+GUI::ControlID::StatusBar));
+    wxDECLARE_NO_COPY_CLASS(TextCtrl);
 };
