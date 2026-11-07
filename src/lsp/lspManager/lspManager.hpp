@@ -13,39 +13,39 @@
 #include <wx/string.h>
 
 class LspManager {
-public:
-    static LspManager &Get();
+  public:
+	static LspManager &Get();
 
-    bool IsServerInstalled(const wxString &serverName);
-    wxString GetServerPath(const wxString &serverName);
+	bool IsServerInstalled(const wxString &serverName);
+	wxString GetServerPath(const wxString &serverName);
 
-    void VerifyIfLanguageHasLsp(const wxString &languageName,
-                                const wxString &languageLspName,
-                                const wxString &lspDownloadLink,
-                                std::function<void(bool)> onComplete);
+	void VerifyIfLanguageHasLsp(const wxString &languageName,
+								const wxString &languageLspName,
+								const wxString &lspDownloadLink,
+								std::function<void(bool)> onComplete);
 
-    void VerifyPythonLsp(std::function<void(bool)> onComplete);
-    void VerifyCppLsp(std::function<void(bool)> onComplete);
+	void VerifyPythonLsp(std::function<void(bool)> onComplete);
+	void VerifyCppLsp(std::function<void(bool)> onComplete);
 
-    std::shared_ptr<LspClient> GetOrCreateClient(const wxString &workspaceRoot,
-            const wxString &serverPath,
-            const wxString &extraArgs);
+	std::shared_ptr<LspClient> GetOrCreateClient(const wxString &workspaceRoot,
+												 const wxString &serverPath,
+												 const wxString &extraArgs);
 
-    std::shared_ptr<LspClient> GetClient(const wxString &workspaceRoot) const;
+	std::shared_ptr<LspClient> GetClient(const wxString &workspaceRoot) const;
 
-    void ReleaseClient(const wxString &workspaceRoot);
+	void ReleaseClient(const wxString &workspaceRoot);
 
-    void ShutdownAll();
+	void ShutdownAll();
 
-private:
-    LspManager();
-    ~LspManager() = default;
+  private:
+	LspManager();
+	~LspManager() = default;
 
-    LspManager(const LspManager &) = delete;
-    LspManager &operator=(const LspManager &) = delete;
+	LspManager(const LspManager &) = delete;
+	LspManager &operator=(const LspManager &) = delete;
 
-    wxString m_lspFolderPath;
+	wxString m_lspFolderPath;
 
-    mutable std::mutex m_clientsMutex;
-    std::unordered_map<std::string, std::shared_ptr<LspClient>> m_clients;
+	mutable std::mutex m_clientsMutex;
+	std::unordered_map<std::string, std::shared_ptr<LspClient>> m_clients;
 };

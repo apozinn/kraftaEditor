@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.27.7)
 
 project(KraftaEditor
-    VERSION 0.9.3
+    VERSION 0.9.3.1
     DESCRIPTION "A fast, lean code editor written in C++. Native widgets, LSP built in, 20+ languages, on Linux, Windows and macOS."
     LANGUAGES CXX
     HOMEPAGE_URL "https://github.com/apozinn/kraftaEditor"

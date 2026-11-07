@@ -78,8 +78,6 @@ Tabs::Tabs(wxPanel *parent, wxWindowID ID) : wxPanel(parent, ID) {
     SetLabel("tabsContainer");
 
 #ifdef __WXMSW__
-    // WS_EX_COMPOSITED: o Windows pinta o Tabs e todos os filhos num buffer
-    // só, então não piscam separadamente. Só aqui, nunca no wxStyledTextCtrl.
     SetDoubleBuffered(true);
 #endif
 

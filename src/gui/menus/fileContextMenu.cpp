@@ -3,9 +3,9 @@
 
 namespace FileContextMenu {
 wxMenu *Get() {
-    wxMenu *menuFile = new wxMenu;
-    menuFile->Append(+Event::File::RenameFile, _("&Rename"));
-    menuFile->Append(+Event::File::DeleteFileEvent, _("&Delete File"));
-    return menuFile;
+	wxMenu *menuFile = new wxMenu;
+	menuFile->Append(+Event::File::RenameFile, _("&Rename"));
+	menuFile->Append(+Event::File::DeleteFileEvent, _("&Delete File"));
+	return menuFile;
 }
 } // namespace FileContextMenu

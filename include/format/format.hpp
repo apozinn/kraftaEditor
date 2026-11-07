@@ -41,31 +41,31 @@ namespace Format {
  * @endcode
  */
 inline std::string FormatBytes(long long bytes) {
-    static constexpr const char *sizes[] = {"B", "KB", "MB", "GB", "TB", "PB"};
-    constexpr int max_order = sizeof(sizes) / sizeof(sizes[0]) - 1;
+	static constexpr const char *sizes[] = {"B", "KB", "MB", "GB", "TB", "PB"};
+	constexpr int max_order = sizeof(sizes) / sizeof(sizes[0]) - 1;
 
-    if (bytes < 0) {
-        return "0 B";
-    }
+	if (bytes < 0) {
+		return "0 B";
+	}
 
-    int order = 0;
-    double dblBytes = static_cast<double>(bytes);
+	int order = 0;
+	double dblBytes = static_cast<double>(bytes);
 
-    while (dblBytes >= 1024 && order < max_order) {
-        dblBytes /= 1024;
-        ++order;
-    }
+	while (dblBytes >= 1024 && order < max_order) {
+		dblBytes /= 1024;
+		++order;
+	}
 
-    std::ostringstream oss;
-    oss << std::fixed << std::setprecision(2) << dblBytes << " "
-        << sizes[order];
+	std::ostringstream oss;
+	oss << std::fixed << std::setprecision(2) << dblBytes << " "
+		<< sizes[order];
 
-    std::string result = oss.str();
-    size_t dot_pos = result.find('.');
-    if (dot_pos != std::string::npos && result.substr(dot_pos) == ".00") {
-        result.erase(dot_pos, 3);
-    }
+	std::string result = oss.str();
+	size_t dot_pos = result.find('.');
+	if (dot_pos != std::string::npos && result.substr(dot_pos) == ".00") {
+		result.erase(dot_pos, 3);
+	}
 
-    return result;
+	return result;
 }
 } // namespace Format

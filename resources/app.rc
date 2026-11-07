@@ -12,7 +12,7 @@ IDI_MAIN ICON "..\\assets\\images\\kraftaEditor.ico"
 
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION 1,0,0,0
- PRODUCTVERSION 1,0,0,0
+ PRODUCTVERSION 0,0,0,0
  FILEFLAGSMASK 0x3fL
  FILEFLAGS 0x0L
  FILEOS VOS_NT_WINDOWS32
@@ -25,12 +25,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Okarin Softwares"
             VALUE "FileDescription", "Krafta Editor"
-            VALUE "FileVersion", "1.0.0.0"
+            VALUE "FileVersion", "0.9.3.1"
             VALUE "InternalName", "krafta_editor"
             VALUE "LegalCopyright", "Copyright © 2023 Okarin Softwares"
             VALUE "OriginalFilename", "KraftaEditor.exe"
             VALUE "ProductName", "Krafta Editor"
-            VALUE "ProductVersion", "0.9.3"
+            VALUE "ProductVersion", "0.9.3.1"
         END
     END
     BLOCK "VarFileInfo"

@@ -25,7 +25,11 @@
         "linux": "DejaVu Sans Mono",
         "macos": "Menlo"
       },
-      "size": 14,
+      "size": {
+        "windows": 14,
+        "linux": 20,
+        "macos": 20
+      },
       "weight": 400,
       "lineHeight": 1.5
     }

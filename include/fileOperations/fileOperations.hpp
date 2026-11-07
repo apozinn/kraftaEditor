@@ -84,7 +84,7 @@ bool DeleteDir(const wxString &path);
  * @warning Will overwrite existing destination file if permitted
  */
 bool CopyFile(const std::string_view source,
-              const std::string_view destination);
+			  const std::string_view destination);
 
 /**
  * @brief Recursively copies directory contents to new location
@@ -102,8 +102,8 @@ bool CopyFile(const std::string_view source,
  * @warning Preserves directory structure and overwrites existing files
  */
 bool CopyDirectoryContents(const std::string_view sourceDir,
-                           const std::string_view targetParentDir,
-                           const std::string_view dirName);
+						   const std::string_view targetParentDir,
+						   const std::string_view dirName);
 
 /**
  * @brief Checks if a file is an image

@@ -50,8 +50,7 @@ inline constexpr auto LANGUAGES_DIR_NAME = "languages";
  * development mode.
  */
 const wxArrayString DEV_MARKER_FILES = {"KraftaEditor.manifest",
-    "CMakeLists.txt"
-};
+										"CMakeLists.txt"};
 
 // ─────────────────────────────────────────────
 // ─── Core Path Functions ─────────────────────
@@ -118,7 +117,7 @@ bool IsRunningInDevelopmentEnvironment();
  * ```
  */
 wxString FindDevelopmentRoot(const wxString &startPath,
-                             const wxArrayString &markerFiles, int maxLevels);
+							 const wxArrayString &markerFiles, int maxLevels);
 
 /**
  * @brief Returns the root path of the current environment.

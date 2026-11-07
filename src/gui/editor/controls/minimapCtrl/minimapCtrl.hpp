@@ -4,9 +4,9 @@
 #include <wx/weakref.h>
 
 class MinimapCtrl : public wxStyledTextCtrlMiniMap {
-public:
-    MinimapCtrl(wxWindow *parent, TextCtrl *textCtrl);
-    void RecreateMinimap();
+  public:
+	MinimapCtrl(wxWindow *parent, TextCtrl *textCtrl);
+	void RecreateMinimap();
 
-private:
+  private:
 };

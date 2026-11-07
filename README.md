@@ -6,7 +6,7 @@
 
 A native code editor, written in C++.
 
-![Version](https://img.shields.io/badge/Version-0.9.3-orange)
+![Version](https://img.shields.io/badge/Version-0.9.3.1-orange)
 ![License](https://img.shields.io/badge/License-Apache_2.0-blue)
 ![C++20](https://img.shields.io/badge/C++-20-00599C?logo=cplusplus)
 ![Platforms](https://img.shields.io/badge/Platforms-Windows%20%7C%20Linux%20%7C%20macOS-success)

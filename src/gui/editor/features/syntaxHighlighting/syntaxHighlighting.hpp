@@ -5,9 +5,9 @@
 class TextCtrl;
 
 class SyntaxHighlighting {
-public:
-    SyntaxHighlighting(TextCtrl *textCtrl);
+  public:
+	SyntaxHighlighting(TextCtrl *textCtrl);
 
-private:
-    wxWeakRef<TextCtrl> m_textCtrl;
+  private:
+	wxWeakRef<TextCtrl> m_textCtrl;
 };
