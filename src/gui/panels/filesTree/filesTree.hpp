@@ -309,8 +309,6 @@ class FilesTree : public wxPanel {
 	 */
 	ProjectInfosTools *m_projectInfosTools = nullptr;
 
-	bool m_shiftIsPressed = false;
-
 	wxDECLARE_NO_COPY_CLASS(FilesTree);
 	wxDECLARE_EVENT_TABLE();
 };

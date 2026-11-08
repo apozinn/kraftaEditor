@@ -42,7 +42,7 @@ void ControlPanel::OpenThemeSelectionPanel() {
 				}
 			}
 
-			themeSelection->ShowList(m_list, [this, files, mainFrame](
+			themeSelection->ShowList(m_list, [files, mainFrame](
 												 const OptionsListStruct &opt) {
 				std::ifstream file(files.Item(opt.id).ToStdString());
 				nlohmann::json themeData = nlohmann::json::parse(file);

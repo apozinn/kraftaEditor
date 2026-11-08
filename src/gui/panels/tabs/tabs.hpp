@@ -131,7 +131,6 @@ class Tabs : public wxPanel {
 	void OnNextTab();
 
 	wxSizer *sizer;		  /**< Main sizer for the Tabs panel. */
-	wxStaticBitmap *menu; /**< Icon/button for the tabs menu. */
 	wxBoxSizer
 		*tabsContainerSizer; /**< Sizer for the tabs inside tabsContainer. */
 	json Theme =

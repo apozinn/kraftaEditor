@@ -334,7 +334,7 @@ void ControlPanel::Select(const wxString &id) {
 		return;
 	}
 
-	auto PostEventInMainFrame = ([this, mainFrame](const int &eventId) {
+	auto PostEventInMainFrame = ([mainFrame](const int &eventId) {
 		wxCommandEvent evt(wxEVT_MENU, eventId);
 		wxPostEvent(mainFrame, evt);
 	});

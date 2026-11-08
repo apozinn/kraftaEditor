@@ -454,7 +454,7 @@ void FilesTree::OnDirChildrensPaint(wxPaintEvent &event) {
 	auto color = ThemesManager::Get().GetColor("border");
 	wxPaintDC dc(target);
 
-	dc.SetPen(wxPen(wxColor(color), 1.25, wxPENSTYLE_DOT));
+	dc.SetPen(wxPen(wxColor(color), 1, wxPENSTYLE_DOT));
 	dc.SetBrush(color);
 	dc.DrawLine(wxPoint(5, 5), wxPoint(5, target->GetSize().y + 5));
 }
