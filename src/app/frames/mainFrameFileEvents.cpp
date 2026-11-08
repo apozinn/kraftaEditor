@@ -11,7 +11,6 @@ void MainFrame::AddEntry(wxFSWPathType type, wxString filename) {
 		return;
 
 	wxCHECK_RET(m_watcher, "Watcher not initialized");
-	wxString prefix;
 
 	wxFileName fn = wxFileName::DirName(filename);
 	if (!m_followLinks) {
@@ -21,15 +20,12 @@ void MainFrame::AddEntry(wxFSWPathType type, wxString filename) {
 	switch (type) {
 	case wxFSWPath_Dir:
 		m_watcher->Add(fn);
-		prefix = "Dir:  ";
 		break;
 	case wxFSWPath_Tree:
 		m_watcher->AddTree(fn);
-		prefix = "Tree: ";
 		break;
 	case wxFSWPath_File:
 		m_watcher->Add(fn);
-		prefix = "File: ";
 		break;
 	case wxFSWPath_None:
 		wxFAIL_MSG("Unexpected path type.");

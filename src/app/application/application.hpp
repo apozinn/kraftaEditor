@@ -97,7 +97,7 @@ class KraftaEditor : public wxApp {
 	 * @return **true** if parsing was successful; **false** if an error
 	 * occurred.
 	 */
-	bool OnCmdLineParsed(wxCmdLineParser &parser);
+	bool OnCmdLineParsed(wxCmdLineParser &parser) override;
 
 	void LoadTranslations();
 

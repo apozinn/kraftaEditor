@@ -322,7 +322,7 @@ void MainFrame::OnPaintedComponent(wxPaintEvent &event) {
 
 	wxColour borderColor = ThemesManager::Get().GetColor("border");
 	dc.SetBrush(borderColor);
-	dc.SetPen(wxPen(borderColor, 0.20));
+	dc.SetPen(wxPen(borderColor, 1));
 
 	dc.DrawLine(target->GetSashPosition() + 3, 0, target->GetSashPosition() + 3,
 				target->GetSize().y);

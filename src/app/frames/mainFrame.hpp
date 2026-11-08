@@ -298,8 +298,6 @@ class MainFrame : public wxFrame {
 		m_emptyWindow; /**< Placeholder window shown when no project is open. */
 	Terminal *m_terminal;	/**< The integrated terminal panel. */
 	StatusBar *m_statusBar; /**< The application status bar. */
-	OpenFolderButton
-		*m_openFolderButton; /**< Button shown in the empty workspace view. */
 	ControlPanel *m_controlPanel; /**< Panel for controls like source control or
 									 project settings. */
 	QuickOpen *m_quickOpen;		  /**< Panel for quick file opening. */
